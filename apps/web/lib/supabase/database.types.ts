@@ -1585,6 +1585,7 @@ export type Database = {
         Row: {
           account_number: number
           account_type: string
+          ai_photo_analysis_uses: number
           allow_seller_contact_on_favorite: boolean
           auth_user_id: string
           created_at: string
@@ -1615,6 +1616,7 @@ export type Database = {
         Insert: {
           account_number?: number
           account_type?: string
+          ai_photo_analysis_uses?: number
           allow_seller_contact_on_favorite?: boolean
           auth_user_id: string
           created_at?: string
@@ -1645,6 +1647,7 @@ export type Database = {
         Update: {
           account_number?: number
           account_type?: string
+          ai_photo_analysis_uses?: number
           allow_seller_contact_on_favorite?: boolean
           auth_user_id?: string
           created_at?: string

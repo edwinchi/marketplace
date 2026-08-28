@@ -45,10 +45,10 @@ export function AccountMenu({ name }: { name: string }) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className={buttonVariants({ variant: "ghost", size: "sm", className: "gap-1.5" })}
+        className={buttonVariants({ variant: "ghost", size: "sm", className: "gap-1.5 px-1.5 transition-all duration-150 hover:-translate-y-0.5 sm:px-2" })}
       >
         <User className="size-4" />
-        {name}
+        <span className="max-w-20 truncate sm:max-w-none">{name}</span>
         <ChevronDown className={`size-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 

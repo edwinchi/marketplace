@@ -2,9 +2,12 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Sparkles, PenLine, TrendingUp, Languages, BarChart3 } from "lucide-react";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
+
+const FREE_USE_LIMIT = 3;
 
 const PLANNED_FEATURES = [
   {
@@ -37,6 +40,12 @@ export default async function AiFeaturesPage() {
   const { profile } = await getCurrentUserAndProfile();
   if (!profile) redirect("/login");
 
+  const supabase = await createClient();
+  const { data: usageRow } = await supabase.from("profiles").select("ai_photo_analysis_uses").eq("id", profile.id).single();
+  const usesSoFar = usageRow?.ai_photo_analysis_uses ?? 0;
+  const usesLeft = Math.max(0, FREE_USE_LIMIT - usesSoFar);
+  const limitReached = usesLeft === 0;
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-2">
@@ -44,21 +53,33 @@ export default async function AiFeaturesPage() {
         <h1 className="text-2xl font-bold tracking-tight">AI features</h1>
       </div>
 
-      <Card className="border-[#008848]/30 bg-[#008848]/5">
+      <Card className={limitReached ? "border-muted-foreground/20" : "border-[#008848]/30 bg-[#008848]/5"}>
         <CardHeader>
           <div className="flex items-center gap-2">
             <CardTitle className="text-base">Photo autofill</CardTitle>
-            <Badge className="bg-[#008848]">Free, live now</Badge>
+            {limitReached ? (
+              <Badge variant="outline">Free uses spent</Badge>
+            ) : (
+              <Badge className="bg-[#008848]">{usesLeft} free use{usesLeft === 1 ? "" : "s"} left</Badge>
+            )}
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-2">
           <p className="text-sm text-muted-foreground">
             Upload a photo when posting an ad and AI fills in a title, description, and category
-            for you — review and edit before you publish, nothing posts automatically.
+            for you — review and edit before you publish, nothing posts automatically. Every
+            registered account gets {FREE_USE_LIMIT} free uses.
           </p>
-          <Link href="/listings/new" className={buttonVariants({ size: "sm", className: "mt-1 w-fit" })}>
-            Post an ad
-          </Link>
+          {limitReached ? (
+            <p className="text-sm text-muted-foreground">
+              You&apos;ve used all {FREE_USE_LIMIT} free analyses. Continued access needs a paid
+              plan — see the honest note below on why that&apos;s not live yet.
+            </p>
+          ) : (
+            <Link href="/listings/new" className={buttonVariants({ size: "sm", className: "mt-1 w-fit transition-transform duration-150 hover:-translate-y-0.5" })}>
+              Post an ad
+            </Link>
+          )}
         </CardContent>
       </Card>
 
@@ -66,7 +87,7 @@ export default async function AiFeaturesPage() {
         <h2 className="mb-3 text-sm font-semibold tracking-wide text-muted-foreground uppercase">Planned</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {PLANNED_FEATURES.map((f) => (
-            <Card key={f.title} className="opacity-75">
+            <Card key={f.title} className="opacity-75 transition-all duration-200 hover:opacity-100 hover:shadow-sm">
               <CardContent className="flex gap-3 pt-6">
                 <f.icon className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
                 <div>

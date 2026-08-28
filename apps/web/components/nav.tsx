@@ -34,14 +34,14 @@ export async function Nav() {
               <Link href="/safety" className="transition-colors hover:text-primary">{t("safetyCenter")}</Link>
             </div>
           </div>
-          <nav className="flex items-center gap-2">
+          <nav className="flex items-center gap-1 sm:gap-2">
             <LanguageSwitcher locale={locale} />
             <Link
               href="/messages"
-              className="relative flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="relative flex items-center gap-1.5 rounded-md px-1.5 py-1.5 text-sm text-muted-foreground transition-all duration-150 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground sm:px-2"
             >
               <MessageCircle className="size-5" />
-              {t("messages")}
+              <span className="hidden sm:inline">{t("messages")}</span>
               {unreadCount > 0 && (
                 <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
                   {unreadCount > 9 ? "9+" : unreadCount}
@@ -50,10 +50,10 @@ export async function Nav() {
             </Link>
             <Link
               href="/notifications"
-              className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="flex items-center gap-1.5 rounded-md px-1.5 py-1.5 text-sm text-muted-foreground transition-all duration-150 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground sm:px-2"
             >
               <Bell className="size-5" />
-              {t("notifications")}
+              <span className="hidden sm:inline">{t("notifications")}</span>
             </Link>
             {user ? (
               <AccountMenu name={profile?.username || t("myAccount")} />
@@ -62,7 +62,9 @@ export async function Nav() {
                 {t("signIn")}
               </Link>
             )}
-            <Link href="/listings/new" className={buttonVariants({ size: "sm" })}>
+            {/* Hidden on mobile — the fixed bottom nav already has a dedicated "Post ad" entry,
+                and this button was the main cause of header overflow on narrow viewports. */}
+            <Link href="/listings/new" className={buttonVariants({ size: "sm", className: "hidden sm:inline-flex" })}>
               {t("postAd")}
             </Link>
           </nav>

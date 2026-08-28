@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { getCategoryPath, getCategoryDirectory, getCategoryDescendantIds } from "@/lib/categories";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
@@ -14,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 // depth — breadcrumbs walk the parent chain regardless of how many levels deep this is.
 export default async function CategoryPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [path, directory] = await Promise.all([getCategoryPath(id), getCategoryDirectory(id)]);
+  const [path, directory, t] = await Promise.all([getCategoryPath(id), getCategoryDirectory(id), getTranslations("Categories")]);
   if (!directory.self) notFound();
 
   const breadcrumbPath = path.map((n) => ({ id: n.id, name: n.name }));
@@ -76,7 +77,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
 
       <div className="mb-6 flex flex-wrap items-center gap-2">
         {chips.map((chip) => (
-          <Link key={chip.id} href={chip.removeHref}>
+          <Link key={chip.id} href={chip.removeHref} className="transition-transform duration-150 hover:-translate-y-0.5">
             <Badge variant="secondary" className="gap-1">
               {chip.name} ×
             </Badge>
@@ -87,7 +88,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
       <Card>
         <CardContent>
           <ListingList listings={listings ?? []} favoritedIds={favoritedIds} signedIn={!!profile} />
-          {!listings?.length && <p className="py-8 text-center text-muted-foreground">No listings yet in this category.</p>}
+          {!listings?.length && <p className="py-8 text-center text-muted-foreground">{t("noListingsInCategory")}</p>}
         </CardContent>
       </Card>
     </div>

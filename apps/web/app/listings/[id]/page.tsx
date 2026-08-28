@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { getTranslations, getLocale } from "next-intl/server";
 import { MessageCircle, Globe } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
@@ -25,6 +26,7 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
   const { id } = await params;
   const supabase = await createClient();
   const { profile } = await getCurrentUserAndProfile();
+  const [t, locale] = await Promise.all([getTranslations("Listing"), getLocale()]);
 
   const { data: listing } = await supabase
     .from("listings")
@@ -106,8 +108,8 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
 
   const memberSince = new Date(seller?.created_at ?? listing.created_at);
   const yearsOnPlatform = Math.max(0, Math.floor((Date.now() - memberSince.getTime()) / (365.25 * 24 * 60 * 60 * 1000)));
-  const tenureLabel = yearsOnPlatform > 0 ? `${yearsOnPlatform} year${yearsOnPlatform === 1 ? "" : "s"} on AfroDeals` : "New on AfroDeals";
-  const sellerName = seller?.display_name || seller?.username || "a seller";
+  const tenureLabel = yearsOnPlatform > 0 ? t("yearsOnPlatform", { count: yearsOnPlatform }) : t("newOnPlatform");
+  const sellerName = seller?.display_name || seller?.username || t("aSeller");
   const sellerInitial = sellerName.charAt(0).toUpperCase();
 
   return (
@@ -138,16 +140,19 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
             <>
               <Separator className="my-6" />
               <section>
-                <h2 className="mb-3 text-lg font-semibold">Characteristics</h2>
+                <h2 className="mb-3 text-lg font-semibold">{t("characteristics")}</h2>
                 <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                   {attributeValues.map((av, i) => {
                     const attr = Array.isArray(av.attributes) ? av.attributes[0] : av.attributes;
-                    const translation = attr?.attribute_translations?.find(
-                      (t: { language_code: string; name: string }) => t.language_code === "en",
-                    );
+                    const attrTranslations = attr?.attribute_translations ?? [];
+                    const translation =
+                      attrTranslations.find((tr: { language_code: string; name: string }) => tr.language_code === locale) ??
+                      attrTranslations.find((tr: { language_code: string; name: string }) => tr.language_code === "en");
                     const optionTranslations = Array.isArray(av.attribute_options) ? av.attribute_options[0] : av.attribute_options;
-                    const optionLabel = optionTranslations?.attribute_option_translations?.find(
-                      (t: { language_code: string; label: string }) => t.language_code === "en",
+                    const optionTrList = optionTranslations?.attribute_option_translations ?? [];
+                    const optionLabel = (
+                      optionTrList.find((tr: { language_code: string; label: string }) => tr.language_code === locale) ??
+                      optionTrList.find((tr: { language_code: string; label: string }) => tr.language_code === "en")
                     )?.label;
                     const value = optionLabel ?? av.value_text ?? av.value_number ?? av.value_date;
                     if (!translation || value == null) return null;
@@ -168,14 +173,14 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
 
           <Separator className="my-6" />
           <section>
-            <h2 className="mb-3 text-lg font-semibold">Description</h2>
+            <h2 className="mb-3 text-lg font-semibold">{t("description")}</h2>
             <p className="whitespace-pre-wrap">{listing.description}</p>
           </section>
 
           {isOwner && (
             <div className="mt-6 flex gap-2">
-              <Link href={`/listings/${listing.id}/edit`} className={buttonVariants({ variant: "outline" })}>
-                Edit
+              <Link href={`/listings/${listing.id}/edit`} className={buttonVariants({ variant: "outline", className: "transition-transform duration-150 hover:-translate-y-0.5" })}>
+                {t("edit")}
               </Link>
               <DeleteListingButton listingId={listing.id} />
             </div>
@@ -189,17 +194,17 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
           <div>
             <h1 className="text-xl font-semibold">{listing.title}</h1>
             <p className="mt-1 text-3xl font-bold">{formatPrice(listing.price_minor ?? 0, listing.currency_code)}</p>
-            {listing.price_type === "bidding" && <p className="text-sm text-muted-foreground">Open to offers</p>}
+            {listing.price_type === "bidding" && <p className="text-sm text-muted-foreground">{t("openToOffers")}</p>}
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {listing.pickup_available && <Badge variant="secondary">Pickup</Badge>}
-            {listing.delivery_available && <Badge variant="secondary">Shipping</Badge>}
+            {listing.pickup_available && <Badge variant="secondary">{t("pickup")}</Badge>}
+            {listing.delivery_available && <Badge variant="secondary">{t("shipping")}</Badge>}
           </div>
 
           {!isOwner && (
             <>
-              <Card size="sm">
+              <Card size="sm" className="transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md">
                 <CardContent className="flex items-center gap-3">
                   <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold text-muted-foreground">
                     {sellerInitial}
@@ -212,9 +217,9 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
                     <form action={followRow ? unfollowSeller : followSeller}>
                       <input type="hidden" name="sellerProfileId" value={listing.seller_id} />
                       <input type="hidden" name="returnTo" value={`/listings/${listing.id}`} />
-                      <Button type="submit" variant={followRow ? "secondary" : "outline"} size="sm" className="gap-1.5">
+                      <Button type="submit" variant={followRow ? "secondary" : "outline"} size="sm" className="gap-1.5 transition-transform duration-150 hover:-translate-y-0.5">
                         {followRow ? <UserCheck className="size-3.5" /> : <UserPlus className="size-3.5" />}
-                        {followRow ? "Following" : "Follow"}
+                        {followRow ? t("following") : t("follow")}
                       </Button>
                     </form>
                   )}
@@ -227,23 +232,23 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
                     href={seller.website_url}
                     target="_blank"
                     rel="noopener noreferrer nofollow"
-                    className={buttonVariants({ className: "gap-1.5" })}
+                    className={buttonVariants({ className: "gap-1.5 transition-transform duration-150 hover:-translate-y-0.5" })}
                   >
                     <Globe className="size-4" />
-                    Website
+                    {t("website")}
                   </a>
                   <form action={messageSellerAction.bind(null, listing.id)}>
-                    <Button type="submit" variant="outline" className="w-full gap-1.5">
+                    <Button type="submit" variant="outline" className="w-full gap-1.5 transition-transform duration-150 hover:-translate-y-0.5">
                       <MessageCircle className="size-4" />
-                      Message
+                      {t("message")}
                     </Button>
                   </form>
                 </div>
               ) : (
                 <form action={messageSellerAction.bind(null, listing.id)}>
-                  <Button type="submit" className="w-full gap-2">
+                  <Button type="submit" className="w-full gap-2 transition-transform duration-150 hover:-translate-y-0.5">
                     <MessageCircle className="size-4" />
-                    Message seller
+                    {t("messageSeller")}
                   </Button>
                 </form>
               )}
@@ -256,14 +261,14 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
 
           {offers && offers.length > 0 && (
             <div>
-              <h2 className="mb-2 text-sm font-semibold">{isOwner ? `Offers (${offers.length})` : "Your offers"}</h2>
+              <h2 className="mb-2 text-sm font-semibold">{isOwner ? t("offersCount", { count: offers.length }) : t("yourOffers")}</h2>
               <ul className="flex flex-col gap-2">
                 {offers.map((o) => {
                   const buyer = Array.isArray(o.profiles) ? o.profiles[0] : o.profiles;
                   return (
-                    <li key={o.id} className="flex items-center justify-between rounded-md border p-2 text-sm">
+                    <li key={o.id} className="flex items-center justify-between rounded-md border p-2 text-sm transition-colors hover:bg-muted/50">
                       <span className={isOwner ? "" : "text-muted-foreground capitalize"}>
-                        {isOwner ? buyer?.display_name || buyer?.username || "A buyer" : o.status}
+                        {isOwner ? buyer?.display_name || buyer?.username || t("aBuyer") : o.status}
                       </span>
                       <span className="font-medium">{formatPrice(o.amount_minor, o.currency_code)}</span>
                     </li>
@@ -279,7 +284,7 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
       <Separator className="my-8" />
       <div className="mx-auto flex max-w-2xl flex-col gap-6">
         {!isOwner && (
-          <Card>
+          <Card className="transition-shadow duration-200 hover:shadow-md">
             <CardContent className="flex flex-col gap-6">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
@@ -295,9 +300,9 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
                   <form action={followRow ? unfollowSeller : followSeller}>
                     <input type="hidden" name="sellerProfileId" value={listing.seller_id} />
                     <input type="hidden" name="returnTo" value={`/listings/${listing.id}`} />
-                    <Button type="submit" variant={followRow ? "secondary" : "outline"} size="sm" className="gap-1.5">
+                    <Button type="submit" variant={followRow ? "secondary" : "outline"} size="sm" className="gap-1.5 transition-transform duration-150 hover:-translate-y-0.5">
                       {followRow ? <UserCheck className="size-3.5" /> : <UserPlus className="size-3.5" />}
-                      {followRow ? "Following" : "Follow"}
+                      {followRow ? t("following") : t("follow")}
                     </Button>
                   </form>
                 )}
@@ -305,35 +310,28 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
 
               <div className="grid grid-cols-1 gap-4 border-t pt-4 sm:grid-cols-3">
                 <div>
-                  <p className="text-sm font-medium">More from this seller</p>
-                  <p className="text-sm text-muted-foreground">
-                    {otherListingsCount ?? 0} other active listing{otherListingsCount === 1 ? "" : "s"}
-                  </p>
+                  <p className="text-sm font-medium">{t("moreFromSeller")}</p>
+                  <p className="text-sm text-muted-foreground">{t("otherActiveListings", { count: otherListingsCount ?? 0 })}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium">Reviews</p>
+                  <p className="text-sm font-medium">{t("reviews")}</p>
                   <p className="text-sm text-muted-foreground">
-                    {reviewCount ? (
-                      <>{reviewAverage} ★ · {reviewCount} review{reviewCount === 1 ? "" : "s"}</>
-                    ) : (
-                      "No reviews yet"
-                    )}{" "}
-                    <Link href={`/experiences/${listing.seller_id}`} className="underline">
-                      {reviewCount ? "See all" : "Be the first"}
+                    {reviewCount ? t("reviewSummary", { rating: reviewAverage ?? "0.0", count: reviewCount }) : t("noReviewsYet")}{" "}
+                    <Link href={`/experiences/${listing.seller_id}`} className="underline transition-colors hover:text-foreground">
+                      {reviewCount ? t("seeAll") : t("beTheFirstReview")}
                     </Link>
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium">Identity verification</p>
-                  <p className="text-sm text-muted-foreground">Coming soon</p>
+                  <p className="text-sm font-medium">{t("identityVerification")}</p>
+                  <p className="text-sm text-muted-foreground">{t("comingSoon")}</p>
                 </div>
               </div>
 
               <p className="border-t pt-4 text-xs text-muted-foreground">
-                This seller has identified themselves as a private individual. Consumer-protection rules
-                that apply to business purchases may not apply here.{" "}
-                <Link href="/safety" className="underline">
-                  Learn more
+                {t("privateSellerNotice")}{" "}
+                <Link href="/safety" className="underline transition-colors hover:text-foreground">
+                  {t("learnMore")}
                 </Link>
                 .
               </p>

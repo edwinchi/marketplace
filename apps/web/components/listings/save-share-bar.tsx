@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Heart, Share2, Check } from "lucide-react";
 import { toggleFavorite } from "@/app/listings/favorite-actions";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,7 @@ export function SaveShareBar({
   initialFavorited: boolean;
   signedIn: boolean;
 }) {
+  const t = useTranslations("Listing");
   const [favorited, setFavorited] = useState(initialFavorited);
   const [pending, startTransition] = useTransition();
   const [copied, setCopied] = useState(false);
@@ -41,7 +43,7 @@ export function SaveShareBar({
         }}
       >
         <Heart className={cn("size-4", favorited && "fill-destructive")} />
-        {favorited ? "Saved" : "Save"}
+        {favorited ? t("saved") : t("save")}
       </button>
       <button
         type="button"
@@ -62,7 +64,7 @@ export function SaveShareBar({
         }}
       >
         {copied ? <Check className="size-4" /> : <Share2 className="size-4" />}
-        {copied ? "Link copied" : "Share"}
+        {copied ? t("linkCopied") : t("share")}
       </button>
     </div>
   );

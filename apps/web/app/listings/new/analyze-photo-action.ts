@@ -1,7 +1,13 @@
 "use server";
 
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { createClient } from "@/lib/supabase/server";
 import { getCategoriesAndAttributes } from "@/lib/categories";
+
+// Free tier: 3 uses per registered account, then an honest "upgrade" prompt — there's no payment
+// processor wired up yet to actually charge for more (see /my-account/ai-features), so this just
+// stops rather than faking a paywall bypass.
+const FREE_USE_LIMIT = 3;
 
 export type PhotoAnalysis = {
   title: string;
@@ -30,8 +36,18 @@ const FALLBACK_MODELS = ["minimax/minimax-m3:free", "google/gemma-4-31b-it:free"
 // this real list rather than free-generating a category name, so there's no risk of it inventing a
 // category that doesn't exist in the taxonomy.
 export async function analyzeListingPhoto(imageBase64: string, mediaType: string): Promise<AnalyzePhotoResult> {
-  const { user } = await getCurrentUserAndProfile();
-  if (!user) return { data: null, error: "Sign in to use this." };
+  const { user, profile } = await getCurrentUserAndProfile();
+  if (!user || !profile) return { data: null, error: "Sign in to use this." };
+
+  const supabase = await createClient();
+  const { data: usageRow } = await supabase.from("profiles").select("ai_photo_analysis_uses").eq("id", profile.id).single();
+  const usesSoFar = usageRow?.ai_photo_analysis_uses ?? 0;
+  if (usesSoFar >= FREE_USE_LIMIT) {
+    return {
+      data: null,
+      error: `You've used all ${FREE_USE_LIMIT} free AI analyses. See /my-account/ai-features for what's next.`,
+    };
+  }
 
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) return { data: null, error: "Photo analysis isn't set up on this server yet." };
@@ -105,6 +121,11 @@ If the photo doesn't clearly show a sellable item, respond with {"title": "", "d
     if (lastStatus === 402) return { data: null, error: "Photo analysis is temporarily unavailable — the account behind it needs more credits." };
     return { data: null, error: `Photo analysis failed (${lastStatus}). Try again in a moment.` };
   }
+
+  // Counts against the free-use limit here, not earlier — a service failure (rate limit, no
+  // credit, network error) above never reaches this line, so it doesn't cost the user one of
+  // their 3 free tries. A real completed API call did happen at this point, win or lose below.
+  await supabase.from("profiles").update({ ai_photo_analysis_uses: usesSoFar + 1 }).eq("id", profile.id);
 
   const json = await res.json();
   const content = json?.choices?.[0]?.message?.content;

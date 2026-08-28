@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { useTranslations } from "next-intl";
 import { createOffer, type OfferFormState } from "@/app/listings/offer-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,20 +15,21 @@ export function OfferBox({
   currencyCode: string;
   signedIn: boolean;
 }) {
+  const t = useTranslations("Listing");
   const [state, formAction, pending] = useActionState(createOffer, { error: null } as OfferFormState);
 
   if (state.success) {
     return (
       <p className="rounded-md border bg-muted/40 p-3 text-sm text-muted-foreground">
-        Your offer has been sent to the seller.
+        {t("offerSent")}
       </p>
     );
   }
 
   if (!signedIn) {
     return (
-      <a href="/login" className="text-sm text-primary underline">
-        Sign in to make an offer
+      <a href="/login" className="text-sm text-primary underline transition-colors hover:text-primary/80">
+        {t("signInToOffer")}
       </a>
     );
   }
@@ -48,8 +50,8 @@ export function OfferBox({
             className="border-0 px-1 shadow-none focus-visible:ring-0"
           />
         </div>
-        <Button type="submit" disabled={pending} variant="outline">
-          {pending ? "Sending…" : "Make offer"}
+        <Button type="submit" disabled={pending} variant="outline" className="transition-transform duration-150 hover:-translate-y-0.5">
+          {pending ? t("sending") : t("makeOffer")}
         </Button>
       </div>
       {state.error && <p className="text-sm text-destructive">{state.error}</p>}

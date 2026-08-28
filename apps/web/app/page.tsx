@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getCategoriesAndAttributes, getCategoryDescendantIds } from "@/lib/categories";
@@ -17,6 +18,7 @@ export default async function HomePage({
   const { q, category, city } = await searchParams;
   const supabase = await createClient();
   const { profile } = await getCurrentUserAndProfile();
+  const t = await getTranslations("Home");
 
   // Filtering by an embedded resource's column (locations.city) requires an inner join in
   // PostgREST's embed syntax — a plain left-embed silently ignores that filter.
@@ -59,19 +61,19 @@ export default async function HomePage({
       <div className="border-b bg-linear-to-b from-muted/60 to-muted/20">
         <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-7 sm:px-6 lg:px-8">
           <form className="flex flex-col gap-2 rounded-xl border bg-background p-2 shadow-sm sm:flex-row sm:items-center">
-            <Input type="search" name="q" placeholder="Search listings…" defaultValue={q} className="border-0 shadow-none sm:flex-1" />
+            <Input type="search" name="q" placeholder={t("searchPlaceholder")} defaultValue={q} className="border-0 shadow-none sm:flex-1" />
             {/* items (plain data, not a render function) is required here because this Select is
                 rendered from a Server Component — a function child can't cross that boundary. */}
             <Select
               name="category"
               defaultValue={category ?? "all"}
-              items={[{ value: "all", label: "All categories" }, ...categoryOptions.map((c) => ({ value: c.id, label: c.label }))]}
+              items={[{ value: "all", label: t("allCategories") }, ...categoryOptions.map((c) => ({ value: c.id, label: c.label }))]}
             >
               <SelectTrigger className="border-0 shadow-none sm:w-56">
-                <SelectValue placeholder="All categories" />
+                <SelectValue placeholder={t("allCategories")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All categories</SelectItem>
+                <SelectItem value="all">{t("allCategories")}</SelectItem>
                 {categoryOptions.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {c.label}
@@ -79,8 +81,8 @@ export default async function HomePage({
                 ))}
               </SelectContent>
             </Select>
-            <Input type="text" name="city" placeholder="City" defaultValue={city} className="border-0 shadow-none sm:w-40" />
-            <Button type="submit" className="sm:px-6">Search</Button>
+            <Input type="text" name="city" placeholder={t("city")} defaultValue={city} className="border-0 shadow-none sm:w-40" />
+            <Button type="submit" className="sm:px-6 transition-transform duration-150 hover:-translate-y-0.5">{t("search")}</Button>
           </form>
 
           {/* Category quick-nav */}
@@ -104,21 +106,21 @@ export default async function HomePage({
       <div className="mx-auto flex w-full max-w-7xl flex-1 gap-8 px-4 py-6 sm:px-6 lg:px-8">
         {/* Sidebar */}
         <aside className="hidden w-56 shrink-0 md:block">
-          <h2 className="mb-2 px-2 text-sm font-semibold">Categories</h2>
+          <h2 className="mb-2 px-2 text-sm font-semibold">{t("categories")}</h2>
           <ul className="flex flex-col gap-0.5 text-sm">
             <li>
               <Link
                 href="/"
-                className={`block rounded-md px-2 py-1.5 transition-colors ${!category ? "bg-primary/10 font-medium text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                className={`block rounded-md px-2 py-1.5 transition-all duration-150 ${!category ? "bg-primary/10 font-medium text-primary" : "text-muted-foreground hover:translate-x-0.5 hover:bg-muted hover:text-foreground"}`}
               >
-                All categories
+                {t("allCategories")}
               </Link>
             </li>
             {topLevelCategories.map((c) => (
               <li key={c.id}>
                 <Link
                   href={`/categories/${c.id}`}
-                  className={`block rounded-md px-2 py-1.5 transition-colors ${category === c.id ? "bg-primary/10 font-medium text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                  className={`block rounded-md px-2 py-1.5 transition-all duration-150 ${category === c.id ? "bg-primary/10 font-medium text-primary" : "text-muted-foreground hover:translate-x-0.5 hover:bg-muted hover:text-foreground"}`}
                 >
                   {c.label}
                 </Link>
@@ -130,7 +132,7 @@ export default async function HomePage({
         {/* Results */}
         <main className="flex-1">
           <div className="mb-5 flex items-center justify-between border-b pb-4">
-            <h1 className="text-xl font-bold tracking-tight">{selectedCategory ? selectedCategory.label : q ? `Results for "${q}"` : "Recent listings"}</h1>
+            <h1 className="text-xl font-bold tracking-tight">{selectedCategory ? selectedCategory.label : q ? t("resultsFor", { q }) : t("recentListings")}</h1>
             <div className="flex items-center gap-3">
               {profile && (q || (category && category !== "all")) && (
                 <form action={saveSearch}>
@@ -138,12 +140,12 @@ export default async function HomePage({
                   {category && <input type="hidden" name="category" value={category} />}
                   {city && <input type="hidden" name="city" value={city} />}
                   <input type="hidden" name="returnTo" value="/" />
-                  <Button type="submit" variant="outline" size="sm">Save this search</Button>
+                  <Button type="submit" variant="outline" size="sm" className="transition-transform duration-150 hover:-translate-y-0.5">{t("saveSearch")}</Button>
                 </form>
               )}
               {category && category !== "all" && (
                 <Link href="/" className="text-sm text-muted-foreground transition-colors hover:text-primary hover:underline">
-                  Clear filter ×
+                  {t("clearFilter")}
                 </Link>
               )}
             </div>
@@ -153,9 +155,9 @@ export default async function HomePage({
 
           {!listings?.length && (
             <div className="mt-8 flex flex-col items-center gap-2 rounded-xl border border-dashed py-12 text-center">
-              <p className="text-muted-foreground">No listings yet.</p>
+              <p className="text-muted-foreground">{t("noListingsYet")}</p>
               <Link href="/listings/new" className="font-medium text-primary underline underline-offset-4 hover:no-underline">
-                Be the first to post one.
+                {t("beTheFirst")}
               </Link>
             </div>
           )}

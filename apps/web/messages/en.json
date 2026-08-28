@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "back": "Back"
+  },
   "Nav": {
     "helpInfo": "Help & Info",
     "terms": "Terms",
@@ -58,6 +61,64 @@
     "signingIn": "Signing in…",
     "creatingAccount": "Creating account…",
     "forgotPassword": "Forgot password?"
+  },
+  "Categories": {
+    "home": "Home",
+    "results": "{count} results",
+    "noListingsInCategory": "No listings yet in this category.",
+    "showLess": "Show less",
+    "showMore": "Show {count} more"
+  },
+  "Listing": {
+    "characteristics": "Characteristics",
+    "description": "Description",
+    "edit": "Edit",
+    "openToOffers": "Open to offers",
+    "pickup": "Pickup",
+    "shipping": "Shipping",
+    "following": "Following",
+    "follow": "Follow",
+    "website": "Website",
+    "message": "Message",
+    "messageSeller": "Message seller",
+    "offersCount": "Offers ({count})",
+    "yourOffers": "Your offers",
+    "aBuyer": "A buyer",
+    "moreFromSeller": "More from this seller",
+    "otherActiveListings": "{count, plural, =0 {No other active listings} one {# other active listing} other {# other active listings}}",
+    "reviews": "Reviews",
+    "reviewSummary": "{rating} ★ · {count, plural, one {# review} other {# reviews}}",
+    "noReviewsYet": "No reviews yet",
+    "seeAll": "See all",
+    "beTheFirstReview": "Be the first",
+    "identityVerification": "Identity verification",
+    "comingSoon": "Coming soon",
+    "privateSellerNotice": "This seller has identified themselves as a private individual. Consumer-protection rules that apply to business purchases may not apply here.",
+    "learnMore": "Learn more",
+    "yearsOnPlatform": "{count, plural, one {# year} other {# years}} on AfroDeals",
+    "newOnPlatform": "New on AfroDeals",
+    "aSeller": "a seller",
+    "saved": "Saved",
+    "save": "Save",
+    "linkCopied": "Link copied",
+    "share": "Share",
+    "offerSent": "Your offer has been sent to the seller.",
+    "signInToOffer": "Sign in to make an offer",
+    "sending": "Sending…",
+    "makeOffer": "Make offer"
+  },
+  "Home": {
+    "searchPlaceholder": "Search listings…",
+    "allCategories": "All categories",
+    "city": "City",
+    "search": "Search",
+    "categories": "Categories",
+    "resultsFor": "Results for \"{q}\"",
+    "recentListings": "Recent listings",
+    "saveSearch": "Save this search",
+    "clearFilter": "Clear filter ×",
+    "noListingsYet": "No listings yet.",
+    "beTheFirst": "Be the first to post one."
   },
   "Footer": {
     "safetyBlurb": "AfroDeals connects buyers and sellers directly and is not a party to the transactions arranged between them. Trade safely — see our",
