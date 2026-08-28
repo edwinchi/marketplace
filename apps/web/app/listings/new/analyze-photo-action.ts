@@ -14,10 +14,16 @@ export type AnalyzePhotoResult = { data: PhotoAnalysis | null; error: string | n
 
 // Routed through OpenRouter (an OpenAI-compatible gateway that proxies to many providers,
 // including Claude) rather than calling Anthropic directly — same vision capability, just a
-// different endpoint/auth shape. OPENROUTER_MODEL lets the exact model slug be changed via env var
-// without a redeploy if OpenRouter renames/deprecates one; check openrouter.ai/models for current
-// slugs if this ever starts erroring.
-const DEFAULT_MODEL = "anthropic/claude-sonnet-4.5";
+// different endpoint/auth shape.
+//
+// Free vision-capable models first, paid Claude only as a last resort — the OpenRouter account
+// backing this ran out of credits (confirmed via /api/v1/credits: 0 remaining), so a paid-only
+// call fails every time with 402. Free OpenRouter models share a rate-limited pool across all
+// their users, so a single free model can occasionally 429 — trying a couple of alternates before
+// falling back to paid is worth the extra request. Verified minimax/minimax-m3:free actually does
+// vision correctly (real test: correctly described the AfroDeals logo) at $0 cost.
+// OPENROUTER_MODEL overrides this whole list with one forced model, e.g. for testing.
+const FALLBACK_MODELS = ["minimax/minimax-m3:free", "google/gemma-4-31b-it:free", "google/gemma-4-26b-a4b-it:free", "anthropic/claude-sonnet-4.5"];
 
 // Grounds the model to categories that actually exist and can be posted to (getCategoriesAndAttributes
 // already filters to is_active + allows_listings leaf categories) — it picks a label verbatim from
@@ -29,7 +35,7 @@ export async function analyzeListingPhoto(imageBase64: string, mediaType: string
 
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) return { data: null, error: "Photo analysis isn't set up on this server yet." };
-  const model = process.env.OPENROUTER_MODEL || DEFAULT_MODEL;
+  const modelsToTry = process.env.OPENROUTER_MODEL ? [process.env.OPENROUTER_MODEL] : FALLBACK_MODELS;
 
   const { categoryOptions } = await getCategoriesAndAttributes();
   // ~210 leaf categories at "- Parent → Leaf" each (repeating the parent name on every single line)
@@ -55,40 +61,49 @@ ${categoryListText}
 
 If the photo doesn't clearly show a sellable item, respond with {"title": "", "description": "", "category": ""} instead.`;
 
-  let res: Response;
-  try {
-    res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${apiKey}`,
-        // OpenRouter attributes usage to the calling app with these — optional, but keeps this
-        // off their anonymous-traffic bucket.
-        "http-referer": "https://marketplace.apps-pilot.nl",
-        "x-title": "AfroDeals",
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 500,
-        messages: [
-          {
-            role: "user",
-            content: [
-              { type: "text", text: prompt },
-              { type: "image_url", image_url: { url: `data:${mediaType};base64,${imageBase64}` } },
-            ],
-          },
-        ],
-      }),
-    });
-  } catch {
-    return { data: null, error: "Couldn't reach the photo analysis service. Check your connection and try again." };
+  // Try each model in order, moving on to the next only on a retryable failure (rate limit / no
+  // credit / model unavailable) — a free model's shared pool being briefly rate-limited shouldn't
+  // fail the whole request when another free model would work.
+  let res: Response | null = null;
+  let lastStatus = 0;
+  for (const model of modelsToTry) {
+    try {
+      res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${apiKey}`,
+          // OpenRouter attributes usage to the calling app with these — optional, but keeps this
+          // off their anonymous-traffic bucket.
+          "http-referer": "https://marketplace.apps-pilot.nl",
+          "x-title": "AfroDeals",
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: 500,
+          messages: [
+            {
+              role: "user",
+              content: [
+                { type: "text", text: prompt },
+                { type: "image_url", image_url: { url: `data:${mediaType};base64,${imageBase64}` } },
+              ],
+            },
+          ],
+        }),
+      });
+    } catch {
+      return { data: null, error: "Couldn't reach the photo analysis service. Check your connection and try again." };
+    }
+    if (res.ok) break;
+    lastStatus = res.status;
+    if (res.status !== 429 && res.status !== 402 && res.status !== 503) break;
   }
 
-  if (!res.ok) {
-    if (res.status === 429) return { data: null, error: "Photo analysis is busy right now — try again in a moment." };
-    if (res.status === 402) return { data: null, error: "Photo analysis is temporarily unavailable — the account behind it needs more credits." };
-    return { data: null, error: `Photo analysis failed (${res.status}). Try again in a moment.` };
+  if (!res || !res.ok) {
+    if (lastStatus === 429) return { data: null, error: "Photo analysis is busy right now — try again in a moment." };
+    if (lastStatus === 402) return { data: null, error: "Photo analysis is temporarily unavailable — the account behind it needs more credits." };
+    return { data: null, error: `Photo analysis failed (${lastStatus}). Try again in a moment.` };
   }
 
   const json = await res.json();
