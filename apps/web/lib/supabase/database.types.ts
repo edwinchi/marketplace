@@ -1585,6 +1585,7 @@ export type Database = {
         Row: {
           account_number: number
           account_type: string
+          allow_seller_contact_on_favorite: boolean
           auth_user_id: string
           created_at: string
           display_name: string | null
@@ -1592,6 +1593,12 @@ export type Database = {
           id: string
           location_sharing_opt_in: boolean
           marketing_emails_opt_in: boolean
+          marketing_listing_tips_opt_in: boolean
+          marketing_news_opt_in: boolean
+          marketing_partner_ads_opt_in: boolean
+          marketing_promotions_opt_in: boolean
+          marketing_surveys_opt_in: boolean
+          notify_listing_favorited: boolean
           notify_new_messages: boolean
           notify_offers: boolean
           phone_number: string | null
@@ -1607,6 +1614,7 @@ export type Database = {
         Insert: {
           account_number?: number
           account_type?: string
+          allow_seller_contact_on_favorite?: boolean
           auth_user_id: string
           created_at?: string
           display_name?: string | null
@@ -1614,6 +1622,12 @@ export type Database = {
           id?: string
           location_sharing_opt_in?: boolean
           marketing_emails_opt_in?: boolean
+          marketing_listing_tips_opt_in?: boolean
+          marketing_news_opt_in?: boolean
+          marketing_partner_ads_opt_in?: boolean
+          marketing_promotions_opt_in?: boolean
+          marketing_surveys_opt_in?: boolean
+          notify_listing_favorited?: boolean
           notify_new_messages?: boolean
           notify_offers?: boolean
           phone_number?: string | null
@@ -1629,6 +1643,7 @@ export type Database = {
         Update: {
           account_number?: number
           account_type?: string
+          allow_seller_contact_on_favorite?: boolean
           auth_user_id?: string
           created_at?: string
           display_name?: string | null
@@ -1636,6 +1651,12 @@ export type Database = {
           id?: string
           location_sharing_opt_in?: boolean
           marketing_emails_opt_in?: boolean
+          marketing_listing_tips_opt_in?: boolean
+          marketing_news_opt_in?: boolean
+          marketing_partner_ads_opt_in?: boolean
+          marketing_promotions_opt_in?: boolean
+          marketing_surveys_opt_in?: boolean
+          notify_listing_favorited?: boolean
           notify_new_messages?: boolean
           notify_offers?: boolean
           phone_number?: string | null

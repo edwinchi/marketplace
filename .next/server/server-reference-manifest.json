@@ -572,6 +572,17 @@
       "filename": "app/my-account/preferences/actions.ts",
       "exportedName": "updatePreferredCity"
     },
+    "00e8f9a7cbb99ebdfdcfd919d63cd36ffe4e3acb28": {
+      "workers": {
+        "app/my-account/profile/edit/page": {
+          "moduleId": 61271,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "filename": "app/my-account/profile/edit/actions.ts",
+      "exportedName": "deleteAccount"
+    },
     "4096c4258237e73277e5f9ba167f593639b523dbd7": {
       "workers": {
         "app/my-account/profile/edit/page": {

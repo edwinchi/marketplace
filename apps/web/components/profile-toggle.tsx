@@ -8,7 +8,18 @@ export function ProfileToggle({
   checked,
   returnTo,
 }: {
-  field: "marketing_emails_opt_in" | "notify_new_messages" | "notify_offers" | "location_sharing_opt_in";
+  field:
+    | "marketing_emails_opt_in"
+    | "marketing_news_opt_in"
+    | "marketing_listing_tips_opt_in"
+    | "marketing_promotions_opt_in"
+    | "marketing_surveys_opt_in"
+    | "marketing_partner_ads_opt_in"
+    | "notify_new_messages"
+    | "notify_offers"
+    | "location_sharing_opt_in"
+    | "allow_seller_contact_on_favorite"
+    | "notify_listing_favorited";
   checked: boolean;
   returnTo: string;
 }) {

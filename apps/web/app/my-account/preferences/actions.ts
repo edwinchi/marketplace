@@ -9,7 +9,19 @@ import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 // writing an arbitrary column name straight from it would let a crafted request touch any column
 // on the caller's own row (RLS still scopes it to their own profile, but the column itself must
 // stay restricted to what this form is actually meant to edit).
-const TOGGLE_FIELDS = ["marketing_emails_opt_in", "notify_new_messages", "notify_offers", "location_sharing_opt_in"] as const;
+const TOGGLE_FIELDS = [
+  "marketing_emails_opt_in",
+  "marketing_news_opt_in",
+  "marketing_listing_tips_opt_in",
+  "marketing_promotions_opt_in",
+  "marketing_surveys_opt_in",
+  "marketing_partner_ads_opt_in",
+  "notify_new_messages",
+  "notify_offers",
+  "location_sharing_opt_in",
+  "allow_seller_contact_on_favorite",
+  "notify_listing_favorited",
+] as const;
 type ToggleField = (typeof TOGGLE_FIELDS)[number];
 
 export async function updateProfileToggle(formData: FormData) {
@@ -20,15 +32,7 @@ export async function updateProfileToggle(formData: FormData) {
   if (!TOGGLE_FIELDS.includes(field as ToggleField)) return;
 
   const value = formData.get("value") === "true";
-  const update: Partial<Record<ToggleField, boolean>> =
-    field === "marketing_emails_opt_in"
-      ? { marketing_emails_opt_in: value }
-      : field === "notify_new_messages"
-        ? { notify_new_messages: value }
-        : field === "notify_offers"
-          ? { notify_offers: value }
-          : { location_sharing_opt_in: value };
-
+  const update = { [field]: value } as Partial<Record<ToggleField, boolean>>;
   const supabase = await createClient();
   await supabase.from("profiles").update(update).eq("id", profile.id);
 
