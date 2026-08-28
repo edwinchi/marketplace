@@ -1,0 +1,66 @@
+import {
+  Car,
+  Sofa,
+  Laptop,
+  Shirt,
+  BookOpen,
+  Caravan,
+  Wrench,
+  Briefcase,
+  Home,
+  Baby,
+  Bike,
+  Gamepad2,
+  Dumbbell,
+  Smartphone,
+  Ticket,
+  Trees,
+  Palmtree,
+  Gem,
+  Music,
+  Stamp,
+  PawPrint,
+  Anchor,
+  WashingMachine,
+  Building2,
+  Tag,
+  type LucideIcon,
+} from "lucide-react";
+
+// Only the top-level categories get an icon — covers the quick-nav row in the homepage hero.
+// Falls back to a generic tag icon for anything not mapped, rather than guessing.
+const ICONS_BY_STABLE_KEY: Record<string, LucideIcon> = {
+  cars: Car,
+  "car-parts": Wrench,
+  "car-misc": Car,
+  "home-interior": Sofa,
+  "computers-software": Laptop,
+  "womens-clothing": Shirt,
+  "mens-clothing": Shirt,
+  books: BookOpen,
+  "caravans-camping": Caravan,
+  "services-trades": Wrench,
+  jobs: Briefcase,
+  "houses-rooms": Home,
+  "children-babies": Baby,
+  "bikes-mopeds": Bike,
+  motorcycles: Bike,
+  "consoles-games": Gamepad2,
+  "sports-fitness": Dumbbell,
+  telecom: Smartphone,
+  tickets: Ticket,
+  "garden-patio": Trees,
+  holidays: Palmtree,
+  "jewelry-bags-beauty": Gem,
+  "music-instruments": Music,
+  "stamps-coins": Stamp,
+  "animals-supplies": PawPrint,
+  "watersports-boats": Anchor,
+  "whitegoods-appliances": WashingMachine,
+  "business-goods": Building2,
+};
+
+export function CategoryIcon({ stableKey, className }: { stableKey: string; className?: string }) {
+  const Icon = ICONS_BY_STABLE_KEY[stableKey] ?? Tag;
+  return <Icon className={className} />;
+}

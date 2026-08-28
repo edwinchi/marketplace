@@ -1,0 +1,119 @@
+"use server";
+
+import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCategoriesAndAttributes } from "@/lib/categories";
+
+export type PhotoAnalysis = {
+  title: string;
+  description: string;
+  categoryId: string;
+  categoryLabel: string;
+};
+
+export type AnalyzePhotoResult = { data: PhotoAnalysis | null; error: string | null };
+
+// Routed through OpenRouter (an OpenAI-compatible gateway that proxies to many providers,
+// including Claude) rather than calling Anthropic directly — same vision capability, just a
+// different endpoint/auth shape. OPENROUTER_MODEL lets the exact model slug be changed via env var
+// without a redeploy if OpenRouter renames/deprecates one; check openrouter.ai/models for current
+// slugs if this ever starts erroring.
+const DEFAULT_MODEL = "anthropic/claude-sonnet-4.5";
+
+// Grounds the model to categories that actually exist and can be posted to (getCategoriesAndAttributes
+// already filters to is_active + allows_listings leaf categories) — it picks a label verbatim from
+// this real list rather than free-generating a category name, so there's no risk of it inventing a
+// category that doesn't exist in the taxonomy.
+export async function analyzeListingPhoto(imageBase64: string, mediaType: string): Promise<AnalyzePhotoResult> {
+  const { user } = await getCurrentUserAndProfile();
+  if (!user) return { data: null, error: "Sign in to use this." };
+
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) return { data: null, error: "Photo analysis isn't set up on this server yet." };
+  const model = process.env.OPENROUTER_MODEL || DEFAULT_MODEL;
+
+  const { categoryOptions } = await getCategoriesAndAttributes();
+  // ~210 leaf categories at "- Parent → Leaf" each (repeating the parent name on every single line)
+  // was the dominant cost in this prompt — enough on its own to tip a request over OpenRouter's
+  // free-tier per-request token cap regardless of image size (agents.md §12). Grouping under one
+  // parent header instead cuts that repetition out; the model still gets every real category name
+  // to ground against, just not the parent prefix duplicated ~210 times.
+  const byParent = new Map<string, string[]>();
+  for (const c of categoryOptions) {
+    const arrowIdx = c.label.indexOf(" → ");
+    const parent = arrowIdx === -1 ? "Other" : c.label.slice(0, arrowIdx);
+    const leaf = arrowIdx === -1 ? c.label : c.label.slice(arrowIdx + 3);
+    (byParent.get(parent) ?? byParent.set(parent, []).get(parent)!).push(leaf);
+  }
+  const categoryListText = [...byParent.entries()].map(([parent, leaves]) => `${parent}: ${leaves.join(", ")}`).join("\n");
+
+  const prompt = `You are helping a seller on AfroDeals, a classifieds marketplace, list an item from a photo.
+Respond with ONLY a JSON object (no markdown fences, no commentary) with exactly these keys:
+{"title": "short listing title, max 80 characters, no marketing fluff", "description": "2-4 sentences describing the item's visible type, condition, and notable features, written for a buyer browsing listings", "category": "the single best-matching category, formatted EXACTLY as \\"Parent → Leaf\\" using names copied verbatim from the list below"}
+
+Valid categories, grouped as "Parent: leaf, leaf, ..." (pick exactly one leaf, do not invent one):
+${categoryListText}
+
+If the photo doesn't clearly show a sellable item, respond with {"title": "", "description": "", "category": ""} instead.`;
+
+  let res: Response;
+  try {
+    res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${apiKey}`,
+        // OpenRouter attributes usage to the calling app with these — optional, but keeps this
+        // off their anonymous-traffic bucket.
+        "http-referer": "https://marketplace.apps-pilot.nl",
+        "x-title": "AfroDeals",
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 500,
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: prompt },
+              { type: "image_url", image_url: { url: `data:${mediaType};base64,${imageBase64}` } },
+            ],
+          },
+        ],
+      }),
+    });
+  } catch {
+    return { data: null, error: "Couldn't reach the photo analysis service. Check your connection and try again." };
+  }
+
+  if (!res.ok) {
+    if (res.status === 429) return { data: null, error: "Photo analysis is busy right now — try again in a moment." };
+    if (res.status === 402) return { data: null, error: "Photo analysis is temporarily unavailable — the account behind it needs more credits." };
+    return { data: null, error: `Photo analysis failed (${res.status}). Try again in a moment.` };
+  }
+
+  const json = await res.json();
+  const content = json?.choices?.[0]?.message?.content;
+  const text: string =
+    typeof content === "string" ? content : Array.isArray(content) ? content.map((p: { text?: string }) => p?.text ?? "").join("") : "";
+
+  let parsed: { title?: string; description?: string; category?: string };
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    return { data: null, error: "Couldn't make sense of that photo — try a clearer, closer shot of the item." };
+  }
+
+  if (!parsed.title || !parsed.category) {
+    return { data: null, error: "Couldn't identify a sellable item in that photo — try a different photo." };
+  }
+
+  const matched = categoryOptions.find((c) => c.label.trim().toLowerCase() === parsed.category!.trim().toLowerCase());
+  if (!matched) {
+    return { data: null, error: "Identified the item but couldn't match it to a category — please pick one manually below." };
+  }
+
+  return {
+    data: { title: parsed.title.slice(0, 80), description: parsed.description ?? "", categoryId: matched.id, categoryLabel: matched.label },
+    error: null,
+  };
+}

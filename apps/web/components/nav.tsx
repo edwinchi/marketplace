@@ -1,0 +1,87 @@
+import Link from "next/link";
+import { Home, PlusCircle, User, MessageCircle, Bell } from "lucide-react";
+import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getUnreadMessageCount } from "@/lib/messages";
+import { buttonVariants } from "@/components/ui/button";
+import { AccountMenu } from "@/components/account-menu";
+
+export async function Nav() {
+  const { user, profile } = await getCurrentUserAndProfile();
+  const unreadCount = profile ? await getUnreadMessageCount(profile.id) : 0;
+
+  return (
+    <>
+      <header className="border-b">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-6">
+            <Link href="/" aria-label="AfroDeals home">
+              {/* Plain <img>, not next/image — this is a small, rarely-changing static brand
+                  asset, and Next's dynamic image-optimizer route (/_next/image) has shown
+                  ETag/conditional-request staleness in dev that a source-file replacement didn't
+                  bust (confirmed: the raw /logo.png and a fresh-width optimizer request both
+                  returned the new file, but the browser's actual rendered request kept getting a
+                  304 against old cached bytes). Serving it as-is sidesteps that whole class of bug
+                  — no runtime resizing needed for a logo this size anyway. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo.png" alt="AfroDeals" className="h-16 w-auto" />
+            </Link>
+            <div className="hidden items-center gap-4 text-sm text-muted-foreground sm:flex">
+              <Link href="/help" className="transition-colors hover:text-primary">Help & Info</Link>
+              <Link href="/terms" className="transition-colors hover:text-primary">Terms</Link>
+              <Link href="/safety" className="transition-colors hover:text-primary">Safety Center</Link>
+            </div>
+          </div>
+          <nav className="flex items-center gap-2">
+            <Link
+              href="/messages"
+              className="relative flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <MessageCircle className="size-5" />
+              Messages
+              {unreadCount > 0 && (
+                <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </Link>
+            <Link
+              href="/notifications"
+              className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <Bell className="size-5" />
+              Notifications
+            </Link>
+            {user ? (
+              <AccountMenu name={profile?.username || "My account"} />
+            ) : (
+              <Link href="/login" className={buttonVariants({ variant: "ghost", size: "sm" })}>
+                Sign in
+              </Link>
+            )}
+            <Link href="/listings/new" className={buttonVariants({ size: "sm" })}>
+              Post an ad
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      <nav className="fixed inset-x-0 bottom-0 z-10 flex border-t bg-background md:hidden">
+        <Link href="/" className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs text-muted-foreground transition-colors active:bg-muted active:text-primary">
+          <Home className="size-5" />
+          Browse
+        </Link>
+        <Link href="/listings/new" className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs text-muted-foreground transition-colors active:bg-muted active:text-primary">
+          <PlusCircle className="size-5" />
+          Post ad
+        </Link>
+        <Link
+          href={user ? "/my-account" : "/login"}
+          className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs text-muted-foreground transition-colors active:bg-muted active:text-primary"
+        >
+          <User className="size-5" />
+          {user ? "Account" : "Sign in"}
+        </Link>
+      </nav>
+    </>
+  );
+}
