@@ -6,6 +6,7 @@ import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { formatPrice } from "@/lib/money";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ListingRowActions } from "@/components/listing-row-actions";
 
 export default async function MyListingsPage() {
   const { profile } = await getCurrentUserAndProfile();
@@ -24,14 +25,17 @@ export default async function MyListingsPage() {
       {listings?.length ? (
         <ul className="flex flex-col divide-y">
           {listings.map((l) => (
-            <li key={l.id} className="flex items-center justify-between gap-4 py-3">
-              <Link href={`/listings/${l.id}`} className="font-medium hover:underline">
-                {l.title}
-              </Link>
-              <div className="flex items-center gap-2">
-                <Badge variant={l.status === "active" ? "default" : "outline"}>{l.status}</Badge>
-                <span className="text-sm text-muted-foreground">{formatPrice(l.price_minor ?? 0, l.currency_code)}</span>
+            <li key={l.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+              <div className="flex flex-col gap-1">
+                <Link href={`/listings/${l.id}`} className="font-medium hover:underline">
+                  {l.title}
+                </Link>
+                <div className="flex items-center gap-2">
+                  <Badge variant={l.status === "active" ? "default" : "outline"}>{l.status}</Badge>
+                  <span className="text-sm text-muted-foreground">{formatPrice(l.price_minor ?? 0, l.currency_code)}</span>
+                </div>
               </div>
+              <ListingRowActions listingId={l.id} status={l.status} />
             </li>
           ))}
         </ul>

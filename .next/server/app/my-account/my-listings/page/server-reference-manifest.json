@@ -3,13 +3,46 @@
     "00952f34b10c497daa584b8e93aef0d2863e8e2622": {
       "workers": {
         "app/my-account/my-listings/page": {
-          "moduleId": 54563,
+          "moduleId": 59472,
           "async": false,
           "codeHash": null
         }
       },
       "exportedName": "signOut",
       "filename": "app/auth/signout/actions.ts"
+    },
+    "4005a413158b90659f593457d538bd9386d09f8c00": {
+      "workers": {
+        "app/my-account/my-listings/page": {
+          "moduleId": 59472,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "setLocale",
+      "filename": "app/actions/set-locale.ts"
+    },
+    "40e638a48a7170ebd4c81e96dc9fc399f80d21946e": {
+      "workers": {
+        "app/my-account/my-listings/page": {
+          "moduleId": 59472,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "deleteListing",
+      "filename": "app/listings/actions.ts"
+    },
+    "40d9b2d8ab72c20e0ffc1b6aa01567a5fd9a857490": {
+      "workers": {
+        "app/my-account/my-listings/page": {
+          "moduleId": 59472,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "deleteListingPermanently",
+      "filename": "app/listings/actions.ts"
     }
   },
   "edge": {}

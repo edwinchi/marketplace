@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale } from "next-intl/server";
 import "./globals.css";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
@@ -19,10 +21,12 @@ export const metadata: Metadata = {
   description: "Buy and sell across African markets.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const locale = await getLocale();
+
   return (
     <html
-      lang="en"
+      lang={locale}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
@@ -33,9 +37,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           silences the mismatch warning for these two elements' own attributes; it doesn't hide
           real hydration bugs elsewhere in the tree. */}
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        <Nav />
-        <main className="flex flex-1 flex-col">{children}</main>
-        <Footer />
+        <NextIntlClientProvider>
+          <Nav />
+          <main className="flex flex-1 flex-col">{children}</main>
+          <Footer />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

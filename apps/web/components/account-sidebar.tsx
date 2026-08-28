@@ -2,28 +2,29 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { User, Heart, Handshake, List, LogOut, Search, UserCheck, Eye, Receipt } from "lucide-react";
 import { signOut } from "@/app/auth/signout/actions";
 import { Button } from "@/components/ui/button";
 
 const NAV_GROUPS = [
   {
-    label: "Account",
-    items: [{ href: "/my-account/profile", label: "Profile", icon: User }],
+    groupKey: "account" as const,
+    items: [{ href: "/my-account/profile", key: "profile" as const, icon: User }],
   },
   {
-    label: "Selling",
-    items: [{ href: "/my-account/my-listings", label: "My listings", icon: List }],
+    groupKey: "selling" as const,
+    items: [{ href: "/my-account/my-listings", key: "myListings" as const, icon: List }],
   },
   {
-    label: "Buying",
+    groupKey: "buying" as const,
     items: [
-      { href: "/my-account/favorites", label: "Favorites", icon: Heart },
-      { href: "/my-account/bids", label: "Bids", icon: Handshake },
-      { href: "/my-account/saved-searches", label: "Saved searches", icon: Search },
-      { href: "/my-account/favorite-sellers", label: "Preferred sellers", icon: UserCheck },
-      { href: "/my-account/recently-viewed", label: "Recently viewed", icon: Eye },
-      { href: "/my-account/transactions", label: "Transactions", icon: Receipt },
+      { href: "/my-account/favorites", key: "favorites" as const, icon: Heart },
+      { href: "/my-account/bids", key: "bids" as const, icon: Handshake },
+      { href: "/my-account/saved-searches", key: "savedSearches" as const, icon: Search },
+      { href: "/my-account/favorite-sellers", key: "preferredSellers" as const, icon: UserCheck },
+      { href: "/my-account/recently-viewed", key: "recentlyViewed" as const, icon: Eye },
+      { href: "/my-account/transactions", key: "transactions" as const, icon: Receipt },
     ],
   },
 ] as const;
@@ -32,13 +33,14 @@ const NAV_GROUPS = [
 // layout itself stays a Server Component for the auth check.
 export function AccountSidebar() {
   const pathname = usePathname();
+  const t = useTranslations("AccountSidebar");
 
   return (
     <>
       <nav className="flex flex-col gap-5">
         {NAV_GROUPS.map((group) => (
-          <div key={group.label}>
-            <p className="mb-1.5 px-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">{group.label}</p>
+          <div key={group.groupKey}>
+            <p className="mb-1.5 px-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">{t(group.groupKey)}</p>
             <ul className="flex flex-col gap-0.5">
               {group.items.map((item) => {
                 const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -63,7 +65,7 @@ export function AccountSidebar() {
                           active ? "text-[#008848]" : "text-muted-foreground group-hover:text-foreground"
                         }`}
                       />
-                      <span className="truncate">{item.label}</span>
+                      <span className="truncate">{t(item.key)}</span>
                     </Link>
                   </li>
                 );
@@ -79,7 +81,7 @@ export function AccountSidebar() {
             className="w-full justify-start gap-2 px-2 text-muted-foreground transition-colors duration-150 hover:bg-destructive/10 hover:text-destructive"
           >
             <LogOut className="size-4" />
-            Sign out
+            {t("signOut")}
           </Button>
         </form>
       </nav>

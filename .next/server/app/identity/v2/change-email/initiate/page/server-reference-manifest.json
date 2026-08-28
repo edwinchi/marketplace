@@ -3,7 +3,7 @@
     "00952f34b10c497daa584b8e93aef0d2863e8e2622": {
       "workers": {
         "app/identity/v2/change-email/initiate/page": {
-          "moduleId": 51316,
+          "moduleId": 6079,
           "async": false,
           "codeHash": null
         }
@@ -11,10 +11,21 @@
       "exportedName": "signOut",
       "filename": "app/auth/signout/actions.ts"
     },
+    "4005a413158b90659f593457d538bd9386d09f8c00": {
+      "workers": {
+        "app/identity/v2/change-email/initiate/page": {
+          "moduleId": 6079,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "setLocale",
+      "filename": "app/actions/set-locale.ts"
+    },
     "608793dcd93db6fed8c10fdd7e44b3c890957f7845": {
       "workers": {
         "app/identity/v2/change-email/initiate/page": {
-          "moduleId": 51316,
+          "moduleId": 6079,
           "async": false,
           "codeHash": null
         }

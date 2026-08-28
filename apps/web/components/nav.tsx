@@ -1,13 +1,16 @@
 import Link from "next/link";
 import { Home, PlusCircle, User, MessageCircle, Bell } from "lucide-react";
+import { getTranslations, getLocale } from "next-intl/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getUnreadMessageCount } from "@/lib/messages";
 import { buttonVariants } from "@/components/ui/button";
 import { AccountMenu } from "@/components/account-menu";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 export async function Nav() {
   const { user, profile } = await getCurrentUserAndProfile();
   const unreadCount = profile ? await getUnreadMessageCount(profile.id) : 0;
+  const [t, locale] = await Promise.all([getTranslations("Nav"), getLocale()]);
 
   return (
     <>
@@ -26,18 +29,19 @@ export async function Nav() {
               <img src="/logo.png" alt="AfroDeals" className="h-16 w-auto" />
             </Link>
             <div className="hidden items-center gap-4 text-sm text-muted-foreground sm:flex">
-              <Link href="/help" className="transition-colors hover:text-primary">Help & Info</Link>
-              <Link href="/terms" className="transition-colors hover:text-primary">Terms</Link>
-              <Link href="/safety" className="transition-colors hover:text-primary">Safety Center</Link>
+              <Link href="/help" className="transition-colors hover:text-primary">{t("helpInfo")}</Link>
+              <Link href="/terms" className="transition-colors hover:text-primary">{t("terms")}</Link>
+              <Link href="/safety" className="transition-colors hover:text-primary">{t("safetyCenter")}</Link>
             </div>
           </div>
           <nav className="flex items-center gap-2">
+            <LanguageSwitcher locale={locale} />
             <Link
               href="/messages"
               className="relative flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               <MessageCircle className="size-5" />
-              Messages
+              {t("messages")}
               {unreadCount > 0 && (
                 <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
                   {unreadCount > 9 ? "9+" : unreadCount}
@@ -49,17 +53,17 @@ export async function Nav() {
               className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               <Bell className="size-5" />
-              Notifications
+              {t("notifications")}
             </Link>
             {user ? (
-              <AccountMenu name={profile?.username || "My account"} />
+              <AccountMenu name={profile?.username || t("myAccount")} />
             ) : (
               <Link href="/login" className={buttonVariants({ variant: "ghost", size: "sm" })}>
-                Sign in
+                {t("signIn")}
               </Link>
             )}
             <Link href="/listings/new" className={buttonVariants({ size: "sm" })}>
-              Post an ad
+              {t("postAd")}
             </Link>
           </nav>
         </div>
@@ -68,18 +72,18 @@ export async function Nav() {
       <nav className="fixed inset-x-0 bottom-0 z-10 flex border-t bg-background md:hidden">
         <Link href="/" className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs text-muted-foreground transition-colors active:bg-muted active:text-primary">
           <Home className="size-5" />
-          Browse
+          {t("browse")}
         </Link>
         <Link href="/listings/new" className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs text-muted-foreground transition-colors active:bg-muted active:text-primary">
           <PlusCircle className="size-5" />
-          Post ad
+          {t("postAdShort")}
         </Link>
         <Link
           href={user ? "/my-account" : "/login"}
           className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs text-muted-foreground transition-colors active:bg-muted active:text-primary"
         >
           <User className="size-5" />
-          {user ? "Account" : "Sign in"}
+          {user ? t("account") : t("signIn")}
         </Link>
       </nav>
     </>

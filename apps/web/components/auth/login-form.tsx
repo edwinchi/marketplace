@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { useTranslations } from "next-intl";
 import { login, type AuthFormState } from "@/app/login/actions";
 import { GoogleButton } from "@/components/auth/google-button";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 const initialState: AuthFormState = { error: null };
 
 export function LoginForm({ next = "/" }: { next?: string }) {
+  const t = useTranslations("Auth");
   const [state, formAction, pending] = useActionState(login, initialState);
 
   return (
@@ -19,20 +21,20 @@ export function LoginForm({ next = "/" }: { next?: string }) {
 
       <div className="relative flex items-center justify-center text-xs text-muted-foreground">
         <Separator className="absolute inset-x-0" />
-        <span className="relative bg-card px-2">Or log in with your email</span>
+        <span className="relative bg-card px-2">{t("orUseEmail")}</span>
       </div>
 
       <form action={formAction} className="flex flex-col gap-4">
         <input type="hidden" name="next" value={next} />
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t("email")}</Label>
           <Input id="email" name="email" type="email" required autoComplete="email" />
         </div>
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t("password")}</Label>
             <a href="/forgot-password" className="text-xs underline">
-              Forgot password?
+              {t("forgotPassword")}
             </a>
           </div>
           <Input id="password" name="password" type="password" required autoComplete="current-password" />
@@ -46,7 +48,7 @@ export function LoginForm({ next = "/" }: { next?: string }) {
 
         {state.error && <p className="text-sm text-destructive">{state.error}</p>}
         <Button type="submit" disabled={pending}>
-          {pending ? "Signing in…" : "Log in with your email"}
+          {pending ? t("signingIn") : t("logIn")}
         </Button>
       </form>
     </div>

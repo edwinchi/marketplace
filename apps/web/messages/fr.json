@@ -1,0 +1,67 @@
+{
+  "Nav": {
+    "helpInfo": "Aide et infos",
+    "terms": "Conditions",
+    "safetyCenter": "Centre de sécurité",
+    "messages": "Messages",
+    "notifications": "Notifications",
+    "postAd": "Déposer une annonce",
+    "signIn": "Se connecter",
+    "myAccount": "Mon compte",
+    "browse": "Parcourir",
+    "postAdShort": "Déposer",
+    "account": "Compte"
+  },
+  "AccountMenu": {
+    "profile": "Profil",
+    "myListings": "Mes annonces",
+    "favorites": "Favoris",
+    "bids": "Offres",
+    "savedSearches": "Recherches enregistrées",
+    "preferredSellers": "Vendeurs préférés",
+    "recentlyViewed": "Vus récemment",
+    "myExperiences": "Mes avis",
+    "signOut": "Se déconnecter"
+  },
+  "AccountSidebar": {
+    "account": "Compte",
+    "selling": "Vente",
+    "buying": "Achat",
+    "profile": "Profil",
+    "myListings": "Mes annonces",
+    "favorites": "Favoris",
+    "bids": "Offres",
+    "savedSearches": "Recherches enregistrées",
+    "preferredSellers": "Vendeurs préférés",
+    "recentlyViewed": "Vus récemment",
+    "transactions": "Transactions",
+    "signOut": "Se déconnecter"
+  },
+  "Auth": {
+    "logIn": "Se connecter",
+    "createAccount": "Créer un compte",
+    "createAnAccount": "Créer un compte",
+    "continueWithGoogle": "Continuer avec Google",
+    "orUseEmail": "Ou utilisez votre e-mail",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "newPassword": "Nouveau mot de passe",
+    "repeatPassword": "Répétez le nouveau mot de passe",
+    "yourName": "Votre nom sur AfroDeals",
+    "noAccountYet": "Pas encore de compte ?",
+    "registerHere": "Inscrivez-vous ici",
+    "alreadyHaveAccount": "Vous avez déjà un compte ?",
+    "logInNow": "Connectez-vous",
+    "termsAgreement": "En créant un compte, vous acceptez nos",
+    "termsOfUse": "Conditions d'utilisation",
+    "signingIn": "Connexion en cours…",
+    "creatingAccount": "Création du compte…",
+    "forgotPassword": "Mot de passe oublié ?"
+  },
+  "Footer": {
+    "safetyBlurb": "AfroDeals met en relation acheteurs et vendeurs directement et n'est pas partie aux transactions conclues entre eux. Faites vos échanges en toute sécurité — consultez notre",
+    "safetyCenter": "Centre de sécurité",
+    "beforeMeeting": "avant de rencontrer un acheteur ou un vendeur.",
+    "rightsReserved": "Tous droits réservés."
+  }
+}

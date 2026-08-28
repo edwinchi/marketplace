@@ -212,3 +212,41 @@ export async function deleteListing(listingId: string) {
   revalidatePath("/my-account/my-listings");
   redirect("/my-account/my-listings");
 }
+
+export type DeleteResult = { error: string | null };
+
+// Real hard delete — removes the row entirely, unlike deleteListing()'s soft delete above.
+// listing_media/listing_translations/listing_attribute_values/listing_attribute_multi_options/
+// listing_ai_metadata/favorites all cascade on listings.id, so those go with it. offers and
+// conversations do NOT cascade (real transaction/message history shouldn't silently vanish), so
+// deleting a listing with either fails with a foreign-key violation — caught below and surfaced
+// as a clear reason instead of a raw DB error, with the existing soft delete as the fallback.
+export async function deleteListingPermanently(listingId: string): Promise<DeleteResult> {
+  const { profile } = await getCurrentUserAndProfile();
+  if (!profile) redirect("/login");
+
+  const supabase = await createClient();
+  const { data: media } = await supabase.from("listing_media").select("storage_key").eq("listing_id", listingId);
+
+  const { error } = await supabase.from("listings").delete().eq("id", listingId).eq("seller_id", profile.id);
+
+  if (error) {
+    if (error.code === "23503") {
+      return {
+        error:
+          "Can't permanently delete this listing — it has offers or messages tied to it that need to stay. Use Remove instead to hide it from buyers.",
+      };
+    }
+    return { error: error.message };
+  }
+
+  // listing_media rows are already gone (cascade) — the actual uploaded photo files in Storage
+  // are a separate thing and don't cascade, so remove them explicitly or they'd sit orphaned.
+  if (media?.length) {
+    await supabase.storage.from("listings").remove(media.map((m) => m.storage_key));
+  }
+
+  revalidatePath("/");
+  revalidatePath("/my-account/my-listings");
+  return { error: null };
+}

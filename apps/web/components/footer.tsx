@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { getFooterCategories } from "@/lib/categories";
 
 // No app-store badges here (unlike the Marktplaats reference this is modeled on) — there is no
@@ -7,7 +8,11 @@ import { getFooterCategories } from "@/lib/categories";
 // integration all got the same treatment). Same reasoning kept "About/Careers/Press/sister sites"
 // out — AfroDeals has no such corporate structure to link to.
 export async function Footer() {
-  const columns = await getFooterCategories();
+  const [columns, t, tNav] = await Promise.all([
+    getFooterCategories(),
+    getTranslations("Footer"),
+    getTranslations("Nav"),
+  ]);
 
   return (
     <footer className="mt-16 bg-secondary/30 pb-16 md:pb-0">
@@ -36,19 +41,18 @@ export async function Footer() {
         </div>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t pt-6 text-sm text-muted-foreground">
-          <Link href="/help" className="hover:text-foreground hover:underline">Help &amp; Info</Link>
-          <Link href="/terms" className="hover:text-foreground hover:underline">Terms</Link>
-          <Link href="/safety" className="hover:text-foreground hover:underline">Safety Center</Link>
+          <Link href="/help" className="hover:text-foreground hover:underline">{tNav("helpInfo")}</Link>
+          <Link href="/terms" className="hover:text-foreground hover:underline">{tNav("terms")}</Link>
+          <Link href="/safety" className="hover:text-foreground hover:underline">{tNav("safetyCenter")}</Link>
         </div>
 
         <div className="mt-6 border-t pt-6 text-center text-xs text-muted-foreground">
           <p className="mx-auto max-w-2xl">
-            AfroDeals connects buyers and sellers directly and is not a party to the transactions
-            arranged between them. Trade safely — see our{" "}
-            <Link href="/safety" className="underline">Safety Center</Link> before meeting a buyer or seller.
+            {t("safetyBlurb")}{" "}
+            <Link href="/safety" className="underline">{t("safetyCenter")}</Link> {t("beforeMeeting")}
           </p>
           <p className="mt-3 font-semibold text-[#082040]">AfroDeals</p>
-          <p className="mt-1">&copy; {new Date().getFullYear()} AfroDeals. All rights reserved.</p>
+          <p className="mt-1">&copy; {new Date().getFullYear()} AfroDeals. {t("rightsReserved")}</p>
         </div>
       </div>
     </footer>

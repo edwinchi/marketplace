@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { signInWithGoogle } from "@/app/login/google-action";
 import { Button } from "@/components/ui/button";
 
@@ -13,11 +16,12 @@ function GoogleIcon() {
 }
 
 export function GoogleButton() {
+  const t = useTranslations("Auth");
   return (
     <form action={signInWithGoogle}>
       <Button type="submit" variant="outline" className="w-full gap-2">
         <GoogleIcon />
-        Continue with Google
+        {t("continueWithGoogle")}
       </Button>
     </form>
   );

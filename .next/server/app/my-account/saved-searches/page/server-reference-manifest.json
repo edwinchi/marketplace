@@ -3,7 +3,7 @@
     "00952f34b10c497daa584b8e93aef0d2863e8e2622": {
       "workers": {
         "app/my-account/saved-searches/page": {
-          "moduleId": 94719,
+          "moduleId": 99705,
           "async": false,
           "codeHash": null
         }
@@ -11,10 +11,21 @@
       "exportedName": "signOut",
       "filename": "app/auth/signout/actions.ts"
     },
+    "4005a413158b90659f593457d538bd9386d09f8c00": {
+      "workers": {
+        "app/my-account/saved-searches/page": {
+          "moduleId": 99705,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "setLocale",
+      "filename": "app/actions/set-locale.ts"
+    },
     "409210f157ef9b5a2bbd21920c363667cdae44e74e": {
       "workers": {
         "app/my-account/saved-searches/page": {
-          "moduleId": 94719,
+          "moduleId": 99705,
           "async": false,
           "codeHash": null
         }
@@ -25,7 +36,7 @@
     "40bf1eae718658a0099ef91e3d2fb9c79470ed75bf": {
       "workers": {
         "app/my-account/saved-searches/page": {
-          "moduleId": 94719,
+          "moduleId": 99705,
           "async": false,
           "codeHash": null
         }
@@ -36,7 +47,7 @@
     "40f47d826104f7d2555c023bf64dbcb59fdf1b3b9f": {
       "workers": {
         "app/my-account/saved-searches/page": {
-          "moduleId": 94719,
+          "moduleId": 99705,
           "async": false,
           "codeHash": null
         }

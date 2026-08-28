@@ -3,7 +3,7 @@
     "00952f34b10c497daa584b8e93aef0d2863e8e2622": {
       "workers": {
         "app/my-account/profile/edit/page": {
-          "moduleId": 61271,
+          "moduleId": 61802,
           "async": false,
           "codeHash": null
         }
@@ -11,10 +11,21 @@
       "exportedName": "signOut",
       "filename": "app/auth/signout/actions.ts"
     },
+    "4005a413158b90659f593457d538bd9386d09f8c00": {
+      "workers": {
+        "app/my-account/profile/edit/page": {
+          "moduleId": 61802,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "setLocale",
+      "filename": "app/actions/set-locale.ts"
+    },
     "00e8f9a7cbb99ebdfdcfd919d63cd36ffe4e3acb28": {
       "workers": {
         "app/my-account/profile/edit/page": {
-          "moduleId": 61271,
+          "moduleId": 61802,
           "async": false,
           "codeHash": null
         }
@@ -25,7 +36,7 @@
     "4096c4258237e73277e5f9ba167f593639b523dbd7": {
       "workers": {
         "app/my-account/profile/edit/page": {
-          "moduleId": 61271,
+          "moduleId": 61802,
           "async": false,
           "codeHash": null
         }

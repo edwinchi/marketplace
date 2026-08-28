@@ -2,22 +2,24 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { ChevronDown, User, List, Heart, Handshake, Search, UserCheck, Eye, Star, LogOut } from "lucide-react";
 import { signOut } from "@/app/auth/signout/actions";
 import { Button, buttonVariants } from "@/components/ui/button";
 
 const MENU_ITEMS = [
-  { href: "/my-account/profile", label: "Profile", icon: User },
-  { href: "/my-account/my-listings", label: "My listings", icon: List },
-  { href: "/my-account/favorites", label: "Favorites", icon: Heart },
-  { href: "/my-account/bids", label: "Bids", icon: Handshake },
-  { href: "/my-account/saved-searches", label: "Saved searches", icon: Search },
-  { href: "/my-account/favorite-sellers", label: "Preferred sellers", icon: UserCheck },
-  { href: "/my-account/recently-viewed", label: "Recently viewed", icon: Eye },
-  { href: "/experiences/my-reviews", label: "My experiences", icon: Star },
+  { href: "/my-account/profile", key: "profile" as const, icon: User },
+  { href: "/my-account/my-listings", key: "myListings" as const, icon: List },
+  { href: "/my-account/favorites", key: "favorites" as const, icon: Heart },
+  { href: "/my-account/bids", key: "bids" as const, icon: Handshake },
+  { href: "/my-account/saved-searches", key: "savedSearches" as const, icon: Search },
+  { href: "/my-account/favorite-sellers", key: "preferredSellers" as const, icon: UserCheck },
+  { href: "/my-account/recently-viewed", key: "recentlyViewed" as const, icon: Eye },
+  { href: "/experiences/my-reviews", key: "myExperiences" as const, icon: Star },
 ];
 
 export function AccountMenu({ name }: { name: string }) {
+  const t = useTranslations("AccountMenu");
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -61,7 +63,7 @@ export function AccountMenu({ name }: { name: string }) {
                   className="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]"
                 >
                   <item.icon className="size-4 text-muted-foreground" />
-                  {item.label}
+                  {t(item.key)}
                 </Link>
               </li>
             ))}
@@ -77,7 +79,7 @@ export function AccountMenu({ name }: { name: string }) {
               className="w-full justify-start gap-2.5 px-2.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
             >
               <LogOut className="size-4" />
-              Sign out
+              {t("signOut")}
             </Button>
           </form>
         </div>

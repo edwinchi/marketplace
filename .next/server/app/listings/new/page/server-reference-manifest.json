@@ -3,7 +3,7 @@
     "00952f34b10c497daa584b8e93aef0d2863e8e2622": {
       "workers": {
         "app/listings/new/page": {
-          "moduleId": 65343,
+          "moduleId": 71377,
           "async": false,
           "codeHash": null
         }
@@ -11,10 +11,21 @@
       "exportedName": "signOut",
       "filename": "app/auth/signout/actions.ts"
     },
+    "4005a413158b90659f593457d538bd9386d09f8c00": {
+      "workers": {
+        "app/listings/new/page": {
+          "moduleId": 71377,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "setLocale",
+      "filename": "app/actions/set-locale.ts"
+    },
     "40be75487933f1e6c8e80f0479815a342f31b54897": {
       "workers": {
         "app/listings/new/page": {
-          "moduleId": 65343,
+          "moduleId": 71377,
           "async": false,
           "codeHash": null
         }
@@ -25,7 +36,7 @@
     "609cfe9e9b86bd9d893b449d58848099ea54a36a22": {
       "workers": {
         "app/listings/new/page": {
-          "moduleId": 65343,
+          "moduleId": 71377,
           "async": false,
           "codeHash": null
         }
