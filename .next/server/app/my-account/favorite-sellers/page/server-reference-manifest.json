@@ -1,0 +1,38 @@
+{
+  "node": {
+    "00952f34b10c497daa584b8e93aef0d2863e8e2622": {
+      "workers": {
+        "app/my-account/favorite-sellers/page": {
+          "moduleId": 40229,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "signOut",
+      "filename": "app/auth/signout/actions.ts"
+    },
+    "4035cfe06d71d6b948eebd2d015a5a3483b429b203": {
+      "workers": {
+        "app/my-account/favorite-sellers/page": {
+          "moduleId": 40229,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "followSeller",
+      "filename": "app/my-account/favorite-sellers/actions.ts"
+    },
+    "40f577a2d037e202ac192815ca7234830c1510b0c4": {
+      "workers": {
+        "app/my-account/favorite-sellers/page": {
+          "moduleId": 40229,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "unfollowSeller",
+      "filename": "app/my-account/favorite-sellers/actions.ts"
+    }
+  },
+  "edge": {}
+}

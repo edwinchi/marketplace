@@ -1,0 +1,27 @@
+{
+  "node": {
+    "00952f34b10c497daa584b8e93aef0d2863e8e2622": {
+      "workers": {
+        "app/my-account/profile/edit/page": {
+          "moduleId": 61271,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "signOut",
+      "filename": "app/auth/signout/actions.ts"
+    },
+    "4096c4258237e73277e5f9ba167f593639b523dbd7": {
+      "workers": {
+        "app/my-account/profile/edit/page": {
+          "moduleId": 61271,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "updateProfile",
+      "filename": "app/my-account/profile/edit/actions.ts"
+    }
+  },
+  "edge": {}
+}
