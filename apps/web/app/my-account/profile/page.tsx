@@ -188,6 +188,18 @@ export default async function MyAccountPage() {
 
         <Card className={cardHover}>
           <CardHeader>
+            <CardTitle className="text-base">AI features</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
+            <p>Free AI photo autofill, plus what&apos;s planned next.</p>
+            <Link href="/my-account/ai-features" className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit" })}>
+              View
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className={cardHover}>
+          <CardHeader>
             <CardTitle className="text-base">Ad &amp; location preferences</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">

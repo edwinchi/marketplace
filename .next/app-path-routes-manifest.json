@@ -18,6 +18,7 @@
   "/login/page": "/login",
   "/messages/address-profile/page": "/messages/address-profile",
   "/messages/page": "/messages",
+  "/my-account/ai-features/page": "/my-account/ai-features",
   "/my-account/bids/page": "/my-account/bids",
   "/my-account/favorite-sellers/page": "/my-account/favorite-sellers",
   "/my-account/favorites/page": "/my-account/favorites",

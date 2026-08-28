@@ -18,6 +18,7 @@
   "/login/page": "app/login/page.js",
   "/messages/address-profile/page": "app/messages/address-profile/page.js",
   "/messages/page": "app/messages/page.js",
+  "/my-account/ai-features/page": "app/my-account/ai-features/page.js",
   "/my-account/bids/page": "app/my-account/bids/page.js",
   "/my-account/favorite-sellers/page": "app/my-account/favorite-sellers/page.js",
   "/my-account/favorites/page": "app/my-account/favorites/page.js",

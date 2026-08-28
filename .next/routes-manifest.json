@@ -161,6 +161,12 @@
       "namedRegex": "^/my\\-account(?:/)?$"
     },
     {
+      "page": "/my-account/ai-features",
+      "regex": "^/my\\-account/ai\\-features(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/my\\-account/ai\\-features(?:/)?$"
+    },
+    {
       "page": "/my-account/bids",
       "regex": "^/my\\-account/bids(?:/)?$",
       "routeKeys": {},

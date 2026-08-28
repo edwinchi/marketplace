@@ -82,6 +82,11 @@
           "async": false,
           "codeHash": null
         },
+        "app/my-account/ai-features/page": {
+          "moduleId": 29746,
+          "async": false,
+          "codeHash": null
+        },
         "app/my-account/bids/page": {
           "moduleId": 72337,
           "async": false,
@@ -275,6 +280,11 @@
         },
         "app/messages/page": {
           "moduleId": 73888,
+          "async": false,
+          "codeHash": null
+        },
+        "app/my-account/ai-features/page": {
+          "moduleId": 29746,
           "async": false,
           "codeHash": null
         },

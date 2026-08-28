@@ -3,14 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { User, Heart, Handshake, List, LogOut, Search, UserCheck, Eye, Receipt } from "lucide-react";
+import { User, Heart, Handshake, List, LogOut, Search, UserCheck, Eye, Receipt, Sparkles } from "lucide-react";
 import { signOut } from "@/app/auth/signout/actions";
 import { Button } from "@/components/ui/button";
 
 const NAV_GROUPS = [
   {
     groupKey: "account" as const,
-    items: [{ href: "/my-account/profile", key: "profile" as const, icon: User }],
+    items: [
+      { href: "/my-account/profile", key: "profile" as const, icon: User },
+      { href: "/my-account/ai-features", key: "aiFeatures" as const, icon: Sparkles },
+    ],
   },
   {
     groupKey: "selling" as const,

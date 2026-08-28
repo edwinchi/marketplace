@@ -31,14 +31,16 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Browsing (listings, categories, search) stays public — only posting a new ad requires an
-  // account. The AI photo-analysis/category-suggestion actions have no entry point outside this
-  // flow, so gating it also covers "AI features require an account" without a separate check.
-  const PROTECTED_PATHS = ["/listings/new"];
+  // TEMPORARY, while the site is still incomplete: sign-in is required to view anything, not just
+  // to post/use AI features. Previously this was a denylist (only /listings/new gated, browsing
+  // stayed public) — reverted per explicit instruction to lock down browsing until launch. To
+  // restore public browsing later, swap back to the denylist approach this replaced (protect only
+  // /listings/new, leave everything else out of PUBLIC_PATHS/isPublic below).
+  const PUBLIC_PATHS = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth", "/help", "/terms", "/safety"];
   const { pathname } = request.nextUrl;
-  const isProtected = PROTECTED_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 
-  if (!user && isProtected) {
+  if (!user && !isPublic) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
