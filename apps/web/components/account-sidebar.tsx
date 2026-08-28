@@ -29,14 +29,12 @@ const NAV_GROUPS = [
 ] as const;
 
 // Client Component specifically so usePathname() can drive the active-state highlight — the
-// layout itself stays a Server Component for the auth check + profile fetch, passing down only
-// the display name.
-export function AccountSidebar({ profileName }: { profileName: string }) {
+// layout itself stays a Server Component for the auth check.
+export function AccountSidebar() {
   const pathname = usePathname();
 
   return (
     <>
-      <p className="mb-4 truncate text-sm font-semibold text-muted-foreground">{profileName}</p>
       <nav className="flex flex-col gap-5">
         {NAV_GROUPS.map((group) => (
           <div key={group.label}>
