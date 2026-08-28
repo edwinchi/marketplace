@@ -98,7 +98,7 @@
           "codeHash": null
         },
         "app/my-account/invoices/page": {
-          "moduleId": 19954,
+          "moduleId": 57615,
           "async": false,
           "codeHash": null
         },
@@ -542,6 +542,11 @@
     },
     "40473c8f153b0d0a7c7b8f657ea43baf105052973f": {
       "workers": {
+        "app/my-account/invoices/page": {
+          "moduleId": 57615,
+          "async": false,
+          "codeHash": null
+        },
         "app/my-account/preferences/location/page": {
           "moduleId": 57997,
           "async": false,

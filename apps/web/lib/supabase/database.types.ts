@@ -1588,6 +1588,7 @@ export type Database = {
           allow_seller_contact_on_favorite: boolean
           auth_user_id: string
           created_at: string
+          digital_invoice_opt_in: boolean
           display_name: string | null
           email_verified: boolean
           id: string
@@ -1617,6 +1618,7 @@ export type Database = {
           allow_seller_contact_on_favorite?: boolean
           auth_user_id: string
           created_at?: string
+          digital_invoice_opt_in?: boolean
           display_name?: string | null
           email_verified?: boolean
           id?: string
@@ -1646,6 +1648,7 @@ export type Database = {
           allow_seller_contact_on_favorite?: boolean
           auth_user_id?: string
           created_at?: string
+          digital_invoice_opt_in?: boolean
           display_name?: string | null
           email_verified?: boolean
           id?: string

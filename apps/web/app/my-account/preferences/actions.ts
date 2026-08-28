@@ -21,6 +21,7 @@ const TOGGLE_FIELDS = [
   "location_sharing_opt_in",
   "allow_seller_contact_on_favorite",
   "notify_listing_favorited",
+  "digital_invoice_opt_in",
 ] as const;
 type ToggleField = (typeof TOGGLE_FIELDS)[number];
 
