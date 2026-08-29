@@ -1,6 +1,7 @@
 {
   "/_global-error/page": "/_global-error",
   "/_not-found/page": "/_not-found",
+  "/admin/page": "/admin",
   "/auth/callback/route": "/auth/callback",
   "/categories/[id]/page": "/categories/[id]",
   "/documents/buying-checklist/page": "/documents/buying-checklist",

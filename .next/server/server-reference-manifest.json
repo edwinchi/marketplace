@@ -7,6 +7,11 @@
           "async": false,
           "codeHash": null
         },
+        "app/admin/page": {
+          "moduleId": 58165,
+          "async": false,
+          "codeHash": null
+        },
         "app/categories/[id]/page": {
           "moduleId": 9613,
           "async": false,
@@ -223,6 +228,11 @@
           "async": false,
           "codeHash": null
         },
+        "app/admin/page": {
+          "moduleId": 58165,
+          "async": false,
+          "codeHash": null
+        },
         "app/categories/[id]/page": {
           "moduleId": 9613,
           "async": false,
@@ -436,6 +446,11 @@
       "workers": {
         "app/_not-found/page": {
           "moduleId": 11897,
+          "async": false,
+          "codeHash": null
+        },
+        "app/admin/page": {
+          "moduleId": 58165,
           "async": false,
           "codeHash": null
         },

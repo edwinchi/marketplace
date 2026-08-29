@@ -3,6 +3,7 @@
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import { getCategoriesAndAttributes } from "@/lib/categories";
+import { isAdminEmail } from "@/lib/admin";
 
 // Free tier: 3 uses per registered account, then an honest "upgrade" prompt — there's no payment
 // processor wired up yet to actually charge for more (see /my-account/ai-features), so this just
@@ -42,7 +43,7 @@ export async function analyzeListingPhoto(imageBase64: string, mediaType: string
   const supabase = await createClient();
   const { data: usageRow } = await supabase.from("profiles").select("ai_photo_analysis_uses").eq("id", profile.id).single();
   const usesSoFar = usageRow?.ai_photo_analysis_uses ?? 0;
-  if (usesSoFar >= FREE_USE_LIMIT) {
+  if (usesSoFar >= FREE_USE_LIMIT && !isAdminEmail(user.email)) {
     return {
       data: null,
       error: `You've used all ${FREE_USE_LIMIT} free AI analyses. See /my-account/ai-features for what's next.`,
