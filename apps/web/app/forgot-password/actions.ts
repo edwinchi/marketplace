@@ -1,13 +1,13 @@
 "use server";
 
-import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { getSiteOrigin } from "@/lib/site-url";
 
 export type ForgotPasswordState = { sent: boolean; error: string | null };
 
 export async function requestPasswordReset(_prevState: ForgotPasswordState, formData: FormData): Promise<ForgotPasswordState> {
   const email = String(formData.get("email") ?? "");
-  const origin = (await headers()).get("origin");
+  const origin = await getSiteOrigin();
 
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {

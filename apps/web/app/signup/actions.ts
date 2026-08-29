@@ -1,9 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { isPasswordValid } from "@/lib/password-rules";
+import { getSiteOrigin } from "@/lib/site-url";
 
 export type SignupFormState = { error: string | null; checkEmail: boolean };
 
@@ -28,7 +28,7 @@ export async function signup(_prevState: SignupFormState, formData: FormData): P
 
   const supabase = await createClient();
   const baseUsername = slugify(displayName);
-  const origin = (await headers()).get("origin");
+  const origin = await getSiteOrigin();
 
   // Auto-derived from the name (the form only asks for one, matching the reference design) — on
   // a collision, the handle_new_user() trigger's unique-username constraint aborts the whole
