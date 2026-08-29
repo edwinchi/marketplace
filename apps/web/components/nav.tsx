@@ -1,16 +1,20 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { Home, PlusCircle, User, MessageCircle, Bell } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getUnreadMessageCount } from "@/lib/messages";
+import { DISPLAY_CURRENCY_COOKIE } from "@/lib/money";
 import { buttonVariants } from "@/components/ui/button";
 import { AccountMenu } from "@/components/account-menu";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { CurrencySwitcher } from "@/components/currency-switcher";
 
 export async function Nav() {
   const { user, profile } = await getCurrentUserAndProfile();
   const unreadCount = profile ? await getUnreadMessageCount(profile.id) : 0;
-  const [t, locale] = await Promise.all([getTranslations("Nav"), getLocale()]);
+  const [t, locale, cookieStore] = await Promise.all([getTranslations("Nav"), getLocale(), cookies()]);
+  const displayCurrency = cookieStore.get(DISPLAY_CURRENCY_COOKIE)?.value ?? null;
 
   return (
     <>
@@ -36,6 +40,7 @@ export async function Nav() {
           </div>
           <nav className="flex items-center gap-1 sm:gap-2">
             <LanguageSwitcher locale={locale} />
+            <CurrencySwitcher currency={displayCurrency} />
             <Link
               href="/messages"
               className="relative flex items-center gap-1.5 rounded-md px-1.5 py-1.5 text-sm text-muted-foreground transition-all duration-150 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground sm:px-2"

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +16,7 @@ export default async function MyAccountPage() {
   const { user, profile } = await getCurrentUserAndProfile();
   if (!user || !profile) redirect("/login");
 
+  const t = await getTranslations("Profile");
   const supabase = await createClient();
   const { data: fullProfile } = await supabase
     .from("profiles")
@@ -36,17 +38,17 @@ export default async function MyAccountPage() {
   const twoFactorEnabled = mfaData?.totp?.some((f) => f.status === "verified") ?? false;
 
   const memberSince = fullProfile?.created_at
-    ? new Date(fullProfile.created_at).toLocaleDateString(undefined, { month: "long", year: "numeric" })
+    ? t("memberSince", { date: new Date(fullProfile.created_at).toLocaleDateString(undefined, { month: "long", year: "numeric" }) })
     : null;
   const activeSince = fullProfile?.created_at
-    ? new Date(fullProfile.created_at).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })
+    ? t("activeSince", { date: new Date(fullProfile.created_at).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) })
     : null;
 
   const cardHover = "transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[#008848]/40 hover:shadow-md";
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold tracking-tight">Profile</h1>
+      <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card className={cardHover}>
           <CardHeader>
@@ -54,47 +56,47 @@ export default async function MyAccountPage() {
           </CardHeader>
           <CardContent className="flex flex-col gap-1.5 text-sm text-muted-foreground">
             <p>@{profile.username}</p>
-            {memberSince && <p>Member since {memberSince}</p>}
+            {memberSince && <p>{memberSince}</p>}
             {identityFields?.phone_number && <p>{identityFields.phone_number}</p>}
             {identityFields?.postal_code && <p>{identityFields.postal_code}</p>}
-            {identityFields?.account_number != null && <p>Id: {identityFields.account_number}</p>}
-            <Badge variant="outline" className="mt-1 w-fit capitalize">{profile.account_type} account</Badge>
-            <Link href="/my-account/profile/edit" className={buttonVariants({ variant: "outline", size: "sm", className: "mt-2 w-fit" })}>
-              Edit
+            {identityFields?.account_number != null && <p>{t("id", { number: identityFields.account_number })}</p>}
+            <Badge variant="outline" className="mt-1 w-fit">{t("accountType", { type: profile.account_type })}</Badge>
+            <Link href="/my-account/profile/edit" className={buttonVariants({ variant: "outline", size: "sm", className: "mt-2 w-fit transition-transform duration-150 hover:-translate-y-0.5" })}>
+              {t("edit")}
             </Link>
           </CardContent>
         </Card>
 
         <Card className={cardHover}>
           <CardHeader>
-            <CardTitle className="text-base">Security check</CardTitle>
+            <CardTitle className="text-base">{t("securityCheck")}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-1.5 text-sm text-muted-foreground">
-            {activeSince && <p>Active since {activeSince}</p>}
+            {activeSince && <p>{activeSince}</p>}
             <Badge variant={twoFactorEnabled ? "default" : "outline"} className="mt-1 w-fit">
-              {twoFactorEnabled ? "Two-factor authentication on" : "Two-factor authentication off"}
+              {twoFactorEnabled ? t("twoFactorOn") : t("twoFactorOff")}
             </Badge>
-            <Link href="/identity/v2/two-factor-auth-setup/change" className={buttonVariants({ variant: "outline", size: "sm", className: "mt-2 w-fit" })}>
-              Manage
+            <Link href="/identity/v2/two-factor-auth-setup/change" className={buttonVariants({ variant: "outline", size: "sm", className: "mt-2 w-fit transition-transform duration-150 hover:-translate-y-0.5" })}>
+              {t("manage")}
             </Link>
           </CardContent>
         </Card>
 
         <Card className={cardHover}>
           <CardHeader>
-            <CardTitle className="text-base">Login</CardTitle>
+            <CardTitle className="text-base">{t("login")}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-1.5 text-sm text-muted-foreground">
             <p>{user.email}</p>
             <Badge variant={fullProfile?.email_verified ? "default" : "outline"} className="mt-1 w-fit">
-              {fullProfile?.email_verified ? "Email verified" : "Email not verified"}
+              {fullProfile?.email_verified ? t("emailVerified") : t("emailNotVerified")}
             </Badge>
             <div className="mt-2 flex gap-2">
-              <Link href="/identity/v2/change-email/initiate" className={buttonVariants({ variant: "outline", size: "sm" })}>
-                Change email
+              <Link href="/identity/v2/change-email/initiate" className={buttonVariants({ variant: "outline", size: "sm", className: "transition-transform duration-150 hover:-translate-y-0.5" })}>
+                {t("changeEmail")}
               </Link>
-              <Link href="/forgot-password" className={buttonVariants({ variant: "outline", size: "sm" })}>
-                Reset password
+              <Link href="/forgot-password" className={buttonVariants({ variant: "outline", size: "sm", className: "transition-transform duration-150 hover:-translate-y-0.5" })}>
+                {t("resetPassword")}
               </Link>
             </div>
           </CardContent>
@@ -102,49 +104,49 @@ export default async function MyAccountPage() {
 
         <Card className={cardHover}>
           <CardHeader>
-            <CardTitle className="text-base">Address book</CardTitle>
+            <CardTitle className="text-base">{t("addressBook")}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-1.5 text-sm text-muted-foreground">
-            <p>Save addresses for pickup or delivery.</p>
-            <Link href="/messages/address-profile" className={buttonVariants({ variant: "outline", size: "sm", className: "mt-2 w-fit" })}>
-              Manage
+            <p>{t("addressBookBody")}</p>
+            <Link href="/messages/address-profile" className={buttonVariants({ variant: "outline", size: "sm", className: "mt-2 w-fit transition-transform duration-150 hover:-translate-y-0.5" })}>
+              {t("manage")}
             </Link>
           </CardContent>
         </Card>
 
         <Card className={cardHover}>
           <CardHeader>
-            <CardTitle className="text-base">Selling on AfroDeals</CardTitle>
+            <CardTitle className="text-base">{t("selling")}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
-            <p>Manage your ads or post a new one — free, no dealer required.</p>
+            <p>{t("sellingBody")}</p>
             <div className="flex gap-2">
-              <Link href="/my-account/my-listings" className={buttonVariants({ variant: "outline", size: "sm" })}>My listings</Link>
-              <Link href="/listings/new" className={buttonVariants({ size: "sm" })}>Post an ad</Link>
+              <Link href="/my-account/my-listings" className={buttonVariants({ variant: "outline", size: "sm", className: "transition-transform duration-150 hover:-translate-y-0.5" })}>{t("myListings")}</Link>
+              <Link href="/listings/new" className={buttonVariants({ size: "sm", className: "transition-transform duration-150 hover:-translate-y-0.5" })}>{t("postAd")}</Link>
             </div>
           </CardContent>
         </Card>
 
         <Card className={cardHover}>
           <CardHeader>
-            <CardTitle className="text-base">Payment overview</CardTitle>
+            <CardTitle className="text-base">{t("paymentOverview")}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
-            <p>See what you&apos;ve been paid for sold items and paid for purchases.</p>
-            <Link href="/my-account/transactions" className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit" })}>
-              View
+            <p>{t("paymentOverviewBody")}</p>
+            <Link href="/my-account/transactions" className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit transition-transform duration-150 hover:-translate-y-0.5" })}>
+              {t("view")}
             </Link>
           </CardContent>
         </Card>
 
         <Card className={cardHover}>
           <CardHeader>
-            <CardTitle className="text-base">Enable payments</CardTitle>
+            <CardTitle className="text-base">{t("enablePayments")}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
-            <p>Add or change the bank account you use for transactions on AfroDeals.</p>
-            <Link href="/my-account/payments/enable" className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit" })}>
-              View
+            <p>{t("enablePaymentsBody")}</p>
+            <Link href="/my-account/payments/enable" className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit transition-transform duration-150 hover:-translate-y-0.5" })}>
+              {t("view")}
             </Link>
           </CardContent>
         </Card>
@@ -152,10 +154,10 @@ export default async function MyAccountPage() {
         {profile.website_url && (
           <Card className={cardHover}>
             <CardHeader>
-              <CardTitle className="text-base">Website</CardTitle>
+              <CardTitle className="text-base">{t("website")}</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground">
-              <a href={profile.website_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              <a href={profile.website_url} target="_blank" rel="noopener noreferrer" className="text-primary transition-colors hover:underline">
                 {profile.website_url}
               </a>
             </CardContent>
@@ -164,72 +166,72 @@ export default async function MyAccountPage() {
 
         <Card className={cardHover}>
           <CardHeader>
-            <CardTitle className="text-base">Marketing preferences</CardTitle>
+            <CardTitle className="text-base">{t("marketingPreferences")}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
-            <p>Choose which emails you get from AfroDeals.</p>
-            <Link href="/my-account/preferences/marketing" className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit" })}>
-              Set up
+            <p>{t("marketingPreferencesBody")}</p>
+            <Link href="/my-account/preferences/marketing" className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit transition-transform duration-150 hover:-translate-y-0.5" })}>
+              {t("setUp")}
             </Link>
           </CardContent>
         </Card>
 
         <Card className={cardHover}>
           <CardHeader>
-            <CardTitle className="text-base">Digital invoice</CardTitle>
+            <CardTitle className="text-base">{t("digitalInvoice")}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
-            <p>Invoices for any paid features you use.</p>
-            <Link href="/my-account/invoices" className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit" })}>
-              View
+            <p>{t("digitalInvoiceBody")}</p>
+            <Link href="/my-account/invoices" className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit transition-transform duration-150 hover:-translate-y-0.5" })}>
+              {t("view")}
             </Link>
           </CardContent>
         </Card>
 
         <Card className={cardHover}>
           <CardHeader>
-            <CardTitle className="text-base">AI features</CardTitle>
+            <CardTitle className="text-base">{t("aiFeatures")}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
-            <p>Free AI photo autofill, plus what&apos;s planned next.</p>
-            <Link href="/my-account/ai-features" className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit" })}>
-              View
+            <p>{t("aiFeaturesBody")}</p>
+            <Link href="/my-account/ai-features" className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit transition-transform duration-150 hover:-translate-y-0.5" })}>
+              {t("view")}
             </Link>
           </CardContent>
         </Card>
 
         <Card className={cardHover}>
           <CardHeader>
-            <CardTitle className="text-base">Ad &amp; location preferences</CardTitle>
+            <CardTitle className="text-base">{t("adLocationPreferences")}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
-            <p>Control how your city is used for nearby listings.</p>
-            <Link href="/my-account/preferences/location" className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit" })}>
-              Manage
+            <p>{t("adLocationPreferencesBody")}</p>
+            <Link href="/my-account/preferences/location" className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit transition-transform duration-150 hover:-translate-y-0.5" })}>
+              {t("manage")}
             </Link>
           </CardContent>
         </Card>
 
         <Card className={cardHover}>
           <CardHeader>
-            <CardTitle className="text-base">Notification settings</CardTitle>
+            <CardTitle className="text-base">{t("notificationSettings")}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
-            <p>Choose which notifications you receive.</p>
-            <Link href="/my-account/preferences/notifications" className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit" })}>
-              Set up
+            <p>{t("notificationSettingsBody")}</p>
+            <Link href="/my-account/preferences/notifications" className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit transition-transform duration-150 hover:-translate-y-0.5" })}>
+              {t("setUp")}
             </Link>
           </CardContent>
         </Card>
 
         <Card className={cardHover}>
           <CardHeader>
-            <CardTitle className="text-base">My experiences</CardTitle>
+            <CardTitle className="text-base">{t("myExperiences")}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
-            <p>Ratings and reviews from buyers and sellers.</p>
-            <Link href="/experiences/my-reviews" className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit" })}>
-              View
+            <p>{t("myExperiencesBody")}</p>
+            <Link href="/experiences/my-reviews" className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit transition-transform duration-150 hover:-translate-y-0.5" })}>
+              {t("view")}
             </Link>
           </CardContent>
         </Card>

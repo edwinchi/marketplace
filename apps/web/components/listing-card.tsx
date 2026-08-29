@@ -1,8 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
+import { cookies } from "next/headers";
 import { ImageOff } from "lucide-react";
-import { formatPrice } from "@/lib/money";
+import { DISPLAY_CURRENCY_COOKIE } from "@/lib/money";
+import { getExchangeRates } from "@/lib/exchange-rates";
 import { FavoriteButton } from "@/components/favorite-button";
+import { Price } from "@/components/price";
 
 type Props = {
   id: string;
@@ -15,7 +18,11 @@ type Props = {
   signedIn: boolean;
 };
 
-export function ListingCard({ id, title, priceMinor, currencyCode, city, imageUrl, isFavorited, signedIn }: Props) {
+export async function ListingCard({ id, title, priceMinor, currencyCode, city, imageUrl, isFavorited, signedIn }: Props) {
+  const cookieStore = await cookies();
+  const displayCurrency = cookieStore.get(DISPLAY_CURRENCY_COOKIE)?.value ?? null;
+  const rates = displayCurrency ? await getExchangeRates() : null;
+
   return (
     <Link
       href={`/listings/${id}`}
@@ -36,7 +43,9 @@ export function ListingCard({ id, title, priceMinor, currencyCode, city, imageUr
         )}
       </div>
       <div className="flex flex-col gap-1 p-3.5">
-        <p className="text-base font-bold tracking-tight">{formatPrice(priceMinor, currencyCode)}</p>
+        <p className="text-base font-bold tracking-tight">
+          <Price minorUnits={priceMinor} currency={currencyCode} displayCurrency={displayCurrency} rates={rates?.rates ?? null} />
+        </p>
         <p className="line-clamp-2 text-sm text-foreground/80 transition-colors group-hover:text-foreground">{title}</p>
         {city && <p className="text-xs text-muted-foreground">{city}</p>}
       </div>

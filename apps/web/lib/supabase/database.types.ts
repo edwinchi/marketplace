@@ -500,6 +500,47 @@ export type Database = {
           },
         ]
       }
+      category_gallery_images: {
+        Row: {
+          author: string | null
+          category_id: string
+          created_at: string
+          id: string
+          license: string | null
+          sort_order: number
+          source_url: string | null
+          storage_key: string
+        }
+        Insert: {
+          author?: string | null
+          category_id: string
+          created_at?: string
+          id?: string
+          license?: string | null
+          sort_order?: number
+          source_url?: string | null
+          storage_key: string
+        }
+        Update: {
+          author?: string | null
+          category_id?: string
+          created_at?: string
+          id?: string
+          license?: string | null
+          sort_order?: number
+          source_url?: string | null
+          storage_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "category_gallery_images_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversation_participants: {
         Row: {
           conversation_id: string

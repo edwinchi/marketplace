@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getTranslations, getLocale } from "next-intl/server";
 import { Handshake } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
@@ -15,6 +16,7 @@ export default async function OffersPage() {
   const { profile } = await getCurrentUserAndProfile();
   if (!profile) redirect("/login");
 
+  const [t, locale] = await Promise.all([getTranslations("Bids"), getLocale()]);
   const supabase = await createClient();
   const { data: offers } = await supabase
     .from("offers")
@@ -24,25 +26,25 @@ export default async function OffersPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold tracking-tight">Offers</h1>
+      <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
       {offers?.length ? (
         <div className="flex flex-col gap-3">
           {offers.map((o) => {
             const listing = Array.isArray(o.listings) ? o.listings[0] : o.listings;
             if (!listing) return null;
             return (
-              <Card key={o.id}>
+              <Card key={o.id} className="transition-shadow duration-200 hover:shadow-md">
                 <CardContent className="flex items-center justify-between gap-4 py-4">
                   <div className="min-w-0">
-                    <Link href={`/listings/${listing.id}`} className="font-medium hover:underline">
+                    <Link href={`/listings/${listing.id}`} className="font-medium transition-colors hover:text-[#008848] hover:underline">
                       {listing.title}
                     </Link>
                     <p className="text-sm text-muted-foreground">
-                      Offered {formatPrice(o.amount_minor, o.currency_code)} · {new Date(o.created_at).toLocaleDateString()}
+                      {t("offered", { amount: formatPrice(o.amount_minor, o.currency_code), date: new Date(o.created_at).toLocaleDateString(locale) })}
                     </p>
                   </div>
-                  <Badge variant={o.status === "accepted" ? "default" : o.status === "declined" ? "outline" : "secondary"} className="capitalize shrink-0">
-                    {o.status}
+                  <Badge variant={o.status === "accepted" ? "default" : o.status === "declined" ? "outline" : "secondary"} className="shrink-0">
+                    {o.status === "pending" ? t("statusPending") : o.status === "accepted" ? t("statusAccepted") : o.status === "declined" ? t("statusDeclined") : o.status}
                   </Badge>
                 </CardContent>
               </Card>
@@ -52,12 +54,10 @@ export default async function OffersPage() {
       ) : (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed py-16 text-center">
           <Handshake className="size-10 text-muted-foreground" />
-          <p className="font-medium">No offers yet.</p>
-          <p className="max-w-sm text-sm text-muted-foreground">
-            Offers you make on a seller&apos;s listing will show up here.
-          </p>
+          <p className="font-medium">{t("noOffers")}</p>
+          <p className="max-w-sm text-sm text-muted-foreground">{t("noOffersBody")}</p>
           <Link href="/">
-            <Button className="mt-2">Browse listings</Button>
+            <Button className="mt-2 transition-transform duration-150 hover:-translate-y-0.5">{t("browseListings")}</Button>
           </Link>
         </div>
       )}

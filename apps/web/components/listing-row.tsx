@@ -1,8 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
+import { cookies } from "next/headers";
 import { ImageOff } from "lucide-react";
-import { formatPrice } from "@/lib/money";
+import { DISPLAY_CURRENCY_COOKIE } from "@/lib/money";
+import { getExchangeRates } from "@/lib/exchange-rates";
 import { FavoriteButton } from "@/components/favorite-button";
+import { Price } from "@/components/price";
 
 type Props = {
   id: string;
@@ -19,7 +22,7 @@ type Props = {
   signedIn: boolean;
 };
 
-export function ListingRow({
+export async function ListingRow({
   id,
   title,
   description,
@@ -34,6 +37,9 @@ export function ListingRow({
   signedIn,
 }: Props) {
   const delivery = [pickupAvailable && "Pickup", deliveryAvailable && "Shipping"].filter(Boolean).join(" or ");
+  const cookieStore = await cookies();
+  const displayCurrency = cookieStore.get(DISPLAY_CURRENCY_COOKIE)?.value ?? null;
+  const rates = displayCurrency ? await getExchangeRates() : null;
 
   return (
     <Link href={`/listings/${id}`} className="flex gap-4 border-b py-4 first:pt-0 last:border-b-0 hover:bg-accent/30">
@@ -55,7 +61,9 @@ export function ListingRow({
       </div>
 
       <div className="flex shrink-0 flex-col items-end justify-between text-right">
-        <p className="font-semibold">{formatPrice(priceMinor, currencyCode)}</p>
+        <p className="font-semibold">
+          <Price minorUnits={priceMinor} currency={currencyCode} displayCurrency={displayCurrency} rates={rates?.rates ?? null} />
+        </p>
         <div className="text-xs text-muted-foreground">
           <p>{sellerName}</p>
           {city && <p>{city}</p>}

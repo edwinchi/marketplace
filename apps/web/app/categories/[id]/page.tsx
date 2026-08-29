@@ -1,12 +1,13 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { getCategoryPath, getCategoryDirectory, getCategoryDescendantIds } from "@/lib/categories";
+import { getCategoryPath, getCategoryDirectory, getCategoryDescendantIds, getCategoryGallery } from "@/lib/categories";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ListingList } from "@/components/listing-list";
 import { CategoryGroupCard } from "@/components/category-group-card";
+import { CategoryGallery } from "@/components/category-gallery";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -42,7 +43,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
   const supabase = await createClient();
   const { profile } = await getCurrentUserAndProfile();
   const descendantIds = await getCategoryDescendantIds(id);
-  const [{ data: listings, error: listingsError }, { data: favorites }] = await Promise.all([
+  const [{ data: listings, error: listingsError }, { data: favorites }, galleryImages] = await Promise.all([
     supabase
       .from("listings")
       .select(
@@ -58,6 +59,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
     profile
       ? supabase.from("favorites").select("listing_id").eq("profile_id", profile.id)
       : Promise.resolve({ data: [] as { listing_id: string }[] | null }),
+    getCategoryGallery(id),
   ]);
   // A query error here previously rendered as an indistinguishable "no listings yet" empty state
   // (see agents.md §12) — logging server-side, not swallowing it, is the cheap fix that would
@@ -74,6 +76,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
       {/* listings?.length, not a separate exact-count query — accurate up to the limit(24) below;
           revisit once real pagination exists for categories with more than a page of listings. */}
       <Breadcrumbs path={breadcrumbPath} resultCount={listings?.length ?? 0} />
+
+      <CategoryGallery images={galleryImages} />
 
       <div className="mb-6 flex flex-wrap items-center gap-2">
         {chips.map((chip) => (

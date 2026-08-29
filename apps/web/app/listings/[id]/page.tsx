@@ -5,9 +5,12 @@ import { MessageCircle, Globe } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getCategoryPath } from "@/lib/categories";
-import { formatPrice } from "@/lib/money";
+import { cookies } from "next/headers";
+import { formatPrice, DISPLAY_CURRENCY_COOKIE } from "@/lib/money";
+import { getExchangeRates } from "@/lib/exchange-rates";
 import { resolveMediaUrl } from "@/lib/media";
 import { getCountryName } from "@/lib/countries";
+import { Price } from "@/components/price";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,7 +29,9 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
   const { id } = await params;
   const supabase = await createClient();
   const { profile } = await getCurrentUserAndProfile();
-  const [t, locale] = await Promise.all([getTranslations("Listing"), getLocale()]);
+  const [t, locale, cookieStore] = await Promise.all([getTranslations("Listing"), getLocale(), cookies()]);
+  const displayCurrency = cookieStore.get(DISPLAY_CURRENCY_COOKIE)?.value ?? null;
+  const rates = displayCurrency ? await getExchangeRates() : null;
 
   const { data: listing } = await supabase
     .from("listings")
@@ -193,7 +198,9 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
 
           <div>
             <h1 className="text-xl font-semibold">{listing.title}</h1>
-            <p className="mt-1 text-3xl font-bold">{formatPrice(listing.price_minor ?? 0, listing.currency_code)}</p>
+            <p className="mt-1 text-3xl font-bold">
+              <Price minorUnits={listing.price_minor ?? 0} currency={listing.currency_code} displayCurrency={displayCurrency} rates={rates?.rates ?? null} locale={locale} />
+            </p>
             {listing.price_type === "bidding" && <p className="text-sm text-muted-foreground">{t("openToOffers")}</p>}
           </div>
 

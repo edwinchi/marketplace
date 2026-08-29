@@ -8,7 +8,7 @@ import { getFooterCategories } from "@/lib/categories";
 // integration all got the same treatment). Same reasoning kept "About/Careers/Press/sister sites"
 // out — AfroDeals has no such corporate structure to link to.
 export async function Footer() {
-  const [columns, t, tNav] = await Promise.all([
+  const [categories, t, tNav] = await Promise.all([
     getFooterCategories(),
     getTranslations("Footer"),
     getTranslations("Nav"),
@@ -21,24 +21,16 @@ export async function Footer() {
           than scattering brand color everywhere. */}
       <div className="h-1 bg-[linear-gradient(to_right,#082040_0%,#082040_33%,#e89818_33%,#e89818_67%,#008848_67%,#008848_100%)]" />
       <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3 lg:grid-cols-5">
-          {columns.map((col) => (
-            <div key={col.id}>
-              <Link href={`/categories/${col.id}`} className="text-sm font-semibold text-[#082040] hover:underline">
-                {col.name}
+        <h2 className="mb-4 text-sm font-semibold text-[#082040]">{t("categories")}</h2>
+        <ul className="grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          {categories.map((cat) => (
+            <li key={cat.id}>
+              <Link href={`/categories/${cat.id}`} className="text-sm text-muted-foreground transition-colors hover:text-foreground hover:underline">
+                {cat.name}
               </Link>
-              <ul className="mt-3 flex flex-col gap-2">
-                {col.children.map((child) => (
-                  <li key={child.id}>
-                    <Link href={`/categories/${child.id}`} className="text-sm text-muted-foreground hover:text-foreground hover:underline">
-                      {child.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t pt-6 text-sm text-muted-foreground">
           <Link href="/help" className="hover:text-foreground hover:underline">{tNav("helpInfo")}</Link>
@@ -47,12 +39,19 @@ export async function Footer() {
         </div>
 
         <div className="mt-6 border-t pt-6 text-center text-xs text-muted-foreground">
-          <p className="mx-auto max-w-2xl">
-            {t("safetyBlurb")}{" "}
+          <p className="mx-auto max-w-2xl">{t("disclaimer")}</p>
+          <p className="mx-auto mt-1 max-w-2xl">
+            {t("tradeSafely")}{" "}
             <Link href="/safety" className="underline">{t("safetyCenter")}</Link> {t("beforeMeeting")}
           </p>
-          <p className="mt-3 font-semibold text-[#082040]">AfroDeals</p>
-          <p className="mt-1">&copy; {new Date().getFullYear()} AfroDeals. {t("rightsReserved")}</p>
+          <p className="mt-3">&copy; {new Date().getFullYear()} AfroDeals. {t("rightsReserved")}</p>
+          <p className="mt-1">{t("companyLine", { kvk: "89423496" })}</p>
+          <p className="mt-1">
+            {t("developedBy")}{" "}
+            <a href="https://station9x.apps-pilot.nl/" target="_blank" rel="noopener noreferrer" className="underline">
+              station9x
+            </a>
+          </p>
         </div>
       </div>
     </footer>
