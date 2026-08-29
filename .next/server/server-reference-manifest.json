@@ -8,7 +8,7 @@
           "codeHash": null
         },
         "app/admin/page": {
-          "moduleId": 12785,
+          "moduleId": 46891,
           "async": false,
           "codeHash": null
         },
@@ -229,7 +229,7 @@
           "codeHash": null
         },
         "app/admin/page": {
-          "moduleId": 12785,
+          "moduleId": 46891,
           "async": false,
           "codeHash": null
         },
@@ -450,7 +450,7 @@
           "codeHash": null
         },
         "app/admin/page": {
-          "moduleId": 12785,
+          "moduleId": 46891,
           "async": false,
           "codeHash": null
         },
@@ -745,13 +745,24 @@
     "604290114a1cf15b8de749750f2e4c8ccc87cfca3d": {
       "workers": {
         "app/admin/page": {
-          "moduleId": 12785,
+          "moduleId": 46891,
           "async": false,
           "codeHash": null
         }
       },
       "filename": "app/admin/login-action.ts",
       "exportedName": "adminLogin"
+    },
+    "40fd284ed7415766f94785a9a21176c1d2fa114a51": {
+      "workers": {
+        "app/admin/page": {
+          "moduleId": 46891,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "filename": "app/admin/settings-actions.ts",
+      "exportedName": "updateRequireLoginSetting"
     },
     "60b188394444c905c9cc93fd2d0c0bc0963c1a0a31": {
       "workers": {

@@ -31,20 +31,21 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // TEMPORARY, while the site is still incomplete: sign-in is required to view anything, not just
-  // to post/use AI features. Previously this was a denylist (only /listings/new gated, browsing
-  // stayed public) — reverted per explicit instruction to lock down browsing until launch. To
-  // restore public browsing later, swap back to the denylist approach this replaced (protect only
-  // /listings/new, leave everything else out of PUBLIC_PATHS/isPublic below).
+  // Whether sign-in is required just to browse (vs. only to post/message/etc.) is a runtime
+  // toggle now — flip it from /admin without a deploy. Defaults to locked-down (true) if the
+  // settings row is ever missing/unreadable, matching the original pre-toggle behavior.
   // /admin is exempt from this blanket redirect (not from auth itself) so an anonymous visitor
   // sees the dedicated admin login screen at /admin instead of bouncing to the public /login page
   // -- app/admin/page.tsx still does its own getCurrentUserAndProfile()+isAdminEmail() check and
   // shows the dashboard to nobody else.
+  const { data: setting } = await supabase.from("app_settings").select("value").eq("key", "require_login").maybeSingle();
+  const requireLogin = setting?.value ?? true;
+
   const PUBLIC_PATHS = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth", "/help", "/terms", "/safety", "/admin"];
   const { pathname } = request.nextUrl;
   const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 
-  if (!user && !isPublic) {
+  if (requireLogin && !user && !isPublic) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);

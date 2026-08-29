@@ -39,6 +39,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          key: string
+          value: boolean
+          updated_at: string
+        }
+        Insert: {
+          key: string
+          value: boolean
+          updated_at?: string
+        }
+        Update: {
+          key?: string
+          value?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       attribute_option_translations: {
         Row: {
           label: string

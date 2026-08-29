@@ -8,6 +8,8 @@ import { isAdminEmail } from "@/lib/admin";
 import { getAdminStats } from "@/lib/admin-stats";
 import { formatPrice } from "@/lib/money";
 import { AdminLoginForm } from "@/components/admin/admin-login-form";
+import { RequireLoginToggle } from "@/components/admin/require-login-toggle";
+import { getRequireLoginSetting } from "@/lib/app-settings";
 
 function AdminLoginScreen() {
   return (
@@ -96,7 +98,7 @@ export default async function AdminDashboardPage() {
   const { user } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) return <AdminLoginScreen />;
 
-  const stats = await getAdminStats();
+  const [stats, requireLogin] = await Promise.all([getAdminStats(), getRequireLoginSetting()]);
   const maxCategory = Math.max(1, ...stats.topCategories.map(([, c]) => c));
   const maxCity = Math.max(1, ...stats.topCities.map(([, c]) => c));
 
@@ -111,6 +113,10 @@ export default async function AdminDashboardPage() {
         <Link href="/" className="rounded-lg border px-3 py-1.5 text-sm font-medium transition-all duration-150 hover:-translate-y-0.5 hover:border-[#e89818]/50">
           Back to site
         </Link>
+      </div>
+
+      <div className="mb-8">
+        <RequireLoginToggle initial={requireLogin} />
       </div>
 
       {/* Primary KPIs */}
