@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Car, Zap, Clock3, Sparkle, Bus, ShieldCheck, HandCoins, Gauge, FileText, Receipt, ClipboardCheck } from "lucide-react";
-import { ListingGrid } from "@/components/listing-grid";
+import { CarsSearchResults } from "@/components/cars-search-results";
 import type { CarsListing, CarsFilters } from "@/lib/cars-landing";
 import { cn } from "@/lib/utils";
 
@@ -10,6 +10,15 @@ type Props = {
   carsRootId: string;
   subcategories: SubCategory[];
   listings: CarsListing[];
+  totalMatches: number;
+  totalUnfiltered: number;
+  page: number;
+  totalPages: number;
+  brandCounts: Map<string, number>;
+  fuelTypeCounts: Map<string, number>;
+  transmissionCounts: Map<string, number>;
+  conditionCounts: Map<string, number>;
+  sellerTypeCounts: Map<string, number>;
   cities: string[];
   browseMakes: { id: string; name: string }[];
   filterMakes: string[];
@@ -46,6 +55,15 @@ export function CarsLanding({
   carsRootId,
   subcategories,
   listings,
+  totalMatches,
+  totalUnfiltered,
+  page,
+  totalPages,
+  brandCounts,
+  fuelTypeCounts,
+  transmissionCounts,
+  conditionCounts,
+  sellerTypeCounts,
   cities,
   browseMakes,
   filterMakes,
@@ -200,26 +218,24 @@ export function CarsLanding({
           </div>
         </div>
 
-        {/* Real listings */}
-        <div className="mt-10">
-          <h2 className="mb-3 text-lg font-semibold">
-            {filters.type || filters.brand || filters.city || filters.priceMax || filters.yearMin ? "Matching cars" : "Recent listings"}
-          </h2>
-          {listings.length > 0 ? (
-            <ListingGrid listings={listings} favoritedIds={favoritedIds} signedIn={signedIn} />
-          ) : (
-            <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed py-16 text-center">
-              <Car className="size-10 text-muted-foreground" />
-              <p className="font-medium">No cars match yet</p>
-              <p className="max-w-sm text-sm text-muted-foreground">
-                Try clearing a filter, or check back soon — new listings are added all the time.
-              </p>
-              <Link href={basePath} className="mt-2 text-sm font-medium text-[#e89818] hover:underline">
-                Clear filters
-              </Link>
-            </div>
-          )}
-        </div>
+        {/* Search results — sidebar facets + rich result cards */}
+        <CarsSearchResults
+          carsRootId={carsRootId}
+          subcategories={subcategories}
+          listings={listings}
+          totalMatches={totalMatches}
+          totalUnfiltered={totalUnfiltered}
+          page={page}
+          totalPages={totalPages}
+          brandCounts={brandCounts}
+          fuelTypeCounts={fuelTypeCounts}
+          transmissionCounts={transmissionCounts}
+          conditionCounts={conditionCounts}
+          sellerTypeCounts={sellerTypeCounts}
+          favoritedIds={favoritedIds}
+          signedIn={signedIn}
+          filters={filters}
+        />
 
         {/* Buying / selling tips — real, static guidance, not a fabricated "AI-powered" claim */}
         <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-3">

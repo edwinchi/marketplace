@@ -19,6 +19,12 @@ function parseNum(v: string | undefined) {
   return Number.isFinite(n) ? n : undefined;
 }
 
+function toArray(v: string | string[] | undefined): string[] | undefined {
+  if (!v) return undefined;
+  const arr = Array.isArray(v) ? v : [v];
+  return arr.length > 0 ? arr : undefined;
+}
+
 // Non-leaf categories (has children) show a subcategory directory, matching the
 // card-per-subcategory-with-leaf-links layout. Leaf categories show actual listings. "Cars"
 // specifically gets a dedicated, richer landing page (see components/cars-landing.tsx) — real
@@ -29,7 +35,13 @@ export default async function CategoryPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ type?: string; brand?: string; city?: string; priceMin?: string; priceMax?: string; yearMin?: string; yearMax?: string }>;
+  searchParams: Promise<{
+    type?: string; brand?: string; city?: string;
+    priceMin?: string; priceMax?: string; yearMin?: string; yearMax?: string;
+    mileageMin?: string; mileageMax?: string;
+    fuelType?: string | string[]; transmission?: string | string[]; condition?: string | string[];
+    sellerType?: string; priceType?: string; page?: string;
+  }>;
 }) {
   const { id } = await params;
   const [path, directory, t] = await Promise.all([getCategoryPath(id), getCategoryDirectory(id), getTranslations("Categories")]);
@@ -47,10 +59,23 @@ export default async function CategoryPage({
       priceMax: parseNum(sp.priceMax),
       yearMin: parseNum(sp.yearMin),
       yearMax: parseNum(sp.yearMax),
+      mileageMin: parseNum(sp.mileageMin),
+      mileageMax: parseNum(sp.mileageMax),
+      fuelType: toArray(sp.fuelType),
+      transmission: toArray(sp.transmission),
+      condition: toArray(sp.condition),
+      sellerType: sp.sellerType === "private" || sp.sellerType === "business" ? sp.sellerType : undefined,
+      priceType: sp.priceType === "fixed" || sp.priceType === "bidding" ? sp.priceType : undefined,
+      page: parseNum(sp.page),
     };
     const supabase = await createClient();
     const { profile } = await getCurrentUserAndProfile();
-    const [carsRootDescendantIds, { data: favorites }, { listings, cities, makes: filterMakes }, { data: browseMakes }] = await Promise.all([
+    const [
+      carsRootDescendantIds,
+      { data: favorites },
+      { listings, totalMatches, totalUnfiltered, page, totalPages, cities, makes: filterMakes, brandCounts, fuelTypeCounts, transmissionCounts, conditionCounts, sellerTypeCounts },
+      { data: browseMakes },
+    ] = await Promise.all([
       getCategoryDescendantIds(id),
       profile
         ? supabase.from("favorites").select("listing_id").eq("profile_id", profile.id)
@@ -73,6 +98,15 @@ export default async function CategoryPage({
           carsRootId={id}
           subcategories={directory.children.map((c) => ({ id: c.id, name: c.name, stableKey: c.stableKey }))}
           listings={listings}
+          totalMatches={totalMatches}
+          totalUnfiltered={totalUnfiltered}
+          page={page}
+          totalPages={totalPages}
+          brandCounts={brandCounts}
+          fuelTypeCounts={fuelTypeCounts}
+          transmissionCounts={transmissionCounts}
+          conditionCounts={conditionCounts}
+          sellerTypeCounts={sellerTypeCounts}
           cities={cities}
           browseMakes={browseMakes ?? []}
           filterMakes={filterMakes}
