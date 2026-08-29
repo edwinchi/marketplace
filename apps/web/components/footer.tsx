@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getFooterCategories } from "@/lib/categories";
+import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 
 // No app-store badges here (unlike the Marktplaats reference this is modeled on) — there is no
 // AfroDeals mobile app, and a badge that links nowhere real is exactly the kind of thing this
@@ -8,8 +9,12 @@ import { getFooterCategories } from "@/lib/categories";
 // integration all got the same treatment). Same reasoning kept "About/Careers/Press/sister sites"
 // out — AfroDeals has no such corporate structure to link to.
 export async function Footer() {
+  const { user } = await getCurrentUserAndProfile();
   const [categories, t, tNav] = await Promise.all([
-    getFooterCategories(),
+    // Browsing is sign-in-gated site-wide right now (see proxy.ts) — an anonymous visitor
+    // clicking any of these would just bounce straight back to /login, so skip both the query
+    // and the dead-end links entirely until they're signed in.
+    user ? getFooterCategories() : Promise.resolve([]),
     getTranslations("Footer"),
     getTranslations("Nav"),
   ]);
@@ -21,16 +26,20 @@ export async function Footer() {
           than scattering brand color everywhere. */}
       <div className="h-1 bg-[linear-gradient(to_right,#082040_0%,#082040_33%,#e89818_33%,#e89818_67%,#008848_67%,#008848_100%)]" />
       <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <h2 className="mb-4 text-sm font-semibold text-[#082040]">{t("categories")}</h2>
-        <ul className="grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {categories.map((cat) => (
-            <li key={cat.id}>
-              <Link href={`/categories/${cat.id}`} className="text-sm text-muted-foreground transition-colors hover:text-foreground hover:underline">
-                {cat.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {user && (
+          <>
+            <h2 className="mb-4 text-sm font-semibold text-[#082040]">{t("categories")}</h2>
+            <ul className="grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              {categories.map((cat) => (
+                <li key={cat.id}>
+                  <Link href={`/categories/${cat.id}`} className="text-sm text-muted-foreground transition-colors hover:text-foreground hover:underline">
+                    {cat.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t pt-6 text-sm text-muted-foreground">
           <Link href="/help" className="hover:text-foreground hover:underline">{tNav("helpInfo")}</Link>
