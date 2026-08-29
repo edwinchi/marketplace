@@ -12,11 +12,11 @@ export function AdminLoginForm() {
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="admin-email" className="text-xs font-medium text-white/70">
+        <label htmlFor="admin-email" className="text-xs font-medium text-[#082040]/70">
           Email address
         </label>
         <div className="relative">
-          <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-white/30" />
+          <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#082040]/35" />
           <input
             id="admin-email"
             name="email"
@@ -24,17 +24,17 @@ export function AdminLoginForm() {
             required
             autoComplete="email"
             placeholder="you@afrodeals.com"
-            className="w-full rounded-lg border border-white/10 bg-white/5 py-2.5 pr-3 pl-9 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-[#e89818]/60 focus:bg-white/[0.07]"
+            className="w-full rounded-lg border border-[#082040]/15 bg-white/70 py-2.5 pr-3 pl-9 text-sm text-[#082040] outline-none transition-colors placeholder:text-[#082040]/30 focus:border-[#e89818]/60 focus:bg-white"
           />
         </div>
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="admin-password" className="text-xs font-medium text-white/70">
+        <label htmlFor="admin-password" className="text-xs font-medium text-[#082040]/70">
           Password
         </label>
         <div className="relative">
-          <Lock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-white/30" />
+          <Lock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#082040]/35" />
           <input
             id="admin-password"
             name="password"
@@ -42,13 +42,13 @@ export function AdminLoginForm() {
             required
             autoComplete="current-password"
             placeholder="••••••••"
-            className="w-full rounded-lg border border-white/10 bg-white/5 py-2.5 pr-3 pl-9 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-[#e89818]/60 focus:bg-white/[0.07]"
+            className="w-full rounded-lg border border-[#082040]/15 bg-white/70 py-2.5 pr-3 pl-9 text-sm text-[#082040] outline-none transition-colors placeholder:text-[#082040]/30 focus:border-[#e89818]/60 focus:bg-white"
           />
         </div>
       </div>
 
       {state.error && (
-        <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+        <p className="rounded-lg border border-red-500/25 bg-red-500/10 px-3 py-2 text-xs text-red-700">
           {state.error}
         </p>
       )}

@@ -11,18 +11,18 @@ import { AdminLoginForm } from "@/components/admin/admin-login-form";
 
 function AdminLoginScreen() {
   return (
-    <div className="relative flex min-h-[calc(100vh-4rem)] items-center justify-center overflow-hidden bg-[#050b18] px-4 py-16">
+    <div className="relative flex min-h-[calc(100vh-4rem)] items-center justify-center overflow-hidden bg-[linear-gradient(155deg,#eafbf1_0%,#cdf1dc_45%,#a9e6c3_100%)] px-4 py-16">
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-32 -left-32 size-96 rounded-full bg-[#e89818]/20 blur-3xl"
+        className="pointer-events-none absolute -top-32 -left-32 size-96 rounded-full bg-[#008848]/25 blur-3xl"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-32 -bottom-32 size-96 rounded-full bg-[#008848]/20 blur-3xl"
+        className="pointer-events-none absolute -right-32 -bottom-32 size-96 rounded-full bg-[#e89818]/15 blur-3xl"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)] bg-[size:28px_28px]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(8,32,64,0.07)_1px,transparent_0)] bg-[size:28px_28px]"
       />
 
       <div className="relative w-full max-w-md">
@@ -33,17 +33,17 @@ function AdminLoginScreen() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-8 shadow-2xl backdrop-blur-xl">
+        <div className="rounded-2xl border border-white/50 bg-white/60 p-8 shadow-2xl backdrop-blur-xl">
           <div className="mb-6 text-center">
-            <p className="text-xs font-semibold tracking-widest text-[#e89818] uppercase">Restricted access</p>
-            <h1 className="mt-1 text-xl font-bold text-white">Executive Dashboard</h1>
-            <p className="mt-2 text-sm text-white/50">Sign in with your administrator account to continue.</p>
+            <p className="text-xs font-semibold tracking-widest text-[#b97a0f] uppercase">Restricted access</p>
+            <h1 className="mt-1 text-xl font-bold text-[#082040]">Executive Dashboard</h1>
+            <p className="mt-2 text-sm text-[#082040]/60">Sign in with your administrator account to continue.</p>
           </div>
           <AdminLoginForm />
         </div>
 
-        <p className="mt-6 text-center text-xs text-white/30">
-          <Link href="/" className="underline underline-offset-2 hover:text-white/60">
+        <p className="mt-6 text-center text-xs text-[#082040]/40">
+          <Link href="/" className="underline underline-offset-2 hover:text-[#082040]/70">
             Back to AfroDeals
           </Link>
         </p>
