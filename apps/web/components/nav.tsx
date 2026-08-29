@@ -9,6 +9,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { AccountMenu } from "@/components/account-menu";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { CurrencySwitcher } from "@/components/currency-switcher";
+import { cn } from "@/lib/utils";
 
 export async function Nav() {
   const { user, profile } = await getCurrentUserAndProfile();
@@ -68,8 +69,12 @@ export async function Nav() {
               </Link>
             )}
             {/* Hidden on mobile — the fixed bottom nav already has a dedicated "Post ad" entry,
-                and this button was the main cause of header overflow on narrow viewports. */}
-            <Link href="/listings/new" className={buttonVariants({ size: "sm", className: "hidden sm:inline-flex" })}>
+                and this button was the main cause of header overflow on narrow viewports.
+                buttonVariants() called standalone (not through <Button>) never runs through cn()'s
+                tailwind-merge dedup, so its own base `inline-flex` was silently beating this
+                `hidden` in Tailwind's generated CSS order -- explicitly merging with cn() here
+                fixes that instead of relying on cva's plain string concatenation. */}
+            <Link href="/listings/new" className={cn(buttonVariants({ size: "sm" }), "hidden sm:inline-flex")}>
               {t("postAd")}
             </Link>
           </nav>

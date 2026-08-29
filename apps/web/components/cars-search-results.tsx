@@ -240,27 +240,27 @@ export function CarsSearchResults({
           <div className="rounded-xl border bg-card p-4">
             <h3 className="mb-2 text-sm font-semibold text-[#082040]">Price</h3>
             <div className="flex items-center gap-2">
-              <input type="number" name="priceMin" min="0" defaultValue={filters.priceMin ?? ""} placeholder="From" className="h-9 w-full rounded-md border bg-background px-2 text-sm focus:border-[#e89818] focus:outline-none" />
+              <input type="number" name="priceMin" min="0" defaultValue={filters.priceMin ?? ""} placeholder="From" className="h-9 w-full rounded-md border bg-[#008848]/6 px-2 text-sm focus:border-[#e89818] focus:bg-[#008848]/10 focus:outline-none" />
               <span className="text-muted-foreground">–</span>
-              <input type="number" name="priceMax" min="0" defaultValue={filters.priceMax ?? ""} placeholder="To" className="h-9 w-full rounded-md border bg-background px-2 text-sm focus:border-[#e89818] focus:outline-none" />
+              <input type="number" name="priceMax" min="0" defaultValue={filters.priceMax ?? ""} placeholder="To" className="h-9 w-full rounded-md border bg-[#008848]/6 px-2 text-sm focus:border-[#e89818] focus:bg-[#008848]/10 focus:outline-none" />
             </div>
           </div>
 
           <div className="rounded-xl border bg-card p-4">
             <h3 className="mb-2 text-sm font-semibold text-[#082040]">Year</h3>
             <div className="flex items-center gap-2">
-              <input type="number" name="yearMin" min="1950" max="2030" defaultValue={filters.yearMin ?? ""} placeholder="From" className="h-9 w-full rounded-md border bg-background px-2 text-sm focus:border-[#e89818] focus:outline-none" />
+              <input type="number" name="yearMin" min="1950" max="2030" defaultValue={filters.yearMin ?? ""} placeholder="From" className="h-9 w-full rounded-md border bg-[#008848]/6 px-2 text-sm focus:border-[#e89818] focus:bg-[#008848]/10 focus:outline-none" />
               <span className="text-muted-foreground">–</span>
-              <input type="number" name="yearMax" min="1950" max="2030" defaultValue={filters.yearMax ?? ""} placeholder="To" className="h-9 w-full rounded-md border bg-background px-2 text-sm focus:border-[#e89818] focus:outline-none" />
+              <input type="number" name="yearMax" min="1950" max="2030" defaultValue={filters.yearMax ?? ""} placeholder="To" className="h-9 w-full rounded-md border bg-[#008848]/6 px-2 text-sm focus:border-[#e89818] focus:bg-[#008848]/10 focus:outline-none" />
             </div>
           </div>
 
           <div className="rounded-xl border bg-card p-4">
             <h3 className="mb-2 text-sm font-semibold text-[#082040]">Mileage (km)</h3>
             <div className="flex items-center gap-2">
-              <input type="number" name="mileageMin" min="0" defaultValue={filters.mileageMin ?? ""} placeholder="From" className="h-9 w-full rounded-md border bg-background px-2 text-sm focus:border-[#e89818] focus:outline-none" />
+              <input type="number" name="mileageMin" min="0" defaultValue={filters.mileageMin ?? ""} placeholder="From" className="h-9 w-full rounded-md border bg-[#008848]/6 px-2 text-sm focus:border-[#e89818] focus:bg-[#008848]/10 focus:outline-none" />
               <span className="text-muted-foreground">–</span>
-              <input type="number" name="mileageMax" min="0" defaultValue={filters.mileageMax ?? ""} placeholder="To" className="h-9 w-full rounded-md border bg-background px-2 text-sm focus:border-[#e89818] focus:outline-none" />
+              <input type="number" name="mileageMax" min="0" defaultValue={filters.mileageMax ?? ""} placeholder="To" className="h-9 w-full rounded-md border bg-[#008848]/6 px-2 text-sm focus:border-[#e89818] focus:bg-[#008848]/10 focus:outline-none" />
             </div>
           </div>
 

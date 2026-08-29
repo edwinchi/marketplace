@@ -139,7 +139,7 @@ export function CarsLanding({
               <select
                 name="brand"
                 defaultValue={filters.brand ?? ""}
-                className="h-9 rounded-md border bg-background px-2 text-sm transition-colors focus:border-[#e89818] focus:outline-none"
+                className="h-9 rounded-md border bg-[#008848]/6 px-2 text-sm transition-colors focus:border-[#e89818] focus:bg-[#008848]/10 focus:outline-none"
               >
                 <option value="">All brands</option>
                 {browseMakes.map((m) => (
@@ -152,7 +152,7 @@ export function CarsLanding({
               <select
                 name="city"
                 defaultValue={filters.city ?? ""}
-                className="h-9 rounded-md border bg-background px-2 text-sm transition-colors focus:border-[#e89818] focus:outline-none"
+                className="h-9 rounded-md border bg-[#008848]/6 px-2 text-sm transition-colors focus:border-[#e89818] focus:bg-[#008848]/10 focus:outline-none"
               >
                 <option value="">All cities</option>
                 {cities.map((c) => (
@@ -168,7 +168,7 @@ export function CarsLanding({
                 min="0"
                 defaultValue={filters.priceMax ?? ""}
                 placeholder="Any"
-                className="h-9 rounded-md border bg-background px-2 text-sm transition-colors focus:border-[#e89818] focus:outline-none"
+                className="h-9 rounded-md border bg-[#008848]/6 px-2 text-sm transition-colors focus:border-[#e89818] focus:bg-[#008848]/10 focus:outline-none"
               />
             </label>
             <label className="flex flex-col gap-1">
@@ -180,7 +180,7 @@ export function CarsLanding({
                 max="2030"
                 defaultValue={filters.yearMin ?? ""}
                 placeholder="Any"
-                className="h-9 rounded-md border bg-background px-2 text-sm transition-colors focus:border-[#e89818] focus:outline-none"
+                className="h-9 rounded-md border bg-[#008848]/6 px-2 text-sm transition-colors focus:border-[#e89818] focus:bg-[#008848]/10 focus:outline-none"
               />
             </label>
           </div>

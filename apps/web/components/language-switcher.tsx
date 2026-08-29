@@ -25,7 +25,9 @@ export function LanguageSwitcher({ locale }: { locale: string }) {
         });
       }}
     >
-      <SelectTrigger size="sm" className="gap-1 border-none shadow-none">
+      {/* bg-transparent: opts this compact nav control out of SelectTrigger's default light-green
+          "form field" background -- it's meant to blend into the header, not read as a form field. */}
+      <SelectTrigger size="sm" className="gap-1 border-none bg-transparent shadow-none">
         <Globe className="size-4 text-muted-foreground" />
         <SelectValue>{(value: string | null) => LABELS[value ?? "en"]}</SelectValue>
       </SelectTrigger>

@@ -22,9 +22,16 @@ export function CurrencySwitcher({ currency }: { currency: string | null }) {
         });
       }}
     >
-      <SelectTrigger size="sm" className="gap-1 border-none shadow-none">
+      {/* bg-transparent: opts this compact nav control out of SelectTrigger's default light-green
+          "form field" background -- it's meant to blend into the header, not read as a form field. */}
+      <SelectTrigger size="sm" className="gap-1 border-none bg-transparent shadow-none">
         <Coins className="size-4 text-muted-foreground" />
-        <SelectValue>{(v: string | null) => (v === "native" ? "Listed price" : v)}</SelectValue>
+        {/* "Listed price" is long enough on its own to push the mobile header into horizontal
+            overflow (the same class of bug nav.tsx's Post-ad button had) — hide the label below
+            sm, matching the Messages/Notifications links' icon-only mobile treatment. */}
+        <SelectValue>
+          {(v: string | null) => <span className="hidden sm:inline">{v === "native" ? "Listed price" : v}</span>}
+        </SelectValue>
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="native">Listed price</SelectItem>
