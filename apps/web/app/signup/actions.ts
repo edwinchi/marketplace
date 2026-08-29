@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { isPasswordValid } from "@/lib/password-rules";
 
@@ -27,6 +28,7 @@ export async function signup(_prevState: SignupFormState, formData: FormData): P
 
   const supabase = await createClient();
   const baseUsername = slugify(displayName);
+  const origin = (await headers()).get("origin");
 
   // Auto-derived from the name (the form only asks for one, matching the reference design) — on
   // a collision, the handle_new_user() trigger's unique-username constraint aborts the whole
@@ -36,7 +38,7 @@ export async function signup(_prevState: SignupFormState, formData: FormData): P
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { username, display_name: displayName } },
+      options: { data: { username, display_name: displayName }, emailRedirectTo: `${origin}/auth/callback` },
     });
 
     if (!error) {
