@@ -33,11 +33,6 @@ export async function Nav() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.png" alt="AfroDeals" className="h-16 w-auto" />
             </Link>
-            <div className="hidden items-center gap-4 text-sm text-muted-foreground sm:flex">
-              <Link href="/help" className="transition-colors hover:text-primary">{t("helpInfo")}</Link>
-              <Link href="/terms" className="transition-colors hover:text-primary">{t("terms")}</Link>
-              <Link href="/safety" className="transition-colors hover:text-primary">{t("safetyCenter")}</Link>
-            </div>
           </div>
           <nav className="flex items-center gap-1 sm:gap-2">
             <LanguageSwitcher locale={locale} />
