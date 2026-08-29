@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTranslations, getLocale } from "next-intl/server";
-import { MessageCircle, Globe } from "lucide-react";
+import { MessageCircle, Globe, Calendar, Fuel, Cog, Gauge, Tag } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getCategoryPath } from "@/lib/categories";
@@ -71,7 +71,7 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
       listing.location_id
         ? supabase.from("locations").select("city, country_code").eq("id", listing.location_id).single()
         : Promise.resolve({ data: null }),
-      supabase.from("profiles").select("username, display_name, created_at, website_url").eq("id", listing.seller_id).single(),
+      supabase.from("profiles").select("username, display_name, created_at, website_url, account_type").eq("id", listing.seller_id).single(),
       supabase
         .from("listing_attribute_values")
         .select(
@@ -109,6 +109,27 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
   }
 
   const images = (media ?? []).map((m) => resolveMediaUrl(m.storage_key, process.env.NEXT_PUBLIC_SUPABASE_URL!));
+
+  // Real quick-spec strip for automotive listings — pulled from the same attribute rows the full
+  // characteristics list below already fetched (brand/production_year/mileage/fuel_type/
+  // transmission), not a separate query. Renders nothing when a listing simply doesn't have these
+  // (a non-car category, or a car listing missing some fields) rather than showing blank icons.
+  const specByKey = new Map<string, string>();
+  for (const av of attributeValues ?? []) {
+    const attr = Array.isArray(av.attributes) ? av.attributes[0] : av.attributes;
+    if (!attr?.stable_key) continue;
+    const optionTranslations = Array.isArray(av.attribute_options) ? av.attribute_options[0] : av.attribute_options;
+    const optionLabel = optionTranslations?.attribute_option_translations?.find((t: { language_code: string; label: string }) => t.language_code === "en")?.label;
+    const value = optionLabel ?? av.value_text ?? av.value_number;
+    if (value != null) specByKey.set(attr.stable_key, String(value));
+  }
+  const quickSpecs = [
+    { key: "brand", icon: Tag, label: specByKey.get("brand") },
+    { key: "production_year", icon: Calendar, label: specByKey.get("production_year") },
+    { key: "mileage", icon: Gauge, label: specByKey.get("mileage") ? `${Number(specByKey.get("mileage")).toLocaleString()} km` : undefined },
+    { key: "fuel_type", icon: Fuel, label: specByKey.get("fuel_type") },
+    { key: "transmission", icon: Cog, label: specByKey.get("transmission") },
+  ].filter((s): s is { key: string; icon: typeof Tag; label: string } => !!s.label);
   const breadcrumbPath = [...categoryPath.map((n) => ({ id: n.id, name: n.name })), { id: listing.id, name: listing.title }];
 
   const memberSince = new Date(seller?.created_at ?? listing.created_at);
@@ -203,6 +224,19 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
             </p>
             {listing.price_type === "bidding" && <p className="text-sm text-muted-foreground">{t("openToOffers")}</p>}
           </div>
+
+          {quickSpecs.length > 0 && (
+            <div className="grid grid-cols-2 gap-2 rounded-xl border bg-linear-to-br from-[#082040]/3 to-[#e89818]/3 p-3 sm:grid-cols-3">
+              {quickSpecs.map(({ key, icon: Icon, label }) => (
+                <div key={key} className="flex items-center gap-2 text-sm">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#e89818]/10 text-[#e89818]">
+                    <Icon className="size-4" />
+                  </span>
+                  <span className="truncate font-medium">{label}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="flex flex-wrap gap-2">
             {listing.pickup_available && <Badge variant="secondary">{t("pickup")}</Badge>}
@@ -336,7 +370,7 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
               </div>
 
               <p className="border-t pt-4 text-xs text-muted-foreground">
-                {t("privateSellerNotice")}{" "}
+                {seller?.account_type === "business" ? t("businessSellerNotice") : t("privateSellerNotice")}{" "}
                 <Link href="/safety" className="underline transition-colors hover:text-foreground">
                   {t("learnMore")}
                 </Link>

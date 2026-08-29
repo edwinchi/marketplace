@@ -1,5 +1,5 @@
 var R=require("../../../../../chunks/ssr/[turbopack]_runtime.js")("server/app/identity/v2/two-factor-auth-setup/change/page.js")
-R.c("server/chunks/ssr/[root-of-the-server]__0hpil15._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0884_3e._.js")
 R.c("server/chunks/ssr/node_modules_next_dist_1n3w9lb._.js")
 R.c("server/chunks/ssr/[root-of-the-server]__0aleo31._.js")
 R.c("server/chunks/ssr/[root-of-the-server]__01h2p23._.js")
@@ -16,5 +16,5 @@ R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_forbidde
 R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_unauthorized_0l_sp0x.js")
 R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_global-error_0q-w892.js")
 R.c("server/chunks/ssr/_1eoqql3._.js")
-R.m(14032)
-module.exports=R.m(14032).exports
+R.m(43534)
+module.exports=R.m(43534).exports

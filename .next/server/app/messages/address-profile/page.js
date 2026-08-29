@@ -1,5 +1,5 @@
 var R=require("../../../chunks/ssr/[turbopack]_runtime.js")("server/app/messages/address-profile/page.js")
-R.c("server/chunks/ssr/[root-of-the-server]__1b6t10s._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__16ldvtp._.js")
 R.c("server/chunks/ssr/node_modules_next_dist_1n3w9lb._.js")
 R.c("server/chunks/ssr/[root-of-the-server]__0aleo31._.js")
 R.c("server/chunks/ssr/[root-of-the-server]__01h2p23._.js")
@@ -17,5 +17,5 @@ R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_unauthor
 R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_global-error_0q-w892.js")
 R.c("server/chunks/ssr/_1ja3xk_._.js")
 R.c("server/chunks/ssr/node_modules_next_0n5dn-n._.js")
-R.m(61116)
-module.exports=R.m(61116).exports
+R.m(36291)
+module.exports=R.m(36291).exports

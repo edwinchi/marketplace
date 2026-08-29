@@ -94,6 +94,7 @@
     "identityVerification": "Identity verification",
     "comingSoon": "Coming soon",
     "privateSellerNotice": "This seller has identified themselves as a private individual. Consumer-protection rules that apply to business purchases may not apply here.",
+    "businessSellerNotice": "This seller has identified themselves as a business. Consumer-protection rules that apply to business purchases generally apply here.",
     "learnMore": "Learn more",
     "yearsOnPlatform": "{count, plural, one {# year} other {# years}} on AfroDeals",
     "newOnPlatform": "New on AfroDeals",

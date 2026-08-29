@@ -94,6 +94,7 @@
     "identityVerification": "Vérification d'identité",
     "comingSoon": "Bientôt disponible",
     "privateSellerNotice": "Ce vendeur s'est identifié comme un particulier. Les règles de protection des consommateurs qui s'appliquent aux achats professionnels peuvent ne pas s'appliquer ici.",
+    "businessSellerNotice": "Ce vendeur s'est identifié comme une entreprise. Les règles de protection des consommateurs qui s'appliquent aux achats professionnels s'appliquent généralement ici.",
     "learnMore": "En savoir plus",
     "yearsOnPlatform": "{count, plural, one {# an} other {# ans}} sur AfroDeals",
     "newOnPlatform": "Nouveau sur AfroDeals",

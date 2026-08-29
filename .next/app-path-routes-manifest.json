@@ -12,6 +12,7 @@
   "/favicon.ico/route": "/favicon.ico",
   "/forgot-password/page": "/forgot-password",
   "/help/page": "/help",
+  "/icon.png/route": "/icon.png",
   "/identity/v2/change-email/initiate/page": "/identity/v2/change-email/initiate",
   "/identity/v2/two-factor-auth-setup/change/page": "/identity/v2/two-factor-auth-setup/change",
   "/listings/[id]/edit/page": "/listings/[id]/edit",

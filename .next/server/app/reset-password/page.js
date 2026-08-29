@@ -1,5 +1,5 @@
 var R=require("../../chunks/ssr/[turbopack]_runtime.js")("server/app/reset-password/page.js")
-R.c("server/chunks/ssr/[root-of-the-server]__0uhk5kb._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0zjjsfd._.js")
 R.c("server/chunks/ssr/node_modules_next_dist_1n3w9lb._.js")
 R.c("server/chunks/ssr/[root-of-the-server]__0aleo31._.js")
 R.c("server/chunks/ssr/[root-of-the-server]__01h2p23._.js")
@@ -17,5 +17,5 @@ R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_unauthor
 R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_global-error_0q-w892.js")
 R.c("server/chunks/ssr/_next-internal_server_app_reset-password_page_actions_0pr_g08.js")
 R.c("server/chunks/ssr/_10l1tcz._.js")
-R.m(51493)
-module.exports=R.m(51493).exports
+R.m(25777)
+module.exports=R.m(25777).exports

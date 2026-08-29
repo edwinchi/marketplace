@@ -12,6 +12,7 @@
   "/favicon.ico/route": "app/favicon.ico/route.js",
   "/forgot-password/page": "app/forgot-password/page.js",
   "/help/page": "app/help/page.js",
+  "/icon.png/route": "app/icon.png/route.js",
   "/identity/v2/change-email/initiate/page": "app/identity/v2/change-email/initiate/page.js",
   "/identity/v2/two-factor-auth-setup/change/page": "app/identity/v2/two-factor-auth-setup/change/page.js",
   "/listings/[id]/edit/page": "app/listings/[id]/edit/page.js",

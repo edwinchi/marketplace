@@ -131,6 +131,12 @@
       "namedRegex": "^/help(?:/)?$"
     },
     {
+      "page": "/icon.png",
+      "regex": "^/icon\\.png(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/icon\\.png(?:/)?$"
+    },
+    {
       "page": "/identity/v2/change-email/initiate",
       "regex": "^/identity/v2/change\\-email/initiate(?:/)?$",
       "routeKeys": {},

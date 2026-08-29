@@ -1,5 +1,5 @@
 var R=require("../../../chunks/ssr/[turbopack]_runtime.js")("server/app/my-account/bids/page.js")
-R.c("server/chunks/ssr/[root-of-the-server]__0g0_f6q._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__1mw7_2o._.js")
 R.c("server/chunks/ssr/node_modules_next_dist_1n3w9lb._.js")
 R.c("server/chunks/ssr/_1kosf9f._.js")
 R.c("server/chunks/ssr/[root-of-the-server]__0aleo31._.js")
@@ -18,5 +18,5 @@ R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_unauthor
 R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_global-error_0q-w892.js")
 R.c("server/chunks/ssr/_132vdgj._.js")
 R.c("server/chunks/ssr/_0ouz2_j._.js")
-R.m(94324)
-module.exports=R.m(94324).exports
+R.m(75190)
+module.exports=R.m(75190).exports

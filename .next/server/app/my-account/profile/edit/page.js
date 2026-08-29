@@ -1,5 +1,5 @@
 var R=require("../../../../chunks/ssr/[turbopack]_runtime.js")("server/app/my-account/profile/edit/page.js")
-R.c("server/chunks/ssr/[root-of-the-server]__0l023lg._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0t0s-rn._.js")
 R.c("server/chunks/ssr/node_modules_next_dist_1n3w9lb._.js")
 R.c("server/chunks/ssr/[root-of-the-server]__0aleo31._.js")
 R.c("server/chunks/ssr/[root-of-the-server]__01h2p23._.js")
@@ -18,5 +18,5 @@ R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_global-e
 R.c("server/chunks/ssr/_132vdgj._.js")
 R.c("server/chunks/ssr/_0hxt-5i._.js")
 R.c("server/chunks/ssr/node_modules_next_0n5dn-n._.js")
-R.m(93219)
-module.exports=R.m(93219).exports
+R.m(1732)
+module.exports=R.m(1732).exports
