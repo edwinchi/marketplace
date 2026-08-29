@@ -60,7 +60,15 @@
     "termsOfUse": "Terms of Use",
     "signingIn": "Signing in…",
     "creatingAccount": "Creating account…",
-    "forgotPassword": "Forgot password?"
+    "forgotPassword": "Forgot password?",
+    "welcomeHeading": "Welcome to AfroDeals",
+    "welcomeSubtext": "Buy and sell across African markets — from cars and electronics to fashion and more.",
+    "benefitDirectTitle": "Deal directly",
+    "benefitDirectText": "Message buyers and sellers directly — no middleman.",
+    "benefitReachTitle": "Africa & Europe",
+    "benefitReachText": "Browse listings across dozens of countries in one place.",
+    "benefitSafeTitle": "Trade safely",
+    "benefitSafeText": "Follow our safety tips before you meet or pay."
   },
   "Categories": {
     "home": "Home",
