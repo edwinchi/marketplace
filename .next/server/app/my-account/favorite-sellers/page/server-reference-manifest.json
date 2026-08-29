@@ -3,7 +3,7 @@
     "00952f34b10c497daa584b8e93aef0d2863e8e2622": {
       "workers": {
         "app/my-account/favorite-sellers/page": {
-          "moduleId": 59169,
+          "moduleId": 36232,
           "async": false,
           "codeHash": null
         }
@@ -14,7 +14,7 @@
     "4005a413158b90659f593457d538bd9386d09f8c00": {
       "workers": {
         "app/my-account/favorite-sellers/page": {
-          "moduleId": 59169,
+          "moduleId": 36232,
           "async": false,
           "codeHash": null
         }
@@ -22,10 +22,21 @@
       "exportedName": "setLocale",
       "filename": "app/actions/set-locale.ts"
     },
+    "4050edf080a05dd3b2973ad18cb3616c6f88447d92": {
+      "workers": {
+        "app/my-account/favorite-sellers/page": {
+          "moduleId": 36232,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "setDisplayCurrency",
+      "filename": "app/actions/set-currency.ts"
+    },
     "4035cfe06d71d6b948eebd2d015a5a3483b429b203": {
       "workers": {
         "app/my-account/favorite-sellers/page": {
-          "moduleId": 59169,
+          "moduleId": 36232,
           "async": false,
           "codeHash": null
         }
@@ -36,7 +47,7 @@
     "40f577a2d037e202ac192815ca7234830c1510b0c4": {
       "workers": {
         "app/my-account/favorite-sellers/page": {
-          "moduleId": 59169,
+          "moduleId": 36232,
           "async": false,
           "codeHash": null
         }

@@ -3,7 +3,7 @@
     "00952f34b10c497daa584b8e93aef0d2863e8e2622": {
       "workers": {
         "app/my-account/preferences/location/page": {
-          "moduleId": 32788,
+          "moduleId": 70589,
           "async": false,
           "codeHash": null
         }
@@ -14,7 +14,7 @@
     "4005a413158b90659f593457d538bd9386d09f8c00": {
       "workers": {
         "app/my-account/preferences/location/page": {
-          "moduleId": 32788,
+          "moduleId": 70589,
           "async": false,
           "codeHash": null
         }
@@ -22,10 +22,21 @@
       "exportedName": "setLocale",
       "filename": "app/actions/set-locale.ts"
     },
+    "4050edf080a05dd3b2973ad18cb3616c6f88447d92": {
+      "workers": {
+        "app/my-account/preferences/location/page": {
+          "moduleId": 70589,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "setDisplayCurrency",
+      "filename": "app/actions/set-currency.ts"
+    },
     "40473c8f153b0d0a7c7b8f657ea43baf105052973f": {
       "workers": {
         "app/my-account/preferences/location/page": {
-          "moduleId": 32788,
+          "moduleId": 70589,
           "async": false,
           "codeHash": null
         }
@@ -36,7 +47,7 @@
     "406459365e25bba31f155cbbca6e40f67f6bcf09ab": {
       "workers": {
         "app/my-account/preferences/location/page": {
-          "moduleId": 32788,
+          "moduleId": 70589,
           "async": false,
           "codeHash": null
         }

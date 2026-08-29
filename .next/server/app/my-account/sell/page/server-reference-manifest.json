@@ -3,7 +3,7 @@
     "00952f34b10c497daa584b8e93aef0d2863e8e2622": {
       "workers": {
         "app/my-account/sell/page": {
-          "moduleId": 51014,
+          "moduleId": 70082,
           "async": false,
           "codeHash": null
         }
@@ -14,13 +14,24 @@
     "4005a413158b90659f593457d538bd9386d09f8c00": {
       "workers": {
         "app/my-account/sell/page": {
-          "moduleId": 51014,
+          "moduleId": 70082,
           "async": false,
           "codeHash": null
         }
       },
       "exportedName": "setLocale",
       "filename": "app/actions/set-locale.ts"
+    },
+    "4050edf080a05dd3b2973ad18cb3616c6f88447d92": {
+      "workers": {
+        "app/my-account/sell/page": {
+          "moduleId": 70082,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "setDisplayCurrency",
+      "filename": "app/actions/set-currency.ts"
     }
   },
   "edge": {}
