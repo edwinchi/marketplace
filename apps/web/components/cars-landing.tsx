@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Car, Zap, Clock3, Sparkle, Bus, ShieldCheck, HandCoins, Gauge, FileText, Receipt, ClipboardCheck } from "lucide-react";
+import { Car, Zap, Clock3, Sparkle, Bus, ShieldCheck, HandCoins, Gauge, FileText, Receipt, ClipboardCheck, X } from "lucide-react";
 import { CarsSearchResults } from "@/components/cars-search-results";
+import { CarsBrandGrid } from "@/components/cars-brand-grid";
 import type { CarsListing, CarsFilters } from "@/lib/cars-landing";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +22,6 @@ type Props = {
   sellerTypeCounts: Map<string, number>;
   cities: string[];
   browseMakes: { id: string; name: string }[];
-  filterMakes: string[];
   favoritedIds: Set<string>;
   signedIn: boolean;
   filters: CarsFilters;
@@ -66,7 +66,6 @@ export function CarsLanding({
   sellerTypeCounts,
   cities,
   browseMakes,
-  filterMakes,
   favoritedIds,
   signedIn,
   filters,
@@ -143,8 +142,8 @@ export function CarsLanding({
                 className="h-9 rounded-md border bg-background px-2 text-sm transition-colors focus:border-[#e89818] focus:outline-none"
               >
                 <option value="">All brands</option>
-                {filterMakes.map((m) => (
-                  <option key={m} value={m}>{m}</option>
+                {browseMakes.map((m) => (
+                  <option key={m.id} value={m.name}>{m.name}</option>
                 ))}
               </select>
             </label>
@@ -186,7 +185,15 @@ export function CarsLanding({
             </label>
           </div>
 
-          <div className="mt-4 flex items-center justify-end">
+          <div className="mt-4 flex items-center justify-end gap-3">
+            {(filters.type || filters.brand || filters.city || filters.priceMax != null || filters.yearMin != null) && (
+              <Link
+                href={basePath}
+                className="flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <X className="size-3.5" /> Clear
+              </Link>
+            )}
             <button
               type="submit"
               className="rounded-lg bg-[#082040] px-5 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:bg-[#0a2a54]"
@@ -302,13 +309,14 @@ export function CarsLanding({
           </div>
         </div>
 
-        {/* Browse by city — real cities actually represented among Cars listings, capped at 33 so
-            this stays a tidy grid as more listings land in more cities. */}
+        {/* Browse by city — real cities actually represented among Cars listings. The quick-filter
+            dropdown above gets every one of them; this grid caps its own display at 33 so it stays
+            tidy as more listings land in more cities. */}
         {cities.length > 0 && (
           <div className="mt-12 mb-4 rounded-2xl border bg-card p-6 shadow-sm">
             <h2 className="mb-4 text-base font-semibold">Discover used and new cars in these locations:</h2>
             <div className="grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3 lg:grid-cols-4">
-              {cities.map((city) => (
+              {cities.slice(0, 33).map((city) => (
                 <Link
                   key={city}
                   href={basePath + buildQuery(filters, { city })}
@@ -324,24 +332,18 @@ export function CarsLanding({
           </div>
         )}
 
-        {/* Browse by brand — the real vehicle_makes reference list (not padded to look bigger) */}
+        {/* Browse by brand — the real vehicle_makes reference list, all 90, with show-more */}
         {browseMakes.length > 0 && (
           <div className="mt-12 mb-16">
             <h2 className="mb-3 text-lg font-semibold">Browse by brand</h2>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
-              {browseMakes.map((make) => (
-                <Link
-                  key={make.id}
-                  href={basePath + buildQuery(filters, { brand: make.name })}
-                  className={cn(
-                    "rounded-lg border bg-card px-3 py-2.5 text-center text-sm font-medium transition-all duration-150 hover:-translate-y-0.5 hover:border-[#e89818]/50 hover:shadow-sm",
-                    filters.brand === make.name ? "border-[#e89818] bg-[#e89818]/10 text-[#082040]" : "text-foreground/80",
-                  )}
-                >
-                  {make.name}
-                </Link>
-              ))}
-            </div>
+            <CarsBrandGrid
+              makes={browseMakes.map((make) => ({
+                id: make.id,
+                name: make.name,
+                href: basePath + buildQuery(filters, { brand: make.name }),
+                active: filters.brand === make.name,
+              }))}
+            />
           </div>
         )}
       </div>

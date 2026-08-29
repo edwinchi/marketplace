@@ -163,32 +163,16 @@ export async function getCarsLandingData(carsRootId: string, filters: CarsFilter
   const totalPages = Math.max(1, Math.ceil(totalMatches / PAGE_SIZE));
   const listings = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  // Real cities/makes actually represented among the whole Cars tree (not just the current
-  // type-filtered scope), for the site-wide "browse by city"/"browse by brand" sections.
+  // Real cities actually represented among the whole Cars tree (not just the current
+  // type-filtered scope), for the "browse by city" section and the quick-filter dropdown. Not
+  // capped here — the "browse by city" grid caps its own display separately for tidiness, but the
+  // dropdown should offer every real city.
   const allCarsDescendantIds = await getCategoryDescendantIds(carsRootId);
   const { data: cityRows } = await supabase.from("listings").select("locations!inner(city)").eq("status", "active").in("category_id", allCarsDescendantIds);
   const cities = [...new Set((cityRows ?? []).flatMap((r) => {
     const loc = firstOf(r.locations);
     return loc?.city ? [loc.city] : [];
-  }))].filter((c) => c !== "Test City").sort().slice(0, 33);
-
-  const brandId = idByKey.get("brand");
-  let siteWideMakes: string[] = [];
-  if (brandId) {
-    const { data: brandRows } = await supabase
-      .from("listing_attribute_values")
-      .select("value_text, listings!inner(category_id, status)")
-      .eq("attribute_id", brandId)
-      .not("value_text", "is", null);
-    siteWideMakes = [...new Set(
-      (brandRows ?? [])
-        .filter((r) => {
-          const l = firstOf(r.listings);
-          return l?.status === "active" && allCarsDescendantIds.includes(l.category_id);
-        })
-        .map((r) => r.value_text as string),
-    )].sort();
-  }
+  }))].filter((c) => c !== "Test City").sort();
 
   return {
     listings,
@@ -197,7 +181,6 @@ export async function getCarsLandingData(carsRootId: string, filters: CarsFilter
     page,
     totalPages,
     cities,
-    makes: siteWideMakes,
     brandCounts,
     fuelTypeCounts,
     transmissionCounts,

@@ -82,7 +82,7 @@ export default async function CategoryPage({
     const [
       carsRootDescendantIds,
       { data: favorites },
-      { listings, totalMatches, totalUnfiltered, page, totalPages, cities, makes: filterMakes, brandCounts, fuelTypeCounts, transmissionCounts, conditionCounts, sellerTypeCounts },
+      { listings, totalMatches, totalUnfiltered, page, totalPages, cities, brandCounts, fuelTypeCounts, transmissionCounts, conditionCounts, sellerTypeCounts },
       { data: browseMakes },
     ] = await Promise.all([
       getCategoryDescendantIds(id),
@@ -122,7 +122,6 @@ export default async function CategoryPage({
           sellerTypeCounts={sellerTypeCounts}
           cities={cities}
           browseMakes={browseMakes ?? []}
-          filterMakes={filterMakes}
           favoritedIds={new Set((favorites ?? []).map((f) => f.listing_id))}
           signedIn={!!profile}
           filters={filters}
