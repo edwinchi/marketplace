@@ -4,6 +4,7 @@
   "/admin/page": "/admin",
   "/auth/callback/route": "/auth/callback",
   "/categories/[id]/page": "/categories/[id]",
+  "/debug-headers/route": "/debug-headers",
   "/documents/buying-checklist/page": "/documents/buying-checklist",
   "/documents/car-sale-agreement/page": "/documents/car-sale-agreement",
   "/documents/car-sale-receipt/page": "/documents/car-sale-receipt",

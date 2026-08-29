@@ -95,6 +95,12 @@
       "namedRegex": "^/auth/callback(?:/)?$"
     },
     {
+      "page": "/debug-headers",
+      "regex": "^/debug\\-headers(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/debug\\-headers(?:/)?$"
+    },
+    {
       "page": "/documents/buying-checklist",
       "regex": "^/documents/buying\\-checklist(?:/)?$",
       "routeKeys": {},

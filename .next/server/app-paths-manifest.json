@@ -4,6 +4,7 @@
   "/admin/page": "app/admin/page.js",
   "/auth/callback/route": "app/auth/callback/route.js",
   "/categories/[id]/page": "app/categories/[id]/page.js",
+  "/debug-headers/route": "app/debug-headers/route.js",
   "/documents/buying-checklist/page": "app/documents/buying-checklist/page.js",
   "/documents/car-sale-agreement/page": "app/documents/car-sale-agreement/page.js",
   "/documents/car-sale-receipt/page": "app/documents/car-sale-receipt/page.js",
