@@ -1,5 +1,16 @@
 import { getLocale } from "next-intl/server";
-import { createClient } from "./supabase/server";
+import { unstable_cache } from "next/cache";
+import { createServiceClient } from "./supabase/service";
+
+// Category/attribute data is public catalog data, never user-scoped, and re-fetching the whole
+// (2600+ row) tree from scratch on every request that needs a breadcrumb or the footer's category
+// list was real, measurable, repeated cost -- a single logged-in page view could trigger it 2-3
+// times over (footer + breadcrumb + directory each called loadCategoryNodes independently). Both
+// cached functions below use the service-role client rather than the per-request cookie-based one
+// specifically because unstable_cache's docs disallow touching cookies/headers inside a cache
+// scope -- the locale is resolved (which does read a cookie) *before* entering the cached function
+// and passed in as a plain argument instead.
+const CATEGORY_CACHE_REVALIDATE_SECONDS = 300;
 
 // PostgREST caps any single response at its configured max-rows (1000 here) -- categories and
 // category_translations both crossed that after the Marktplaats taxonomy import (2666/2859 rows),
@@ -48,7 +59,12 @@ const SUPPORTED_DATA_TYPES = new Set(["single_select", "integer", "decimal", "da
 // deeply-nested PostgREST embed — simpler to read and to keep correct as the seed data grows.
 export async function getCategoriesAndAttributes(language?: string) {
   const lang = await resolveLocale(language);
-  const supabase = await createClient();
+  return getCategoriesAndAttributesCached(lang);
+}
+
+const getCategoriesAndAttributesCached = unstable_cache(
+  async (lang: string) => {
+  const supabase = createServiceClient();
 
   const [
     categories,
@@ -183,7 +199,10 @@ export async function getCategoriesAndAttributes(language?: string) {
     topLevelCategories,
     attributesByCategory: Object.fromEntries(attributesByCategory) as Record<string, AttributeDef[]>,
   };
-}
+  },
+  ["categories-and-attributes"],
+  { tags: ["categories"], revalidate: CATEGORY_CACHE_REVALIDATE_SECONDS },
+);
 
 type CategoryNode = { id: string; parentId: string | null; stableKey: string; sortOrder: number; name: string };
 
@@ -191,24 +210,32 @@ type CategoryNode = { id: string; parentId: string | null; stableKey: string; so
 // getCategoriesAndAttributes, kept separate since those callers don't need attributes at all.
 async function loadCategoryNodes(language?: string): Promise<CategoryNode[]> {
   const lang = await resolveLocale(language);
-  const supabase = await createClient();
-  const [categories, translations, translationsEn] = await Promise.all([
-    fetchAllRows((from, to) => supabase.from("categories").select("id, parent_id, stable_key, sort_order").eq("is_active", true).range(from, to)),
-    fetchAllRows((from, to) => supabase.from("category_translations").select("category_id, name").eq("language_code", lang).range(from, to)),
-    lang === "en" ? Promise.resolve([]) : fetchAllRows((from, to) => supabase.from("category_translations").select("category_id, name").eq("language_code", "en").range(from, to)),
-  ]);
-  const nameByIdEn = new Map(translationsEn.map((t) => [t.category_id, t.name]));
-  return categories.map((c) => {
-    const localized = translations?.find((t) => t.category_id === c.id)?.name;
-    return {
-      id: c.id,
-      parentId: c.parent_id,
-      stableKey: c.stable_key,
-      sortOrder: c.sort_order,
-      name: localized ?? nameByIdEn.get(c.id) ?? c.stable_key,
-    };
-  });
+  return loadCategoryNodesCached(lang);
 }
+
+const loadCategoryNodesCached = unstable_cache(
+  async (lang: string): Promise<CategoryNode[]> => {
+    const supabase = createServiceClient();
+    const [categories, translations, translationsEn] = await Promise.all([
+      fetchAllRows((from, to) => supabase.from("categories").select("id, parent_id, stable_key, sort_order").eq("is_active", true).range(from, to)),
+      fetchAllRows((from, to) => supabase.from("category_translations").select("category_id, name").eq("language_code", lang).range(from, to)),
+      lang === "en" ? Promise.resolve([]) : fetchAllRows((from, to) => supabase.from("category_translations").select("category_id, name").eq("language_code", "en").range(from, to)),
+    ]);
+    const nameByIdEn = new Map(translationsEn.map((t) => [t.category_id, t.name]));
+    return categories.map((c) => {
+      const localized = translations?.find((t) => t.category_id === c.id)?.name;
+      return {
+        id: c.id,
+        parentId: c.parent_id,
+        stableKey: c.stable_key,
+        sortOrder: c.sort_order,
+        name: localized ?? nameByIdEn.get(c.id) ?? c.stable_key,
+      };
+    });
+  },
+  ["category-nodes"],
+  { tags: ["categories"], revalidate: CATEGORY_CACHE_REVALIDATE_SECONDS },
+);
 
 // Home > ... > this category, for breadcrumbs. Empty array if the id doesn't exist.
 export async function getCategoryPath(categoryId: string, language?: string) {
@@ -274,15 +301,19 @@ export async function getCategoryDirectory(categoryId: string, language?: string
 // Stock photo gallery for a leaf category's browse page. Rows only exist for categories that had
 // real listings at the time the gallery was sourced (scratchpad/source_photos*.mjs, one-off run,
 // not a live scraper) — most categories simply have none, which is a real empty state, not a bug.
-export async function getCategoryGallery(categoryId: string) {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("category_gallery_images")
-    .select("id, storage_key")
-    .eq("category_id", categoryId)
-    .order("sort_order");
-  return data ?? [];
-}
+export const getCategoryGallery = unstable_cache(
+  async (categoryId: string) => {
+    const supabase = createServiceClient();
+    const { data } = await supabase
+      .from("category_gallery_images")
+      .select("id, storage_key")
+      .eq("category_id", categoryId)
+      .order("sort_order");
+    return data ?? [];
+  },
+  ["category-gallery"],
+  { tags: ["categories"], revalidate: CATEGORY_CACHE_REVALIDATE_SECONDS },
+);
 
 // Every top-level category, for the site footer's link grid — all of them are meant to be
 // reachable from there, not a curated subset. (A prior version hand-picked 11 by hardcoded id;
