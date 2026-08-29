@@ -2,24 +2,88 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getCategoryPath, getCategoryDirectory, getCategoryDescendantIds, getCategoryGallery } from "@/lib/categories";
+import { getCarsLandingData, type CarsFilters } from "@/lib/cars-landing";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ListingList } from "@/components/listing-list";
 import { CategoryGroupCard } from "@/components/category-group-card";
 import { CategoryGallery } from "@/components/category-gallery";
+import { CarsLanding } from "@/components/cars-landing";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
+function parseNum(v: string | undefined) {
+  if (!v) return undefined;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : undefined;
+}
+
 // Non-leaf categories (has children) show a subcategory directory, matching the
-// card-per-subcategory-with-leaf-links layout. Leaf categories show actual listings. Works at any
+// card-per-subcategory-with-leaf-links layout. Leaf categories show actual listings. "Cars"
+// specifically gets a dedicated, richer landing page (see components/cars-landing.tsx) — real
+// filters, real listings, real brand/city browse, no fabricated stats or content. Works at any
 // depth — breadcrumbs walk the parent chain regardless of how many levels deep this is.
-export default async function CategoryPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function CategoryPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ type?: string; brand?: string; city?: string; priceMin?: string; priceMax?: string; yearMin?: string; yearMax?: string }>;
+}) {
   const { id } = await params;
   const [path, directory, t] = await Promise.all([getCategoryPath(id), getCategoryDirectory(id), getTranslations("Categories")]);
   if (!directory.self) notFound();
 
   const breadcrumbPath = path.map((n) => ({ id: n.id, name: n.name }));
+
+  if (directory.self.stableKey === "cars") {
+    const sp = await searchParams;
+    const filters: CarsFilters = {
+      type: sp.type || undefined,
+      brand: sp.brand || undefined,
+      city: sp.city || undefined,
+      priceMin: parseNum(sp.priceMin),
+      priceMax: parseNum(sp.priceMax),
+      yearMin: parseNum(sp.yearMin),
+      yearMax: parseNum(sp.yearMax),
+    };
+    const supabase = await createClient();
+    const { profile } = await getCurrentUserAndProfile();
+    const [carsRootDescendantIds, { data: favorites }, { listings, cities, makes: filterMakes }, { data: browseMakes }] = await Promise.all([
+      getCategoryDescendantIds(id),
+      profile
+        ? supabase.from("favorites").select("listing_id").eq("profile_id", profile.id)
+        : Promise.resolve({ data: [] as { listing_id: string }[] | null }),
+      getCarsLandingData(id, filters),
+      supabase.from("vehicle_makes").select("id, name").order("name"),
+    ]);
+    const { count: activeCount } = await supabase
+      .from("listings")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "active")
+      .in("category_id", carsRootDescendantIds);
+
+    return (
+      <>
+        <div className="mx-auto w-full max-w-7xl px-4 pt-2 sm:px-6 lg:px-8">
+          <Breadcrumbs path={breadcrumbPath} />
+        </div>
+        <CarsLanding
+          carsRootId={id}
+          subcategories={directory.children.map((c) => ({ id: c.id, name: c.name, stableKey: c.stableKey }))}
+          listings={listings}
+          cities={cities}
+          browseMakes={browseMakes ?? []}
+          filterMakes={filterMakes}
+          favoritedIds={new Set((favorites ?? []).map((f) => f.listing_id))}
+          signedIn={!!profile}
+          filters={filters}
+          totalActiveCount={activeCount ?? 0}
+        />
+      </>
+    );
+  }
 
   if (directory.children.length > 0) {
     return (
