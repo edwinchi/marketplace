@@ -7,11 +7,20 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ListingList } from "@/components/listing-list";
-import { CategoryGroupCard } from "@/components/category-group-card";
+import { CategoryDirectoryGrid } from "@/components/category-directory-grid";
 import { CategoryGallery } from "@/components/category-gallery";
 import { CarsLanding } from "@/components/cars-landing";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+
+const CARS_TYPE_STABLE_KEYS = new Set([
+  "cars-passenger-cars",
+  "cars-electric-cars",
+  "cars-classic-cars",
+  "cars-convertibles",
+  "cars-suvs-and-crossovers",
+  "cars-vans-and-commercial-vehicles",
+]);
 
 function parseNum(v: string | undefined) {
   if (!v) return undefined;
@@ -96,7 +105,11 @@ export default async function CategoryPage({
         </div>
         <CarsLanding
           carsRootId={id}
-          subcategories={directory.children.map((c) => ({ id: c.id, name: c.name, stableKey: c.stableKey }))}
+          // The 6 real vehicle-type subcategories this page's pills/tiles were designed around, by
+          // explicit stable_key allowlist -- the Marktplaats taxonomy import added ~93 more direct
+          // children under Cars (brand names, "Trucks", "Delivery Vans", etc.), most without any
+          // "-grp-" marker to filter on, so an allowlist is the only reliable way to keep just these six.
+          subcategories={directory.children.filter((c) => CARS_TYPE_STABLE_KEYS.has(c.stableKey)).map((c) => ({ id: c.id, name: c.name, stableKey: c.stableKey }))}
           listings={listings}
           totalMatches={totalMatches}
           totalUnfiltered={totalUnfiltered}
@@ -124,16 +137,7 @@ export default async function CategoryPage({
       <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <Breadcrumbs path={breadcrumbPath} />
         <h1 className="mb-6 text-2xl font-semibold">{directory.self.name}</h1>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {directory.children.map((child) => (
-            <CategoryGroupCard
-              key={child.id}
-              id={child.id}
-              name={child.name}
-              leaves={child.children.length > 0 ? child.children : [child]}
-            />
-          ))}
-        </div>
+        <CategoryDirectoryGrid groups={directory.children} />
       </div>
     );
   }
