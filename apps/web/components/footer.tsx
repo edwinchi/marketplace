@@ -15,7 +15,7 @@ export async function Footer() {
   ]);
 
   return (
-    <footer className="mt-16 bg-secondary/30 pb-16 md:pb-0">
+    <footer className="mt-16 bg-secondary/30 pb-16 md:pb-0 print:hidden">
       {/* A quiet callback to the logo's three sampled brand colors (agents.md: navy #082040,
           orange #E89818, green #008848) — the one place the full trio appears together, rather
           than scattering brand color everywhere. */}

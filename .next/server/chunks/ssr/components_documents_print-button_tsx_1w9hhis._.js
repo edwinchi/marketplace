@@ -1,0 +1,3 @@
+module.exports=[41332,a=>{"use strict";var b=a.i(87924);let c=(0,a.i(64831).default)("printer",[["path",{d:"M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2",key:"143wyd"}],["path",{d:"M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6",key:"1itne7"}],["rect",{x:"6",y:"14",width:"12",height:"8",rx:"1",key:"1ue0tg"}]]);var d=a.i(40695);a.s(["PrintButton",0,function(){return(0,b.jsxs)(d.Button,{onClick:()=>window.print(),className:"gap-2 print:hidden",children:[(0,b.jsx)(c,{className:"size-4"}),"Print or save as PDF"]})}],41332)}];
+
+//# sourceMappingURL=components_documents_print-button_tsx_1w9hhis._.js.map

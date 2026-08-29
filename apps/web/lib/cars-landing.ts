@@ -93,10 +93,12 @@ export async function getCarsLandingData(carsRootId: string, filters: CarsFilter
     supabase.from("listings").select("locations!inner(city)").eq("status", "active").in("category_id", allCarsDescendantIds),
     getAttributeIds(supabase),
   ]);
+  // Grows automatically as real listings land in new cities -- capped at 33 so the "browse by
+  // city" section stays a tidy grid rather than growing unbounded.
   const cities = [...new Set((cityRows ?? []).flatMap((r) => {
     const loc = Array.isArray(r.locations) ? r.locations[0] : r.locations;
     return loc?.city ? [loc.city] : [];
-  }))].filter((c) => c !== "Test City").sort();
+  }))].filter((c) => c !== "Test City").sort().slice(0, 33);
 
   let makes: string[] = [];
   if (brandId) {

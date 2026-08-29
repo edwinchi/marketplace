@@ -18,7 +18,7 @@ export async function Nav() {
 
   return (
     <>
-      <header className="border-b">
+      <header className="border-b print:hidden">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
             <Link href="/" aria-label="AfroDeals home">
@@ -76,7 +76,7 @@ export async function Nav() {
         </div>
       </header>
 
-      <nav className="fixed inset-x-0 bottom-0 z-10 flex border-t bg-background md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-10 flex border-t bg-background md:hidden print:hidden">
         <Link href="/" className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs text-muted-foreground transition-colors active:bg-muted active:text-primary">
           <Home className="size-5" />
           {t("browse")}

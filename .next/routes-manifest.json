@@ -89,6 +89,24 @@
       "namedRegex": "^/auth/callback(?:/)?$"
     },
     {
+      "page": "/documents/buying-checklist",
+      "regex": "^/documents/buying\\-checklist(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/documents/buying\\-checklist(?:/)?$"
+    },
+    {
+      "page": "/documents/car-sale-agreement",
+      "regex": "^/documents/car\\-sale\\-agreement(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/documents/car\\-sale\\-agreement(?:/)?$"
+    },
+    {
+      "page": "/documents/car-sale-receipt",
+      "regex": "^/documents/car\\-sale\\-receipt(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/documents/car\\-sale\\-receipt(?:/)?$"
+    },
+    {
       "page": "/experiences/my-reviews",
       "regex": "^/experiences/my\\-reviews(?:/)?$",
       "routeKeys": {},

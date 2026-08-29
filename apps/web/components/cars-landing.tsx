@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Car, Zap, Clock3, Sparkle, Bus, ShieldCheck, HandCoins, Gauge } from "lucide-react";
+import { Car, Zap, Clock3, Sparkle, Bus, ShieldCheck, HandCoins, Gauge, FileText, Receipt, ClipboardCheck } from "lucide-react";
 import { ListingGrid } from "@/components/listing-grid";
 import type { CarsListing, CarsFilters } from "@/lib/cars-landing";
 import { cn } from "@/lib/utils";
@@ -249,21 +249,59 @@ export function CarsLanding({
           </div>
         </div>
 
-        {/* Browse by city — real cities actually represented among Cars listings */}
+        {/* Free document templates — real, AfroDeals-branded, no fake paywall */}
+        <div className="mt-10">
+          <h2 className="mb-3 text-lg font-semibold">Free templates for your sale</h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <Link
+              href="/documents/car-sale-agreement"
+              className="group flex items-center gap-3 rounded-xl border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#e89818]/50 hover:shadow-md"
+            >
+              <FileText className="size-8 shrink-0 text-[#082040] transition-transform duration-200 group-hover:scale-110" />
+              <div>
+                <p className="text-sm font-semibold">Sale agreement</p>
+                <p className="text-xs text-muted-foreground">Fill-in-the-blanks template for both sides to sign</p>
+              </div>
+            </Link>
+            <Link
+              href="/documents/car-sale-receipt"
+              className="group flex items-center gap-3 rounded-xl border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#e89818]/50 hover:shadow-md"
+            >
+              <Receipt className="size-8 shrink-0 text-[#008848] transition-transform duration-200 group-hover:scale-110" />
+              <div>
+                <p className="text-sm font-semibold">Payment receipt</p>
+                <p className="text-xs text-muted-foreground">Simple proof of payment for handover day</p>
+              </div>
+            </Link>
+            <Link
+              href="/documents/buying-checklist"
+              className="group flex items-center gap-3 rounded-xl border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#e89818]/50 hover:shadow-md"
+            >
+              <ClipboardCheck className="size-8 shrink-0 text-[#e89818] transition-transform duration-200 group-hover:scale-110" />
+              <div>
+                <p className="text-sm font-semibold">Buying checklist</p>
+                <p className="text-xs text-muted-foreground">What to check before you commit</p>
+              </div>
+            </Link>
+          </div>
+        </div>
+
+        {/* Browse by city — real cities actually represented among Cars listings, capped at 33 so
+            this stays a tidy grid as more listings land in more cities. */}
         {cities.length > 0 && (
-          <div className="mt-12">
-            <h2 className="mb-3 text-lg font-semibold">Browse by city</h2>
-            <div className="flex flex-wrap gap-2">
+          <div className="mt-12 mb-4 rounded-2xl border bg-card p-6 shadow-sm">
+            <h2 className="mb-4 text-base font-semibold">Discover used and new cars in these locations:</h2>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3 lg:grid-cols-4">
               {cities.map((city) => (
                 <Link
                   key={city}
                   href={basePath + buildQuery(filters, { city })}
                   className={cn(
-                    "rounded-full border px-4 py-1.5 text-sm transition-all duration-150 hover:-translate-y-0.5 hover:border-[#e89818]/50 hover:text-[#082040]",
-                    filters.city === city ? "border-[#e89818] bg-[#e89818]/10 text-[#082040]" : "text-muted-foreground",
+                    "text-sm transition-colors duration-150 hover:text-[#082040] hover:underline",
+                    filters.city === city ? "font-semibold text-[#e89818]" : "text-[#e89818]/90",
                   )}
                 >
-                  {city}
+                  Cars in {city}
                 </Link>
               ))}
             </div>
