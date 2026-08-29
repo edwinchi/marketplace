@@ -11,7 +11,7 @@ export function AuthCard({ initialTab, next = "/" }: { initialTab: "login" | "si
   const [tab, setTab] = useState(initialTab);
 
   return (
-    <div className="w-full rounded-3xl border border-border/60 bg-card p-2 shadow-xl shadow-black/5">
+    <div className="w-full rounded-3xl border border-white/20 bg-card/95 p-2 shadow-2xl shadow-black/40 ring-1 ring-black/5 backdrop-blur-xl">
       <div className="relative flex rounded-2xl bg-muted p-1">
         <div
           aria-hidden
