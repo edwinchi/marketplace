@@ -6,6 +6,7 @@ import { ConversationList } from "@/components/messages/conversation-list";
 import { MessageComposer } from "@/components/messages/message-composer";
 import { MarkRead } from "@/components/messages/mark-read";
 import { ShieldAlert, MessageCircle } from "lucide-react";
+import { slugPath } from "@/lib/slug";
 
 export const metadata = { title: "Messages — AfroDeals" };
 
@@ -119,7 +120,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
                 <div className="min-w-0">
                   <p className="truncate font-medium">{thread.otherName}</p>
                   {thread.listingId ? (
-                    <Link href={`/listings/${thread.listingId}`} className="truncate text-xs text-muted-foreground hover:underline">
+                    <Link href={`/listings/${slugPath(thread.listingTitle, thread.listingId)}`} className="truncate text-xs text-muted-foreground hover:underline">
                       {thread.listingTitle}
                     </Link>
                   ) : (

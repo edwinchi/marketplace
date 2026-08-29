@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations, getLocale } from "next-intl/server";
 import { ChevronRight, Home } from "lucide-react";
+import { breadcrumbSlugPath } from "@/lib/slug";
 
 type Crumb = { id: string; name: string };
 
@@ -21,7 +22,10 @@ export async function Breadcrumbs({ path, resultCount }: { path: Crumb[]; result
             {isLast ? (
               <span className="font-medium text-foreground">{crumb.name}</span>
             ) : (
-              <Link href={`/categories/${crumb.id}`} className="transition-colors hover:text-foreground">
+              <Link
+                href={`/categories/${breadcrumbSlugPath(path.slice(0, i), crumb.name, crumb.id)}`}
+                className="transition-colors hover:text-foreground"
+              >
                 {crumb.name}
               </Link>
             )}

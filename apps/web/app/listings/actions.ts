@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { toMinorUnits } from "@/lib/money";
 import type { Database } from "@/lib/supabase/database.types";
+import { slugPath } from "@/lib/slug";
 
 type AttributeValueInsert = Database["public"]["Tables"]["listing_attribute_values"]["Insert"];
 
@@ -156,7 +157,7 @@ export async function createListing(_prevState: ListingFormState, formData: Form
   }
 
   revalidatePath("/");
-  redirect(`/listings/${listing.id}`);
+  redirect(`/listings/${slugPath(title, listing.id)}`);
 }
 
 export async function updateListing(
@@ -202,7 +203,7 @@ export async function updateListing(
   }
 
   revalidatePath(`/listings/${listingId}`);
-  redirect(`/listings/${listingId}`);
+  redirect(`/listings/${slugPath(title, listingId)}`);
 }
 
 export async function deleteListing(listingId: string) {

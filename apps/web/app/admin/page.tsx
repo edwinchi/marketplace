@@ -10,6 +10,7 @@ import { formatPrice } from "@/lib/money";
 import { AdminLoginForm } from "@/components/admin/admin-login-form";
 import { RequireLoginToggle } from "@/components/admin/require-login-toggle";
 import { getRequireLoginSetting } from "@/lib/app-settings";
+import { slugPath } from "@/lib/slug";
 
 function AdminLoginScreen() {
   return (
@@ -183,7 +184,7 @@ export default async function AdminDashboardPage() {
           </h2>
           <div className="flex flex-col gap-3">
             {stats.recentListings.map((l) => (
-              <Link key={l.id} href={`/listings/${l.id}`} className="flex items-center justify-between gap-3 rounded-lg border p-3 text-sm transition-colors hover:bg-accent/40">
+              <Link key={l.id} href={`/listings/${slugPath(l.title, l.id)}`} className="flex items-center justify-between gap-3 rounded-lg border p-3 text-sm transition-colors hover:bg-accent/40">
                 <div className="min-w-0">
                   <p className="truncate font-medium">{l.title}</p>
                   <p className="text-xs text-muted-foreground">{l.sellerName} · {l.status}</p>

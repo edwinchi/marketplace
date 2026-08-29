@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getCategoriesAndAttributes, getCategoryDescendantIds } from "@/lib/categories";
 import { CategoryIcon } from "@/lib/category-icons";
+import { slugPath } from "@/lib/slug";
 import { ListingGrid } from "@/components/listing-grid";
 import { saveSearch } from "@/app/my-account/saved-searches/actions";
 import { Input } from "@/components/ui/input";
@@ -90,7 +91,7 @@ export default async function HomePage({
             {topLevelCategories.map((c) => (
               <Link
                 key={c.id}
-                href={`/categories/${c.id}`}
+                href={`/categories/${slugPath(c.label, c.id)}`}
                 className="group flex shrink-0 flex-col items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
               >
                 <span className="flex size-11 items-center justify-center rounded-full border bg-background shadow-sm transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:bg-primary/10 group-hover:shadow-md">
@@ -119,7 +120,7 @@ export default async function HomePage({
             {topLevelCategories.map((c) => (
               <li key={c.id}>
                 <Link
-                  href={`/categories/${c.id}`}
+                  href={`/categories/${slugPath(c.label, c.id)}`}
                   className={`block rounded-md px-2 py-1.5 transition-all duration-150 ${category === c.id ? "bg-primary/10 font-medium text-primary" : "text-muted-foreground hover:translate-x-0.5 hover:bg-muted hover:text-foreground"}`}
                 >
                   {c.label}

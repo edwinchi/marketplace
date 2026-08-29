@@ -14,7 +14,7 @@ export function ListingRowActions({ listingId, status }: { listingId: string; st
 
   return (
     <div className="flex items-center gap-2">
-      <Link href={`/listings/${listingId}/edit`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+      <Link href={`/listings/edit/${listingId}`} className={buttonVariants({ variant: "outline", size: "sm" })}>
         Edit
       </Link>
 

@@ -6,6 +6,7 @@ import { DISPLAY_CURRENCY_COOKIE } from "@/lib/money";
 import { getExchangeRates } from "@/lib/exchange-rates";
 import { FavoriteButton } from "@/components/favorite-button";
 import { Price } from "@/components/price";
+import { slugPath } from "@/lib/slug";
 
 type Props = {
   id: string;
@@ -25,7 +26,7 @@ export async function ListingCard({ id, title, priceMinor, currencyCode, city, i
 
   return (
     <Link
-      href={`/listings/${id}`}
+      href={`/listings/${slugPath(title, id)}`}
       className="group relative flex flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-lg"
     >
       <FavoriteButton listingId={id} initialFavorited={isFavorited} signedIn={signedIn} />

@@ -6,6 +6,7 @@ import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { formatPrice } from "@/lib/money";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { slugPath } from "@/lib/slug";
 
 // Real schema (orders/payments, RLS already in place from 02_marketplace.sql) — just no checkout
 // flow creates rows yet (Stripe Connect is a later phase per agents.md §10), so this is honestly
@@ -89,7 +90,7 @@ export default async function TransactionsPage({
                 <CardContent className="flex items-center justify-between gap-4 py-4">
                   <div className="min-w-0">
                     {listing ? (
-                      <Link href={`/listings/${listing.id}`} className="font-medium hover:underline">
+                      <Link href={`/listings/${slugPath(listing.title, listing.id)}`} className="font-medium hover:underline">
                         {listing.title}
                       </Link>
                     ) : (

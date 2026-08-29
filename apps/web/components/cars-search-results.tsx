@@ -8,6 +8,7 @@ import { resolveMediaUrl } from "@/lib/media";
 import { Price } from "@/components/price";
 import { FavoriteButton } from "@/components/favorite-button";
 import { cn } from "@/lib/utils";
+import { slugPath } from "@/lib/slug";
 
 type SubCategory = { id: string; name: string; stableKey: string };
 
@@ -95,7 +96,7 @@ async function CarResultCard({ listing, favorited, signedIn }: { listing: CarsLi
 
   return (
     <Link
-      href={`/listings/${listing.id}`}
+      href={`/listings/${slugPath(listing.title, listing.id)}`}
       className="group flex gap-4 border-b py-4 transition-colors first:pt-0 last:border-b-0 hover:bg-accent/30"
     >
       <div className="relative flex size-28 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted text-muted-foreground sm:size-36">

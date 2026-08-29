@@ -8,9 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const COLLAPSED_LIMIT = 6;
 
-type Leaf = { id: string; name: string };
+type Leaf = { id: string; name: string; href: string };
 
-export function CategoryGroupCard({ id, name, leaves }: { id: string; name: string; leaves: Leaf[] }) {
+export function CategoryGroupCard({ name, href, leaves }: { name: string; href: string; leaves: Leaf[] }) {
   const t = useTranslations("Categories");
   const [expanded, setExpanded] = useState(false);
   const canCollapse = leaves.length > COLLAPSED_LIMIT;
@@ -20,7 +20,7 @@ export function CategoryGroupCard({ id, name, leaves }: { id: string; name: stri
     <Card className="transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[#008848]/40 hover:shadow-md">
       <CardHeader>
         <CardTitle className="text-base font-semibold">
-          <Link href={`/categories/${id}`} className="transition-colors hover:text-[#008848] hover:underline">
+          <Link href={href} className="transition-colors hover:text-[#008848] hover:underline">
             {name}
           </Link>
         </CardTitle>
@@ -30,7 +30,7 @@ export function CategoryGroupCard({ id, name, leaves }: { id: string; name: stri
           {visible.map((leaf) => (
             <li key={leaf.id}>
               <Link
-                href={`/categories/${leaf.id}`}
+                href={leaf.href}
                 className="inline-block text-muted-foreground transition-all duration-150 hover:translate-x-0.5 hover:text-foreground hover:underline"
               >
                 {leaf.name}

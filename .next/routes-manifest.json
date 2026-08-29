@@ -23,12 +23,12 @@
   },
   "dynamicRoutes": [
     {
-      "page": "/categories/[id]",
-      "regex": "^/categories/([^/]+?)(?:/)?$",
+      "page": "/categories/[...slug]",
+      "regex": "^/categories/(.+?)(?:/)?$",
       "routeKeys": {
-        "nxtPid": "nxtPid"
+        "nxtPslug": "nxtPslug"
       },
-      "namedRegex": "^/categories/(?<nxtPid>[^/]+?)(?:/)?$"
+      "namedRegex": "^/categories/(?<nxtPslug>.+?)(?:/)?$"
     },
     {
       "page": "/experiences/leave-review/[profileId]",
@@ -47,20 +47,20 @@
       "namedRegex": "^/experiences/(?<nxtPprofileId>[^/]+?)(?:/)?$"
     },
     {
-      "page": "/listings/[id]",
-      "regex": "^/listings/([^/]+?)(?:/)?$",
+      "page": "/listings/edit/[id]",
+      "regex": "^/listings/edit/([^/]+?)(?:/)?$",
       "routeKeys": {
         "nxtPid": "nxtPid"
       },
-      "namedRegex": "^/listings/(?<nxtPid>[^/]+?)(?:/)?$"
+      "namedRegex": "^/listings/edit/(?<nxtPid>[^/]+?)(?:/)?$"
     },
     {
-      "page": "/listings/[id]/edit",
-      "regex": "^/listings/([^/]+?)/edit(?:/)?$",
+      "page": "/listings/[...slug]",
+      "regex": "^/listings/(.+?)(?:/)?$",
       "routeKeys": {
-        "nxtPid": "nxtPid"
+        "nxtPslug": "nxtPslug"
       },
-      "namedRegex": "^/listings/(?<nxtPid>[^/]+?)/edit(?:/)?$"
+      "namedRegex": "^/listings/(?<nxtPslug>.+?)(?:/)?$"
     }
   ],
   "staticRoutes": [

@@ -5,7 +5,7 @@ import { CarsBrandGrid } from "@/components/cars-brand-grid";
 import type { CarsListing, CarsFilters } from "@/lib/cars-landing";
 import { cn } from "@/lib/utils";
 
-type SubCategory = { id: string; name: string; stableKey: string };
+type SubCategory = { id: string; name: string; stableKey: string; href: string };
 
 type Props = {
   carsRootId: string;
@@ -212,7 +212,7 @@ export function CarsLanding({
               return (
                 <Link
                   key={sub.id}
-                  href={`/categories/${sub.id}`}
+                  href={sub.href}
                   className="group flex flex-col items-center gap-2 rounded-xl border bg-card p-4 text-center shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-[#e89818]/50 hover:shadow-md"
                 >
                   <span className="flex size-10 items-center justify-center rounded-full bg-[#e89818]/10 text-[#e89818] transition-transform duration-200 group-hover:scale-110">

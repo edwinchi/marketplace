@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getFooterCategories } from "@/lib/categories";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { slugPath } from "@/lib/slug";
 
 // No app-store badges here (unlike the Marktplaats reference this is modeled on) — there is no
 // AfroDeals mobile app, and a badge that links nowhere real is exactly the kind of thing this
@@ -32,7 +33,7 @@ export async function Footer() {
             <ul className="grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {categories.map((cat) => (
                 <li key={cat.id}>
-                  <Link href={`/categories/${cat.id}`} className="text-sm text-muted-foreground transition-colors hover:text-foreground hover:underline">
+                  <Link href={`/categories/${slugPath(cat.name, cat.id)}`} className="text-sm text-muted-foreground transition-colors hover:text-foreground hover:underline">
                     {cat.name}
                   </Link>
                 </li>

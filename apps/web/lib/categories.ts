@@ -166,7 +166,7 @@ export async function getCategoriesAndAttributes(language?: string) {
         id: c.id,
         stableKey: c.stable_key,
         label: parentName ? `${parentName} → ${name}` : name,
-        sortKey: `${(parentName ?? name).toLowerCase()} ${name.toLowerCase()}`,
+        sortKey: `${(parentName ?? name).toLowerCase()} ${name.toLowerCase()}`,
       };
     })
     .sort((a, b) => a.sortKey.localeCompare(b.sortKey))

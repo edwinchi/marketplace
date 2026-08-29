@@ -6,6 +6,7 @@ import { DISPLAY_CURRENCY_COOKIE } from "@/lib/money";
 import { getExchangeRates } from "@/lib/exchange-rates";
 import { FavoriteButton } from "@/components/favorite-button";
 import { Price } from "@/components/price";
+import { slugPath } from "@/lib/slug";
 
 type Props = {
   id: string;
@@ -42,7 +43,7 @@ export async function ListingRow({
   const rates = displayCurrency ? await getExchangeRates() : null;
 
   return (
-    <Link href={`/listings/${id}`} className="flex gap-4 border-b py-4 first:pt-0 last:border-b-0 hover:bg-accent/30">
+    <Link href={`/listings/${slugPath(title, id)}`} className="flex gap-4 border-b py-4 first:pt-0 last:border-b-0 hover:bg-accent/30">
       <div className="relative flex size-28 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted text-muted-foreground sm:size-32">
         <FavoriteButton listingId={id} initialFavorited={isFavorited} signedIn={signedIn} />
         {imageUrl ? (

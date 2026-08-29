@@ -8,6 +8,7 @@ import { formatPrice } from "@/lib/money";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { slugPath } from "@/lib/slug";
 
 // Offers this profile has made as a buyer — the seller-side view of offers already exists inline
 // on each of the seller's own listing pages (offer-box.tsx); this is the buyer's equivalent, one
@@ -36,7 +37,7 @@ export default async function OffersPage() {
               <Card key={o.id} className="transition-shadow duration-200 hover:shadow-md">
                 <CardContent className="flex items-center justify-between gap-4 py-4">
                   <div className="min-w-0">
-                    <Link href={`/listings/${listing.id}`} className="font-medium transition-colors hover:text-[#008848] hover:underline">
+                    <Link href={`/listings/${slugPath(listing.title, listing.id)}`} className="font-medium transition-colors hover:text-[#008848] hover:underline">
                       {listing.title}
                     </Link>
                     <p className="text-sm text-muted-foreground">

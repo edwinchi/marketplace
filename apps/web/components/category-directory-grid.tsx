@@ -5,13 +5,15 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { CategoryGroupCard } from "@/components/category-group-card";
 
-type Group = { id: string; name: string; children: { id: string; name: string }[] };
+type Group = { id: string; name: string; href: string; children: { id: string; name: string; href: string }[] };
 
 const INITIAL_LIMIT = 24;
 
 // Some top-level categories now have 90+ subcategory groups (the real Marktplaats taxonomy import
 // went several levels deep) -- rendering all of them at once made a few category pages enormous.
-// Same collapse pattern as CategoryGroupCard's own leaf-list "show more", one level up.
+// Same collapse pattern as CategoryGroupCard's own leaf-list "show more", one level up. Groups (and
+// their leaves) carry pre-built hrefs from the server -- this is a Client Component, and functions
+// can't cross that boundary as props, so hrefs get computed once up in the page instead.
 export function CategoryDirectoryGrid({ groups }: { groups: Group[] }) {
   const t = useTranslations("Categories");
   const [expanded, setExpanded] = useState(false);
@@ -24,9 +26,9 @@ export function CategoryDirectoryGrid({ groups }: { groups: Group[] }) {
         {visible.map((child) => (
           <CategoryGroupCard
             key={child.id}
-            id={child.id}
             name={child.name}
-            leaves={child.children.length > 0 ? child.children : [child]}
+            href={child.href}
+            leaves={child.children.length > 0 ? child.children : [{ id: child.id, name: child.name, href: child.href }]}
           />
         ))}
       </div>

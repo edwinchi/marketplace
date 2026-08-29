@@ -12,8 +12,8 @@
           "async": false,
           "codeHash": null
         },
-        "app/categories/[id]/page": {
-          "moduleId": 9613,
+        "app/categories/[...slug]/page": {
+          "moduleId": 41539,
           "async": false,
           "codeHash": null
         },
@@ -67,13 +67,13 @@
           "async": false,
           "codeHash": null
         },
-        "app/listings/[id]/edit/page": {
-          "moduleId": 5072,
+        "app/listings/[...slug]/page": {
+          "moduleId": 8695,
           "async": false,
           "codeHash": null
         },
-        "app/listings/[id]/page": {
-          "moduleId": 3098,
+        "app/listings/edit/[id]/page": {
+          "moduleId": 54253,
           "async": false,
           "codeHash": null
         },
@@ -233,8 +233,8 @@
           "async": false,
           "codeHash": null
         },
-        "app/categories/[id]/page": {
-          "moduleId": 9613,
+        "app/categories/[...slug]/page": {
+          "moduleId": 41539,
           "async": false,
           "codeHash": null
         },
@@ -288,13 +288,13 @@
           "async": false,
           "codeHash": null
         },
-        "app/listings/[id]/edit/page": {
-          "moduleId": 5072,
+        "app/listings/[...slug]/page": {
+          "moduleId": 8695,
           "async": false,
           "codeHash": null
         },
-        "app/listings/[id]/page": {
-          "moduleId": 3098,
+        "app/listings/edit/[id]/page": {
+          "moduleId": 54253,
           "async": false,
           "codeHash": null
         },
@@ -454,8 +454,8 @@
           "async": false,
           "codeHash": null
         },
-        "app/categories/[id]/page": {
-          "moduleId": 9613,
+        "app/categories/[...slug]/page": {
+          "moduleId": 41539,
           "async": false,
           "codeHash": null
         },
@@ -509,13 +509,13 @@
           "async": false,
           "codeHash": null
         },
-        "app/listings/[id]/edit/page": {
-          "moduleId": 5072,
+        "app/listings/[...slug]/page": {
+          "moduleId": 8695,
           "async": false,
           "codeHash": null
         },
-        "app/listings/[id]/page": {
-          "moduleId": 3098,
+        "app/listings/edit/[id]/page": {
+          "moduleId": 54253,
           "async": false,
           "codeHash": null
         },
@@ -665,13 +665,13 @@
     },
     "6087a59542ed3731df07cfbdc03f300a1216af10dc": {
       "workers": {
-        "app/categories/[id]/page": {
-          "moduleId": 9613,
+        "app/categories/[...slug]/page": {
+          "moduleId": 41539,
           "async": false,
           "codeHash": null
         },
-        "app/listings/[id]/page": {
-          "moduleId": 3098,
+        "app/listings/[...slug]/page": {
+          "moduleId": 8695,
           "async": false,
           "codeHash": null
         },
@@ -799,13 +799,13 @@
     },
     "40e638a48a7170ebd4c81e96dc9fc399f80d21946e": {
       "workers": {
-        "app/listings/[id]/edit/page": {
-          "moduleId": 5072,
+        "app/listings/[...slug]/page": {
+          "moduleId": 8695,
           "async": false,
           "codeHash": null
         },
-        "app/listings/[id]/page": {
-          "moduleId": 3098,
+        "app/listings/edit/[id]/page": {
+          "moduleId": 54253,
           "async": false,
           "codeHash": null
         },
@@ -825,8 +825,8 @@
     },
     "6099ee45f09ceb18c22e3523f6f4a0e67d2a28a8c1": {
       "workers": {
-        "app/listings/[id]/page": {
-          "moduleId": 3098,
+        "app/listings/[...slug]/page": {
+          "moduleId": 8695,
           "async": false,
           "codeHash": null
         }
@@ -836,8 +836,8 @@
     },
     "4051bfbba846d3526651f6beb9014bbbce381c6a20": {
       "workers": {
-        "app/listings/[id]/page": {
-          "moduleId": 3098,
+        "app/listings/[...slug]/page": {
+          "moduleId": 8695,
           "async": false,
           "codeHash": null
         }
@@ -847,8 +847,8 @@
     },
     "407005c5ea5af166aa97712cd344a4d83a2af81960": {
       "workers": {
-        "app/listings/[id]/page": {
-          "moduleId": 3098,
+        "app/listings/[...slug]/page": {
+          "moduleId": 8695,
           "async": false,
           "codeHash": null
         }
@@ -858,8 +858,8 @@
     },
     "409229df9e2c3872da2ae76ddc290e5f08f52170e3": {
       "workers": {
-        "app/listings/[id]/page": {
-          "moduleId": 3098,
+        "app/listings/[...slug]/page": {
+          "moduleId": 8695,
           "async": false,
           "codeHash": null
         },
@@ -874,8 +874,8 @@
     },
     "60f9bda7e344adfa776073d9eb8e7eee61a33155b5": {
       "workers": {
-        "app/listings/[id]/page": {
-          "moduleId": 3098,
+        "app/listings/[...slug]/page": {
+          "moduleId": 8695,
           "async": false,
           "codeHash": null
         },
@@ -890,8 +890,8 @@
     },
     "4035cfe06d71d6b948eebd2d015a5a3483b429b203": {
       "workers": {
-        "app/listings/[id]/page": {
-          "moduleId": 3098,
+        "app/listings/[...slug]/page": {
+          "moduleId": 8695,
           "async": false,
           "codeHash": null
         },
@@ -906,8 +906,8 @@
     },
     "40f577a2d037e202ac192815ca7234830c1510b0c4": {
       "workers": {
-        "app/listings/[id]/page": {
-          "moduleId": 3098,
+        "app/listings/[...slug]/page": {
+          "moduleId": 8695,
           "async": false,
           "codeHash": null
         },
@@ -922,8 +922,8 @@
     },
     "40d9b2d8ab72c20e0ffc1b6aa01567a5fd9a857490": {
       "workers": {
-        "app/listings/[id]/edit/page": {
-          "moduleId": 5072,
+        "app/listings/edit/[id]/page": {
+          "moduleId": 54253,
           "async": false,
           "codeHash": null
         },
@@ -943,8 +943,8 @@
     },
     "609b43d9b059c4a8e7920e4d83d053d70b912c55f4": {
       "workers": {
-        "app/listings/[id]/edit/page": {
-          "moduleId": 5072,
+        "app/listings/edit/[id]/page": {
+          "moduleId": 54253,
           "async": false,
           "codeHash": null
         },
@@ -959,8 +959,8 @@
     },
     "7023e9d5370445295a5b70df3e1a3580441e99a18b": {
       "workers": {
-        "app/listings/[id]/edit/page": {
-          "moduleId": 5072,
+        "app/listings/edit/[id]/page": {
+          "moduleId": 54253,
           "async": false,
           "codeHash": null
         },
