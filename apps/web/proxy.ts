@@ -36,7 +36,11 @@ export async function proxy(request: NextRequest) {
   // stayed public) — reverted per explicit instruction to lock down browsing until launch. To
   // restore public browsing later, swap back to the denylist approach this replaced (protect only
   // /listings/new, leave everything else out of PUBLIC_PATHS/isPublic below).
-  const PUBLIC_PATHS = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth", "/help", "/terms", "/safety"];
+  // /admin is exempt from this blanket redirect (not from auth itself) so an anonymous visitor
+  // sees the dedicated admin login screen at /admin instead of bouncing to the public /login page
+  // -- app/admin/page.tsx still does its own getCurrentUserAndProfile()+isAdminEmail() check and
+  // shows the dashboard to nobody else.
+  const PUBLIC_PATHS = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth", "/help", "/terms", "/safety", "/admin"];
   const { pathname } = request.nextUrl;
   const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 

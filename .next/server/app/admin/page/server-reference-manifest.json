@@ -3,7 +3,7 @@
     "00952f34b10c497daa584b8e93aef0d2863e8e2622": {
       "workers": {
         "app/admin/page": {
-          "moduleId": 58165,
+          "moduleId": 12785,
           "async": false,
           "codeHash": null
         }
@@ -14,7 +14,7 @@
     "4005a413158b90659f593457d538bd9386d09f8c00": {
       "workers": {
         "app/admin/page": {
-          "moduleId": 58165,
+          "moduleId": 12785,
           "async": false,
           "codeHash": null
         }
@@ -25,13 +25,24 @@
     "4050edf080a05dd3b2973ad18cb3616c6f88447d92": {
       "workers": {
         "app/admin/page": {
-          "moduleId": 58165,
+          "moduleId": 12785,
           "async": false,
           "codeHash": null
         }
       },
       "exportedName": "setDisplayCurrency",
       "filename": "app/actions/set-currency.ts"
+    },
+    "604290114a1cf15b8de749750f2e4c8ccc87cfca3d": {
+      "workers": {
+        "app/admin/page": {
+          "moduleId": 12785,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "adminLogin",
+      "filename": "app/admin/login-action.ts"
     }
   },
   "edge": {}

@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
   Users, Store, MessageSquare, Heart, Handshake, Star, Sparkles, DollarSign,
@@ -8,6 +7,50 @@ import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { isAdminEmail } from "@/lib/admin";
 import { getAdminStats } from "@/lib/admin-stats";
 import { formatPrice } from "@/lib/money";
+import { AdminLoginForm } from "@/components/admin/admin-login-form";
+
+function AdminLoginScreen() {
+  return (
+    <div className="relative flex min-h-[calc(100vh-4rem)] items-center justify-center overflow-hidden bg-[#050b18] px-4 py-16">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-32 -left-32 size-96 rounded-full bg-[#e89818]/20 blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-32 -bottom-32 size-96 rounded-full bg-[#008848]/20 blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)] bg-[size:28px_28px]"
+      />
+
+      <div className="relative w-full max-w-md">
+        <div className="mb-6 flex justify-center">
+          <div className="rounded-2xl bg-white px-6 py-3 shadow-lg">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="AfroDeals" className="h-10 w-auto" />
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-8 shadow-2xl backdrop-blur-xl">
+          <div className="mb-6 text-center">
+            <p className="text-xs font-semibold tracking-widest text-[#e89818] uppercase">Restricted access</p>
+            <h1 className="mt-1 text-xl font-bold text-white">Executive Dashboard</h1>
+            <p className="mt-2 text-sm text-white/50">Sign in with your administrator account to continue.</p>
+          </div>
+          <AdminLoginForm />
+        </div>
+
+        <p className="mt-6 text-center text-xs text-white/30">
+          <Link href="/" className="underline underline-offset-2 hover:text-white/60">
+            Back to AfroDeals
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
 
 function StatCard({
   icon: Icon,
@@ -51,7 +94,7 @@ function BarRow({ label, count, max }: { label: string; count: number; max: numb
 
 export default async function AdminDashboardPage() {
   const { user } = await getCurrentUserAndProfile();
-  if (!user || !isAdminEmail(user.email)) redirect("/");
+  if (!user || !isAdminEmail(user.email)) return <AdminLoginScreen />;
 
   const stats = await getAdminStats();
   const maxCategory = Math.max(1, ...stats.topCategories.map(([, c]) => c));

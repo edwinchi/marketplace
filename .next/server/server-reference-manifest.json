@@ -8,7 +8,7 @@
           "codeHash": null
         },
         "app/admin/page": {
-          "moduleId": 58165,
+          "moduleId": 12785,
           "async": false,
           "codeHash": null
         },
@@ -229,7 +229,7 @@
           "codeHash": null
         },
         "app/admin/page": {
-          "moduleId": 58165,
+          "moduleId": 12785,
           "async": false,
           "codeHash": null
         },
@@ -450,7 +450,7 @@
           "codeHash": null
         },
         "app/admin/page": {
-          "moduleId": 58165,
+          "moduleId": 12785,
           "async": false,
           "codeHash": null
         },
@@ -741,6 +741,17 @@
       },
       "filename": "app/my-account/saved-searches/actions.ts",
       "exportedName": "saveSearch"
+    },
+    "604290114a1cf15b8de749750f2e4c8ccc87cfca3d": {
+      "workers": {
+        "app/admin/page": {
+          "moduleId": 12785,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "filename": "app/admin/login-action.ts",
+      "exportedName": "adminLogin"
     },
     "60b188394444c905c9cc93fd2d0c0bc0963c1a0a31": {
       "workers": {
