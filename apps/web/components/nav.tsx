@@ -9,7 +9,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { AccountMenu } from "@/components/account-menu";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { CurrencySwitcher } from "@/components/currency-switcher";
-import { cn } from "@/lib/utils";
+import { MobileNavMenu } from "@/components/mobile-nav-menu";
 
 export async function Nav() {
   const { user, profile } = await getCurrentUserAndProfile();
@@ -20,7 +20,44 @@ export async function Nav() {
   return (
     <>
       <header className="border-b print:hidden">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+        {/* Mobile header — a separate, purpose-built layout rather than squeezing the desktop
+            row down: hamburger (secondary controls: language/currency/help links) | centered
+            logo | messages+notifications (primary, stay one tap away). A 3-equal-column grid is
+            what actually centers the logo regardless of the two side groups' different widths —
+            flex justify-between only centers when both sides are the same width.
+
+            fixed, not sticky: this bar's own containing block (this <header>) is only as tall as
+            the bar itself on mobile (the desktop row right below is `hidden`), and `sticky` can
+            only stay pinned within its containing block's height — with nothing extra to stick
+            within, it just scrolls away with the page. `fixed` pins it to the viewport instead,
+            with a same-height spacer directly below (`h-24`, matching py-4 + h-18 here) so it
+            doesn't overlap the content that follows. */}
+        <div className="fixed inset-x-0 top-0 z-30 grid grid-cols-3 items-center gap-3 border-b bg-background px-5 py-4 sm:hidden">
+          <div className="justify-self-start">
+            <MobileNavMenu languageSwitcher={<LanguageSwitcher locale={locale} />} currencySwitcher={<CurrencySwitcher currency={displayCurrency} />} />
+          </div>
+          <Link href="/" aria-label="AfroDeals home" className="justify-self-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="AfroDeals" className="h-18 w-auto" />
+          </Link>
+          <div className="flex items-center justify-self-end">
+            <Link href="/messages" className="relative flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+              <MessageCircle className="size-5" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </Link>
+            <Link href="/notifications" className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+              <Bell className="size-5" />
+            </Link>
+          </div>
+        </div>
+        <div className="h-24 sm:hidden" aria-hidden="true" />
+
+        {/* Desktop header — unchanged */}
+        <div className="mx-auto hidden max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:flex sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
             <Link href="/" aria-label="AfroDeals home">
               {/* Plain <img>, not next/image — this is a small, rarely-changing static brand
@@ -63,13 +100,7 @@ export async function Nav() {
                 {t("signIn")}
               </Link>
             )}
-            {/* Hidden on mobile — the fixed bottom nav already has a dedicated "Post ad" entry,
-                and this button was the main cause of header overflow on narrow viewports.
-                buttonVariants() called standalone (not through <Button>) never runs through cn()'s
-                tailwind-merge dedup, so its own base `inline-flex` was silently beating this
-                `hidden` in Tailwind's generated CSS order -- explicitly merging with cn() here
-                fixes that instead of relying on cva's plain string concatenation. */}
-            <Link href="/listings/new" className={cn(buttonVariants({ size: "sm" }), "hidden sm:inline-flex")}>
+            <Link href="/listings/new" className={buttonVariants({ size: "sm" })}>
               {t("postAd")}
             </Link>
           </nav>
