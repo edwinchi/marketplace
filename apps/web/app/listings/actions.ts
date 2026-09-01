@@ -206,7 +206,10 @@ export async function updateListing(
     return { error: e instanceof Error ? e.message : "Could not save listing details." };
   }
 
-  revalidatePath(`/listings/${listingId}`);
+  // The real page lives at a slugged path (/listings/[...slug]) this function has no way to
+  // reconstruct without a DB round-trip -- revalidating the literal route pattern instead of a
+  // guessed resolved URL is the documented way to invalidate every path under a dynamic segment.
+  revalidatePath("/listings/[...slug]", "page");
   redirect(`/listings/${slugPath(title, listingId)}`);
 }
 
@@ -227,7 +230,10 @@ export async function markListingSold(listingId: string) {
   const supabase = await createClient();
   await supabase.from("listings").update({ status: "sold" }).eq("id", listingId).eq("seller_id", profile.id);
   revalidatePath("/");
-  revalidatePath(`/listings/${listingId}`);
+  // The real page lives at a slugged path (/listings/[...slug]) this function has no way to
+  // reconstruct without a DB round-trip -- revalidating the literal route pattern instead of a
+  // guessed resolved URL is the documented way to invalidate every path under a dynamic segment.
+  revalidatePath("/listings/[...slug]", "page");
 }
 
 // Undoes markListingSold, or brings back a listing the expiry sweep flipped to 'expired' — same
@@ -242,7 +248,10 @@ export async function relistListing(listingId: string) {
     .eq("id", listingId)
     .eq("seller_id", profile.id);
   revalidatePath("/");
-  revalidatePath(`/listings/${listingId}`);
+  // The real page lives at a slugged path (/listings/[...slug]) this function has no way to
+  // reconstruct without a DB round-trip -- revalidating the literal route pattern instead of a
+  // guessed resolved URL is the documented way to invalidate every path under a dynamic segment.
+  revalidatePath("/listings/[...slug]", "page");
 }
 
 export type DeleteResult = { error: string | null };
