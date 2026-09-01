@@ -1,3 +1,4 @@
+import path from "path";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
@@ -8,6 +9,13 @@ const nextConfig: NextConfig = {
   // uploading via FTP to Plesk, since there's no server-side `npm install`/build step there.
   // See agents.md §11.
   output: "standalone",
+  // This is a monorepo (repo root -> apps/web) — without this, Next's file-tracing step doesn't
+  // reliably know where the true project root is when the build runs from apps/web specifically
+  // (e.g. Vercel with Root Directory set to apps/web), and can emit an incomplete .next/ output —
+  // confirmed live: a Vercel build failed with ENOENT on .next/next-server.js.nft.json, a trace
+  // file that should exist but didn't. Doesn't change the standalone output shape itself, so the
+  // Plesk FTP deploy (agents.md §11) is unaffected.
+  outputFileTracingRoot: path.join(__dirname, "../.."),
   experimental: {
     // Next's default Server Action body cap is 1MB — fine for text fields, but createListing's
     // form submits real photo files (up to MAX_PHOTOS=24, components/listings/photo-upload.tsx)
