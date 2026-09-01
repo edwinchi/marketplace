@@ -33,6 +33,8 @@ export async function createOffer(_prevState: OfferFormState, formData: FormData
   });
   if (error) return { error: error.message };
 
-  revalidatePath(`/listings/${listingId}`);
+  // See app/listings/actions.ts for why this targets the route pattern, not a guessed resolved
+  // slug URL -- /listings/[...slug] can't be reconstructed here without a DB round-trip.
+  revalidatePath("/listings/[...slug]", "page");
   return { error: null, success: true };
 }
