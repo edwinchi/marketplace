@@ -621,27 +621,36 @@ Hosting is a Plesk server (LiteSpeed web server, Node.js via its `lsnode.js` run
 access on this plan — the "Local repository" git-push option in Plesk's Git panel is unavailable
 because of that, so deployment is: **build locally, upload the build via FTP**, not git-triggered.
 
-`next.config.ts` sets `output: "standalone"` for this — `next build` produces
-`apps/web/.next/standalone/`, a self-contained bundle (its own minimal `node_modules`, a generated
-`server.js`) that needs no `npm install` on the server, since FTP-only hosting has no remote build
-step. `apps/web/app.js` is a one-line shim (`require("./server.js")`) — confirmed necessary by reading
-this server's own `stderr.log` over FTP, which showed its LiteSpeed Node runner hard-coded to look for
-`app.js` specifically, not `server.js`.
+`next.config.ts` sets `output: "standalone"` for this — `next build` produces a self-contained
+bundle (its own minimal `node_modules`, a generated `server.js`) that needs no `npm install` on the
+server, since FTP-only hosting has no remote build step. `apps/web/app.js` is a one-line shim
+(`require("./server.js")`) — confirmed necessary by reading this server's own `stderr.log` over FTP,
+which showed its LiteSpeed Node runner hard-coded to look for `app.js` specifically, not `server.js`.
+
+`next.config.ts` also sets `outputFileTracingRoot` to the repo root (added when this repo picked up
+a Vercel deploy target alongside Plesk — see the Vercel section below). That's required for Vercel's
+build (Root Directory = `apps/web`) to trace files correctly, but it has a side effect here too: the
+standalone bundle now nests one level deeper, under **`apps/web/.next/standalone/apps/web/`**
+(mirroring the path from the tracing root down to the app), not flatly at `apps/web/.next/standalone/`
+like before. Every command and path below already accounts for this — if a `server.js`/`app.js`/etc.
+copy step ever fails with "not found" at the old flat path, this is why; adjust to the nested one.
 
 **Build + package for upload, from `apps/web`:**
 ```
 npm run build
-rm -rf .next/standalone/public .next/standalone/.next/static .next/standalone/app.js
-cp -r public .next/standalone/public
-cp -r .next/static .next/standalone/.next/static
-cp app.js .next/standalone/app.js
+cd .next/standalone/apps/web
+rm -rf public .next/static app.js
+cp -r ../../../../public .
+cp -r ../../../../.next/static .next/static
+cp ../../../../app.js .
 ```
 (Next's standalone output doesn't include `public/` or `.next/static/` by default, and doesn't know
 about the `app.js` shim — all three are copied in fresh every build.) The resulting
-`apps/web/.next/standalone/` directory (~1245 files, ~29MB as of the first deploy) is what gets
-uploaded, preserving its internal structure, to the FTP account's `marketplace.apps-pilot.nl/`
-directory (confirmed root via directory listing — this is the actual document root, distinct from the
-`/marketplace.apps-pilot.nl` server path shown in the earlier git-based screenshot).
+`apps/web/.next/standalone/apps/web/` directory is what gets uploaded — its *contents*, not the
+`apps/web/` wrapper folder itself — preserving internal structure, to the FTP account's
+`marketplace.apps-pilot.nl/` directory (confirmed root via directory listing — this is the actual
+document root, distinct from the `/marketplace.apps-pilot.nl` server path shown in the earlier
+git-based screenshot).
 
 **Confirmed working FTP connection details (as of 2026-08-21):** host `marketplace.apps-pilot.nl`
 (ProFTPD, port 21), user `marketplace`. Its FTP root ("/") **is** the app root directly (app.js,
