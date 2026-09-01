@@ -4,18 +4,28 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
+// output: "standalone" produces the self-contained server.js + pruned node_modules that the Plesk
+// FTP deploy needs (agents.md §11), since there's no server-side `npm install`/build step there.
+// Vercel needs the exact opposite: it builds its own serverless functions from Next's regular
+// output, and standalone mode's self-contained shape actively confuses Vercel's routing in a
+// monorepo -- confirmed live, a build that succeeded with standalone on still 404'd on every route
+// once deployed. Vercel sets its own VERCEL env var during every build, so that's what gates this.
+const isVercel = !!process.env.VERCEL;
+
 const nextConfig: NextConfig = {
-  // Self-contained build output (server.js + a pruned node_modules) — the right shape for
-  // uploading via FTP to Plesk, since there's no server-side `npm install`/build step there.
-  // See agents.md §11.
-  output: "standalone",
-  // This is a monorepo (repo root -> apps/web) — without this, Next's file-tracing step doesn't
-  // reliably know where the true project root is when the build runs from apps/web specifically
-  // (e.g. Vercel with Root Directory set to apps/web), and can emit an incomplete .next/ output —
-  // confirmed live: a Vercel build failed with ENOENT on .next/next-server.js.nft.json, a trace
-  // file that should exist but didn't. Doesn't change the standalone output shape itself, so the
-  // Plesk FTP deploy (agents.md §11) is unaffected.
-  outputFileTracingRoot: path.join(__dirname, "../.."),
+  ...(isVercel
+    ? {}
+    : {
+        output: "standalone" as const,
+        // This is a monorepo (repo root -> apps/web) — without this, Next's file-tracing step
+        // doesn't reliably know where the true project root is when the build runs from apps/web
+        // specifically, and can emit an incomplete .next/ output — confirmed live: a local build
+        // matching Vercel's Root Directory setup failed with ENOENT on
+        // .next/next-server.js.nft.json, a trace file that should exist but didn't. Only relevant
+        // to the standalone/Plesk path; Vercel resolves its own monorepo root from its Root
+        // Directory project setting and doesn't need this.
+        outputFileTracingRoot: path.join(__dirname, "../.."),
+      }),
   experimental: {
     // Next's default Server Action body cap is 1MB — fine for text fields, but createListing's
     // form submits real photo files (up to MAX_PHOTOS=24, components/listings/photo-upload.tsx)
