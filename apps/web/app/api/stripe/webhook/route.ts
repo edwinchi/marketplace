@@ -25,6 +25,18 @@ export async function POST(request: Request) {
 
   const supabase = createServiceClient();
 
+  // Idempotency guard: Stripe retries webhook delivery on timeouts/network errors, so the same
+  // event.id can arrive more than once. Recording it here first and bailing on a conflict is
+  // Stripe's own recommended pattern -- without it, a redelivered checkout.session.completed
+  // would double-credit ai_bonus_uses on every retry.
+  const { error: dedupeError } = await supabase.from("stripe_webhook_events").insert({ id: event.id });
+  if (dedupeError) {
+    // 23505 = unique_violation -- already processed, nothing to do. Any other error means the
+    // dedupe check itself failed (e.g. DB unreachable) -- still return 200 so Stripe doesn't spin
+    // retrying forever on an infrastructure problem this event's contents can't fix.
+    return NextResponse.json({ received: true, duplicate: dedupeError.code === "23505" });
+  }
+
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
