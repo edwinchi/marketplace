@@ -29,3 +29,5 @@ Thumbs.db
 # ops/watchdog.py's FTP credentials — same rule as .env*, never committed
 ops/*.local.json
 __pycache__/
+
+.vercel
