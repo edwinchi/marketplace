@@ -2,7 +2,10 @@
 node_modules/
 apps/*/node_modules/
 
-# Next.js build output
+# Next.js build output — root-level .next/ was git-tracked deliberately for the old Plesk
+# git-panel deploy mechanism (see agents.md §11); that path is superseded by FTP and isn't used by
+# Vercel, which builds fresh from source, so it's untracked here too.
+/.next/
 apps/*/.next/
 apps/*/out/
 
@@ -22,3 +25,6 @@ supabase/.branches/
 *.log
 .DS_Store
 Thumbs.db
+
+# ops/watchdog.py's FTP credentials — same rule as .env*, never committed
+ops/*.local.json

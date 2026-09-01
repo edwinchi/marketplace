@@ -1,3 +1,0 @@
-module.exports=[12437,a=>{a.v(b=>Promise.all(["server/chunks/ssr/messages_en_json_[json]_cjs_206072-._.js"].map(b=>a.l(b))).then(()=>b(45983)))},76111,a=>{a.v(b=>Promise.all(["server/chunks/ssr/messages_fr_json_[json]_cjs_0j6-w0i._.js"].map(b=>a.l(b))).then(()=>b(26006)))},98863,a=>{"use strict";let b=(0,a.i(92277).default)("message-circle",[["path",{d:"M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719",key:"1sd12s"}]]);a.s(["MessageCircle",0,b],98863)},61749,a=>{"use strict";let b=(0,a.i(92277).default)("user",[["path",{d:"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2",key:"975kel"}],["circle",{cx:"12",cy:"7",r:"4",key:"17ys0d"}]]);a.s(["User",0,b],61749)}];
-
-//# sourceMappingURL=_042eguo._.js.map
