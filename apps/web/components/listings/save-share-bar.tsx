@@ -30,12 +30,17 @@ function XIcon({ className }: { className?: string }) {
   );
 }
 
+// Facebook and X build their own preview card straight from the URL's Open Graph/Twitter Card
+// tags (see generateMetadata in app/listings/[...slug]/page.tsx) -- that's where the AfroDeals
+// logo comes from on those two, not anything passed here. WhatsApp and Email don't reliably
+// render link previews at all (WhatsApp usually does, but many email clients never fetch OG tags),
+// so those two get an explicit "via AfroDeals <site link>" signature in the message text itself.
 const SHARE_TARGETS = [
   {
     key: "whatsapp",
     label: "WhatsApp",
     icon: WhatsAppIcon,
-    href: (url: string, title: string) => `https://wa.me/?text=${encodeURIComponent(`${title} ${url}`)}`,
+    href: (url: string, title: string) => `https://wa.me/?text=${encodeURIComponent(`${title}\n${url}\n\nvia AfroDeals — ${new URL(url).origin}`)}`,
   },
   {
     key: "facebook",
@@ -53,7 +58,8 @@ const SHARE_TARGETS = [
     key: "email",
     label: "Email",
     icon: Mail,
-    href: (url: string, title: string) => `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(url)}`,
+    href: (url: string, title: string) =>
+      `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`${title}\n${url}\n\nvia AfroDeals — ${new URL(url).origin}`)}`,
   },
 ];
 
@@ -62,7 +68,13 @@ function ShareMenu({ title }: { title: string }) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
+  // Restrict native share to touch devices. navigator.share() exists on desktop Chrome/Edge on
+  // Windows too, but there it hands off to the OS-level Share flyout -- which depends on Share
+  // provider infrastructure that isn't present on every Windows install (notably Windows Server
+  // SKUs), where it opens near-empty or never resolves at all, leaving the button looking dead.
+  // On phones/tablets the native sheet is reliable and the better UX, so keep it there.
+  const canNativeShare =
+    typeof navigator !== "undefined" && !!navigator.share && typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches;
 
   useEffect(() => {
     if (!open) return;
@@ -98,11 +110,14 @@ function ShareMenu({ title }: { title: string }) {
           // the fallback for desktop browsers that don't support the Web Share API at all.
           if (canNativeShare) {
             try {
-              await navigator.share({ title, url: window.location.href });
+              await navigator.share({ title, text: "via AfroDeals", url: window.location.href });
               return;
-            } catch {
-              // user cancelled the share sheet — do nothing, don't fall through to the dropdown
-              return;
+            } catch (err) {
+              // AbortError means the user closed the native share sheet themselves — respect
+              // that and stop. Any other failure (blocked by permissions policy, no share
+              // targets registered, etc.) means the native sheet never actually appeared, so
+              // fall through to the custom dropdown instead of leaving the button inert.
+              if (err instanceof Error && err.name === "AbortError") return;
             }
           }
           setOpen((v) => !v);

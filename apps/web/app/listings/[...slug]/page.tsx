@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTranslations, getLocale } from "next-intl/server";
@@ -18,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { BackButton } from "@/components/back-button";
 import { DeleteListingButton } from "@/components/delete-listing-button";
+import { MarkSoldButton } from "@/components/mark-sold-button";
 import { SaveShareBar } from "@/components/listings/save-share-bar";
 import { PhotoGallery } from "@/components/listings/photo-gallery";
 import { OfferBox } from "@/components/listings/offer-box";
@@ -25,6 +27,32 @@ import { messageSellerAction } from "@/app/listings/message-seller-action";
 import { followSeller, unfollowSeller } from "@/app/my-account/favorite-sellers/actions";
 import { UserPlus, UserCheck } from "lucide-react";
 import { idFromSlugSegments, breadcrumbSlugPath } from "@/lib/slug";
+import { getSiteOrigin } from "@/lib/site-url";
+
+// Drives the rich preview card WhatsApp/Facebook/X/iMessage/Slack generate when someone shares a
+// listing link (components/listings/save-share-bar.tsx) -- those platforms scrape these tags from
+// the URL itself rather than anything the share menu passes, so this is the only way to make a
+// shared listing show AfroDeals' own branding (logo + site name) instead of no preview at all.
+export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const id = idFromSlugSegments(slug);
+  const supabase = await createClient();
+  const { data: listing } = await supabase.from("listings").select("title, description").eq("id", id).single();
+  if (!listing) return {};
+
+  const origin = await getSiteOrigin();
+  const url = `${origin}/listings/${slug.join("/")}`;
+  const description = listing.description ? listing.description.slice(0, 200) : "Buy and sell across African markets.";
+  const title = `${listing.title} | AfroDeals`;
+  const logo = { url: `${origin}/logo.png`, width: 1400, height: 474, alt: "AfroDeals" };
+
+  return {
+    title,
+    description,
+    openGraph: { title, description, url, siteName: "AfroDeals", images: [logo], type: "website" },
+    twitter: { card: "summary_large_image", title, description, images: [logo.url] },
+  };
+}
 
 // URL mirrors the listing's full category breadcrumb, e.g.
 // /listings/home-interior/kitchen-tableware/fruit-bowl-large-<id> — only the trailing segment's
@@ -215,6 +243,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
               <Link href={`/listings/edit/${listing.id}`} className={buttonVariants({ variant: "outline", className: "transition-transform duration-150 hover:-translate-y-0.5" })}>
                 {t("edit")}
               </Link>
+              <MarkSoldButton listingId={listing.id} status={listing.status} />
               <DeleteListingButton listingId={listing.id} />
             </div>
           )}

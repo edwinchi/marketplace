@@ -144,6 +144,10 @@ export async function createListing(_prevState: ListingFormState, formData: Form
       offers_allowed: offersAllowed,
       status: "active",
       published_at: new Date().toISOString(),
+      // 60 days, matching common classifieds convention (Marktplaats et al.) — the expiry sweep
+      // (supabase/migrations/20260101004200_listing_expiry.sql) flips anything past this to
+      // 'expired' so the marketplace feed doesn't fill up with abandoned listings.
+      expires_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
     })
     .select("id")
     .single();
@@ -212,6 +216,33 @@ export async function deleteListing(listingId: string) {
   revalidatePath("/");
   revalidatePath("/my-account/my-listings");
   redirect("/my-account/my-listings");
+}
+
+// Marks a deal done without deleting anything — reuses the same "hidden from browse" mechanism as
+// delete (the active-feed RLS policy only ever matches status='active'), but keeps the listing
+// visible on the seller's own profile/history as a completed sale, unlike a delete.
+export async function markListingSold(listingId: string) {
+  const { profile } = await getCurrentUserAndProfile();
+  if (!profile) redirect("/login");
+  const supabase = await createClient();
+  await supabase.from("listings").update({ status: "sold" }).eq("id", listingId).eq("seller_id", profile.id);
+  revalidatePath("/");
+  revalidatePath(`/listings/${listingId}`);
+}
+
+// Undoes markListingSold, or brings back a listing the expiry sweep flipped to 'expired' — same
+// action either way, since both just need status returned to 'active' to reappear in browse/search.
+export async function relistListing(listingId: string) {
+  const { profile } = await getCurrentUserAndProfile();
+  if (!profile) redirect("/login");
+  const supabase = await createClient();
+  await supabase
+    .from("listings")
+    .update({ status: "active", expires_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString() })
+    .eq("id", listingId)
+    .eq("seller_id", profile.id);
+  revalidatePath("/");
+  revalidatePath(`/listings/${listingId}`);
 }
 
 export type DeleteResult = { error: string | null };

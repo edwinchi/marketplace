@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { Sparkles, Camera, X } from "lucide-react";
 import { findCategoryMatches, type CategoryMatch } from "@/app/listings/new/find-category-action";
 import { analyzeListingPhoto } from "@/app/listings/new/analyze-photo-action";
@@ -14,7 +15,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export function NewListingStep1({ categoryOptions }: { categoryOptions: CategoryOption[] }) {
+export function NewListingStep1({
+  categoryOptions,
+  initialUsesLeft,
+  freeLimit,
+}: {
+  categoryOptions: CategoryOption[];
+  initialUsesLeft: number;
+  freeLimit: number;
+}) {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [matches, setMatches] = useState<CategoryMatch[] | null>(null);
@@ -28,6 +37,7 @@ export function NewListingStep1({ categoryOptions }: { categoryOptions: Category
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
   const [aiDescription, setAiDescription] = useState<string | null>(null);
   const [aiCategoryLabel, setAiCategoryLabel] = useState<string | null>(null);
+  const [usesLeft, setUsesLeft] = useState(initialUsesLeft);
 
   const chosenCategoryId = selected === "manual" ? manualCategoryId : selected;
 
@@ -50,7 +60,8 @@ export function NewListingStep1({ categoryOptions }: { categoryOptions: Category
     startAnalyzing(async () => {
       try {
         const { base64, mediaType } = await fileToResizedBase64(file);
-        const { data, error } = await analyzeListingPhoto(base64, mediaType);
+        const { data, error, usesLeft: left } = await analyzeListingPhoto(base64, mediaType);
+        setUsesLeft(left);
         if (error || !data) {
           setAnalyzeError(error ?? "Couldn't analyze that photo.");
           return;
@@ -90,22 +101,50 @@ export function NewListingStep1({ categoryOptions }: { categoryOptions: Category
             <Sparkles className="size-4 text-primary" />
             <h2 className="text-sm font-semibold">Have a photo? Let AI fill this in</h2>
           </div>
-          <label className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
-            <input
-              type="checkbox"
-              checked={useAi}
-              onChange={(e) => setUseAi(e.target.checked)}
-              className="size-3.5"
-            />
-            Use AI
-          </label>
+          {usesLeft > 0 ? (
+            <label className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={useAi}
+                onChange={(e) => setUseAi(e.target.checked)}
+                className="size-3.5"
+              />
+              Use AI
+            </label>
+          ) : (
+            <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+              0 free uses left
+            </span>
+          )}
         </div>
-        {!useAi && (
+        {usesLeft > 0 && usesLeft <= 2 && (
+          <p className="mb-2 text-xs text-amber-600">
+            {usesLeft} free AI {usesLeft === 1 ? "use" : "uses"} left —{" "}
+            <Link href="/my-account/ai-features" className="underline underline-offset-2">
+              see what's next
+            </Link>
+            .
+          </p>
+        )}
+        {usesLeft === 0 && (
+          <div className="flex flex-col gap-2 rounded-md border border-dashed p-3 text-sm">
+            <p className="text-muted-foreground">
+              You&apos;ve used all {freeLimit} free AI photo analyses. Fill in the title and category
+              yourself below, or upgrade for continued AI autofill.
+            </p>
+            <Link
+              href="/my-account/ai-features"
+              className="w-fit rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-transform duration-150 hover:-translate-y-0.5"
+            >
+              See upgrade options
+            </Link>
+          </div>
+        )}
+        {usesLeft === 0 ? null : !useAi ? (
           <p className="text-sm text-muted-foreground">
             AI assistance is off — no photo will be analyzed. Fill in the title and category yourself below.
           </p>
-        )}
-        {useAi && <div className="flex items-start gap-3">
+        ) : <div className="flex items-start gap-3">
           {photoPreview ? (
             <div className="relative size-20 shrink-0 overflow-hidden rounded-md border">
               {/* eslint-disable-next-line @next/next/no-img-element -- local preview, not a remote/optimizable image */}

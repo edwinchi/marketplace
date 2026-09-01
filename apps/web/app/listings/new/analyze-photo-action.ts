@@ -5,10 +5,10 @@ import { createClient } from "@/lib/supabase/server";
 import { getCategoriesAndAttributes } from "@/lib/categories";
 import { isAdminEmail } from "@/lib/admin";
 
-// Free tier: 3 uses per registered account, then an honest "upgrade" prompt — there's no payment
+// Free tier: 5 uses per registered account, then an honest "upgrade" prompt — there's no payment
 // processor wired up yet to actually charge for more (see /my-account/ai-features), so this just
 // stops rather than faking a paywall bypass.
-const FREE_USE_LIMIT = 3;
+const FREE_USE_LIMIT = 5;
 
 export type PhotoAnalysis = {
   title: string;
@@ -17,7 +17,41 @@ export type PhotoAnalysis = {
   categoryLabel: string;
 };
 
-export type AnalyzePhotoResult = { data: PhotoAnalysis | null; error: string | null };
+export type AnalyzePhotoResult = {
+  data: PhotoAnalysis | null;
+  error: string | null;
+  usesLeft: number;
+  freeLimit: number;
+  unlimited: boolean;
+};
+
+type UsageRow = { ai_photo_analysis_uses: number | null; ai_bonus_uses: number | null; ai_subscription_status: string | null };
+
+// Seller Pro subscribers and admins bypass the counter entirely; everyone else's effective cap is
+// the free limit plus whatever they've bought via one-time top-ups (ai_bonus_uses) — see
+// supabase/migrations/20260101004300_ai_subscriptions.sql and /my-account/ai-features.
+function usageFromRow(row: UsageRow | null, isAdmin: boolean) {
+  const unlimited = isAdmin || row?.ai_subscription_status === "active";
+  const usesSoFar = row?.ai_photo_analysis_uses ?? 0;
+  const effectiveLimit = FREE_USE_LIMIT + (row?.ai_bonus_uses ?? 0);
+  return { unlimited, usesSoFar, effectiveLimit, usesLeft: unlimited ? effectiveLimit : Math.max(0, effectiveLimit - usesSoFar) };
+}
+
+// Exported so the listing-creation pages (Server Components) can show "N free uses left" before
+// the user ever uploads a photo, not just after — a plain read, no API call, so it costs nothing
+// to show proactively.
+export async function getAiUsageStatus(): Promise<{ usesLeft: number; freeLimit: number; unlimited: boolean }> {
+  const { user, profile } = await getCurrentUserAndProfile();
+  if (!user || !profile) return { usesLeft: 0, freeLimit: FREE_USE_LIMIT, unlimited: false };
+  const supabase = await createClient();
+  const { data: usageRow } = await supabase
+    .from("profiles")
+    .select("ai_photo_analysis_uses, ai_bonus_uses, ai_subscription_status")
+    .eq("id", profile.id)
+    .single();
+  const usage = usageFromRow(usageRow, isAdminEmail(user.email));
+  return { usesLeft: usage.usesLeft, freeLimit: FREE_USE_LIMIT, unlimited: usage.unlimited };
+}
 
 // Routed through OpenRouter (an OpenAI-compatible gateway that proxies to many providers,
 // including Claude) rather than calling Anthropic directly — same vision capability, just a
@@ -38,20 +72,29 @@ const FALLBACK_MODELS = ["minimax/minimax-m3:free", "google/gemma-4-31b-it:free"
 // category that doesn't exist in the taxonomy.
 export async function analyzeListingPhoto(imageBase64: string, mediaType: string): Promise<AnalyzePhotoResult> {
   const { user, profile } = await getCurrentUserAndProfile();
-  if (!user || !profile) return { data: null, error: "Sign in to use this." };
+  if (!user || !profile) return { data: null, error: "Sign in to use this.", usesLeft: 0, freeLimit: FREE_USE_LIMIT, unlimited: false };
 
   const supabase = await createClient();
-  const { data: usageRow } = await supabase.from("profiles").select("ai_photo_analysis_uses").eq("id", profile.id).single();
-  const usesSoFar = usageRow?.ai_photo_analysis_uses ?? 0;
-  if (usesSoFar >= FREE_USE_LIMIT && !isAdminEmail(user.email)) {
+  const { data: usageRow } = await supabase
+    .from("profiles")
+    .select("ai_photo_analysis_uses, ai_bonus_uses, ai_subscription_status")
+    .eq("id", profile.id)
+    .single();
+  const isAdmin = isAdminEmail(user.email);
+  const { unlimited, usesSoFar, effectiveLimit, usesLeft: usesLeftBefore } = usageFromRow(usageRow, isAdmin);
+  if (!unlimited && usesSoFar >= effectiveLimit) {
     return {
       data: null,
-      error: `You've used all ${FREE_USE_LIMIT} free AI analyses. See /my-account/ai-features for what's next.`,
+      error: `You've used all ${effectiveLimit} AI analyses on your account. See /my-account/ai-features for what's next.`,
+      usesLeft: 0,
+      freeLimit: FREE_USE_LIMIT,
+      unlimited: false,
     };
   }
 
   const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) return { data: null, error: "Photo analysis isn't set up on this server yet." };
+  if (!apiKey)
+    return { data: null, error: "Photo analysis isn't set up on this server yet.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
   const modelsToTry = process.env.OPENROUTER_MODEL ? [process.env.OPENROUTER_MODEL] : FALLBACK_MODELS;
 
   const { categoryOptions } = await getCategoriesAndAttributes();
@@ -110,7 +153,7 @@ If the photo doesn't clearly show a sellable item, respond with {"title": "", "d
         }),
       });
     } catch {
-      return { data: null, error: "Couldn't reach the photo analysis service. Check your connection and try again." };
+      return { data: null, error: "Couldn't reach the photo analysis service. Check your connection and try again.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
     }
     if (res.ok) break;
     lastStatus = res.status;
@@ -118,15 +161,18 @@ If the photo doesn't clearly show a sellable item, respond with {"title": "", "d
   }
 
   if (!res || !res.ok) {
-    if (lastStatus === 429) return { data: null, error: "Photo analysis is busy right now — try again in a moment." };
-    if (lastStatus === 402) return { data: null, error: "Photo analysis is temporarily unavailable — the account behind it needs more credits." };
-    return { data: null, error: `Photo analysis failed (${lastStatus}). Try again in a moment.` };
+    if (lastStatus === 429) return { data: null, error: "Photo analysis is busy right now — try again in a moment.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
+    if (lastStatus === 402) return { data: null, error: "Photo analysis is temporarily unavailable — the account behind it needs more credits.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
+    return { data: null, error: `Photo analysis failed (${lastStatus}). Try again in a moment.`, usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
   }
 
   // Counts against the free-use limit here, not earlier — a service failure (rate limit, no
   // credit, network error) above never reaches this line, so it doesn't cost the user one of
-  // their 3 free tries. A real completed API call did happen at this point, win or lose below.
+  // their free tries. A real completed API call did happen at this point, win or lose below.
+  // Still incremented for unlimited (subscribed/admin) accounts too -- keeps ai_photo_analysis_uses
+  // an honest lifetime-usage count even though it no longer gates access for them.
   await supabase.from("profiles").update({ ai_photo_analysis_uses: usesSoFar + 1 }).eq("id", profile.id);
+  const usesLeftAfter = unlimited ? effectiveLimit : Math.max(0, effectiveLimit - (usesSoFar + 1));
 
   const json = await res.json();
   const content = json?.choices?.[0]?.message?.content;
@@ -137,20 +183,23 @@ If the photo doesn't clearly show a sellable item, respond with {"title": "", "d
   try {
     parsed = JSON.parse(text);
   } catch {
-    return { data: null, error: "Couldn't make sense of that photo — try a clearer, closer shot of the item." };
+    return { data: null, error: "Couldn't make sense of that photo — try a clearer, closer shot of the item.", usesLeft: usesLeftAfter, freeLimit: FREE_USE_LIMIT, unlimited };
   }
 
   if (!parsed.title || !parsed.category) {
-    return { data: null, error: "Couldn't identify a sellable item in that photo — try a different photo." };
+    return { data: null, error: "Couldn't identify a sellable item in that photo — try a different photo.", usesLeft: usesLeftAfter, freeLimit: FREE_USE_LIMIT, unlimited };
   }
 
   const matched = categoryOptions.find((c) => c.label.trim().toLowerCase() === parsed.category!.trim().toLowerCase());
   if (!matched) {
-    return { data: null, error: "Identified the item but couldn't match it to a category — please pick one manually below." };
+    return { data: null, error: "Identified the item but couldn't match it to a category — please pick one manually below.", usesLeft: usesLeftAfter, freeLimit: FREE_USE_LIMIT, unlimited };
   }
 
   return {
     data: { title: parsed.title.slice(0, 80), description: parsed.description ?? "", categoryId: matched.id, categoryLabel: matched.label },
     error: null,
+    usesLeft: usesLeftAfter,
+    freeLimit: FREE_USE_LIMIT,
+    unlimited,
   };
 }

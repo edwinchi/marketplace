@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Trash2 } from "lucide-react";
-import { deleteListing, deleteListingPermanently } from "@/app/listings/actions";
+import { deleteListing, deleteListingPermanently, markListingSold, relistListing } from "@/app/listings/actions";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import Link from "next/link";
@@ -18,7 +18,30 @@ export function ListingRowActions({ listingId, status }: { listingId: string; st
         Edit
       </Link>
 
-      {status !== "deleted" && (
+      {(status === "sold" || status === "expired") ? (
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={pending}
+          onClick={() => startTransition(() => relistListing(listingId))}
+        >
+          Relist
+        </Button>
+      ) : status !== "deleted" && (
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={pending}
+          onClick={() => {
+            if (!confirm("Mark this listing as sold? It will be hidden from buyers but stay here as a completed sale.")) return;
+            startTransition(() => markListingSold(listingId));
+          }}
+        >
+          Mark sold
+        </Button>
+      )}
+
+      {status !== "deleted" && status !== "sold" && status !== "expired" && (
         <Button
           variant="outline"
           size="sm"

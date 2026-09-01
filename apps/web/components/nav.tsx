@@ -30,17 +30,27 @@ export async function Nav() {
             the bar itself on mobile (the desktop row right below is `hidden`), and `sticky` can
             only stay pinned within its containing block's height — with nothing extra to stick
             within, it just scrolls away with the page. `fixed` pins it to the viewport instead,
-            with a same-height spacer directly below (`h-24`, matching py-4 + h-18 here) so it
-            doesn't overlap the content that follows. */}
-        <div className="fixed inset-x-0 top-0 z-30 grid grid-cols-3 items-center gap-3 border-b bg-background px-5 py-4 sm:hidden">
-          <div className="justify-self-start">
-            <MobileNavMenu languageSwitcher={<LanguageSwitcher locale={locale} />} currencySwitcher={<CurrencySwitcher currency={displayCurrency} />} />
-          </div>
-          <Link href="/" aria-label="AfroDeals home" className="justify-self-center">
+            with a same-height spacer directly below (`h-20`, matching py-3 + h-11 here) so it
+            doesn't overlap the content that follows.
+
+            Logo is absolutely centered on the bar rather than the middle cell of an equal
+            3-column grid: the hamburger and the messages+notifications group are different
+            widths, and a `minmax(0,1fr)` grid track shrinks to fit whichever is narrower —
+            that was silently squashing the logo's rendered width below its natural aspect
+            ratio (visually distorting it) to stay inside the tighter of the two side widths.
+            Absolute positioning frees the logo from that track entirely so it renders at its
+            true size, while `left-1/2 -translate-x-1/2` still centers it on the full bar
+            width regardless of the side groups' differing widths. */}
+        <div className="fixed inset-x-0 top-0 z-30 flex items-center justify-between gap-3 border-b bg-background px-4 py-3 sm:hidden">
+          <MobileNavMenu languageSwitcher={<LanguageSwitcher locale={locale} />} currencySwitcher={<CurrencySwitcher currency={displayCurrency} />} />
+          <Link href="/" aria-label="AfroDeals home" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            {/* logo-compact.png: the same source artwork cropped tight to just the cart+map+
+                wordmark (no swoosh underline) so it reads at full size in this shorter mobile
+                bar instead of looking squeezed -- full original resolution, just trimmed. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="AfroDeals" className="h-18 w-auto" />
+            <img src="/logo-compact.png" alt="AfroDeals" className="h-11 w-auto" />
           </Link>
-          <div className="flex items-center justify-self-end">
+          <div className="flex items-center">
             <Link href="/messages" className="relative flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
               <MessageCircle className="size-5" />
               {unreadCount > 0 && (
@@ -54,7 +64,7 @@ export async function Nav() {
             </Link>
           </div>
         </div>
-        <div className="h-24 sm:hidden" aria-hidden="true" />
+        <div className="h-20 sm:hidden" aria-hidden="true" />
 
         {/* Desktop header — unchanged */}
         <div className="mx-auto hidden max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:flex sm:px-6 lg:px-8">

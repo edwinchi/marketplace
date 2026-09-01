@@ -85,6 +85,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
   const [analyzing, startAnalyzing] = useTransition();
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
   const [categoryMismatch, setCategoryMismatch] = useState<string | null>(null);
+  const [usesLeft, setUsesLeft] = useState<number | null>(null);
 
   function analyzeFromPhotos() {
     const cover = currentPhotos[0];
@@ -94,7 +95,8 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
     startAnalyzing(async () => {
       try {
         const { base64, mediaType } = await fileToResizedBase64(cover);
-        const { data, error } = await analyzeListingPhoto(base64, mediaType);
+        const { data, error, usesLeft: left } = await analyzeListingPhoto(base64, mediaType);
+        setUsesLeft(left);
         if (error || !data) {
           setAnalyzeError(error ?? "Couldn't analyze that photo.");
           return;
@@ -180,6 +182,14 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
                     <Link href="/listings/new" className="underline">change category</Link>.
                   </p>
                 )}
+                {usesLeft === 0 ? (
+                  <p className="mt-1 text-amber-600">
+                    That was your last free AI use —{" "}
+                    <Link href="/my-account/ai-features" className="underline underline-offset-2">upgrade for more</Link>.
+                  </p>
+                ) : usesLeft !== null && usesLeft <= 2 ? (
+                  <p className="mt-1">{usesLeft} free AI {usesLeft === 1 ? "use" : "uses"} left.</p>
+                ) : null}
               </div>
             </div>
           )}

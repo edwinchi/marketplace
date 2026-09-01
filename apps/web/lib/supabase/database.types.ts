@@ -1644,7 +1644,10 @@ export type Database = {
         Row: {
           account_number: number
           account_type: string
+          ai_bonus_uses: number
           ai_photo_analysis_uses: number
+          ai_subscription_current_period_end: string | null
+          ai_subscription_status: string
           allow_seller_contact_on_favorite: boolean
           auth_user_id: string
           created_at: string
@@ -1668,6 +1671,7 @@ export type Database = {
           preferred_city: string | null
           preferred_language: string | null
           status: string
+          stripe_customer_id: string | null
           updated_at: string
           username: string
           website_url: string | null
@@ -1675,7 +1679,10 @@ export type Database = {
         Insert: {
           account_number?: number
           account_type?: string
+          ai_bonus_uses?: number
           ai_photo_analysis_uses?: number
+          ai_subscription_current_period_end?: string | null
+          ai_subscription_status?: string
           allow_seller_contact_on_favorite?: boolean
           auth_user_id: string
           created_at?: string
@@ -1699,6 +1706,7 @@ export type Database = {
           preferred_city?: string | null
           preferred_language?: string | null
           status?: string
+          stripe_customer_id?: string | null
           updated_at?: string
           username: string
           website_url?: string | null
@@ -1706,7 +1714,10 @@ export type Database = {
         Update: {
           account_number?: number
           account_type?: string
+          ai_bonus_uses?: number
           ai_photo_analysis_uses?: number
+          ai_subscription_current_period_end?: string | null
+          ai_subscription_status?: string
           allow_seller_contact_on_favorite?: boolean
           auth_user_id?: string
           created_at?: string
@@ -1730,6 +1741,7 @@ export type Database = {
           preferred_city?: string | null
           preferred_language?: string | null
           status?: string
+          stripe_customer_id?: string | null
           updated_at?: string
           username?: string
           website_url?: string | null
