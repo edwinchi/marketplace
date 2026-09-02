@@ -59,38 +59,18 @@ const SUPPORTED_DATA_TYPES = new Set(["single_select", "integer", "decimal", "da
 // deeply-nested PostgREST embed — simpler to read and to keep correct as the seed data grows.
 export async function getCategoriesAndAttributes(language?: string) {
   const lang = await resolveLocale(language);
-  return getCategoriesAndAttributesCached(lang);
-}
-
-const getCategoriesAndAttributesCached = unstable_cache(
-  async (lang: string) => {
-  const supabase = createServiceClient();
-
-  const [
+  const {
     categories,
     categoryTranslations,
     categoryTranslationsEn,
-    { data: categoryAttributes },
-    { data: attributes },
-    { data: attributeTranslations },
-    { data: attributeTranslationsEn },
-    { data: attributeOptions },
-    { data: optionTranslations },
-    { data: optionTranslationsEn },
-  ] = await Promise.all([
-    fetchAllRows((from, to) =>
-      supabase.from("categories").select("id, parent_id, stable_key, level, sort_order").eq("is_active", true).eq("allows_listings", true).range(from, to),
-    ),
-    fetchAllRows((from, to) => supabase.from("category_translations").select("category_id, name").eq("language_code", lang).range(from, to)),
-    lang === "en" ? Promise.resolve([]) : fetchAllRows((from, to) => supabase.from("category_translations").select("category_id, name").eq("language_code", "en").range(from, to)),
-    supabase.from("category_attributes").select("category_id, attribute_id, is_required, sort_order"),
-    supabase.from("attributes").select("id, stable_key, data_type, unit_code").eq("is_active", true),
-    supabase.from("attribute_translations").select("attribute_id, name").eq("language_code", lang),
-    lang === "en" ? Promise.resolve({ data: null }) : supabase.from("attribute_translations").select("attribute_id, name").eq("language_code", "en"),
-    supabase.from("attribute_options").select("id, attribute_id, stable_key, sort_order").eq("is_active", true),
-    supabase.from("attribute_option_translations").select("option_id, label").eq("language_code", lang),
-    lang === "en" ? Promise.resolve({ data: null }) : supabase.from("attribute_option_translations").select("option_id, label").eq("language_code", "en"),
-  ]);
+    categoryAttributes,
+    attributes,
+    attributeTranslations,
+    attributeTranslationsEn,
+    attributeOptions,
+    optionTranslations,
+    optionTranslationsEn,
+  } = await getCategoriesAndAttributesRawCached(lang);
 
   const categoryNameByIdEn = new Map((categoryTranslationsEn ?? []).map((t) => [t.category_id, t.name]));
   const categoryNameById = new Map(
@@ -199,8 +179,60 @@ const getCategoriesAndAttributesCached = unstable_cache(
     topLevelCategories,
     attributesByCategory: Object.fromEntries(attributesByCategory) as Record<string, AttributeDef[]>,
   };
+}
+
+// Only the raw rows are cached, not the expanded per-category attribute map above -- inheriting
+// each leaf's attributes from its ancestor duplicates that data onto every one of the ~1000
+// categories once serialized, which blew past unstable_cache's 2MB-per-entry limit (a real,
+// observed `items over 2MB can not be cached (5282882 bytes)` server error -- confirmed live, not
+// theoretical) and silently fell back to re-fetching from Supabase on every single request,
+// defeating the point of caching this at all. The raw rows below are a couple hundred KB at most;
+// the inheritance/label-building work above is pure in-memory computation over them, cheap enough
+// to redo per request without needing its own cache.
+const getCategoriesAndAttributesRawCached = unstable_cache(
+  async (lang: string) => {
+    const supabase = createServiceClient();
+
+    const [
+      categories,
+      categoryTranslations,
+      categoryTranslationsEn,
+      { data: categoryAttributes },
+      { data: attributes },
+      { data: attributeTranslations },
+      { data: attributeTranslationsEn },
+      { data: attributeOptions },
+      { data: optionTranslations },
+      { data: optionTranslationsEn },
+    ] = await Promise.all([
+      fetchAllRows((from, to) =>
+        supabase.from("categories").select("id, parent_id, stable_key, level, sort_order").eq("is_active", true).eq("allows_listings", true).range(from, to),
+      ),
+      fetchAllRows((from, to) => supabase.from("category_translations").select("category_id, name").eq("language_code", lang).range(from, to)),
+      lang === "en" ? Promise.resolve([]) : fetchAllRows((from, to) => supabase.from("category_translations").select("category_id, name").eq("language_code", "en").range(from, to)),
+      supabase.from("category_attributes").select("category_id, attribute_id, is_required, sort_order"),
+      supabase.from("attributes").select("id, stable_key, data_type, unit_code").eq("is_active", true),
+      supabase.from("attribute_translations").select("attribute_id, name").eq("language_code", lang),
+      lang === "en" ? Promise.resolve({ data: null }) : supabase.from("attribute_translations").select("attribute_id, name").eq("language_code", "en"),
+      supabase.from("attribute_options").select("id, attribute_id, stable_key, sort_order").eq("is_active", true),
+      supabase.from("attribute_option_translations").select("option_id, label").eq("language_code", lang),
+      lang === "en" ? Promise.resolve({ data: null }) : supabase.from("attribute_option_translations").select("option_id, label").eq("language_code", "en"),
+    ]);
+
+    return {
+      categories,
+      categoryTranslations,
+      categoryTranslationsEn,
+      categoryAttributes,
+      attributes,
+      attributeTranslations,
+      attributeTranslationsEn,
+      attributeOptions,
+      optionTranslations,
+      optionTranslationsEn,
+    };
   },
-  ["categories-and-attributes"],
+  ["categories-and-attributes-raw"],
   { tags: ["categories"], revalidate: CATEGORY_CACHE_REVALIDATE_SECONDS },
 );
 
