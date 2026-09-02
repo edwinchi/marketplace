@@ -4,8 +4,10 @@ import { useState, useTransition } from "react";
 import { Search, Car, Gauge, Palette, Fuel, DoorOpen, Users, ShieldCheck } from "lucide-react";
 import { searchVehicleByPlate } from "@/app/categories/plate-lookup-action";
 import type { VehicleLookupResult } from "@/lib/rdw";
+import { VEHICLE_REGISTRY_COUNTRIES, DEFAULT_REGISTRY_COUNTRY } from "@/lib/vehicle-registries";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 function formatPlate(plate: string) {
   // Purely cosmetic — RDW itself is dash-agnostic, this just echoes back the conventional Dutch
@@ -25,6 +27,7 @@ function Field({ icon: Icon, label, value }: { icon: React.ComponentType<{ class
 }
 
 export function PlateLookup() {
+  const [country, setCountry] = useState(DEFAULT_REGISTRY_COUNTRY);
   const [plate, setPlate] = useState("");
   const [result, setResult] = useState<VehicleLookupResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +37,7 @@ export function PlateLookup() {
     setError(null);
     setResult(null);
     startTransition(async () => {
-      const { data, error: err } = await searchVehicleByPlate(plate);
+      const { data, error: err } = await searchVehicleByPlate(plate, country);
       if (err) setError(err);
       else setResult(data);
     });
@@ -47,9 +50,22 @@ export function PlateLookup() {
         <h2 className="text-sm font-semibold">Look up a car by its license plate</h2>
       </div>
       <p className="mb-3 text-xs text-muted-foreground">
-        Checks the Dutch vehicle registry (RDW) — works for Dutch-registered plates only.
+        Checks each country's official vehicle registry — coverage expands over time, real data only, no guessing.
       </p>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
+        <Select value={country} onValueChange={(v) => v && setCountry(v)}>
+          <SelectTrigger className="w-40">
+            <SelectValue>{(v: string | null) => VEHICLE_REGISTRY_COUNTRIES.find((c) => c.code === v)?.name}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {VEHICLE_REGISTRY_COUNTRIES.map((c) => (
+              <SelectItem key={c.code} value={c.code}>
+                {c.name}
+                {!c.available && " (soon)"}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Input
           value={plate}
           onChange={(e) => setPlate(e.target.value)}

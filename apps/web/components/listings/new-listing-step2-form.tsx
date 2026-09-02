@@ -25,6 +25,7 @@ import { fileToResizedBase64 } from "@/lib/image";
 import { analyzeListingPhoto } from "@/app/listings/new/analyze-photo-action";
 import { searchVehicleByPlate } from "@/app/categories/plate-lookup-action";
 import { translateDutchColor } from "@/lib/rdw";
+import { VEHICLE_REGISTRY_COUNTRIES, DEFAULT_REGISTRY_COUNTRY } from "@/lib/vehicle-registries";
 import type { ListingFormState } from "@/app/listings/actions";
 import { PhotoUpload } from "@/components/listings/photo-upload";
 import { CharacteristicsSection } from "@/components/listings/characteristics-section";
@@ -96,6 +97,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
   // category (supabase/migrations/20260101000600_seed_attributes_mappings.sql), so its presence
   // here is a reliable "this is a car listing" signal without hardcoding a category id.
   const isCarCategory = attributes.some((a) => a.stableKey === "fuel_type");
+  const [plateCountry, setPlateCountry] = useState(DEFAULT_REGISTRY_COUNTRY);
   const [plateInput, setPlateInput] = useState("");
   const [plateError, setPlateError] = useState<string | null>(null);
   const [plateSearching, startPlateSearch] = useTransition();
@@ -104,7 +106,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
   function handlePlateSearch() {
     setPlateError(null);
     startPlateSearch(async () => {
-      const { data, error } = await searchVehicleByPlate(plateInput);
+      const { data, error } = await searchVehicleByPlate(plateInput, plateCountry);
       if (error || !data) {
         setPlateError(error ?? "Couldn't look up that plate.");
         return;
@@ -237,10 +239,23 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
         <section className={card}>
           <SectionHeading icon={Car}>Have the plate number?</SectionHeading>
           <p className="-mt-2 mb-3 text-sm text-muted-foreground">
-            Looks up the Dutch vehicle registry (RDW) and fills in the title, brand, colour, and fuel type —
-            works for Dutch-registered plates only.
+            Looks up the official vehicle registry and fills in the title, brand, colour, and fuel type —
+            coverage expands over time, real data only.
           </p>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Select value={plateCountry} onValueChange={(v) => v && setPlateCountry(v)}>
+              <SelectTrigger className="w-40">
+                <SelectValue>{(v: string | null) => VEHICLE_REGISTRY_COUNTRIES.find((c) => c.code === v)?.name}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {VEHICLE_REGISTRY_COUNTRIES.map((c) => (
+                  <SelectItem key={c.code} value={c.code}>
+                    {c.name}
+                    {!c.available && " (soon)"}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Input
               value={plateInput}
               onChange={(e) => setPlateInput(e.target.value)}
