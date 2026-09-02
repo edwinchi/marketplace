@@ -9,7 +9,10 @@ import { Sparkles } from "lucide-react";
 // "fill these in to sell faster" progress hint — matches the reference's "1/4" indicator. Uses
 // one delegated onChange on the fieldset (React's synthetic onChange bubbles) instead of lifting
 // controlled state into every AttributeField, so the fields themselves stay simple/uncontrolled.
-export function CharacteristicsSection({ attributes }: { attributes: AttributeDef[] }) {
+// defaultValues is keyed by attribute stableKey (e.g. "brand", "fuel_type") -- for a select
+// attribute the value must be that option's id (see AttributeField); the caller is responsible
+// for that lookup since only it knows which raw value maps to which seeded option.
+export function CharacteristicsSection({ attributes, defaultValues }: { attributes: AttributeDef[]; defaultValues?: Record<string, string> }) {
   const [filled, setFilled] = useState<Set<string>>(new Set());
 
   function handleChange(e: React.ChangeEvent<HTMLFieldSetElement>) {
@@ -49,9 +52,12 @@ export function CharacteristicsSection({ attributes }: { attributes: AttributeDe
           </div>
         )}
       </div>
-      <fieldset onChange={handleChange} className="flex flex-col gap-4">
+      {/* key forces a remount when defaultValues arrives asynchronously (e.g. after a plate
+          lookup completes) -- same reasoning as the description Textarea's key trick in
+          new-listing-step2-form.tsx: defaultValue only applies on first mount. */}
+      <fieldset key={JSON.stringify(defaultValues ?? {})} onChange={handleChange} className="flex flex-col gap-4">
         {attributes.map((attr) => (
-          <AttributeField key={attr.id} attr={attr} />
+          <AttributeField key={attr.id} attr={attr} defaultValue={defaultValues?.[attr.stableKey]} />
         ))}
       </fieldset>
     </section>

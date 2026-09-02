@@ -21,7 +21,11 @@ export function attributeFieldName(attr: AttributeDef) {
   return `attr__${attr.id}__${attr.stableKey}__${effectiveDataType(attr)}`;
 }
 
-export function AttributeField({ attr }: { attr: AttributeDef }) {
+// defaultValue lets a caller pre-fill a field (e.g. from a vehicle plate lookup) without turning
+// these into controlled inputs — same uncontrolled-with-defaultValue pattern as the title/description
+// fields elsewhere in the create-listing form. For a select, this must be the *option id*, not its
+// stable_key/label — matches what SelectItem's own value is set to below.
+export function AttributeField({ attr, defaultValue }: { attr: AttributeDef; defaultValue?: string }) {
   const name = attributeFieldName(attr);
   const label = `${attr.label}${attr.unitCode ? ` (${attr.unitCode})` : ""}`;
 
@@ -29,7 +33,7 @@ export function AttributeField({ attr }: { attr: AttributeDef }) {
     return (
       <div className="flex flex-col gap-1.5">
         <Label htmlFor={name}>{label}</Label>
-        <Select name={name}>
+        <Select name={name} defaultValue={defaultValue}>
           <SelectTrigger id={name} className="w-full">
             <SelectValue placeholder={`Select ${attr.label.toLowerCase()}`}>
               {(value: string | null) => attr.options.find((o) => o.id === value)?.label}
@@ -51,7 +55,7 @@ export function AttributeField({ attr }: { attr: AttributeDef }) {
   return (
     <div className="flex flex-col gap-1.5">
       <Label htmlFor={name}>{label}</Label>
-      <Input id={name} name={name} type={inputType} step={attr.dataType === "decimal" ? "0.01" : undefined} />
+      <Input id={name} name={name} type={inputType} step={attr.dataType === "decimal" ? "0.01" : undefined} defaultValue={defaultValue} />
     </div>
   );
 }

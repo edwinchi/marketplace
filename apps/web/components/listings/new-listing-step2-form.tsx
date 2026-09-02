@@ -14,6 +14,8 @@ import {
   UserRound,
   MapPin,
   Megaphone,
+  Car,
+  Search,
 } from "lucide-react";
 import type { AttributeDef } from "@/lib/categories";
 import { SUPPORTED_CURRENCIES } from "@/lib/money";
@@ -21,6 +23,8 @@ import { ANCHOR_COUNTRIES } from "@/lib/countries";
 import { takeListingDraft } from "@/lib/listing-draft";
 import { fileToResizedBase64 } from "@/lib/image";
 import { analyzeListingPhoto } from "@/app/listings/new/analyze-photo-action";
+import { searchVehicleByPlate } from "@/app/categories/plate-lookup-action";
+import { translateDutchColor } from "@/lib/rdw";
 import type { ListingFormState } from "@/app/listings/actions";
 import { PhotoUpload } from "@/components/listings/photo-upload";
 import { CharacteristicsSection } from "@/components/listings/characteristics-section";
@@ -86,6 +90,39 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
   const [categoryMismatch, setCategoryMismatch] = useState<string | null>(null);
   const [usesLeft, setUsesLeft] = useState<number | null>(null);
+
+  // Plate lookup (RDW, Dutch-registered vehicles only — see lib/rdw.ts) is only useful once the
+  // category actually has car-specific fields; fuel_type is only ever attached to the Cars
+  // category (supabase/migrations/20260101000600_seed_attributes_mappings.sql), so its presence
+  // here is a reliable "this is a car listing" signal without hardcoding a category id.
+  const isCarCategory = attributes.some((a) => a.stableKey === "fuel_type");
+  const [plateInput, setPlateInput] = useState("");
+  const [plateError, setPlateError] = useState<string | null>(null);
+  const [plateSearching, startPlateSearch] = useTransition();
+  const [attributeDefaults, setAttributeDefaults] = useState<Record<string, string> | undefined>(undefined);
+
+  function handlePlateSearch() {
+    setPlateError(null);
+    startPlateSearch(async () => {
+      const { data, error } = await searchVehicleByPlate(plateInput);
+      if (error || !data) {
+        setPlateError(error ?? "Couldn't look up that plate.");
+        return;
+      }
+      if (titleRef.current && !titleRef.current.value.trim()) {
+        titleRef.current.value = `${data.make} ${data.model}`.trim();
+      }
+      const defaults: Record<string, string> = {};
+      if (data.make) defaults.brand = data.make;
+      if (data.color) defaults.colour = translateDutchColor(data.color);
+      if (data.fuelTypeStableKey) {
+        const fuelAttr = attributes.find((a) => a.stableKey === "fuel_type");
+        const matchedOption = fuelAttr?.options.find((o) => o.stableKey === data.fuelTypeStableKey);
+        if (matchedOption) defaults.fuel_type = matchedOption.id;
+      }
+      setAttributeDefaults(defaults);
+    });
+  }
 
   function analyzeFromPhotos() {
     const cover = currentPhotos[0];
@@ -196,6 +233,34 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
         </div>
       </section>
 
+      {isCarCategory && (
+        <section className={card}>
+          <SectionHeading icon={Car}>Have the plate number?</SectionHeading>
+          <p className="-mt-2 mb-3 text-sm text-muted-foreground">
+            Looks up the Dutch vehicle registry (RDW) and fills in the title, brand, colour, and fuel type —
+            works for Dutch-registered plates only.
+          </p>
+          <div className="flex gap-2">
+            <Input
+              value={plateInput}
+              onChange={(e) => setPlateInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handlePlateSearch())}
+              placeholder="e.g. TH-918-F"
+              maxLength={12}
+              className="max-w-48 uppercase"
+            />
+            <Button type="button" variant="outline" onClick={handlePlateSearch} disabled={plateSearching || !plateInput.trim()} className="gap-1.5">
+              <Search className="size-4" />
+              {plateSearching ? "Looking up…" : "Look up"}
+            </Button>
+          </div>
+          {plateError && <p className="mt-2 text-sm text-destructive">{plateError}</p>}
+          {attributeDefaults && !plateError && (
+            <p className="mt-2 text-sm text-[#008848]">Filled in below — review before continuing.</p>
+          )}
+        </section>
+      )}
+
       <section className={`${card} flex flex-col gap-4`}>
         <SectionHeading icon={FileText}>Details</SectionHeading>
         <div className="flex flex-col gap-1.5">
@@ -229,7 +294,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
       </section>
 
       {attributes.length > 0 && <div className={card}>
-        <CharacteristicsSection attributes={attributes} />
+        <CharacteristicsSection attributes={attributes} defaultValues={attributeDefaults} />
       </div>}
 
       <section className={card}>
