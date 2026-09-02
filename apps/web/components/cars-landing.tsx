@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Car, Zap, Clock3, Sparkle, Bus, ShieldCheck, HandCoins, Gauge, FileText, Receipt, ClipboardCheck, X } from "lucide-react";
 import { CarsSearchResults } from "@/components/cars-search-results";
 import { CarsBrandGrid } from "@/components/cars-brand-grid";
+import { PlateLookup } from "@/components/plate-lookup";
 import type { CarsListing, CarsFilters } from "@/lib/cars-landing";
 import { cn } from "@/lib/utils";
 
@@ -202,6 +203,10 @@ export function CarsLanding({
             </button>
           </div>
         </form>
+
+        <div className="mt-6">
+          <PlateLookup />
+        </div>
 
         {/* Quick-filter tiles */}
         <div className="mt-10">
