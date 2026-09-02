@@ -118,6 +118,7 @@ function mapFuelType(text: string | null): string | null {
   if (lower.includes("hydrog") || lower.includes("waterstof")) return "hydrogen";
   if (lower.includes("diesel") || lower.includes("gazole") || lower.includes("gasolie")) return "diesel";
   if (lower.includes("petrol") || lower.includes("gasoline") || lower.includes("essence") || lower.includes("benzine")) return "petrol";
+  if (lower.includes("cng") || lower.includes("natural gas")) return "cng";
   if (lower.includes("lpg") || lower.includes("gpl") || lower.includes("gas")) return "lpg";
   return null;
 }

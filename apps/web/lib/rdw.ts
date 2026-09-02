@@ -55,12 +55,20 @@ const FUEL_MAP: Record<string, string> = {
   elektriciteit: "electric",
   waterstof: "hydrogen",
   lpg: "lpg",
-  "cng (compressed natural gas)": "lpg",
+  "cng (compressed natural gas)": "cng",
 };
 
 function mapFuelTypeToStableKey(descriptions: string[]): string | null {
-  if (descriptions.length > 1) return "hybrid";
-  const key = descriptions[0]?.trim().toLowerCase();
+  const normalized = descriptions.map((d) => d.trim().toLowerCase());
+  if (normalized.length > 1) {
+    // Multiple fuel rows means hybrid -- RDW lists electricity and a combustion fuel as separate
+    // rows for hybrids, so which combustion fuel is present tells us which of the two Marktplaats
+    // hybrid categories (fuel_type migration 20260101004500) this actually is.
+    if (normalized.includes("diesel")) return "hybrid_diesel";
+    if (normalized.includes("benzine")) return "hybrid_petrol";
+    return "hybrid";
+  }
+  const key = normalized[0];
   return key ? (FUEL_MAP[key] ?? null) : null;
 }
 
