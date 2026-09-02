@@ -46,6 +46,7 @@ export async function Footer() {
           <Link href="/help" className="hover:text-foreground hover:underline">{tNav("helpInfo")}</Link>
           <Link href="/terms" className="hover:text-foreground hover:underline">{tNav("terms")}</Link>
           <Link href="/safety" className="hover:text-foreground hover:underline">{tNav("safetyCenter")}</Link>
+          <Link href="/feedback" className="hover:text-foreground hover:underline">{tNav("feedback")}</Link>
         </div>
 
         <div className="mt-6 border-t pt-6 text-center text-xs text-muted-foreground">
