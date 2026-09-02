@@ -14,6 +14,10 @@ export type VehicleLookupResult = {
   plate: string;
   make: string;
   model: string;
+  // Trim/version string (e.g. "1.4 TSI 125 ACTIVE") -- only ever populated for RegCheck-sourced
+  // countries (lib/regcheck.ts), which carry it in ExtendedData.libVersion. RDW has no equivalent
+  // field; always null for NL.
+  trim: string | null;
   vehicleType: string;
   color: string;
   fuelType: string | null;
@@ -24,9 +28,22 @@ export type VehicleLookupResult = {
   fuelTypeStableKey: string | null;
   doors: number | null;
   seats: number | null;
+  cylinders: number | null;
   engineDisplacementCc: number | null;
+  // Net power, converted to metric horsepower (pk) -- RDW-only (nettomaximumvermogen, kW). No
+  // verified real-power field from RegCheck yet (its EngineSize is fiscal horsepower, not this).
+  powerHp: number | null;
+  // Automatic/manual -- opportunistic from RegCheck's ExtendedData.boiteDeVitesse when populated
+  // (empty in every real response seen so far). RDW has no transmission-type field at all.
+  transmission: string | null;
   firstRegisteredAt: string | null;
   motExpiresAt: string | null;
+  // RDW-only environmental figures (co2GramsPerKm is also opportunistically read from RegCheck's
+  // ExtendedData.Co2 when a country happens to populate it).
+  fuelConsumptionL100km: number | null;
+  co2GramsPerKm: number | null;
+  energyLabel: string | null;
+  emissionStandard: string | null;
 };
 
 // RDW's brandstof_omschrijving values, mapped to this project's seeded fuel_type options. More
@@ -72,6 +89,28 @@ export function translateDutchColor(dutch: string): string {
   return COLOR_MAP[key] ?? dutch;
 }
 
+// RDW's `inrichting` (body configuration) is a more specific, more useful field than
+// `voertuigsoort` (broad regulatory category, e.g. "Personenauto" for every passenger car) --
+// verified real values below (e.g. "stationwagen") come from a live response. Falls back to
+// voertuigsoort, untranslated, for values outside this list rather than guessing a translation.
+const BODY_STYLE_MAP: Record<string, string> = {
+  sedan: "Sedan",
+  hatchback: "Hatchback",
+  stationwagen: "Estate",
+  coupe: "Coupe",
+  cabriolet: "Convertible",
+  mpv: "MPV",
+  terreinwagen: "SUV",
+  bestelauto: "Van",
+  "pick-up": "Pickup",
+};
+
+function translateBodyStyle(inrichting: string | undefined, voertuigsoort: string | undefined): string {
+  const key = inrichting?.trim().toLowerCase();
+  if (key && BODY_STYLE_MAP[key]) return BODY_STYLE_MAP[key];
+  return inrichting || voertuigsoort || "";
+}
+
 // RDW stores/queries plates with no separator ("TH918F"), but Dutch plates are conventionally
 // displayed and typed with dashes ("TH-918-F") — strip everything but letters/digits and
 // uppercase, so either form works as input.
@@ -104,18 +143,30 @@ export async function lookupVehicleByPlate(rawPlate: string): Promise<VehicleLoo
   const primaryFuel = fuels.find((f) => f.brandstof_volgnummer === "1") ?? fuels[0];
   const fuelDescriptions = fuels.map((f) => f.brandstof_omschrijving).filter((d): d is string => !!d);
 
+  // nettomaximumvermogen is net power in kW (verified against a live response) -- 1 kW = 1.35962
+  // metric horsepower (pk), the unit Dutch buyers expect.
+  const powerKw = primaryFuel?.nettomaximumvermogen ? Number(primaryFuel.nettomaximumvermogen) : NaN;
+
   return {
     plate,
     make: vehicle.merk ?? "",
     model: vehicle.handelsbenaming ?? "",
-    vehicleType: vehicle.voertuigsoort ?? "",
+    trim: null,
+    vehicleType: translateBodyStyle(vehicle.inrichting, vehicle.voertuigsoort),
     color: vehicle.eerste_kleur ?? "",
     fuelType: primaryFuel?.brandstof_omschrijving ?? null,
     fuelTypeStableKey: mapFuelTypeToStableKey(fuelDescriptions),
     doors: vehicle.aantal_deuren ? Number(vehicle.aantal_deuren) : null,
     seats: vehicle.aantal_zitplaatsen ? Number(vehicle.aantal_zitplaatsen) : null,
+    cylinders: vehicle.aantal_cilinders ? Number(vehicle.aantal_cilinders) : null,
     engineDisplacementCc: vehicle.cilinderinhoud ? Number(vehicle.cilinderinhoud) : null,
+    powerHp: Number.isFinite(powerKw) && powerKw > 0 ? Math.round(powerKw * 1.35962) : null,
+    transmission: null,
     firstRegisteredAt: parseRdwDate(vehicle.datum_eerste_toelating),
     motExpiresAt: parseRdwDate(vehicle.vervaldatum_apk),
+    fuelConsumptionL100km: primaryFuel?.brandstofverbruik_gecombineerd ? Number(primaryFuel.brandstofverbruik_gecombineerd) : null,
+    co2GramsPerKm: primaryFuel?.co2_uitstoot_gecombineerd ? Number(primaryFuel.co2_uitstoot_gecombineerd) : null,
+    energyLabel: vehicle.zuinigheidsclassificatie || null,
+    emissionStandard: primaryFuel?.uitlaatemissieniveau || null,
   };
 }

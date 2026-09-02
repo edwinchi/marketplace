@@ -1,6 +1,7 @@
 "use server";
 
-import { lookupVehicleByPlate, normalizePlate, type VehicleLookupResult } from "@/lib/rdw";
+import { lookupVehicleByPlate as lookupVehicleByPlateRdw, normalizePlate, type VehicleLookupResult } from "@/lib/rdw";
+import { isRegcheckConfigured, lookupVehicleByPlateRegcheck } from "@/lib/regcheck";
 import { VEHICLE_REGISTRY_COUNTRIES } from "@/lib/vehicle-registries";
 
 export type PlateLookupResult = { data: VehicleLookupResult | null; error: string | null };
@@ -16,19 +17,30 @@ export async function searchVehicleByPlate(plate: string, countryCode: string): 
     return { data: null, error: `${country.name} isn't supported yet — coming soon. Netherlands is available now.` };
   }
 
-  // Only NL/RDW is real right now (lib/rdw.ts) -- this switch is where a future country's lookup
-  // function plugs in once it's been verified against real API docs, same as RDW was.
-  switch (country.code) {
-    case "NL": {
-      try {
-        const result = await lookupVehicleByPlate(normalized);
-        if (!result) return { data: null, error: "No Dutch-registered vehicle found for that plate." };
-        return { data: result, error: null };
-      } catch {
-        return { data: null, error: "Couldn't reach the vehicle registry — try again in a moment." };
-      }
+  if (country.code === "NL") {
+    try {
+      const result = await lookupVehicleByPlateRdw(normalized);
+      if (!result) return { data: null, error: "No Dutch-registered vehicle found for that plate." };
+      return { data: result, error: null };
+    } catch {
+      return { data: null, error: "Couldn't reach the vehicle registry — try again in a moment." };
     }
-    default:
-      return { data: null, error: `${country.name} isn't supported yet — coming soon.` };
   }
+
+  // Every other available country routes through lib/regcheck.ts's generic dispatcher via its
+  // regcheckMethod (see vehicle-registries.ts for which SOAP operation each country maps to).
+  if (country.regcheckMethod) {
+    if (!isRegcheckConfigured()) {
+      return { data: null, error: `${country.name} lookup is being set up — check back soon.` };
+    }
+    try {
+      const result = await lookupVehicleByPlateRegcheck(country.regcheckMethod, normalized);
+      if (!result) return { data: null, error: `No ${country.name}-registered vehicle found for that plate.` };
+      return { data: result, error: null };
+    } catch {
+      return { data: null, error: "Couldn't reach the vehicle registry — try again in a moment." };
+    }
+  }
+
+  return { data: null, error: `${country.name} isn't supported yet — coming soon.` };
 }
