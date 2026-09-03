@@ -2,13 +2,14 @@
 
 import { useState, useTransition } from "react";
 import { Search, Car, Gauge, Palette, Fuel, DoorOpen, Users, ShieldCheck, Zap, Cog, CircleDot, Leaf, Award } from "lucide-react";
-import { searchVehicleByPlate } from "@/app/categories/plate-lookup-action";
+import { searchVehicleByPlate, searchVehicleByKba } from "@/app/categories/plate-lookup-action";
 import { translateDutchColor, type VehicleLookupResult } from "@/lib/rdw";
 import { VEHICLE_REGISTRY_COUNTRIES, DEFAULT_REGISTRY_COUNTRY } from "@/lib/vehicle-registries";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 function formatPlate(plate: string) {
   // Purely cosmetic — RDW itself is dash-agnostic, this just echoes back the conventional Dutch
@@ -40,11 +41,14 @@ export function PlateLookup() {
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
+  const selectedCountry = VEHICLE_REGISTRY_COUNTRIES.find((c) => c.code === country);
+  const isKbaBased = !!selectedCountry?.kbaBased;
+
   function handleSearch() {
     setError(null);
     setResult(null);
     startTransition(async () => {
-      const { data, error: err } = await searchVehicleByPlate(plate, country);
+      const { data, error: err } = isKbaBased ? await searchVehicleByKba(plate, country) : await searchVehicleByPlate(plate, country);
       if (err) setError(err);
       else setResult(data);
     });
@@ -89,7 +93,16 @@ export function PlateLookup() {
         Checks each country's official vehicle registry — coverage expands over time, real data only, no guessing.
       </p>
       <div className="flex flex-wrap gap-2">
-        <Select value={country} onValueChange={(v) => v && setCountry(v)}>
+        <Select
+          value={country}
+          onValueChange={(v) => {
+            if (!v) return;
+            setCountry(v);
+            setPlate("");
+            setResult(null);
+            setError(null);
+          }}
+        >
           <SelectTrigger className="w-40">
             <SelectValue>{(v: string | null) => VEHICLE_REGISTRY_COUNTRIES.find((c) => c.code === v)?.name}</SelectValue>
           </SelectTrigger>
@@ -106,15 +119,21 @@ export function PlateLookup() {
           value={plate}
           onChange={(e) => setPlate(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          placeholder="e.g. TH-918-F"
+          placeholder={isKbaBased ? "e.g. 0588 AVJ" : "e.g. TH-918-F"}
           maxLength={12}
-          className="max-w-48 uppercase"
+          className={cn("max-w-48", !isKbaBased && "uppercase")}
         />
         <Button type="button" onClick={handleSearch} disabled={pending || !plate.trim()} className="gap-1.5">
           <Search className="size-4" />
           {pending ? "Searching…" : "Search"}
         </Button>
       </div>
+      {isKbaBased && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          Germany doesn't allow plate lookups — enter the HSN/TSN vehicle-type key number from your Fahrzeugschein
+          (vehicle registration document) instead.
+        </p>
+      )}
 
       {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
 
@@ -128,7 +147,7 @@ export function PlateLookup() {
               {result.trim && <p className="text-xs text-muted-foreground">{result.trim}</p>}
             </div>
             <span className="rounded bg-primary/10 px-2 py-0.5 font-mono text-xs font-semibold text-primary">
-              {formatPlate(result.plate)}
+              {isKbaBased ? result.plate : formatPlate(result.plate)}
             </span>
           </div>
           {result.fuelType && <p className="mb-2 flex items-center gap-1 text-xs text-muted-foreground"><Fuel className="size-3" />{result.fuelType}</p>}

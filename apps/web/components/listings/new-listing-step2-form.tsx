@@ -23,7 +23,7 @@ import { ANCHOR_COUNTRIES } from "@/lib/countries";
 import { takeListingDraft } from "@/lib/listing-draft";
 import { fileToResizedBase64 } from "@/lib/image";
 import { analyzeListingPhoto } from "@/app/listings/new/analyze-photo-action";
-import { searchVehicleByPlate } from "@/app/categories/plate-lookup-action";
+import { searchVehicleByPlate, searchVehicleByKba } from "@/app/categories/plate-lookup-action";
 import { translateDutchColor } from "@/lib/rdw";
 import { VEHICLE_REGISTRY_COUNTRIES, DEFAULT_REGISTRY_COUNTRY } from "@/lib/vehicle-registries";
 import type { ListingFormState } from "@/app/listings/actions";
@@ -102,11 +102,14 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
   const [plateError, setPlateError] = useState<string | null>(null);
   const [plateSearching, startPlateSearch] = useTransition();
   const [attributeDefaults, setAttributeDefaults] = useState<Record<string, string> | undefined>(undefined);
+  const isPlateCountryKbaBased = !!VEHICLE_REGISTRY_COUNTRIES.find((c) => c.code === plateCountry)?.kbaBased;
 
   function handlePlateSearch() {
     setPlateError(null);
     startPlateSearch(async () => {
-      const { data, error } = await searchVehicleByPlate(plateInput, plateCountry);
+      const { data, error } = isPlateCountryKbaBased
+        ? await searchVehicleByKba(plateInput, plateCountry)
+        : await searchVehicleByPlate(plateInput, plateCountry);
       if (error || !data) {
         setPlateError(error ?? "Couldn't look up that plate.");
         return;
@@ -243,7 +246,15 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
             coverage expands over time, real data only.
           </p>
           <div className="flex flex-wrap gap-2">
-            <Select value={plateCountry} onValueChange={(v) => v && setPlateCountry(v)}>
+            <Select
+              value={plateCountry}
+              onValueChange={(v) => {
+                if (!v) return;
+                setPlateCountry(v);
+                setPlateInput("");
+                setPlateError(null);
+              }}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue>{(v: string | null) => VEHICLE_REGISTRY_COUNTRIES.find((c) => c.code === v)?.name}</SelectValue>
               </SelectTrigger>
@@ -260,15 +271,21 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
               value={plateInput}
               onChange={(e) => setPlateInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handlePlateSearch())}
-              placeholder="e.g. TH-918-F"
+              placeholder={isPlateCountryKbaBased ? "e.g. 0588 AVJ" : "e.g. TH-918-F"}
               maxLength={12}
-              className="max-w-48 uppercase"
+              className={isPlateCountryKbaBased ? "max-w-48" : "max-w-48 uppercase"}
             />
             <Button type="button" variant="outline" onClick={handlePlateSearch} disabled={plateSearching || !plateInput.trim()} className="gap-1.5">
               <Search className="size-4" />
               {plateSearching ? "Looking up…" : "Look up"}
             </Button>
           </div>
+          {isPlateCountryKbaBased && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Germany doesn't allow plate lookups — enter the HSN/TSN vehicle-type key number from your
+              Fahrzeugschein instead.
+            </p>
+          )}
           {plateError && <p className="mt-2 text-sm text-destructive">{plateError}</p>}
           {attributeDefaults && !plateError && (
             <p className="mt-2 text-sm text-[#008848]">Filled in below — review before continuing.</p>

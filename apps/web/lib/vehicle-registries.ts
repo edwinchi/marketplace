@@ -17,14 +17,20 @@
 // Not available, and why (none of these are "needs a credential", they're structural):
 //   - BE: RegCheck's CheckBelgium is confirmed dead on the provider's side (2026-09-02) --
 //     "Belgium is no longer supported, and will be removed". Needs a different provider entirely.
-//   - DE: no plate-based lookup exists from ANY provider -- German plate data is legally
-//     protected. The only lookup is by HSN/TSN (vehicle-type key number on the Fahrzeugschein),
-//     via lib/regcheck.ts's lookupVehicleByPlateRegcheck("CheckGermany", kbaNumber) -- needs its
-//     own "enter your document number" UI, not this plate search box.
-//   - AT: same shape of problem as Germany -- CheckAustria takes a NatCode (int), not a plate.
+//   - AT: same shape of problem as Germany below -- CheckAustria takes a NatCode (int), not a
+//     plate or a document number a typical seller would have to hand. No UI built for it yet.
 //   - GB: this provider only offers CheckMotorBikeUK (motorcycles) -- no general car method at
 //     all, from this vendor.
 //   - BG, LU: no method offered by this provider for either country.
+//
+// DE is available, but NOT plate-based: German plate data is legally protected, so there is no
+// plate-to-vehicle API from any provider. `kbaBased: true` marks this -- the UI (plate-lookup.tsx)
+// swaps the plate input for an HSN/TSN (vehicle-type key number, printed on the Fahrzeugschein)
+// input for any country with this flag, and the server action (plate-lookup-action.ts) routes it
+// to lib/regcheck.ts's lookupVehicleGermanyByKba instead of the generic plate dispatcher. Not yet
+// verified against a real live KBA number (no German test data available) -- same "mechanism
+// verified generically, this specific country not individually spot-checked" position as most of
+// the plate-based countries above.
 export type VehicleRegistryCountry = {
   code: string;
   name: string;
@@ -32,6 +38,9 @@ export type VehicleRegistryCountry = {
   // SOAP operation name in lib/regcheck.ts's provider, e.g. "CheckFrance" -- present only for
   // countries routed through the generic RegCheck lookup (not NL, which uses RDW directly).
   regcheckMethod?: string;
+  // True for a country with no plate-based lookup at all -- routes through a document-number
+  // input instead. See the DE comment above.
+  kbaBased?: boolean;
 };
 
 export const VEHICLE_REGISTRY_COUNTRIES: VehicleRegistryCountry[] = [
@@ -62,7 +71,7 @@ export const VEHICLE_REGISTRY_COUNTRIES: VehicleRegistryCountry[] = [
   { code: "CH", name: "Switzerland", available: true, regcheckMethod: "CheckSwitzerland" },
   { code: "AL", name: "Albania", available: true, regcheckMethod: "CheckAlbania" },
   { code: "UA", name: "Ukraine", available: true, regcheckMethod: "CheckUkraine" },
-  { code: "DE", name: "Germany", available: false },
+  { code: "DE", name: "Germany", available: true, kbaBased: true },
   { code: "AT", name: "Austria", available: false },
   { code: "BE", name: "Belgium", available: false },
   { code: "GB", name: "United Kingdom", available: false },
