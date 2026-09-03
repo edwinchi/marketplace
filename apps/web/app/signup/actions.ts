@@ -1,9 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { isPasswordValid } from "@/lib/password-rules";
 import { getSiteOrigin } from "@/lib/site-url";
+import { checkRateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 
 export type SignupFormState = { error: string | null; checkEmail: boolean };
 
@@ -25,6 +27,10 @@ export async function signup(_prevState: SignupFormState, formData: FormData): P
   if (!displayName) return { error: "Please enter your name.", checkEmail: false };
   if (!isPasswordValid(password)) return { error: "Password doesn't meet the requirements below.", checkEmail: false };
   if (password !== passwordConfirm) return { error: "Passwords don't match.", checkEmail: false };
+
+  const ip = clientIpFromHeaders(await headers());
+  const allowed = await checkRateLimit(`signup:${ip}`, 5, 3600);
+  if (!allowed) return { error: "Too many signup attempts from this connection — try again in a bit.", checkEmail: false };
 
   const supabase = await createClient();
   const baseUsername = slugify(displayName);

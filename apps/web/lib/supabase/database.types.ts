@@ -2034,6 +2034,24 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_events: {
+        Row: {
+          bucket_key: string
+          created_at: string
+          id: number
+        }
+        Insert: {
+          bucket_key: string
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          bucket_key?: string
+          created_at?: string
+          id?: number
+        }
+        Relationships: []
+      }
       vehicle_makes: {
         Row: {
           id: string
