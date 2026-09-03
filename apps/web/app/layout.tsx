@@ -5,6 +5,7 @@ import { getLocale } from "next-intl/server";
 import "./globals.css";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
+import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,8 +48,11 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <NextIntlClientProvider>
           <Nav />
-          <main className="flex flex-1 flex-col">{children}</main>
+          {/* pb-20 keeps content clear of the fixed cookie banner (~72px tall) while it's showing;
+              harmless empty space once it's dismissed. */}
+          <main className="flex flex-1 flex-col pb-20">{children}</main>
           <Footer />
+          <CookieConsentBanner />
         </NextIntlClientProvider>
       </body>
     </html>
