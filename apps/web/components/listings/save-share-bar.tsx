@@ -2,9 +2,111 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Heart, Share2, Check, Link2, Mail } from "lucide-react";
+import { Heart, Share2, Check, Link2, Mail, Flag } from "lucide-react";
 import { toggleFavorite } from "@/app/listings/favorite-actions";
+import { reportListing } from "@/app/listings/report-action";
 import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+
+const REPORT_REASONS: { value: string; label: string }[] = [
+  { value: "prohibited_item", label: "Prohibited or illegal item" },
+  { value: "scam_or_fraud", label: "Looks like a scam or fraud" },
+  { value: "spam", label: "Spam or fake listing" },
+  { value: "wrong_category", label: "Posted in the wrong category" },
+  { value: "offensive_content", label: "Offensive content" },
+  { value: "already_sold", label: "Already sold elsewhere" },
+  { value: "other", label: "Other" },
+];
+
+function ReportButton({ listingId, signedIn }: { listingId: string; signedIn: boolean }) {
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState("");
+  const [description, setDescription] = useState("");
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  function submit() {
+    setError(null);
+    startTransition(async () => {
+      const result = await reportListing(listingId, reason, description);
+      if (result.error) setError(result.error);
+      else setSent(true);
+    });
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!signedIn && next) {
+          window.location.href = "/login";
+          return;
+        }
+        setOpen(next);
+        if (!next) {
+          setReason("");
+          setDescription("");
+          setSent(false);
+          setError(null);
+        }
+      }}
+    >
+      <button type="button" onClick={() => setOpen(true)} className="flex items-center gap-1.5 hover:underline">
+        <Flag className="size-4" />
+        Report
+      </button>
+      <DialogContent>
+        {sent ? (
+          <>
+            <DialogHeader>
+              <DialogTitle>Thanks for the report</DialogTitle>
+              <DialogDescription>We&apos;ll take a look. Reporting doesn&apos;t notify the seller.</DialogDescription>
+            </DialogHeader>
+            <div className="mt-3 flex justify-end">
+              <Button type="button" onClick={() => setOpen(false)}>Close</Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <DialogHeader>
+              <DialogTitle>Report this listing</DialogTitle>
+              <DialogDescription>Tell us what&apos;s wrong — reports are reviewed by AfroDeals, not shown to the seller.</DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col gap-3">
+              <Select value={reason} onValueChange={(v) => v && setReason(v)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue>{(v: string | null) => REPORT_REASONS.find((r) => r.value === v)?.label ?? "Choose a reason"}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {REPORT_REASONS.map((r) => (
+                    <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Any extra detail that would help us review this (optional)"
+                rows={3}
+              />
+              {error && <p className="text-sm text-destructive">{error}</p>}
+            </div>
+            <div className="mt-3 flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+              <Button type="button" variant="destructive" disabled={!reason || pending} onClick={submit}>
+                {pending ? "Sending…" : "Submit report"}
+              </Button>
+            </div>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -199,6 +301,7 @@ export function SaveShareBar({
         {favorited ? t("saved") : t("save")}
       </button>
       <ShareMenu title={title} />
+      <ReportButton listingId={listingId} signedIn={signedIn} />
     </div>
   );
 }
