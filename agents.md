@@ -719,3 +719,66 @@ missing/incomplete `.next/` is worth checking first if the site 503s again, befo
 restart is required. **Lesson: always verify a deploy landed by checking the live site's HTTP status
 *and* grepping its HTML for something from the latest code** (agents.md updates alone don't prove
 anything shipped) — this outage sat undetected until a routine post-deploy check caught it.
+
+## 13. Deployment — Vercel (`afrodeals.net`), the permanent production site
+
+**`afrodeals.net` on Vercel is the permanent production site going forward** — the Plesk deploy in
+§11 remains documented and (as of writing) still live at `marketplace.apps-pilot.nl`, but new work
+ships to Vercel, not there.
+
+**Deploy trigger: git push, not FTP.** Vercel is connected to the `github` remote's `main` branch
+(a separate GitHub repo, `edwinchi/marketplace`, pushed to via an SSH deploy-key alias —
+`git remote -v` shows both `origin` (Plesk's git panel, unused for actual deploys) and `github`).
+Every push to `github main` triggers an automatic production build; there is no manual upload step
+like Plesk's FTP dance. Confirm a deploy actually landed with
+`cd apps/web && npx vercel ls afrodeals.net` (or `vercel project ls` for the full project list) —
+same "don't trust that a push happened, verify the live result" discipline as §11.
+
+**Project setup: Root Directory = `apps/web`.** This is a monorepo (the actual Next.js app lives in
+`apps/web`, not the repo root) — Vercel's project settings have Root Directory explicitly set to
+`apps/web` so it builds the right subtree. This is also why `next.config.ts` needs
+`outputFileTracingRoot` pointed at the repo root (see §11) — Vercel's build needs it to trace files
+correctly across the monorepo boundary, even though Vercel's own build process is otherwise
+unrelated to Plesk's standalone bundle.
+
+**`output: "standalone"` must NOT apply on Vercel.** `next.config.ts` gates both `output` and
+`outputFileTracingRoot` behind `!process.env.VERCEL` (Vercel sets `VERCEL=1` automatically during
+its own builds and at runtime) — Plesk needs standalone mode (§11), but Vercel's own serverless
+build/routing actively conflicts with it. Two real failures happened before this conditional
+existed, in this order:
+1. **Build failure**: `ENOENT: no such file or directory, open '.../apps/web/.next/next-server.js.nft.json'`
+   — missing `outputFileTracingRoot` for the monorepo. Adding it fixed the build, but then:
+2. **Every route 404'd** on the deployed site despite a "successful" build — caused by
+   `output: "standalone"` being active on Vercel at all. Vercel does its own serverless
+   packaging; a self-contained standalone bundle isn't the shape it expects and it can't route to
+   any page. Fixed by making both settings conditional on `!process.env.VERCEL`.
+
+If a future Vercel build either ENOENTs on an `.nft.json` file or succeeds but 404s on every route,
+this is almost certainly the same class of problem re-appearing — check `next.config.ts`'s
+`isVercel` conditional first before assuming something else broke.
+
+**Local Vercel CLI usage — run every command from `apps/web`, never the repo root.** The Root
+Directory setting above means the CLI applies it *relative to wherever you invoke it* — running
+`vercel` (or `vercel --prod`, `vercel env ...`) from the repo root causes it to look for
+`apps/web/apps/web` (double-nesting the Root Directory on top of itself) and fails with `The
+specified Root Directory "apps/web" does not exist`; running it from *inside* `apps/web` with no
+further path argument is correct. `cd apps/web && npx vercel link --yes --project afrodeals.net`
+once creates the local `.vercel/project.json` link (gitignored); after that, plain `vercel --prod`
+from that same directory deploys correctly.
+
+**Environment variables**: `vercel env add NAME production` (piped a value via stdin, e.g.
+`echo "value" | npx vercel env add NAME production`) adds one; `vercel env ls` lists what's set per
+environment. A newly-added variable is picked up **immediately by already-running production
+functions with no redeploy needed** for anything read via plain `process.env.X` in server-only code
+(confirmed empirically) — only `NEXT_PUBLIC_*` variables baked into the client bundle at build time
+need a fresh deploy to pick up a change.
+
+**Domain**: `afrodeals.net` was registered directly through Vercel's own domain-purchase flow
+(`vercel.com/domains`) and attached to the `afrodeals.net` project. Google OAuth's redirect URI and
+Supabase Auth's Site URL / Redirect URLs allow-list both had to be updated to include
+`https://afrodeals.net` — a code-side origin fix alone isn't sufficient, Supabase silently falls
+back to its default Site URL for any `redirect_to` not on that allow-list.
+
+**Current status: live**, confirmed via real page content and successful authenticated
+click-through testing (login, search, category browse, listing detail, favoriting, messages,
+notifications, my-account pages, the plate-lookup feature) — not just an HTTP 200.
