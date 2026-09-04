@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
-import { Home, PlusCircle, User, MessageCircle, Bell } from "lucide-react";
+import { Home, PlusCircle, User, MessageCircle, Bell, Megaphone } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getUnreadMessageCount } from "@/lib/messages";
@@ -110,7 +110,16 @@ export async function Nav() {
                 {t("signIn")}
               </Link>
             )}
-            <Link href="/listings/new" className={buttonVariants({ size: "sm" })}>
+            {/* The single most important button on the page -- posting an ad is where every seller's
+                journey (and every future transaction) begins, so it gets real visual weight instead
+                of blending in with the utility icons next to it. */}
+            <Link
+              href="/listings/new"
+              className={buttonVariants({
+                className: "ml-1 h-11 gap-2 rounded-full px-5 text-sm font-semibold shadow-sm transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-md",
+              })}
+            >
+              <Megaphone className="size-4.5" />
               {t("postAd")}
             </Link>
           </nav>
