@@ -5,7 +5,7 @@ import { Globe } from "lucide-react";
 import { setLocale } from "@/app/actions/set-locale";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const LABELS: Record<string, string> = { en: "EN", fr: "FR" };
+const LABELS: Record<string, string> = { en: "EN", fr: "FR", pt: "PT", ar: "AR", sw: "SW" };
 
 export function LanguageSwitcher({ locale }: { locale: string }) {
   const [pending, startTransition] = useTransition();
@@ -34,6 +34,9 @@ export function LanguageSwitcher({ locale }: { locale: string }) {
       <SelectContent>
         <SelectItem value="en">English</SelectItem>
         <SelectItem value="fr">Français</SelectItem>
+        <SelectItem value="pt">Português</SelectItem>
+        <SelectItem value="ar">العربية</SelectItem>
+        <SelectItem value="sw">Kiswahili</SelectItem>
       </SelectContent>
     </Select>
   );
