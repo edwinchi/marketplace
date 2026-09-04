@@ -8,7 +8,10 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        // Dark brand green (not the --primary orange token) + white text, scoped to buttons only
+        // per request -- links, badges, and focus rings still use --primary elsewhere and are
+        // deliberately untouched.
+        default: "bg-[#046637] text-white hover:bg-[#03502c]",
         outline:
           "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:
