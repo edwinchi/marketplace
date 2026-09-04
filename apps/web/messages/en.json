@@ -2,6 +2,10 @@
   "Common": {
     "back": "Back"
   },
+  "Listen": {
+    "listen": "Listen",
+    "stop": "Stop"
+  },
   "Nav": {
     "howItWorks": "How it works",
     "helpInfo": "Help & Info",
