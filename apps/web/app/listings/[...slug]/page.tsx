@@ -21,6 +21,7 @@ import { BackButton } from "@/components/back-button";
 import { DeleteListingButton } from "@/components/delete-listing-button";
 import { MarkSoldButton } from "@/components/mark-sold-button";
 import { SaveShareBar } from "@/components/listings/save-share-bar";
+import { RichDescription } from "@/components/listings/rich-description";
 import { PhoneRevealButton } from "@/components/listings/phone-reveal-button";
 import { PhotoGallery } from "@/components/listings/photo-gallery";
 import { OfferBox } from "@/components/listings/offer-box";
@@ -236,7 +237,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
           <Separator className="my-6" />
           <section>
             <h2 className="mb-3 text-lg font-semibold">{t("description")}</h2>
-            <p className="whitespace-pre-wrap">{listing.description}</p>
+            <RichDescription text={listing.description ?? ""} />
           </section>
 
           {isOwner && (

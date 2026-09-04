@@ -114,7 +114,13 @@ export async function analyzeListingPhoto(imageBase64: string, mediaType: string
 
   const prompt = `You are helping a seller on AfroDeals, a classifieds marketplace, list an item from a photo.
 Respond with ONLY a JSON object (no markdown fences, no commentary) with exactly these keys:
-{"title": "short listing title, max 80 characters, no marketing fluff", "description": "2-4 sentences describing the item's visible type, condition, and notable features, written for a buyer browsing listings", "category": "the single best-matching category, formatted EXACTLY as \\"Parent → Leaf\\" using names copied verbatim from the list below"}
+{"title": "short listing title, max 80 characters, no marketing fluff", "description": "a rich, structured draft description in simple markdown -- see format below", "category": "the single best-matching category, formatted EXACTLY as \\"Parent → Leaf\\" using names copied verbatim from the list below"}
+
+Description format (this is a draft the seller reviews and edits before anything publishes, so favor real, visible detail over filler):
+- 2-3 short sections, each starting with its own "## " header naming one real, visible aspect of the item (what it's for, a standout feature, its finish/style, etc.) -- write real headers specific to this item, not generic labels like "Overview". A couple of engaging, honest sentences under each.
+- Then a "## Highlights" section with 4-6 short "- " bullet points of real, visible selling points.
+- Mention visible condition or wear honestly if there is any.
+- Never invent measurements, technical specs, power ratings, model numbers, or box contents you can't actually see in the photo -- a specific number that isn't genuinely visible (on a label, tag, or the item itself) does not belong in the description at all. It's fine, and expected, to leave precise specs for the seller to add themselves.
 
 Valid categories, grouped as "Parent: leaf, leaf, ..." (pick exactly one leaf, do not invent one):
 ${categoryListText}
@@ -140,7 +146,9 @@ If the photo doesn't clearly show a sellable item, respond with {"title": "", "d
         },
         body: JSON.stringify({
           model,
-          max_tokens: 500,
+          // Was 500 -- too tight for the richer, multi-section description format below; the
+          // model was visibly truncating mid-sentence on longer items before this bump.
+          max_tokens: 1100,
           messages: [
             {
               role: "user",
