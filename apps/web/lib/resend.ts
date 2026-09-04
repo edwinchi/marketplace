@@ -12,7 +12,13 @@ export function isResendConfigured(): boolean {
   return !!process.env.RESEND_API_KEY;
 }
 
-export async function sendEmail(params: { to: string; subject: string; html: string; replyTo?: string }): Promise<boolean> {
+export async function sendEmail(params: {
+  to: string;
+  subject: string;
+  html: string;
+  replyTo?: string;
+  attachments?: { filename: string; content: string }[]; // content: base64, no data: prefix
+}): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return false;
 
@@ -28,6 +34,7 @@ export async function sendEmail(params: { to: string; subject: string; html: str
       subject: params.subject,
       html: params.html,
       ...(params.replyTo ? { reply_to: params.replyTo } : {}),
+      ...(params.attachments?.length ? { attachments: params.attachments } : {}),
     }),
   });
   return res.ok;
