@@ -21,6 +21,7 @@ import { BackButton } from "@/components/back-button";
 import { DeleteListingButton } from "@/components/delete-listing-button";
 import { MarkSoldButton } from "@/components/mark-sold-button";
 import { SaveShareBar } from "@/components/listings/save-share-bar";
+import { PhoneRevealButton } from "@/components/listings/phone-reveal-button";
 import { PhotoGallery } from "@/components/listings/photo-gallery";
 import { OfferBox } from "@/components/listings/offer-box";
 import { messageSellerAction } from "@/app/listings/message-seller-action";
@@ -105,7 +106,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
       listing.location_id
         ? supabase.from("locations").select("city, country_code").eq("id", listing.location_id).single()
         : Promise.resolve({ data: null }),
-      supabase.from("profiles").select("username, display_name, created_at, website_url, account_type").eq("id", listing.seller_id).single(),
+      supabase.from("profiles").select("username, display_name, created_at, website_url, account_type, phone_number").eq("id", listing.seller_id).single(),
       supabase
         .from("listing_attribute_values")
         .select(
@@ -289,6 +290,9 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{sellerName}</p>
                     <p className="text-xs text-muted-foreground">{tenureLabel}</p>
+                    {reviewCount > 0 && (
+                      <p className="text-xs text-muted-foreground">{t("reviewSummary", { rating: reviewAverage ?? "0.0", count: reviewCount })}</p>
+                    )}
                   </div>
                   {profile && (
                     <form action={followRow ? unfollowSeller : followSeller}>
@@ -303,32 +307,33 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                 </CardContent>
               </Card>
 
-              {seller?.website_url ? (
-                <div className="grid grid-cols-2 gap-2">
+              {/* Stacked full-width, matching Marktplaats' reference layout: Website (if set),
+                  Show number (if set), then Message — always last so there's always at least one
+                  way to reach the seller. */}
+              <div className="flex flex-col gap-2">
+                {seller?.website_url && (
                   <a
                     href={seller.website_url}
                     target="_blank"
                     rel="noopener noreferrer nofollow"
-                    className={buttonVariants({ className: "gap-1.5 transition-transform duration-150 hover:-translate-y-0.5" })}
+                    className={buttonVariants({ className: "w-full gap-1.5 transition-transform duration-150 hover:-translate-y-0.5" })}
                   >
                     <Globe className="size-4" />
                     {t("website")}
                   </a>
-                  <form action={messageSellerAction.bind(null, listing.id)}>
-                    <Button type="submit" variant="outline" className="w-full gap-1.5 transition-transform duration-150 hover:-translate-y-0.5">
-                      <MessageCircle className="size-4" />
-                      {t("message")}
-                    </Button>
-                  </form>
-                </div>
-              ) : (
+                )}
+                {seller?.phone_number && <PhoneRevealButton phoneNumber={seller.phone_number} />}
                 <form action={messageSellerAction.bind(null, listing.id)}>
-                  <Button type="submit" className="w-full gap-2 transition-transform duration-150 hover:-translate-y-0.5">
+                  <Button
+                    type="submit"
+                    variant={seller?.website_url || seller?.phone_number ? "outline" : "default"}
+                    className="w-full gap-1.5 transition-transform duration-150 hover:-translate-y-0.5"
+                  >
                     <MessageCircle className="size-4" />
-                    {t("messageSeller")}
+                    {seller?.website_url || seller?.phone_number ? t("message") : t("messageSeller")}
                   </Button>
                 </form>
-              )}
+              </div>
 
               {listing.offers_allowed && (
                 <OfferBox listingId={listing.id} currencyCode={listing.currency_code} signedIn={!!profile} />
