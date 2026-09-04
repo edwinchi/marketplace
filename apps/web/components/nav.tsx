@@ -67,7 +67,7 @@ export async function Nav() {
         <div className="h-20 sm:hidden" aria-hidden="true" />
 
         {/* Desktop header — unchanged */}
-        <div className="mx-auto hidden max-w-[1760px] items-center justify-between gap-4 px-4 py-3 sm:flex sm:px-6 lg:px-8">
+        <div className="mx-auto hidden max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:flex sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
             <Link href="/" aria-label="AfroDeals home">
               {/* Plain <img>, not next/image — this is a small, rarely-changing static brand

@@ -104,7 +104,7 @@ export default async function AdminDashboardPage() {
   const maxCity = Math.max(1, ...stats.topCities.map(([, c]) => c));
 
   return (
-    <div className="mx-auto w-full max-w-[1760px] px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-3 border-b pb-6">
         <div>
           <p className="text-xs font-semibold tracking-wide text-[#e89818] uppercase">AfroDeals</p>

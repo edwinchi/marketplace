@@ -106,7 +106,7 @@ export default async function CategoryPage({
 
     return (
       <>
-        <div className="mx-auto w-full max-w-[1760px] px-4 pt-2 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-[1600px] px-4 pt-2 sm:px-6 lg:px-8">
           <Breadcrumbs path={breadcrumbPath} />
         </div>
         <CarsLanding
@@ -154,7 +154,7 @@ export default async function CategoryPage({
     }));
 
     return (
-      <div className="mx-auto w-full max-w-[1760px] px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
         <Breadcrumbs path={breadcrumbPath} />
         <h1 className="mb-6 text-2xl font-semibold">{directory.self.name}</h1>
         <CategoryDirectoryGrid groups={groups} />
@@ -197,7 +197,7 @@ export default async function CategoryPage({
   }));
 
   return (
-    <div className="mx-auto w-full max-w-[1760px] px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
       {/* listings?.length, not a separate exact-count query — accurate up to the limit(24) below;
           revisit once real pagination exists for categories with more than a page of listings. */}
       <Breadcrumbs path={breadcrumbPath} resultCount={listings?.length ?? 0} />
