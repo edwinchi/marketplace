@@ -8,14 +8,18 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // Dark brand green (not the --primary orange token) + white text, scoped to buttons only
-        // per request -- links, badges, and focus rings still use --primary elsewhere and are
-        // deliberately untouched.
+        // Dark brand green (not the --primary orange token) + white text, per request applied to
+        // every variant that renders as a visible button box (default/outline/secondary). Three
+        // deliberate exceptions, not oversights: destructive stays red -- it's the only signal a
+        // Delete/Report-submit button has that the action is dangerous, and a matching green would
+        // erase that warning; ghost stays transparent -- it's what every icon-only control (nav
+        // messages/notifications, dialog close, gallery arrows) uses, and a solid green box behind
+        // every icon in the header would look broken, not "all buttons green"; link stays plain --
+        // it renders inline inside sentences ("Learn more", "See all"), and a green block mid-text
+        // would break the reading flow rather than read as a button at all.
         default: "bg-[#046637] text-white hover:bg-[#03502c]",
-        outline:
-          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+        outline: "border-[#046637] bg-[#046637] text-white hover:bg-[#03502c] aria-expanded:bg-[#03502c]",
+        secondary: "bg-[#046637] text-white hover:bg-[#03502c] aria-expanded:bg-[#03502c]",
         ghost:
           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:
