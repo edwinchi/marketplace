@@ -7,7 +7,14 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  /* Was `var(--font-sans)` -- a circular self-reference that silently fell through to Tailwind's
+     built-in system-font stack, meaning the Geist Sans font loaded in layout.tsx was never
+     actually applied anywhere despite being wired onto <html>. Fixed while adding Calibri: real
+     Calibri first (used automatically by anyone who has it installed, mainly Windows/Office
+     users), then Carlito -- Google's freely-licensed, metric-compatible substitute for Calibri,
+     self-hosted via next/font/google so it's always available -- then Geist Sans, then a generic
+     fallback. See layout.tsx's Carlito import for why Calibri itself isn't embedded directly. */
+  --font-sans: Calibri, var(--font-carlito), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-fraunces);
   --color-sidebar-ring: var(--sidebar-ring);
