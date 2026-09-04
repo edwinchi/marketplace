@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Fraunces, Carlito } from "next/font/google";
+import { Geist, Geist_Mono, Fraunces, Roboto } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
 import "./globals.css";
@@ -17,16 +17,16 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Body text stack, wired into --font-sans in globals.css. Real Calibri isn't a licensable webfont
-// (it's bundled with Windows/Office, not something a site can legally embed), so instead of faking
-// it with @font-face this loads Carlito -- Google's own metric-compatible, freely-licensed
-// substitute for Calibri, purpose-built so text sets identically line-for-line. Anyone who already
-// has real Calibri installed (most Windows/Office users) sees actual Calibri per the font-family
-// order in globals.css; everyone else gets Carlito, which reads the same.
-const carlito = Carlito({
-  variable: "--font-carlito",
+// Body text stack, wired into --font-sans in globals.css. Confirmed by pulling Marktplaats' own
+// Fonts.css directly (not guessed from screenshots) -- they load Roboto for body/UI text and Bree
+// Serif for their branded headings. Adopting Roboto here for the same reason they use it: it's
+// extremely well-hinted at small sizes (this project's dense listing-card grid leans on that),
+// freely licensed, and a proven choice at marketplace scale -- a strictly better pick than Calibri,
+// which also required a Carlito substitute since real Calibri can't be legally webfont-embedded.
+const roboto = Roboto({
+  variable: "--font-roboto",
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["400", "500", "700"],
 });
 
 // Headings only — a warm, confident serif with real presence (variable weight/optical size),
@@ -48,7 +48,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang={locale}
-      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${carlito.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${roboto.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       {/* suppressHydrationWarning on both html and body — browser extensions (Grammarly, QuillBot,
