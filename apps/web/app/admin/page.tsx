@@ -9,7 +9,9 @@ import { getAdminStats } from "@/lib/admin-stats";
 import { formatPrice } from "@/lib/money";
 import { AdminLoginForm } from "@/components/admin/admin-login-form";
 import { RequireLoginToggle } from "@/components/admin/require-login-toggle";
+import { LanguageToggles } from "@/components/admin/language-toggles";
 import { getRequireLoginSetting } from "@/lib/app-settings";
+import { getDisabledLocales } from "@/lib/language-settings";
 import { slugPath } from "@/lib/slug";
 
 function AdminLoginScreen() {
@@ -99,7 +101,7 @@ export default async function AdminDashboardPage() {
   const { user } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) return <AdminLoginScreen />;
 
-  const [stats, requireLogin] = await Promise.all([getAdminStats(), getRequireLoginSetting()]);
+  const [stats, requireLogin, disabledLocales] = await Promise.all([getAdminStats(), getRequireLoginSetting(), getDisabledLocales()]);
   const maxCategory = Math.max(1, ...stats.topCategories.map(([, c]) => c));
   const maxCity = Math.max(1, ...stats.topCities.map(([, c]) => c));
 
@@ -116,8 +118,9 @@ export default async function AdminDashboardPage() {
         </Link>
       </div>
 
-      <div className="mb-8">
+      <div className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <RequireLoginToggle initial={requireLogin} />
+        <LanguageToggles disabledLocales={[...disabledLocales]} />
       </div>
 
       {/* Primary KPIs */}

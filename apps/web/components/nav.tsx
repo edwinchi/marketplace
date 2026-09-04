@@ -4,6 +4,7 @@ import { Home, PlusCircle, User, MessageCircle, Bell, Megaphone } from "lucide-r
 import { getTranslations, getLocale } from "next-intl/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getUnreadMessageCount } from "@/lib/messages";
+import { getDisabledLocales } from "@/lib/language-settings";
 import { DISPLAY_CURRENCY_COOKIE } from "@/lib/money";
 import { buttonVariants } from "@/components/ui/button";
 import { AccountMenu } from "@/components/account-menu";
@@ -15,7 +16,7 @@ import { MobileNavMenu } from "@/components/mobile-nav-menu";
 export async function Nav() {
   const { user, profile } = await getCurrentUserAndProfile();
   const unreadCount = profile ? await getUnreadMessageCount(profile.id) : 0;
-  const [t, locale, cookieStore] = await Promise.all([getTranslations("Nav"), getLocale(), cookies()]);
+  const [t, locale, cookieStore, disabledLocales] = await Promise.all([getTranslations("Nav"), getLocale(), cookies(), getDisabledLocales()]);
   const displayCurrency = cookieStore.get(DISPLAY_CURRENCY_COOKIE)?.value ?? null;
 
   return (
@@ -49,7 +50,10 @@ export async function Nav() {
             true size, while `left-1/2 -translate-x-1/2` still centers it on the full bar
             width regardless of the side groups' differing widths. */}
         <div className="fixed inset-x-0 top-0 z-30 flex items-center justify-between gap-3 border-b bg-background px-4 py-3 sm:hidden">
-          <MobileNavMenu languageSwitcher={<LanguageSwitcher locale={locale} />} currencySwitcher={<CurrencySwitcher currency={displayCurrency} />} />
+          <MobileNavMenu
+            languageSwitcher={<LanguageSwitcher locale={locale} disabledLocales={[...disabledLocales]} />}
+            currencySwitcher={<CurrencySwitcher currency={displayCurrency} />}
+          />
           <Link href="/" aria-label="AfroDeals home" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             {/* logo-compact.png: the same source artwork cropped tight to just the cart+map+
                 wordmark (no swoosh underline) so it reads at full size in this shorter mobile
@@ -96,7 +100,7 @@ export async function Nav() {
               </Link>
             </div>
             <nav className="flex items-center gap-1 sm:gap-2">
-              <LanguageSwitcher locale={locale} />
+              <LanguageSwitcher locale={locale} disabledLocales={[...disabledLocales]} />
               <CurrencySwitcher currency={displayCurrency} />
               <NavIconLink
                 href="/messages"

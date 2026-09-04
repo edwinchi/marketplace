@@ -57,6 +57,24 @@ export type Database = {
         }
         Relationships: []
       }
+      language_settings: {
+        Row: {
+          locale: string
+          enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          locale: string
+          enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          locale?: string
+          enabled?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       attribute_option_translations: {
         Row: {
           label: string
