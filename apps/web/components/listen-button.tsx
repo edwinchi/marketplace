@@ -6,7 +6,7 @@ import { Volume2, Square, Lock } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { getCanListen } from "@/app/actions/get-can-listen";
 
-const SPEECH_LANG_BY_LOCALE: Record<string, string> = { en: "en-US", fr: "fr-FR", pt: "pt-PT", ar: "ar-SA", sw: "sw-KE" };
+const SPEECH_LANG_BY_LOCALE: Record<string, string> = { en: "en-US", fr: "fr-FR", ar: "ar-SA", zh: "zh-CN" };
 
 // Reads a section of the current page aloud via the browser's built-in Web Speech API
 // (speechSynthesis) -- no external TTS service, no per-use cost, works entirely client-side.
