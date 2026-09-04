@@ -4,7 +4,8 @@
   },
   "Listen": {
     "listen": "Listen",
-    "stop": "Stop"
+    "stop": "Stop",
+    "sellerProFeature": "Listen is a Seller Pro feature — tap to see AI features"
   },
   "Nav": {
     "howItWorks": "How it works",

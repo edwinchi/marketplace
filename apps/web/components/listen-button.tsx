@@ -1,27 +1,41 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
-import { Volume2, Square } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import { Volume2, Square, Lock } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { getCanListen } from "@/app/actions/get-can-listen";
 
-// Reads the current page's main content aloud via the browser's built-in Web Speech API
+const SPEECH_LANG_BY_LOCALE: Record<string, string> = { en: "en-US", fr: "fr-FR", pt: "pt-PT", ar: "ar-SA", sw: "sw-KE" };
+
+// Reads a section of the current page aloud via the browser's built-in Web Speech API
 // (speechSynthesis) -- no external TTS service, no per-use cost, works entirely client-side.
-// Targets <main>'s innerText specifically (not the whole document): innerText, unlike
-// textContent, already skips visually-hidden elements and collapses layout whitespace roughly
-// the way a sighted reader would scan the page, and scoping to <main> naturally excludes the nav
-// bar, footer, and cookie banner chrome that surrounds every page. No page-specific wiring needed
-// -- this works the same way on every route.
-export function ListenButton({ className }: { className?: string } = {}) {
+// `selector` scopes what gets read (defaults to the whole <main>, e.g. for the welcome/help/
+// terms/safety pages this sits on); the listing page passes a narrower selector so it reads just
+// the item description, not the whole page (price, seller card, etc.). innerText, unlike
+// textContent, already skips visually-hidden elements and collapses layout whitespace roughly the
+// way a sighted reader would scan the page.
+//
+// Entitlement (Seller Pro subscribers + admins, see app/actions/get-can-listen.ts) is fetched
+// client-side on mount via a Server Action rather than threaded down as a prop -- this component
+// is dropped into both server pages (welcome, help, terms, safety) and one client page (feedback),
+// and a self-contained check avoids needing page-specific data-fetching everywhere it's placed.
+// Defaults to locked while loading, never briefly flashes an unlocked button that then re-locks.
+export function ListenButton({ selector = "main", className }: { selector?: string; className?: string } = {}) {
   const t = useTranslations("Listen");
   const locale = useLocale();
   const pathname = usePathname();
+  const router = useRouter();
   const [supported, setSupported] = useState(false);
+  const [canListen, setCanListen] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   useEffect(() => {
     setSupported(typeof window !== "undefined" && "speechSynthesis" in window);
+    getCanListen()
+      .then(setCanListen)
+      .catch(() => setCanListen(false));
   }, []);
 
   // Stop mid-sentence when navigating away -- otherwise a listing page's description keeps
@@ -38,15 +52,16 @@ export function ListenButton({ className }: { className?: string } = {}) {
   }
 
   function start() {
-    const main = document.querySelector("main");
-    const text = (main?.innerText ?? document.body.innerText ?? "").replace(/\s+/g, " ").trim();
+    const target = document.querySelector<HTMLElement>(selector);
+    const text = (target?.innerText ?? document.body.innerText ?? "").replace(/\s+/g, " ").trim();
     if (!text) return;
 
     window.speechSynthesis.cancel(); // clear any stuck queue before starting fresh
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = locale === "fr" ? "fr-FR" : "en-US";
+    const speechLang = SPEECH_LANG_BY_LOCALE[locale] ?? "en-US";
+    utterance.lang = speechLang;
     const voices = window.speechSynthesis.getVoices();
-    const matchingVoice = voices.find((v) => v.lang.startsWith(locale === "fr" ? "fr" : "en"));
+    const matchingVoice = voices.find((v) => v.lang.startsWith(speechLang.split("-")[0]));
     if (matchingVoice) utterance.voice = matchingVoice;
     utterance.onend = () => setSpeaking(false);
     utterance.onerror = () => setSpeaking(false);
@@ -57,18 +72,28 @@ export function ListenButton({ className }: { className?: string } = {}) {
 
   if (!supported) return null;
 
+  function handleClick() {
+    if (!canListen) {
+      router.push("/my-account/ai-features");
+      return;
+    }
+    if (speaking) stop();
+    else start();
+  }
+
   return (
     <button
       type="button"
-      onClick={speaking ? stop : start}
-      aria-label={speaking ? t("stop") : t("listen")}
+      onClick={handleClick}
+      aria-label={!canListen ? t("sellerProFeature") : speaking ? t("stop") : t("listen")}
+      title={!canListen ? t("sellerProFeature") : undefined}
       aria-pressed={speaking}
-      className={`flex items-center gap-1.5 rounded-md px-1.5 py-1.5 text-sm transition-all duration-150 hover:-translate-y-0.5 sm:px-2 ${
-        speaking ? "bg-[#c8f0c8] text-[#046637]" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+      className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all duration-150 hover:-translate-y-0.5 ${
+        speaking ? "border-transparent bg-[#c8f0c8] text-[#046637]" : "text-muted-foreground hover:border-[#008200]/30 hover:text-foreground"
       } ${className ?? ""}`}
     >
-      {speaking ? <Square className="size-4.5 fill-current" /> : <Volume2 className="size-5" />}
-      <span className="hidden sm:inline">{speaking ? t("stop") : t("listen")}</span>
+      {!canListen ? <Lock className="size-4" /> : speaking ? <Square className="size-4 fill-current" /> : <Volume2 className="size-4" />}
+      {speaking && canListen ? t("stop") : t("listen")}
     </button>
   );
 }

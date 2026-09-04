@@ -4,7 +4,8 @@
   },
   "Listen": {
     "listen": "Écouter",
-    "stop": "Arrêter"
+    "stop": "Arrêter",
+    "sellerProFeature": "Écouter est une fonctionnalité Seller Pro — appuyez pour voir les fonctionnalités IA"
   },
   "Nav": {
     "howItWorks": "Comment ça marche",

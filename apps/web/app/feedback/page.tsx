@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ListenButton } from "@/components/listen-button";
 
 const initialState: FeedbackState = { sent: false, error: null };
 
@@ -18,8 +19,9 @@ export default function FeedbackPage() {
   return (
     <div className="mx-auto flex w-full max-w-md flex-1 items-center px-4 py-16">
       <Card className="w-full">
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between gap-3">
           <CardTitle>{t("title")}</CardTitle>
+          <ListenButton />
         </CardHeader>
         <CardContent>
           {state.sent ? (

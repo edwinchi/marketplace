@@ -8,7 +8,6 @@ import { DISPLAY_CURRENCY_COOKIE } from "@/lib/money";
 import { buttonVariants } from "@/components/ui/button";
 import { AccountMenu } from "@/components/account-menu";
 import { NavIconLink } from "@/components/nav-icon-link";
-import { ListenButton } from "@/components/listen-button";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { CurrencySwitcher } from "@/components/currency-switcher";
 import { MobileNavMenu } from "@/components/mobile-nav-menu";
@@ -50,11 +49,7 @@ export async function Nav() {
             true size, while `left-1/2 -translate-x-1/2` still centers it on the full bar
             width regardless of the side groups' differing widths. */}
         <div className="fixed inset-x-0 top-0 z-30 flex items-center justify-between gap-3 border-b bg-background px-4 py-3 sm:hidden">
-          <MobileNavMenu
-            languageSwitcher={<LanguageSwitcher locale={locale} />}
-            currencySwitcher={<CurrencySwitcher currency={displayCurrency} />}
-            listenButton={<ListenButton className="w-full justify-start px-2 py-1.5" />}
-          />
+          <MobileNavMenu languageSwitcher={<LanguageSwitcher locale={locale} />} currencySwitcher={<CurrencySwitcher currency={displayCurrency} />} />
           <Link href="/" aria-label="AfroDeals home" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             {/* logo-compact.png: the same source artwork cropped tight to just the cart+map+
                 wordmark (no swoosh underline) so it reads at full size in this shorter mobile
@@ -103,7 +98,6 @@ export async function Nav() {
             <nav className="flex items-center gap-1 sm:gap-2">
               <LanguageSwitcher locale={locale} />
               <CurrencySwitcher currency={displayCurrency} />
-              <ListenButton />
               <NavIconLink
                 href="/messages"
                 className="relative flex items-center gap-1.5 rounded-md px-1.5 py-1.5 text-sm text-muted-foreground transition-all duration-150 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground sm:px-2"

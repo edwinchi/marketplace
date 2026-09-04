@@ -22,6 +22,7 @@ import { DeleteListingButton } from "@/components/delete-listing-button";
 import { MarkSoldButton } from "@/components/mark-sold-button";
 import { SaveShareBar } from "@/components/listings/save-share-bar";
 import { RichDescription } from "@/components/listings/rich-description";
+import { ListenButton } from "@/components/listen-button";
 import { PhoneRevealButton } from "@/components/listings/phone-reveal-button";
 import { PhotoGallery } from "@/components/listings/photo-gallery";
 import { OfferBox } from "@/components/listings/offer-box";
@@ -236,8 +237,16 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
 
           <Separator className="my-6" />
           <section>
-            <h2 className="mb-3 text-lg font-semibold">{t("description")}</h2>
-            <RichDescription text={listing.description ?? ""} />
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold">{t("description")}</h2>
+              {/* Scoped to just this section, not the whole page (price, seller card, offer box,
+                  etc.) -- someone listening to a listing wants the item description, not a
+                  read-through of every UI control around it. */}
+              <ListenButton selector="#listing-description" />
+            </div>
+            <div id="listing-description">
+              <RichDescription text={listing.description ?? ""} />
+            </div>
           </section>
 
           {isOwner && (

@@ -28,6 +28,7 @@ import {
 import { buttonVariants } from "@/components/ui/button";
 import { StickyAnchorNav } from "@/components/welcome/sticky-anchor-nav";
 import { FloatingCtaBar } from "@/components/welcome/floating-cta-bar";
+import { ListenButton } from "@/components/listen-button";
 
 export const metadata: Metadata = { title: "Welcome to AfroDeals" };
 
@@ -131,9 +132,12 @@ export default async function WelcomePage() {
         <div className="relative mx-auto flex w-full max-w-[1600px] flex-col items-center gap-10">
           {/* Page kicker -- names the page itself ("How it works" / "Comment ça marche") above the
               headline, so the page reads clearly regardless of where someone lands on it. */}
-          <span className="rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold tracking-wide text-white/90 uppercase backdrop-blur">
-            {t("pageKicker")}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold tracking-wide text-white/90 uppercase backdrop-blur">
+              {t("pageKicker")}
+            </span>
+            <ListenButton className="border-white/20 bg-white/10 text-white/90 backdrop-blur hover:border-white/40 hover:text-white" />
+          </div>
 
           {/* Decorative icon cluster standing in for a commissioned illustration -- built from the
               same lucide-react icon set used everywhere else on the site rather than attempting

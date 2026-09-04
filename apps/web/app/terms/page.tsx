@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { ListenButton } from "@/components/listen-button";
 
 export const metadata = { title: "Terms of Use — AfroDeals" };
 
@@ -8,7 +9,10 @@ export default async function TermsPage() {
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-8">
-      <h1 className="mb-2 text-2xl font-semibold">{t("title")}</h1>
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <h1 className="text-2xl font-semibold">{t("title")}</h1>
+        <ListenButton />
+      </div>
       <p className="mb-1 text-xs text-muted-foreground">{t("lastUpdated")}</p>
       <p className="mb-8 rounded-md border border-dashed p-3 text-sm text-muted-foreground">{t("disclaimer")}</p>
 

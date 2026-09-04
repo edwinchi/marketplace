@@ -10,15 +10,7 @@ import { useTranslations } from "next-intl";
 // bar itself rather than being buried a tap deeper. Same anchored-panel pattern as AccountMenu,
 // for visual consistency, rather than a full off-canvas drawer (more moving parts than this
 // content warrants).
-export function MobileNavMenu({
-  languageSwitcher,
-  currencySwitcher,
-  listenButton,
-}: {
-  languageSwitcher: React.ReactNode;
-  currencySwitcher: React.ReactNode;
-  listenButton?: React.ReactNode;
-}) {
+export function MobileNavMenu({ languageSwitcher, currencySwitcher }: { languageSwitcher: React.ReactNode; currencySwitcher: React.ReactNode }) {
   const t = useTranslations("Nav");
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -57,7 +49,6 @@ export function MobileNavMenu({
           <div className="mb-3 flex flex-col gap-2">
             {languageSwitcher}
             {currencySwitcher}
-            {listenButton}
           </div>
           <div className="my-2 border-t" />
           <ul className="flex flex-col gap-0.5 pt-1">
