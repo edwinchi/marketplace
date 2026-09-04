@@ -82,7 +82,10 @@
     "results": "{count} results",
     "noListingsInCategory": "No listings yet in this category.",
     "showLess": "Show less",
-    "showMore": "Show {count} more"
+    "showMore": "Show {count} more",
+    "forYou": "For You",
+    "nearYou": "Near You",
+    "setCityHint": "Set your city in <preferences>preferences</preferences> to see listings near you."
   },
   "Listing": {
     "characteristics": "Characteristics",

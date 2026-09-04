@@ -3,9 +3,9 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getCategoriesAndAttributes, getCategoryDescendantIds } from "@/lib/categories";
-import { CategoryIcon } from "@/lib/category-icons";
 import { slugPath } from "@/lib/slug";
 import { ListingGrid } from "@/components/listing-grid";
+import { CategoryQuickNav } from "@/components/category-quicknav";
 import { saveSearch } from "@/app/my-account/saved-searches/actions";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -86,21 +86,7 @@ export default async function HomePage({
             <Button type="submit" className="sm:px-6 transition-transform duration-150 hover:-translate-y-0.5">{t("search")}</Button>
           </form>
 
-          {/* Category quick-nav */}
-          <div className="-mx-4 flex gap-5 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
-            {topLevelCategories.map((c) => (
-              <Link
-                key={c.id}
-                href={`/categories/${slugPath(c.label, c.id)}`}
-                className="group flex shrink-0 flex-col items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
-              >
-                <span className="flex size-11 items-center justify-center rounded-full border bg-background shadow-sm transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:bg-primary/10 group-hover:shadow-md">
-                  <CategoryIcon stableKey={c.stableKey} className="size-5 transition-colors group-hover:text-primary" />
-                </span>
-                <span className="max-w-16 truncate">{c.label}</span>
-              </Link>
-            ))}
-          </div>
+          <CategoryQuickNav categories={topLevelCategories} />
         </div>
       </div>
 

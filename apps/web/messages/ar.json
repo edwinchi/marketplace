@@ -82,7 +82,10 @@
     "results": "{count} نتيجة",
     "noListingsInCategory": "لا توجد إعلانات في هذه الفئة بعد.",
     "showLess": "عرض أقل",
-    "showMore": "عرض {count} إضافية"
+    "showMore": "عرض {count} إضافية",
+    "forYou": "مخصص لك",
+    "nearYou": "بالقرب منك",
+    "setCityHint": "حدد مدينتك في <preferences>التفضيلات</preferences> لعرض الإعلانات القريبة منك."
   },
   "Listing": {
     "characteristics": "الخصائص",

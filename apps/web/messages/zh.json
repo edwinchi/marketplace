@@ -82,7 +82,10 @@
     "results": "{count} 个结果",
     "noListingsInCategory": "该分类下暂时还没有广告。",
     "showLess": "收起",
-    "showMore": "显示更多 {count} 项"
+    "showMore": "显示更多 {count} 项",
+    "forYou": "为您推荐",
+    "nearYou": "附近",
+    "setCityHint": "请在<preferences>偏好设置</preferences>中设置您的城市，即可查看附近的广告。"
   },
   "Listing": {
     "characteristics": "商品特性",

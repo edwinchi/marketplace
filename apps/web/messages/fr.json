@@ -82,7 +82,10 @@
     "results": "{count} résultats",
     "noListingsInCategory": "Aucune annonce dans cette catégorie pour le moment.",
     "showLess": "Voir moins",
-    "showMore": "Voir {count} de plus"
+    "showMore": "Voir {count} de plus",
+    "forYou": "Pour vous",
+    "nearYou": "Près de vous",
+    "setCityHint": "Renseignez votre ville dans les <preferences>préférences</preferences> pour voir les annonces près de chez vous."
   },
   "Listing": {
     "characteristics": "Caractéristiques",
