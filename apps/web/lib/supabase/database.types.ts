@@ -75,6 +75,24 @@ export type Database = {
         }
         Relationships: []
       }
+      numeric_settings: {
+        Row: {
+          key: string
+          value: number
+          updated_at: string
+        }
+        Insert: {
+          key: string
+          value: number
+          updated_at?: string
+        }
+        Update: {
+          key?: string
+          value?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       attribute_option_translations: {
         Row: {
           label: string

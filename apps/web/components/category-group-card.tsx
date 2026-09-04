@@ -6,15 +6,28 @@ import { useTranslations } from "next-intl";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const COLLAPSED_LIMIT = 6;
+// Default matches numeric_settings' seeded row (supabase/migrations/20260101005000_numeric_
+// settings.sql) -- only used if that setting genuinely can't be read (see
+// lib/numeric-settings.ts's own fail-open default), not the normal path.
+const DEFAULT_COLLAPSED_LIMIT = 3;
 
 type Leaf = { id: string; name: string; href: string };
 
-export function CategoryGroupCard({ name, href, leaves }: { name: string; href: string; leaves: Leaf[] }) {
+export function CategoryGroupCard({
+  name,
+  href,
+  leaves,
+  collapsedLimit = DEFAULT_COLLAPSED_LIMIT,
+}: {
+  name: string;
+  href: string;
+  leaves: Leaf[];
+  collapsedLimit?: number;
+}) {
   const t = useTranslations("Categories");
   const [expanded, setExpanded] = useState(false);
-  const canCollapse = leaves.length > COLLAPSED_LIMIT;
-  const visible = expanded || !canCollapse ? leaves : leaves.slice(0, COLLAPSED_LIMIT);
+  const canCollapse = leaves.length > collapsedLimit;
+  const visible = expanded || !canCollapse ? leaves : leaves.slice(0, collapsedLimit);
 
   return (
     <Card className="transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[#008848]/40 hover:shadow-md">
@@ -50,7 +63,7 @@ export function CategoryGroupCard({ name, href, leaves }: { name: string; href: 
               </>
             ) : (
               <>
-                {t("showMore", { count: leaves.length - COLLAPSED_LIMIT })} <ChevronDown className="size-3.5" />
+                {t("showMore", { count: leaves.length - collapsedLimit })} <ChevronDown className="size-3.5" />
               </>
             )}
           </button>

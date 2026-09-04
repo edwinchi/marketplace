@@ -10,8 +10,10 @@ import { formatPrice } from "@/lib/money";
 import { AdminLoginForm } from "@/components/admin/admin-login-form";
 import { RequireLoginToggle } from "@/components/admin/require-login-toggle";
 import { LanguageToggles } from "@/components/admin/language-toggles";
+import { CollapsedLimitSetting } from "@/components/admin/collapsed-limit-setting";
 import { getRequireLoginSetting } from "@/lib/app-settings";
 import { getDisabledLocales } from "@/lib/language-settings";
+import { getNumericSetting } from "@/lib/numeric-settings";
 import { slugPath } from "@/lib/slug";
 
 function AdminLoginScreen() {
@@ -101,7 +103,12 @@ export default async function AdminDashboardPage() {
   const { user } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) return <AdminLoginScreen />;
 
-  const [stats, requireLogin, disabledLocales] = await Promise.all([getAdminStats(), getRequireLoginSetting(), getDisabledLocales()]);
+  const [stats, requireLogin, disabledLocales, collapsedLimit] = await Promise.all([
+    getAdminStats(),
+    getRequireLoginSetting(),
+    getDisabledLocales(),
+    getNumericSetting("category_group_collapsed_limit"),
+  ]);
   const maxCategory = Math.max(1, ...stats.topCategories.map(([, c]) => c));
   const maxCity = Math.max(1, ...stats.topCities.map(([, c]) => c));
 
@@ -121,6 +128,10 @@ export default async function AdminDashboardPage() {
       <div className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <RequireLoginToggle initial={requireLogin} />
         <LanguageToggles disabledLocales={[...disabledLocales]} />
+        <div className="rounded-xl border bg-card p-5 shadow-sm">
+          <p className="text-sm font-semibold text-[#082040]">Category pages</p>
+          <CollapsedLimitSetting initial={collapsedLimit} />
+        </div>
       </div>
 
       {/* Primary KPIs */}

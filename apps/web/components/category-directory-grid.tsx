@@ -14,7 +14,7 @@ const INITIAL_LIMIT = 24;
 // Same collapse pattern as CategoryGroupCard's own leaf-list "show more", one level up. Groups (and
 // their leaves) carry pre-built hrefs from the server -- this is a Client Component, and functions
 // can't cross that boundary as props, so hrefs get computed once up in the page instead.
-export function CategoryDirectoryGrid({ groups }: { groups: Group[] }) {
+export function CategoryDirectoryGrid({ groups, collapsedLimit }: { groups: Group[]; collapsedLimit?: number }) {
   const t = useTranslations("Categories");
   const [expanded, setExpanded] = useState(false);
   const canCollapse = groups.length > INITIAL_LIMIT;
@@ -29,6 +29,7 @@ export function CategoryDirectoryGrid({ groups }: { groups: Group[] }) {
             name={child.name}
             href={child.href}
             leaves={child.children.length > 0 ? child.children : [{ id: child.id, name: child.name, href: child.href }]}
+            collapsedLimit={collapsedLimit}
           />
         ))}
       </div>

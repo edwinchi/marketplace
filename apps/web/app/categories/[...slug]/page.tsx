@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getCategoryPath, getCategoryDirectory, getCategoryDescendantIds, getCategoryGallery, getCategoriesAndAttributes } from "@/lib/categories";
+import { getNumericSetting } from "@/lib/numeric-settings";
 import { getCarsLandingData, type CarsFilters } from "@/lib/cars-landing";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
@@ -73,11 +74,12 @@ export default async function CategoryPage({
 }) {
   const { slug } = await params;
   const id = idFromSlugSegments(slug);
-  const [path, directory, { topLevelCategories }, t] = await Promise.all([
+  const [path, directory, { topLevelCategories }, t, collapsedLimit] = await Promise.all([
     getCategoryPath(id),
     getCategoryDirectory(id),
     getCategoriesAndAttributes(),
     getTranslations("Categories"),
+    getNumericSetting("category_group_collapsed_limit"),
   ]);
   if (!directory.self) notFound();
 
@@ -244,7 +246,7 @@ export default async function CategoryPage({
           <CategoryQuickNav categories={topLevelCategories} activeId={topLevelActiveId} />
         </div>
         <h1 className="mb-6 text-2xl font-semibold">{directory.self.name}</h1>
-        <CategoryDirectoryGrid groups={groups} />
+        <CategoryDirectoryGrid groups={groups} collapsedLimit={collapsedLimit} />
 
         <div className="my-10 border-t" />
         {feedTabs}
