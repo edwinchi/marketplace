@@ -43,7 +43,7 @@ export function StickyAnchorNav() {
             key={s.id}
             href={`#${s.id}`}
             className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium whitespace-nowrap transition-colors ${
-              active === s.id ? "bg-[#046637] text-white" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              active === s.id ? "bg-[#008200] text-white" : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
             {s.label}

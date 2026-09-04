@@ -17,9 +17,9 @@ const buttonVariants = cva(
         // every icon in the header would look broken, not "all buttons green"; link stays plain --
         // it renders inline inside sentences ("Learn more", "See all"), and a green block mid-text
         // would break the reading flow rather than read as a button at all.
-        default: "bg-[#046637] text-white hover:bg-[#03502c]",
-        outline: "border-[#046637] bg-[#046637] text-white hover:bg-[#03502c] aria-expanded:bg-[#03502c]",
-        secondary: "bg-[#046637] text-white hover:bg-[#03502c] aria-expanded:bg-[#03502c]",
+        default: "bg-[#008200] text-white hover:bg-[#006800]",
+        outline: "border-[#008200] bg-[#008200] text-white hover:bg-[#006800] aria-expanded:bg-[#006800]",
+        secondary: "bg-[#008200] text-white hover:bg-[#006800] aria-expanded:bg-[#006800]",
         ghost:
           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:

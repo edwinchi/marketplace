@@ -44,7 +44,7 @@ function IconBadge({ icon: Icon, tone = "light" }: { icon: IconType; tone?: "lig
 
 function TipCard({ icon, title, body }: { icon: IconType; title: string; body: string }) {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border bg-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#046637]/30 hover:shadow-md">
+    <div className="flex flex-col gap-3 rounded-2xl border bg-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#008200]/30 hover:shadow-md">
       <IconBadge icon={icon} />
       <div className="h-0.5 w-8 rounded-full bg-[#e89818]" />
       <p className="font-semibold">{title}</p>
@@ -55,7 +55,7 @@ function TipCard({ icon, title, body }: { icon: IconType; title: string; body: s
 
 function TradeCard({ icon, title, body }: { icon: IconType; title: string; body: string }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border bg-card p-6 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-[#046637]/30 hover:shadow-md">
+    <div className="flex flex-col items-center gap-3 rounded-2xl border bg-card p-6 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-[#008200]/30 hover:shadow-md">
       <IconBadge icon={icon} />
       <p className="font-bold">{title}</p>
       <p className="text-sm text-muted-foreground">{body}</p>
@@ -120,7 +120,7 @@ export default function WelcomePage() {
         className="relative overflow-hidden bg-[linear-gradient(155deg,#082040_0%,#0a2c5c_55%,#063018_100%)] px-4 py-16 text-white sm:px-6 sm:py-20 lg:px-8"
       >
         <div aria-hidden className="pointer-events-none absolute -top-24 -left-20 size-96 rounded-full bg-[#e89818]/15 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -right-20 -bottom-24 size-96 rounded-full bg-[#046637]/25 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -right-20 -bottom-24 size-96 rounded-full bg-[#008200]/25 blur-3xl" />
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)] bg-size-[28px_28px]"

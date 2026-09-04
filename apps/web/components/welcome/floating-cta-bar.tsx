@@ -28,7 +28,7 @@ export function FloatingCtaBar() {
       <div className="mx-auto flex max-w-md justify-center">
         <Link
           href="/"
-          className="flex w-full items-center justify-center gap-2 rounded-full bg-[#046637] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-transform duration-150 hover:-translate-y-0.5 hover:bg-[#03502c]"
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-[#008200] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-transform duration-150 hover:-translate-y-0.5 hover:bg-[#006800]"
         >
           <Search className="size-4" />
           Start searching AfroDeals
