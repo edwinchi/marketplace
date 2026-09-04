@@ -41,7 +41,7 @@ export async function proxy(request: NextRequest) {
   const { data: setting } = await supabase.from("app_settings").select("value").eq("key", "require_login").maybeSingle();
   const requireLogin = setting?.value ?? true;
 
-  const PUBLIC_PATHS = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth", "/help", "/terms", "/safety", "/admin", "/robots.txt", "/sitemap.xml"];
+  const PUBLIC_PATHS = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth", "/help", "/terms", "/safety", "/welcome", "/admin", "/robots.txt", "/sitemap.xml"];
   const { pathname } = request.nextUrl;
   const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 

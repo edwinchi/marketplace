@@ -43,6 +43,7 @@ export async function Footer() {
         )}
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t pt-6 text-sm text-muted-foreground">
+          <Link href="/welcome" className="hover:text-foreground hover:underline">{tNav("howItWorks")}</Link>
           <Link href="/help" className="hover:text-foreground hover:underline">{tNav("helpInfo")}</Link>
           <Link href="/terms" className="hover:text-foreground hover:underline">{tNav("terms")}</Link>
           <Link href="/safety" className="hover:text-foreground hover:underline">{tNav("safetyCenter")}</Link>

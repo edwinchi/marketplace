@@ -8,7 +8,7 @@ import { slugPath } from "@/lib/slug";
 // domain regardless of which host header a crawler request happened to arrive on).
 const SITE_ORIGIN = "https://afrodeals.net";
 
-const STATIC_ROUTES = ["", "/help", "/terms", "/safety"];
+const STATIC_ROUTES = ["", "/welcome", "/help", "/terms", "/safety"];
 
 // Only top-level categories (36 of them) are included, not the ~2,630 imported subcategories --
 // most of those have no listings yet and would bloat the sitemap without real SEO value. Add
