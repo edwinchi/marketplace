@@ -1346,6 +1346,7 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           id: string
+          message_type: string
           moderation_status: string
           sender_id: string
         }
@@ -1356,6 +1357,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: string
+          message_type?: string
           moderation_status?: string
           sender_id: string
         }
@@ -1366,6 +1368,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: string
+          message_type?: string
           moderation_status?: string
           sender_id?: string
         }

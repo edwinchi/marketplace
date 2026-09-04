@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
+import { ShieldAlert, MessageCircle, MapPin } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { ConversationList } from "@/components/messages/conversation-list";
 import { MessageComposer } from "@/components/messages/message-composer";
 import { MarkRead } from "@/components/messages/mark-read";
-import { ShieldAlert, MessageCircle } from "lucide-react";
 import { slugPath } from "@/lib/slug";
 
 export const metadata = { title: "Messages — AfroDeals" };
@@ -17,6 +18,30 @@ type ConversationRow = {
   listings: { title: string } | { title: string }[] | null;
   conversation_participants: { profile_id: string; last_read_at: string | null; profiles: { display_name: string | null; username: string } | { display_name: string | null; username: string }[] }[];
 };
+
+type MessageRow = { id: string; conversation_id: string; sender_id: string; content: string | null; created_at: string; attachment_key: string | null; message_type: string };
+
+// message_type doesn't exist until 20260101004800_message_attachments.sql is run -- selecting a
+// column that doesn't exist yet fails the whole query (PostgREST 400s on it), which would take the
+// entire Messages page down, not just the new photo/address feature. Falls back to a plain-text-
+// only read instead, same reasoning as every other not-yet-run migration in this project: missing
+// schema should degrade a feature, never break the page it's built into.
+async function fetchMessages(supabase: Awaited<ReturnType<typeof createClient>>, conversationIds: string[]): Promise<MessageRow[]> {
+  if (!conversationIds.length) return [];
+  const { data, error } = await supabase
+    .from("messages")
+    .select("id, conversation_id, sender_id, content, created_at, attachment_key, message_type")
+    .in("conversation_id", conversationIds)
+    .order("created_at", { ascending: false });
+  if (!error) return (data ?? []) as MessageRow[];
+
+  const { data: fallbackData } = await supabase
+    .from("messages")
+    .select("id, conversation_id, sender_id, content, created_at, attachment_key")
+    .in("conversation_id", conversationIds)
+    .order("created_at", { ascending: false });
+  return (fallbackData ?? []).map((m) => ({ ...m, message_type: "text" }));
+}
 
 export default async function MessagesPage({ searchParams }: { searchParams: Promise<{ c?: string }> }) {
   const { profile } = await getCurrentUserAndProfile();
@@ -32,7 +57,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
   const conversationIds = (myParticipation ?? []).map((p) => p.conversation_id);
   const myLastReadById = new Map((myParticipation ?? []).map((p) => [p.conversation_id, p.last_read_at]));
 
-  const [{ data: conversations }, { data: allMessages }] = await Promise.all([
+  const [{ data: conversations }, allMessages, { data: myIdentity }] = await Promise.all([
     conversationIds.length
       ? supabase
           .from("conversations")
@@ -40,13 +65,10 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
           .in("id", conversationIds)
           .order("updated_at", { ascending: false })
       : Promise.resolve({ data: [] as ConversationRow[] }),
-    conversationIds.length
-      ? supabase
-          .from("messages")
-          .select("id, conversation_id, sender_id, content, created_at")
-          .in("conversation_id", conversationIds)
-          .order("created_at", { ascending: false })
-      : Promise.resolve({ data: [] as { id: string; conversation_id: string; sender_id: string; content: string | null; created_at: string }[] }),
+    fetchMessages(supabase, conversationIds),
+    // A starting point for "Share address" -- see sendMessageAddress's own note on why this isn't
+    // a full auto-filled address (no such field exists on profiles).
+    supabase.from("profiles").select("preferred_city").eq("id", profile.id).single(),
   ]);
 
   const messagesByConversation = new Map<string, typeof allMessages>();
@@ -64,11 +86,12 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
     const lastMessage = msgs[0];
     const myLastRead = myLastReadById.get(c.id);
     const unreadCount = msgs.filter((m) => m.sender_id !== profile.id && (!myLastRead || m.created_at > myLastRead)).length;
+    const previewText = lastMessage?.message_type === "image" ? "📷 Photo" : lastMessage?.message_type === "address" ? "📍 Address" : (lastMessage?.content ?? "");
     return {
       id: c.id,
       otherName: otherProfile?.display_name || otherProfile?.username || "A user",
       listingTitle: listing?.title ?? "Listing",
-      lastMessagePreview: lastMessage?.content ?? "",
+      lastMessagePreview: previewText,
       lastMessageAt: lastMessage?.created_at ?? c.updated_at,
       unreadCount,
     };
@@ -80,7 +103,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
     listingId: string | null;
     otherName: string;
     otherLastReadAt: string | null;
-    messages: { id: string; senderId: string; content: string | null; createdAt: string }[];
+    messages: { id: string; senderId: string; content: string | null; createdAt: string; messageType: string; imageUrl: string | null }[];
   } | null = null;
 
   if (activeConversationId && conversationIds.includes(activeConversationId)) {
@@ -89,13 +112,35 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
     const otherProfileT = other ? (Array.isArray(other.profiles) ? other.profiles[0] : other.profiles) : null;
     const listingT = activeConv ? (Array.isArray(activeConv.listings) ? activeConv.listings[0] : activeConv.listings) : null;
     const msgs = [...(messagesByConversation.get(activeConversationId) ?? [])].reverse();
+
+    // The message-media bucket is private (conversations are two-participant-only, unlike public
+    // listing photos) -- a signed URL per image message is the standard Supabase pattern for
+    // letting the browser load a private-bucket object without exposing the whole bucket.
+    const imageUrlByMessageId = new Map<string, string>();
+    const imageKeys = msgs.filter((m) => m.message_type === "image" && m.attachment_key).map((m) => m.attachment_key!);
+    if (imageKeys.length > 0) {
+      const { data: signedUrls } = await supabase.storage.from("message-media").createSignedUrls(imageKeys, 3600);
+      for (const m of msgs) {
+        if (m.message_type !== "image" || !m.attachment_key) continue;
+        const signed = signedUrls?.find((s) => s.path === m.attachment_key);
+        if (signed?.signedUrl) imageUrlByMessageId.set(m.id, signed.signedUrl);
+      }
+    }
+
     thread = {
       id: activeConversationId,
       listingTitle: listingT?.title ?? "Listing",
       listingId: activeConv?.listing_id ?? null,
       otherName: otherProfileT?.display_name || otherProfileT?.username || "A user",
       otherLastReadAt: other?.last_read_at ?? null,
-      messages: msgs.map((m) => ({ id: m.id, senderId: m.sender_id, content: m.content, createdAt: m.created_at })),
+      messages: msgs.map((m) => ({
+        id: m.id,
+        senderId: m.sender_id,
+        content: m.content,
+        createdAt: m.created_at,
+        messageType: m.message_type,
+        imageUrl: imageUrlByMessageId.get(m.id) ?? null,
+      })),
     };
   }
 
@@ -124,7 +169,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
                 <Link href="/messages" className="text-muted-foreground hover:text-foreground md:hidden">
                   ←
                 </Link>
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-semibold text-[#a3690b]">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#008200]/15 text-sm font-semibold text-[#046637]">
                   {otherInitial}
                 </span>
                 <div className="min-w-0">
@@ -157,17 +202,26 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
                 {thread.messages.map((m) => {
                   const mine = m.senderId === profile.id;
                   const readByOther = mine && thread!.otherLastReadAt && m.createdAt <= thread!.otherLastReadAt;
+                  const bubbleTone = mine
+                    ? "rounded-br-sm bg-linear-to-br from-[#008200] to-[#046637] text-white"
+                    : "rounded-bl-sm border bg-card text-foreground";
                   return (
                     <div key={m.id} className={`flex flex-col ${mine ? "items-end" : "items-start"}`}>
-                      <div
-                        className={`max-w-[75%] rounded-2xl px-3.5 py-2 text-sm shadow-sm ${
-                          mine
-                            ? "rounded-br-sm bg-linear-to-br from-[#e89818] to-[#d68606] text-[#082040]"
-                            : "rounded-bl-sm border bg-card text-foreground"
-                        }`}
-                      >
-                        {m.content}
-                      </div>
+                      {m.messageType === "image" && m.imageUrl ? (
+                        <a href={m.imageUrl} target="_blank" rel="noopener noreferrer" className={`block max-w-[75%] overflow-hidden rounded-2xl shadow-sm ${mine ? "rounded-br-sm" : "rounded-bl-sm"}`}>
+                          <Image src={m.imageUrl} alt="Shared photo" width={280} height={280} className="h-auto max-h-72 w-full object-cover" unoptimized />
+                        </a>
+                      ) : m.messageType === "address" ? (
+                        <div className={`flex max-w-[75%] items-start gap-2 rounded-2xl px-3.5 py-2.5 text-sm shadow-sm ${bubbleTone}`}>
+                          <MapPin className="mt-0.5 size-4 shrink-0" />
+                          <div>
+                            <p className="text-[11px] font-semibold tracking-wide uppercase opacity-70">Shared address</p>
+                            <p className="whitespace-pre-wrap">{m.content}</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className={`max-w-[75%] rounded-2xl px-3.5 py-2 text-sm shadow-sm ${bubbleTone}`}>{m.content}</div>
+                      )}
                       <span className="mt-0.5 px-1 text-[10px] text-muted-foreground">
                         {new Date(m.createdAt).toLocaleString("en", { hour: "2-digit", minute: "2-digit", month: "short", day: "numeric" })}
                         {mine && readByOther ? " · Read" : ""}
@@ -177,7 +231,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
                 })}
               </div>
 
-              <MessageComposer conversationId={thread.id} />
+              <MessageComposer conversationId={thread.id} addressStarter={myIdentity?.preferred_city ?? ""} />
             </>
           ) : (
             <div className="m-auto flex flex-col items-center gap-2 text-center text-muted-foreground">

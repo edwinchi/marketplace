@@ -47,7 +47,7 @@ export function ConversationList({ rows, activeId }: { rows: Row[]; activeId?: s
             <Link
               href={`/messages?c=${r.id}`}
               className={`group flex items-center gap-3 rounded-xl px-2.5 py-2.5 transition-all duration-150 ${
-                active ? "bg-primary/10" : "hover:bg-muted/70"
+                active ? "bg-[#008200]/10" : "hover:bg-muted/70"
               }`}
             >
               <span className={`flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${tintFor(r.otherName)}`}>
@@ -66,7 +66,7 @@ export function ConversationList({ rows, activeId }: { rows: Row[]; activeId?: s
                     {r.lastMessagePreview || "No messages yet"}
                   </p>
                   {r.unreadCount > 0 && (
-                    <span className="flex size-4.5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
+                    <span className="flex size-4.5 shrink-0 items-center justify-center rounded-full bg-[#008200] text-[10px] font-semibold text-white">
                       {r.unreadCount}
                     </span>
                   )}
