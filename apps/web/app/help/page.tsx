@@ -1,33 +1,34 @@
+import { getTranslations } from "next-intl/server";
+
 export const metadata = { title: "Help & Info — AfroDeals" };
 
-export default function HelpPage() {
+export default async function HelpPage() {
+  const t = await getTranslations("Help");
+
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-semibold">Help & Info</h1>
+      <h1 className="mb-6 text-2xl font-semibold">{t("title")}</h1>
 
       <section className="mb-6">
-        <h2 className="mb-2 text-lg font-medium">Buying on AfroDeals</h2>
-        <p className="text-sm text-muted-foreground">
-          Browse or search listings, and message a seller directly from a listing page to ask
-          questions or arrange pickup. Always review a seller&apos;s listing details carefully
-          before agreeing to buy.
-        </p>
+        <h2 className="mb-2 text-lg font-medium">{t("buyingTitle")}</h2>
+        <p className="text-sm text-muted-foreground">{t("buyingBody")}</p>
       </section>
 
       <section className="mb-6">
-        <h2 className="mb-2 text-lg font-medium">Selling on AfroDeals</h2>
-        <p className="text-sm text-muted-foreground">
-          Tap &quot;Post an ad&quot;, choose a category, and fill in the details buyers will want
-          to know — price, condition, and location. You can edit or remove your listing at any
-          time from &quot;My listings&quot;.
-        </p>
+        <h2 className="mb-2 text-lg font-medium">{t("sellingTitle")}</h2>
+        <p className="text-sm text-muted-foreground">{t("sellingBody")}</p>
       </section>
 
       <section>
-        <h2 className="mb-2 text-lg font-medium">Need more help?</h2>
+        <h2 className="mb-2 text-lg font-medium">{t("moreHelpTitle")}</h2>
         <p className="text-sm text-muted-foreground">
-          See our <a href="/safety" className="underline">Safety Center</a> for tips on trading
-          safely.
+          {t.rich("moreHelpBody", {
+            safetyCenter: (chunks) => (
+              <a href="/safety" className="underline">
+                {chunks}
+              </a>
+            ),
+          })}
         </p>
       </section>
     </div>

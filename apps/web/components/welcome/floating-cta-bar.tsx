@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { getCookieConsent } from "@/lib/cookie-consent";
 
 // Fixed to the bottom of the viewport for the whole page -- this page's one persistent conversion
@@ -10,6 +11,7 @@ import { getCookieConsent } from "@/lib/cookie-consent";
 // fixed-bottom, z-50) while that's still showing, using the same localStorage read + change event
 // cookie-consent-banner.tsx already dispatches, rather than duplicating consent state.
 export function FloatingCtaBar() {
+  const t = useTranslations("Welcome");
   const [bannerShowing, setBannerShowing] = useState(false);
 
   useEffect(() => {
@@ -28,10 +30,10 @@ export function FloatingCtaBar() {
       <div className="mx-auto flex max-w-md justify-center">
         <Link
           href="/"
-          className="flex w-full items-center justify-center gap-2 rounded-full bg-[#008200] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-transform duration-150 hover:-translate-y-0.5 hover:bg-[#006800]"
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-[#008200] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:bg-[#d4f5d4] hover:text-[#006800] hover:shadow-md"
         >
           <Search className="size-4" />
-          Start searching AfroDeals
+          {t("floatingCta")}
         </Link>
       </div>
     </div>
