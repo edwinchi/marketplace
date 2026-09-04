@@ -32,7 +32,7 @@ export function MessageComposer({ conversationId }: { conversationId: string }) 
         e.preventDefault();
         submit();
       }}
-      className="flex items-end gap-2 border-t p-3"
+      className="flex items-end gap-2 border-t bg-card p-3"
     >
       <textarea
         value={value}
@@ -45,9 +45,15 @@ export function MessageComposer({ conversationId }: { conversationId: string }) 
         }}
         placeholder="Write your message here. Use Shift+Enter for a new line"
         rows={1}
-        className="max-h-32 flex-1 resize-none rounded-lg border bg-transparent px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        className="max-h-32 flex-1 resize-none rounded-2xl border bg-muted/40 px-4 py-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:bg-background focus-visible:ring-3 focus-visible:ring-ring/50"
       />
-      <Button type="submit" size="icon" disabled={pending || !value.trim()} aria-label="Send message">
+      <Button
+        type="submit"
+        size="icon"
+        disabled={pending || !value.trim()}
+        aria-label="Send message"
+        className="size-10 shrink-0 rounded-full shadow-sm transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-md disabled:hover:translate-y-0"
+      >
         <Send className="size-4" />
       </Button>
     </form>
