@@ -7,6 +7,7 @@ import { getUnreadMessageCount } from "@/lib/messages";
 import { DISPLAY_CURRENCY_COOKIE } from "@/lib/money";
 import { buttonVariants } from "@/components/ui/button";
 import { AccountMenu } from "@/components/account-menu";
+import { NavIconLink } from "@/components/nav-icon-link";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { CurrencySwitcher } from "@/components/currency-switcher";
 import { MobileNavMenu } from "@/components/mobile-nav-menu";
@@ -19,7 +20,13 @@ export async function Nav() {
 
   return (
     <>
-      <header className="border-b print:hidden">
+      {/* sticky lives on <header> itself, not the desktop bar div below -- position:sticky can
+          only "stick" within room its own parent box provides, and <header>'s in-flow desktop
+          content is exactly that one div's height (the mobile bar is `fixed`, out of flow; the
+          spacer is mobile-only), so putting sticky on the child left it with zero room to hold as
+          the page scrolled -- confirmed live: its getBoundingClientRect().top tracked the scroll
+          offset 1:1 instead of clamping to 0. <header>'s real parent is <body>, plenty taller. */}
+      <header className="sticky top-0 z-30 print:hidden">
         {/* Mobile header — a separate, purpose-built layout rather than squeezing the desktop
             row down: hamburger (secondary controls: language/currency/help links) | centered
             logo | messages+notifications (primary, stay one tap away). A 3-equal-column grid is
@@ -51,59 +58,66 @@ export async function Nav() {
             <img src="/logo-compact.png" alt="AfroDeals" className="h-11 w-auto" />
           </Link>
           <div className="flex items-center">
-            <Link href="/messages" className="relative flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+            <NavIconLink href="/messages" className="relative flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
               <MessageCircle className="size-5" />
               {unreadCount > 0 && (
                 <span className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
                   {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
               )}
-            </Link>
-            <Link href="/notifications" className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+            </NavIconLink>
+            <NavIconLink href="/notifications" className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
               <Bell className="size-5" />
-            </Link>
+            </NavIconLink>
           </div>
         </div>
         <div className="h-20 sm:hidden" aria-hidden="true" />
 
-        {/* Desktop header — unchanged */}
-        <div className="mx-auto hidden max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:flex sm:px-6 lg:px-8">
-          <div className="flex items-center gap-6">
-            <Link href="/" aria-label="AfroDeals home">
-              {/* Plain <img>, not next/image — this is a small, rarely-changing static brand
-                  asset, and Next's dynamic image-optimizer route (/_next/image) has shown
-                  ETag/conditional-request staleness in dev that a source-file replacement didn't
-                  bust (confirmed: the raw /logo.png and a fresh-width optimizer request both
-                  returned the new file, but the browser's actual rendered request kept getting a
-                  304 against old cached bytes). Serving it as-is sidesteps that whole class of bug
-                  — no runtime resizing needed for a logo this size anyway. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="AfroDeals" className="h-16 w-auto" />
-            </Link>
-          </div>
-          <nav className="flex items-center gap-1 sm:gap-2">
-            <LanguageSwitcher locale={locale} />
-            <CurrencySwitcher currency={displayCurrency} />
-            <Link
-              href="/messages"
-              className="relative flex items-center gap-1.5 rounded-md px-1.5 py-1.5 text-sm text-muted-foreground transition-all duration-150 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground sm:px-2"
-            >
-              <MessageCircle className="size-5" />
-              <span className="hidden sm:inline">{t("messages")}</span>
-              {unreadCount > 0 && (
-                <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </span>
-              )}
-            </Link>
-            <Link
-              href="/notifications"
-              className="flex items-center gap-1.5 rounded-md px-1.5 py-1.5 text-sm text-muted-foreground transition-all duration-150 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground sm:px-2"
-            >
-              <Bell className="size-5" />
-              <span className="hidden sm:inline">{t("notifications")}</span>
-            </Link>
-            {user ? (
+        {/* Desktop header — sticky (not just the mobile bar) so it stays visible while scrolling
+            any page, not only /welcome's own in-page sticky section nav. The sticky/border/bg
+            layer is this full-width outer div, with the max-w-[1600px] content constraint as an
+            inner child -- a position:sticky element still occupies its original space in normal
+            flow, so putting the width cap directly on the sticky element would leave the excess
+            viewport width beside it (on any screen wider than 1600px) uncovered by any
+            background, letting scrolled-past page content show through there while stuck. */}
+        <div className="hidden border-b bg-background sm:block">
+          <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+            <div className="flex items-center gap-6">
+              <Link href="/" aria-label="AfroDeals home">
+                {/* Plain <img>, not next/image — this is a small, rarely-changing static brand
+                    asset, and Next's dynamic image-optimizer route (/_next/image) has shown
+                    ETag/conditional-request staleness in dev that a source-file replacement didn't
+                    bust (confirmed: the raw /logo.png and a fresh-width optimizer request both
+                    returned the new file, but the browser's actual rendered request kept getting a
+                    304 against old cached bytes). Serving it as-is sidesteps that whole class of bug
+                    — no runtime resizing needed for a logo this size anyway. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo.png" alt="AfroDeals" className="h-16 w-auto" />
+              </Link>
+            </div>
+            <nav className="flex items-center gap-1 sm:gap-2">
+              <LanguageSwitcher locale={locale} />
+              <CurrencySwitcher currency={displayCurrency} />
+              <NavIconLink
+                href="/messages"
+                className="relative flex items-center gap-1.5 rounded-md px-1.5 py-1.5 text-sm text-muted-foreground transition-all duration-150 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground sm:px-2"
+              >
+                <MessageCircle className="size-5" />
+                <span className="hidden sm:inline">{t("messages")}</span>
+                {unreadCount > 0 && (
+                  <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </NavIconLink>
+              <NavIconLink
+                href="/notifications"
+                className="flex items-center gap-1.5 rounded-md px-1.5 py-1.5 text-sm text-muted-foreground transition-all duration-150 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground sm:px-2"
+              >
+                <Bell className="size-5" />
+                <span className="hidden sm:inline">{t("notifications")}</span>
+              </NavIconLink>
+              {user ? (
               <AccountMenu name={profile?.username || t("myAccount")} />
             ) : (
               <Link href="/login" className={buttonVariants({ variant: "ghost", size: "sm" })}>
@@ -122,7 +136,8 @@ export async function Nav() {
               <Megaphone className="size-4.5" />
               {t("postAd")}
             </Link>
-          </nav>
+            </nav>
+          </div>
         </div>
       </header>
 
