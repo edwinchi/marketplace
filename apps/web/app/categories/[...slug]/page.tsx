@@ -6,11 +6,10 @@ import { getCarsLandingData, type CarsFilters } from "@/lib/cars-landing";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { ListingList } from "@/components/listing-list";
+import { ListingGrid } from "@/components/listing-grid";
 import { CategoryDirectoryGrid } from "@/components/category-directory-grid";
 import { CategoryGallery } from "@/components/category-gallery";
 import { CarsLanding } from "@/components/cars-landing";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { idFromSlugSegments, breadcrumbSlugPath } from "@/lib/slug";
 
@@ -107,7 +106,7 @@ export default async function CategoryPage({
 
     return (
       <>
-        <div className="mx-auto w-full max-w-7xl px-4 pt-2 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-[1760px] px-4 pt-2 sm:px-6 lg:px-8">
           <Breadcrumbs path={breadcrumbPath} />
         </div>
         <CarsLanding
@@ -155,7 +154,7 @@ export default async function CategoryPage({
     }));
 
     return (
-      <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-[1760px] px-4 py-8 sm:px-6 lg:px-8">
         <Breadcrumbs path={breadcrumbPath} />
         <h1 className="mb-6 text-2xl font-semibold">{directory.self.name}</h1>
         <CategoryDirectoryGrid groups={groups} />
@@ -198,7 +197,7 @@ export default async function CategoryPage({
   }));
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto w-full max-w-[1760px] px-4 py-8 sm:px-6 lg:px-8">
       {/* listings?.length, not a separate exact-count query — accurate up to the limit(24) below;
           revisit once real pagination exists for categories with more than a page of listings. */}
       <Breadcrumbs path={breadcrumbPath} resultCount={listings?.length ?? 0} />
@@ -215,12 +214,8 @@ export default async function CategoryPage({
         ))}
       </div>
 
-      <Card>
-        <CardContent>
-          <ListingList listings={listings ?? []} favoritedIds={favoritedIds} signedIn={!!profile} />
-          {!listings?.length && <p className="py-8 text-center text-muted-foreground">{t("noListingsInCategory")}</p>}
-        </CardContent>
-      </Card>
+      <ListingGrid listings={listings ?? []} favoritedIds={favoritedIds} signedIn={!!profile} />
+      {!listings?.length && <p className="py-8 text-center text-muted-foreground">{t("noListingsInCategory")}</p>}
     </div>
   );
 }

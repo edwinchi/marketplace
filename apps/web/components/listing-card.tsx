@@ -27,7 +27,7 @@ export async function ListingCard({ id, title, priceMinor, currencyCode, city, i
   return (
     <Link
       href={`/listings/${slugPath(title, id)}`}
-      className="group relative flex flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-lg"
+      className="group relative flex flex-col overflow-hidden rounded-lg border bg-card transition-all duration-200 hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-md"
     >
       <FavoriteButton listingId={id} initialFavorited={isFavorited} signedIn={signedIn} />
       <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-muted text-muted-foreground">
@@ -36,19 +36,19 @@ export async function ListingCard({ id, title, priceMinor, currencyCode, city, i
             src={imageUrl}
             alt={title}
             fill
-            sizes="(min-width: 1024px) 25vw, 50vw"
+            sizes="(min-width: 1536px) 16vw, (min-width: 1024px) 20vw, 50vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <ImageOff className="size-8" />
+          <ImageOff className="size-7" />
         )}
       </div>
-      <div className="flex flex-col gap-1 p-3.5">
-        <p className="text-base font-bold tracking-tight">
+      <div className="flex flex-col gap-0.5 p-2.5">
+        <p className="text-sm font-bold tracking-tight">
           <Price minorUnits={priceMinor} currency={currencyCode} displayCurrency={displayCurrency} rates={rates?.rates ?? null} />
         </p>
-        <p className="line-clamp-2 text-sm text-foreground/80 transition-colors group-hover:text-foreground">{title}</p>
-        {city && <p className="text-xs text-muted-foreground">{city}</p>}
+        <p className="line-clamp-2 text-xs leading-snug text-foreground/80 transition-colors group-hover:text-foreground">{title}</p>
+        {city && <p className="text-[11px] text-muted-foreground">{city}</p>}
       </div>
     </Link>
   );

@@ -83,7 +83,7 @@ export function CarsLanding({
           className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-br from-[#e89818] via-[#f2ad3d] to-[#008848]/80"
           style={{ clipPath: "polygon(35% 0, 100% 0, 100% 100%, 0% 100%)" }}
         />
-        <div className="relative mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+        <div className="relative mx-auto w-full max-w-[1760px] px-4 py-14 sm:px-6 lg:px-8">
           <h1 className="max-w-xl text-3xl font-bold text-white sm:text-4xl">Buy a used or new car</h1>
           <p className="mt-3 max-w-lg text-sm text-white/80 sm:text-base">
             Practical, sporty, or electric — browse real listings from private sellers and dealers across the
@@ -97,7 +97,7 @@ export function CarsLanding({
         </div>
       </div>
 
-      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-[1760px] px-4 sm:px-6 lg:px-8">
         {/* Floating filter card, overlapping the hero like the reference's search panel. */}
         <form
           action={basePath}

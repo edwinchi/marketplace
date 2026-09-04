@@ -12,7 +12,7 @@ type Listing = {
 
 export function ListingGrid({ listings, favoritedIds, signedIn }: { listings: Listing[]; favoritedIds: Set<string>; signedIn: boolean }) {
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
       {listings.map((l) => {
         const media = [...(l.listing_media ?? [])].sort((a, b) => a.sort_order - b.sort_order)[0];
         return (

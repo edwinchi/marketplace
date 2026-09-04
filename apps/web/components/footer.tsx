@@ -26,7 +26,7 @@ export async function Footer() {
           orange #E89818, green #008848) — the one place the full trio appears together, rather
           than scattering brand color everywhere. */}
       <div className="h-1 bg-[linear-gradient(to_right,#082040_0%,#082040_33%,#e89818_33%,#e89818_67%,#008848_67%,#008848_100%)]" />
-      <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-[1760px] px-4 py-10 sm:px-6 lg:px-8">
         {user && (
           <>
             <h2 className="mb-4 text-sm font-semibold text-[#082040]">{t("categories")}</h2>

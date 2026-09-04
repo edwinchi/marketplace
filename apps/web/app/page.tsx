@@ -32,7 +32,7 @@ export default async function HomePage({
     )
     .eq("status", "active")
     .order("published_at", { ascending: false })
-    .limit(24);
+    .limit(90);
 
   if (category && category !== "all") {
     // Match the category itself and every descendant — a listing tagged under a leaf like "Cars >
@@ -60,7 +60,7 @@ export default async function HomePage({
     <div className="flex flex-1 flex-col">
       {/* Search hero */}
       <div className="border-b bg-linear-to-b from-muted/60 to-muted/20">
-        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-7 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-[1760px] flex-col gap-5 px-4 py-7 sm:px-6 lg:px-8">
           <form className="flex flex-col gap-2 rounded-xl border bg-background p-2 shadow-sm sm:flex-row sm:items-center">
             <Input type="search" name="q" placeholder={t("searchPlaceholder")} defaultValue={q} className="border-0 shadow-none sm:flex-1" />
             {/* items (plain data, not a render function) is required here because this Select is
@@ -104,7 +104,7 @@ export default async function HomePage({
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-7xl flex-1 gap-8 px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-[1760px] flex-1 gap-6 px-4 py-6 sm:px-6 lg:px-8">
         {/* Sidebar */}
         <aside className="hidden w-56 shrink-0 md:block">
           <h2 className="mb-2 px-2 text-sm font-semibold">{t("categories")}</h2>
