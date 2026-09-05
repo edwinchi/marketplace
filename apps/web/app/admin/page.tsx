@@ -12,6 +12,7 @@ import { RequireLoginToggle } from "@/components/admin/require-login-toggle";
 import { LanguageToggles } from "@/components/admin/language-toggles";
 import { CollapsedLimitSetting } from "@/components/admin/collapsed-limit-setting";
 import { ListenFreeAccessToggle } from "@/components/admin/listen-free-access-toggle";
+import { BuyerFeeSettings } from "@/components/admin/buyer-fee-settings";
 import { getRequireLoginSetting, getListenFreeAccessSetting } from "@/lib/app-settings";
 import { getDisabledLocales } from "@/lib/language-settings";
 import { getNumericSetting } from "@/lib/numeric-settings";
@@ -104,12 +105,15 @@ export default async function AdminDashboardPage() {
   const { user } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) return <AdminLoginScreen />;
 
-  const [stats, requireLogin, disabledLocales, collapsedLimit, listenFreeAccess] = await Promise.all([
+  const [stats, requireLogin, disabledLocales, collapsedLimit, listenFreeAccess, buyerFeePercent, buyerFeeMin, buyerFeeMax] = await Promise.all([
     getAdminStats(),
     getRequireLoginSetting(),
     getDisabledLocales(),
     getNumericSetting("category_group_collapsed_limit"),
     getListenFreeAccessSetting(),
+    getNumericSetting("buyer_fee_percent_x100"),
+    getNumericSetting("buyer_fee_min_cents"),
+    getNumericSetting("buyer_fee_max_cents"),
   ]);
   const maxCategory = Math.max(1, ...stats.topCategories.map(([, c]) => c));
   const maxCity = Math.max(1, ...stats.topCities.map(([, c]) => c));
@@ -134,6 +138,9 @@ export default async function AdminDashboardPage() {
         <div className="rounded-xl border bg-card p-5 shadow-sm">
           <p className="text-sm font-semibold text-[#082040]">Category pages</p>
           <CollapsedLimitSetting initial={collapsedLimit} />
+        </div>
+        <div className="rounded-xl border bg-card p-5 shadow-sm">
+          <BuyerFeeSettings initial={{ percentX100: buyerFeePercent, minCents: buyerFeeMin, maxCents: buyerFeeMax }} />
         </div>
       </div>
 

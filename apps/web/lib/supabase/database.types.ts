@@ -1710,6 +1710,9 @@ export type Database = {
           preferred_city: string | null
           preferred_language: string | null
           status: string
+          stripe_connect_account_id: string | null
+          stripe_connect_charges_enabled: boolean
+          stripe_connect_payouts_enabled: boolean
           stripe_customer_id: string | null
           updated_at: string
           username: string
@@ -1745,6 +1748,9 @@ export type Database = {
           preferred_city?: string | null
           preferred_language?: string | null
           status?: string
+          stripe_connect_account_id?: string | null
+          stripe_connect_charges_enabled?: boolean
+          stripe_connect_payouts_enabled?: boolean
           stripe_customer_id?: string | null
           updated_at?: string
           username: string
@@ -1780,6 +1786,9 @@ export type Database = {
           preferred_city?: string | null
           preferred_language?: string | null
           status?: string
+          stripe_connect_account_id?: string | null
+          stripe_connect_charges_enabled?: boolean
+          stripe_connect_payouts_enabled?: boolean
           stripe_customer_id?: string | null
           updated_at?: string
           username?: string

@@ -40,6 +40,29 @@ export async function POST(request: Request) {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
+
+      // Direct Buy order payment -- distinguished by metadata.type rather than by mode alone,
+      // since it shares mode: "payment" with the AI top-up below. Escrows the funds (status
+      // 'funds_escrowed', matching the lifecycle in supabase/migrations/20260101001400_
+      // fulfillment_escrow.sql) rather than marking the order complete outright -- release happens
+      // on delivery confirmation, not on payment.
+      if (session.metadata?.type === "order_payment" && session.metadata?.order_id) {
+        const orderId = session.metadata.order_id;
+        const paymentIntentId = typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id;
+        await supabase.from("orders").update({ status: "funds_escrowed" }).eq("id", orderId);
+        await supabase.from("payments").insert({
+          order_id: orderId,
+          provider: "stripe",
+          provider_payment_id: paymentIntentId ?? session.id,
+          amount_minor: session.amount_total ?? 0,
+          currency_code: (session.currency ?? "eur").toUpperCase(),
+          status: "succeeded",
+          payment_method: "card",
+          paid_at: new Date().toISOString(),
+        });
+        break;
+      }
+
       const profileId = session.metadata?.profile_id;
       if (!profileId) break;
 
@@ -80,6 +103,21 @@ export async function POST(request: Request) {
           ai_subscription_current_period_end: new Date(subscription.items.data[0].current_period_end * 1000).toISOString(),
         })
         .eq("stripe_customer_id", customerId);
+      break;
+    }
+
+    // Fires whenever a connected Express account's status changes -- most importantly, right
+    // after a seller finishes Stripe's own onboarding form, which is the only way charges_enabled
+    // actually flips to true (there's no "onboarding complete" event of its own to listen for).
+    case "account.updated": {
+      const account = event.data.object as Stripe.Account;
+      await supabase
+        .from("profiles")
+        .update({
+          stripe_connect_charges_enabled: !!account.charges_enabled,
+          stripe_connect_payouts_enabled: !!account.payouts_enabled,
+        })
+        .eq("stripe_connect_account_id", account.id);
       break;
     }
   }

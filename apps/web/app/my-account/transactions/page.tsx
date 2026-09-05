@@ -8,9 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { slugPath } from "@/lib/slug";
 
-// Real schema (orders/payments, RLS already in place from 02_marketplace.sql) — just no checkout
-// flow creates rows yet (Stripe Connect is a later phase per agents.md §10), so this is honestly
-// empty today rather than showing fabricated transaction history.
+// Real schema (orders/payments, RLS already in place from 02_marketplace.sql) — rows now come
+// from Direct Buy (app/listings/payment-actions.ts + the webhook's order_payment handler). Still
+// honestly empty until a real order is actually paid for, same as before.
 export default async function TransactionsPage({
   searchParams,
 }: {

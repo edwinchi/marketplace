@@ -49,3 +49,24 @@ export async function updateCategoryGroupCollapsedLimit(count: number) {
   // /admin is the only route actually rendering this value itself.
   revalidatePath("/admin");
 }
+
+// All three re-validated server-side, not just clamped by the inputs' own min/step -- a directly-
+// called Server Action bypasses those. min <= max is the one cross-field rule worth enforcing here
+// (a max below min would silently mean "always charge the max", clamped wrong).
+export async function updateBuyerFeeSettings(percentX100: number, minCents: number, maxCents: number) {
+  const { user } = await getCurrentUserAndProfile();
+  if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
+  if (!Number.isInteger(percentX100) || percentX100 < 0 || percentX100 > 10000) throw new Error("Percent must be between 0 and 100.");
+  if (!Number.isInteger(minCents) || minCents < 0) throw new Error("Minimum must be a positive amount.");
+  if (!Number.isInteger(maxCents) || maxCents < minCents) throw new Error("Maximum must be at least the minimum.");
+
+  await Promise.all([
+    setNumericSetting("buyer_fee_percent_x100", percentX100),
+    setNumericSetting("buyer_fee_min_cents", minCents),
+    setNumericSetting("buyer_fee_max_cents", maxCents),
+  ]);
+  // Every Direct Buy button computes its fee fresh via calculateBuyerFeeMinor on each listing page
+  // load, so this takes effect immediately site-wide -- /admin is the only route rendering the
+  // value itself.
+  revalidatePath("/admin");
+}

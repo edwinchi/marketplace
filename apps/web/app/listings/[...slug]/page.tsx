@@ -31,6 +31,10 @@ import { followSeller, unfollowSeller } from "@/app/my-account/favorite-sellers/
 import { UserPlus, UserCheck } from "lucide-react";
 import { idFromSlugSegments, breadcrumbSlugPath } from "@/lib/slug";
 import { getSiteOrigin } from "@/lib/site-url";
+import { getStripe } from "@/lib/stripe";
+import { calculateBuyerFeeMinor } from "@/lib/payments";
+import { startOrderPayment } from "@/app/listings/payment-actions";
+import { ShieldCheck } from "lucide-react";
 
 // Drives the rich preview card WhatsApp/Facebook/X/iMessage/Slack generate when someone shares a
 // listing link (components/listings/save-share-bar.tsx) -- those platforms scrape these tags from
@@ -61,8 +65,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 // /listings/home-interior/kitchen-tableware/fruit-bowl-large-<id> — only the trailing segment's
 // id suffix is actually looked up (idFromSlugSegments); everything before it is decorative, so a
 // stale category name or title in a shared/bookmarked link never breaks the page.
-export default async function ListingPage({ params }: { params: Promise<{ slug: string[] }> }) {
+export default async function ListingPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string[] }>;
+  searchParams: Promise<{ order?: string; error?: string }>;
+}) {
   const { slug } = await params;
+  const { order: orderResult, error: paymentError } = await searchParams;
   const id = idFromSlugSegments(slug);
   const supabase = await createClient();
   const { profile } = await getCurrentUserAndProfile();
@@ -108,7 +119,11 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
       listing.location_id
         ? supabase.from("locations").select("city, country_code").eq("id", listing.location_id).single()
         : Promise.resolve({ data: null }),
-      supabase.from("profiles").select("username, display_name, created_at, website_url, account_type, phone_number").eq("id", listing.seller_id).single(),
+      supabase
+        .from("profiles")
+        .select("username, display_name, created_at, website_url, account_type, phone_number, stripe_connect_charges_enabled")
+        .eq("id", listing.seller_id)
+        .single(),
       supabase
         .from("listing_attribute_values")
         .select(
@@ -175,6 +190,14 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
   const tenureLabel = yearsOnPlatform > 0 ? t("yearsOnPlatform", { count: yearsOnPlatform }) : t("newOnPlatform");
   const sellerName = seller?.display_name || seller?.username || t("aSeller");
   const sellerInitial = sellerName.charAt(0).toUpperCase();
+
+  // Direct Buy only shows once a real Stripe account exists (getStripe() returns non-null, same
+  // "no button that doesn't work" rule as everywhere else this project touches Stripe) and the
+  // seller has actually finished Connect onboarding -- there's nowhere for the money to go
+  // otherwise. Fee is computed here, not just left to Stripe Checkout to reveal, so the buyer sees
+  // the real total before ever leaving this page.
+  const canDirectBuy = !isOwner && !!profile && !!getStripe() && !!seller?.stripe_connect_charges_enabled;
+  const buyerFeeMinor = canDirectBuy ? await calculateBuyerFeeMinor(listing.price_minor ?? 0) : 0;
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
@@ -289,6 +312,42 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
             {listing.pickup_available && <Badge variant="secondary">{t("pickup")}</Badge>}
             {listing.delivery_available && <Badge variant="secondary">{t("shipping")}</Badge>}
           </div>
+
+          {orderResult === "canceled" && (
+            <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">Payment canceled — nothing was charged.</p>
+          )}
+          {paymentError === "seller_not_ready" && (
+            <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
+              This seller hasn&apos;t set up payments yet — message them to arrange payment another way.
+            </p>
+          )}
+          {paymentError && paymentError !== "seller_not_ready" && (
+            <p className="rounded-md border border-dashed p-3 text-sm text-destructive">Something went wrong starting that payment — try again.</p>
+          )}
+
+          {canDirectBuy && (
+            <Card size="sm" className="border-[#008200]/30 bg-[#008200]/5">
+              <CardContent className="flex flex-col gap-3">
+                <div className="flex items-start gap-2">
+                  <ShieldCheck className="mt-0.5 size-4 shrink-0 text-[#008200]" />
+                  <div className="text-xs text-muted-foreground">
+                    <p className="font-medium text-foreground">Direct Buy — pay securely through AfroDeals</p>
+                    <p className="mt-0.5">
+                      Item price {formatPrice(listing.price_minor ?? 0, listing.currency_code, locale)} + buyer protection fee{" "}
+                      {formatPrice(buyerFeeMinor, listing.currency_code, locale)} = {formatPrice((listing.price_minor ?? 0) + buyerFeeMinor, listing.currency_code, locale)}{" "}
+                      total. Funds are held until you confirm delivery.
+                    </p>
+                  </div>
+                </div>
+                <form action={startOrderPayment.bind(null, listing.id)}>
+                  <Button type="submit" className="w-full gap-1.5 transition-transform duration-150 hover:-translate-y-0.5">
+                    <ShieldCheck className="size-4" />
+                    Buy now — {formatPrice((listing.price_minor ?? 0) + buyerFeeMinor, listing.currency_code, locale)}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          )}
 
           {!isOwner && (
             <>
