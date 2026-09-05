@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { randomUUID } from "crypto";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { toMinorUnits } from "@/lib/money";
@@ -72,6 +73,55 @@ async function uploadPhotos(
     const { error: uploadError } = await supabase.storage.from("listings").upload(path, file, { upsert: true });
     if (uploadError) throw new Error(uploadError.message);
     await supabase.from("listing_media").insert({ listing_id: listingId, storage_key: path, media_type: "image", sort_order: i });
+  }
+}
+
+// Reconciles listing_media with the edit form's photo manager (components/listings/edit-photo-
+// manager.tsx) against a `photo_order` list of `existing:<mediaId>` / `new` tokens in final order,
+// rather than diffing before/after: existing photos not named in it are removed (row + storage
+// object — best-effort on the storage side, since a stray orphaned object is harmless but blocking
+// the whole save on a transient storage hiccup isn't worth it), survivors get a fresh sort_order
+// matching their new position, and "new" tokens consume the next file from the `photos` input in
+// order and get uploaded fresh. Guarded by photo_manager_present so a form that doesn't render the
+// manager at all (there isn't one today, but nothing here should assume it always will) leaves
+// photos untouched instead of reading its absence as "remove everything".
+async function updatePhotos(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  authUserId: string,
+  listingId: string,
+  formData: FormData,
+) {
+  if (formData.get("photo_manager_present") !== "1") return;
+
+  const order = formData.getAll("photo_order").map(String);
+  const newFiles = formData.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0);
+
+  const { data: currentRows } = await supabase.from("listing_media").select("id, storage_key").eq("listing_id", listingId);
+  const keptIds = new Set(order.filter((t) => t.startsWith("existing:")).map((t) => t.slice("existing:".length)));
+
+  for (const row of (currentRows ?? []).filter((r) => !keptIds.has(r.id))) {
+    await supabase.storage.from("listings").remove([row.storage_key]);
+    await supabase.from("listing_media").delete().eq("id", row.id);
+  }
+
+  let newFileIndex = 0;
+  for (let sortOrder = 0; sortOrder < order.length; sortOrder++) {
+    const token = order[sortOrder];
+    if (token.startsWith("existing:")) {
+      await supabase.from("listing_media").update({ sort_order: sortOrder }).eq("id", token.slice("existing:".length));
+      continue;
+    }
+    const file = newFiles[newFileIndex++];
+    if (!file) continue;
+    const ext = file.name.split(".").pop() || "jpg";
+    // A random filename, not the create-flow's index-based one -- an edit can add new photos
+    // alongside survivors that already occupy whatever index-based names they were given at
+    // creation, so reusing 0.jpg/1.jpg here risks overwriting one of those instead of adding a
+    // new object.
+    const path = `${authUserId}/${listingId}/${randomUUID()}.${ext}`;
+    const { error: uploadError } = await supabase.storage.from("listings").upload(path, file, { upsert: true });
+    if (uploadError) throw new Error(uploadError.message);
+    await supabase.from("listing_media").insert({ listing_id: listingId, storage_key: path, media_type: "image", sort_order: sortOrder });
   }
 }
 
@@ -169,8 +219,8 @@ export async function updateListing(
   _prevState: ListingFormState,
   formData: FormData,
 ): Promise<ListingFormState> {
-  const { profile } = await getCurrentUserAndProfile();
-  if (!profile) return { error: "You must be signed in." };
+  const { user, profile } = await getCurrentUserAndProfile();
+  if (!user || !profile) return { error: "You must be signed in." };
 
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
@@ -202,6 +252,7 @@ export async function updateListing(
   await supabase.from("listing_attribute_values").delete().eq("listing_id", listingId);
   try {
     await saveAttributeValues(supabase, listingId, formData);
+    await updatePhotos(supabase, user.id, listingId, formData);
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Could not save listing details." };
   }

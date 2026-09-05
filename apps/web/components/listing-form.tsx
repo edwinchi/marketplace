@@ -9,6 +9,7 @@ import { ANCHOR_COUNTRIES } from "@/lib/countries";
 import type { ListingFormState } from "@/app/listings/actions";
 import { analyzeListingPhoto } from "@/app/listings/new/analyze-photo-action";
 import { fileToResizedBase64 } from "@/lib/image";
+import { EditPhotoManager, type ExistingPhoto, type CoverPhoto } from "@/components/listings/edit-photo-manager";
 import { AttributeField } from "@/components/listing-attribute-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,15 +31,14 @@ type Props = {
     websiteUrl?: string | null;
   };
   hideLocation?: boolean;
-  // Present only on the edit form — lets a seller re-run AI against the listing's existing cover
-  // photo to refresh the title/description, the same analysis new-listing-step2-form.tsx offers,
-  // just sourced from the photo already on the listing instead of a fresh upload (editing doesn't
-  // have photo-management UI yet).
-  coverPhotoUrl?: string | null;
+  // Present only on the edit form — real photo management (add/remove/reorder existing photos,
+  // not just the create flow's fresh-upload-only case) plus the ability to re-run AI against
+  // whichever photo currently sits first, existing or newly added.
+  initialPhotos?: ExistingPhoto[];
   aiUsage?: { usesLeft: number; freeLimit: number; unlimited: boolean };
 };
 
-export function ListingForm({ categoryOptions, attributesByCategory, action, submitLabel, initial, hideLocation, coverPhotoUrl, aiUsage }: Props) {
+export function ListingForm({ categoryOptions, attributesByCategory, action, submitLabel, initial, hideLocation, initialPhotos, aiUsage }: Props) {
   const [state, formAction, pending] = useActionState(action, { error: null } as ListingFormState);
   const [categoryId, setCategoryId] = useState(initial?.categoryId ?? "");
   const attributes = attributesByCategory[categoryId] ?? [];
@@ -49,15 +49,20 @@ export function ListingForm({ categoryOptions, attributesByCategory, action, sub
   const [aiDescription, setAiDescription] = useState<string | null>(null);
   const [categoryMismatch, setCategoryMismatch] = useState<string | null>(null);
   const [usesLeft, setUsesLeft] = useState<number | null>(aiUsage?.usesLeft ?? null);
+  const [cover, setCover] = useState<CoverPhoto | null>(null);
 
   function analyzeCoverPhoto() {
-    if (!coverPhotoUrl) return;
+    if (!cover) return;
     setAnalyzeError(null);
     setCategoryMismatch(null);
     startAnalyzing(async () => {
       try {
-        const blob = await fetch(coverPhotoUrl).then((r) => r.blob());
-        const file = new File([blob], "cover.jpg", { type: blob.type || "image/jpeg" });
+        const file =
+          cover.kind === "new"
+            ? cover.file
+            : await fetch(cover.url)
+                .then((r) => r.blob())
+                .then((blob) => new File([blob], "cover.jpg", { type: blob.type || "image/jpeg" }));
         const { base64, mediaType } = await fileToResizedBase64(file);
         const { data, error, usesLeft: left } = await analyzeListingPhoto(base64, mediaType);
         setUsesLeft(left);
@@ -76,7 +81,14 @@ export function ListingForm({ categoryOptions, attributesByCategory, action, sub
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      {coverPhotoUrl && aiUsage && (
+      {initialPhotos && (
+        <div className="flex flex-col gap-1.5">
+          <Label>Photos</Label>
+          <EditPhotoManager initialPhotos={initialPhotos} onCoverChange={setCover} />
+        </div>
+      )}
+
+      {initialPhotos && aiUsage && (
         <div className="rounded-lg border bg-muted/30 p-4">
           <div className="mb-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
@@ -90,14 +102,16 @@ export function ListingForm({ categoryOptions, attributesByCategory, action, sub
             )}
           </div>
           <div className="flex items-start gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element -- existing listing photo, already a fixed remote URL */}
-            <img src={coverPhotoUrl} alt="" className="size-16 shrink-0 rounded-md border object-cover" />
+            {cover && (
+              /* eslint-disable-next-line @next/next/no-img-element -- mix of remote (existing) and local blob (new) previews, neither optimizable */
+              <img src={cover.kind === "existing" ? cover.url : cover.previewUrl} alt="" className="size-16 shrink-0 rounded-md border object-cover" />
+            )}
             <div className="flex-1">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={analyzing || (usesLeft !== null && usesLeft === 0 && !aiUsage.unlimited)}
+                disabled={analyzing || !cover || (usesLeft !== null && usesLeft === 0 && !aiUsage.unlimited)}
                 onClick={analyzeCoverPhoto}
                 className="gap-1.5"
               >
