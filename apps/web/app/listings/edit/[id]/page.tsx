@@ -4,6 +4,7 @@ import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getCategoriesAndAttributes } from "@/lib/categories";
 import { updateListing } from "@/app/listings/actions";
 import { getAiUsageStatus } from "@/app/listings/new/analyze-photo-action";
+import { isSellerProSubscriber } from "@/lib/seller-pro";
 import { resolveMediaUrl } from "@/lib/media";
 import { ListingForm } from "@/components/listing-form";
 import { slugPath } from "@/lib/slug";
@@ -26,10 +27,12 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
   if (!listing) notFound();
   if (listing.seller_id !== profile.id) redirect(`/listings/${slugPath(listing.title, id)}`);
 
-  const [{ categoryOptions, attributesByCategory }, { data: media }, aiUsage] = await Promise.all([
+  const [{ categoryOptions, attributesByCategory }, { data: media }, aiUsage, isSellerPro, { data: frenchTranslation }] = await Promise.all([
     getCategoriesAndAttributes(),
     supabase.from("listing_media").select("id, storage_key").eq("listing_id", id).eq("media_type", "image").order("sort_order"),
     getAiUsageStatus(),
+    isSellerProSubscriber(),
+    supabase.from("listing_translations").select("updated_at").eq("listing_id", id).eq("language_code", "fr").maybeSingle(),
   ]);
   const initialPhotos = (media ?? []).map((m) => ({ id: m.id, url: resolveMediaUrl(m.storage_key, process.env.NEXT_PUBLIC_SUPABASE_URL!) }));
 
@@ -45,6 +48,9 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
         hideLocation
         initialPhotos={initialPhotos}
         aiUsage={aiUsage}
+        isSellerPro={isSellerPro}
+        listingId={id}
+        hasFrenchTranslation={!!frenchTranslation}
         initial={{
           title: listing.title,
           description: listing.description,

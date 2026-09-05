@@ -10,7 +10,10 @@ import { buttonVariants, Button } from "@/components/ui/button";
 import { PlanInfoDialog } from "@/components/ai-features/plan-info-dialog";
 import { cn } from "@/lib/utils";
 
-const PLANNED_FEATURES = [
+// Live today, Seller Pro-exclusive (see lib/seller-pro.ts) -- shown as concrete included features,
+// not a vague "more AI features" promise, so a subscriber knows exactly what their subscription
+// bought them right now. All 4 originally-planned features now ship here; none left on the roadmap.
+const SELLER_PRO_FEATURES = [
   {
     icon: PenLine,
     title: "AI description polish",
@@ -19,24 +22,28 @@ const PLANNED_FEATURES = [
   {
     icon: TrendingUp,
     title: "AI price suggestion",
-    body: "A competitive price range based on similar active listings nearby.",
+    body: "A competitive price range based on similar active listings nearby — real comparable listings, never a guessed figure.",
   },
   {
     icon: Languages,
     title: "Listing translation",
-    body: "Auto-translate your listing between English and French for a wider audience.",
+    body: "Auto-translate your listing into French with one click, so French-speaking buyers see it in their language automatically.",
   },
   {
     icon: BarChart3,
     title: "Seller performance insights",
     body: "Real tips from your own listing data — what gets more views, what sells faster.",
+    href: "/my-account/seller-insights",
   },
 ];
 
 const SELLER_PRO_INCLUDES = [
   "Unlimited AI photo autofill",
-  "Every planned AI feature below, the moment it ships",
-  "No per-use counting, ever",
+  "AI description polish — clean up any draft into a well-structured listing",
+  "AI price suggestion — a real price range from comparable active listings",
+  "Listing translation — auto-translate to French in one click",
+  "Seller performance insights — real tips from your own listing data",
+  "Every new AI feature lands here automatically, at no extra cost",
 ];
 
 // Upgrade buttons only render once a real Stripe account exists and its price IDs are set in env
@@ -65,7 +72,10 @@ export default async function AiFeaturesPage({
   ]);
   const isSubscribed = subRow?.ai_subscription_status === "active";
   const limitReached = !usage.unlimited && usage.usesLeft === 0;
-  const usagePct = usage.freeLimit > 0 ? Math.min(100, Math.round(((usage.freeLimit - usage.usesLeft) / usage.freeLimit) * 100)) : 0;
+  // Against effectiveLimit (free + any bonus uses), not the flat freeLimit constant -- a top-up
+  // customer's usesLeft can exceed freeLimit, which made this go negative (invalid width) right
+  // after every purchase.
+  const usagePct = usage.effectiveLimit > 0 ? Math.max(0, Math.min(100, Math.round(((usage.effectiveLimit - usage.usesLeft) / usage.effectiveLimit) * 100))) : 0;
 
   return (
     <div className="flex flex-col gap-8">
@@ -274,26 +284,38 @@ export default async function AiFeaturesPage({
       )}
 
       <div>
-        <h2 className="mb-4 text-xs font-semibold tracking-widest text-muted-foreground uppercase">On the roadmap</h2>
+        <h2 className="mb-4 flex items-center gap-2 text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+          Included with Seller Pro
+          <span className="rounded-full bg-[#008848]/10 px-2 py-0.5 text-[10px] font-semibold tracking-normal text-[#046637] normal-case">Live now</span>
+        </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {PLANNED_FEATURES.map((f) => (
-            <div
-              key={f.title}
-              className="group flex gap-3 rounded-xl border border-dashed p-5 transition-all duration-200 hover:border-solid hover:border-[#008848]/30 hover:bg-[#008848]/5 hover:shadow-sm"
-            >
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors duration-200 group-hover:bg-[#008848]/10 group-hover:text-[#008848]">
-                <f.icon className="size-4" />
-              </span>
-              <div>
-                <p className="font-medium text-[#082040]">{f.title}</p>
-                <p className="mt-0.5 text-sm text-muted-foreground">{f.body}</p>
+          {SELLER_PRO_FEATURES.map((f) => {
+            const card = (
+              <>
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#008848]/10 text-[#008848]">
+                  <f.icon className="size-4" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-[#082040]">{f.title}</p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">{f.body}</p>
+                  {f.href && <p className="mt-1.5 text-xs font-medium text-[#008848]">View your insights →</p>}
+                </div>
+              </>
+            );
+            return f.href ? (
+              <Link key={f.title} href={f.href} className="flex gap-3 rounded-xl border p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#008848]/30 hover:shadow-md">
+                {card}
+              </Link>
+            ) : (
+              <div key={f.title} className="flex gap-3 rounded-xl border p-5 shadow-sm">
+                {card}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         <p className="mt-4 text-sm text-muted-foreground">
-          These aren&apos;t built yet — we&apos;d rather say so than show a card that doesn&apos;t
-          actually do anything. They&apos;ll appear here for real once they exist.
+          Each one works from your own listing's real title, photos, and comparable prices — never a
+          fabricated figure or fact. The first three are available from any listing&apos;s edit page.
         </p>
       </div>
 

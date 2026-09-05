@@ -2,16 +2,33 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { randomUUID } from "crypto";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { toMinorUnits } from "@/lib/money";
 import type { Database } from "@/lib/supabase/database.types";
 import { slugPath } from "@/lib/slug";
+import { getTextEmbedding } from "@/lib/embeddings";
 
 type AttributeValueInsert = Database["public"]["Tables"]["listing_attribute_values"]["Insert"];
 
 export type ListingFormState = { error: string | null };
+
+// Fire-and-forget, scheduled via next/server's after() rather than a bare unawaited promise --
+// this runs inside a Server Action that ends in redirect(), and a serverless function isn't
+// guaranteed to keep running background work once its response has gone out. Never blocks listing
+// create/update on embedding latency or failure (see lib/embeddings.ts's own best-effort design);
+// worst case a listing's title_embedding stays null and it just doesn't participate in semantic
+// search (see supabase/migrations/20260101005700_semantic_search.sql), same as any older listing.
+function enqueueEmbedding(supabase: Awaited<ReturnType<typeof createClient>>, listingId: string, title: string, description: string) {
+  after(async () => {
+    const embedding = await getTextEmbedding(`${title}\n${description}`);
+    if (!embedding) return;
+    const { error } = await supabase.from("listings").update({ title_embedding: embedding as unknown as string }).eq("id", listingId);
+    if (error) console.error(`Failed to store title_embedding for listing ${listingId}:`, error);
+  });
+}
 
 // Dynamic attribute inputs are named attr__<attributeId>__<stableKey>__<dataType> — the form
 // already knows this from attributesByCategory (lib/categories.ts), so encoding it here avoids a
@@ -210,6 +227,8 @@ export async function createListing(_prevState: ListingFormState, formData: Form
     return { error: e instanceof Error ? e.message : "Could not save listing details." };
   }
 
+  enqueueEmbedding(supabase, listing.id, title, description);
+
   revalidatePath("/");
   redirect(`/listings/${slugPath(title, listing.id)}`);
 }
@@ -257,6 +276,8 @@ export async function updateListing(
     return { error: e instanceof Error ? e.message : "Could not save listing details." };
   }
 
+  enqueueEmbedding(supabase, listingId, title, description);
+
   // The real page lives at a slugged path (/listings/[...slug]) this function has no way to
   // reconstruct without a DB round-trip -- revalidating the literal route pattern instead of a
   // guessed resolved URL is the documented way to invalidate every path under a dynamic segment.
@@ -265,8 +286,10 @@ export async function updateListing(
 }
 
 export async function deleteListing(listingId: string) {
+  const { profile } = await getCurrentUserAndProfile();
+  if (!profile) redirect("/login");
   const supabase = await createClient();
-  await supabase.from("listings").update({ status: "deleted", deleted_at: new Date().toISOString() }).eq("id", listingId);
+  await supabase.from("listings").update({ status: "deleted", deleted_at: new Date().toISOString() }).eq("id", listingId).eq("seller_id", profile.id);
   revalidatePath("/");
   revalidatePath("/my-account/my-listings");
   redirect("/my-account/my-listings");

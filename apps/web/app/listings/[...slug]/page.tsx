@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTranslations, getLocale } from "next-intl/server";
-import { MessageCircle, Globe, Calendar, Fuel, Cog, Gauge, Tag } from "lucide-react";
+import { MessageCircle, Globe, Calendar, Fuel, Cog, Gauge, Tag, Phone } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getCategoryPath } from "@/lib/categories";
@@ -44,13 +44,21 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const id = idFromSlugSegments(slug);
   const supabase = await createClient();
-  const { data: listing } = await supabase.from("listings").select("title, description").eq("id", id).single();
+  const [{ data: listing }, locale] = await Promise.all([
+    supabase.from("listings").select("title, description").eq("id", id).single(),
+    getLocale(),
+  ]);
   if (!listing) return {};
+
+  const { data: translation } =
+    locale === "fr" ? await supabase.from("listing_translations").select("title, description").eq("listing_id", id).eq("language_code", "fr").maybeSingle() : { data: null };
+  const displayTitle = translation?.title ?? listing.title;
+  const displayDescription = translation?.description ?? listing.description;
 
   const origin = await getSiteOrigin();
   const url = `${origin}/listings/${slug.join("/")}`;
-  const description = listing.description ? listing.description.slice(0, 200) : "Buy and sell across African markets.";
-  const title = `${listing.title} | AfroDeals`;
+  const description = displayDescription ? displayDescription.slice(0, 200) : "Buy and sell across African markets.";
+  const title = `${displayTitle} | AfroDeals`;
   const logo = { url: `${origin}/logo.png`, width: 1400, height: 474, alt: "AfroDeals" };
 
   return {
@@ -113,7 +121,7 @@ export default async function ListingPage({
           data: [] as { id: string; amount_minor: number; currency_code: string; status: string; created_at: string; profiles: { display_name: string | null; username: string } }[],
         });
 
-  const [categoryPath, { data: location }, { data: seller }, { data: attributeValues }, { data: media }, { data: favoriteRow }, { count: otherListingsCount }, { count: favoriteCount }, { data: offers }, { data: followRow }, { data: sellerReviews }] =
+  const [categoryPath, { data: location }, { data: seller }, { data: attributeValues }, { data: media }, { data: favoriteRow }, { count: otherListingsCount }, { count: favoriteCount }, { data: offers }, { data: followRow }, { data: sellerReviews }, { data: translation }] =
     await Promise.all([
       getCategoryPath(listing.category_id),
       listing.location_id
@@ -143,7 +151,16 @@ export default async function ListingPage({
         ? supabase.from("favorite_sellers").select("seller_profile_id").eq("profile_id", profile.id).eq("seller_profile_id", listing.seller_id).maybeSingle()
         : Promise.resolve({ data: null }),
       supabase.from("reviews").select("rating").eq("reviewee_profile_id", listing.seller_id),
+      // Only fetched for French-locale visitors -- this is what actually delivers "for a wider
+      // audience": the translation appears automatically on the listing page itself, not just as
+      // a draft the seller has to paste in somewhere.
+      locale === "fr"
+        ? supabase.from("listing_translations").select("title, description").eq("listing_id", id).eq("language_code", "fr").maybeSingle()
+        : Promise.resolve({ data: null }),
     ]);
+
+  const displayTitle = translation?.title ?? listing.title;
+  const displayDescription = translation?.description ?? listing.description;
 
   const reviewCount = sellerReviews?.length ?? 0;
   const reviewAverage = reviewCount ? (sellerReviews!.reduce((sum, r) => sum + r.rating, 0) / reviewCount).toFixed(1) : null;
@@ -158,6 +175,17 @@ export default async function ListingPage({
       .then(({ error }) => {
         if (error) console.error("Failed to record recently-viewed listing:", error);
       });
+  }
+
+  // Real view counter (see supabase/migrations/20260101005600_listing_view_count_increment.sql) --
+  // feeds Seller performance insights' "what gets more views" tip with a genuine, accumulating
+  // signal instead of the dead listings.view_count column this schema shipped with. Every page
+  // load counts, not just signed-in ones (anonymous browsing is the norm here), except the owner's
+  // own visits -- a seller repeatedly checking their own listing shouldn't inflate its own count.
+  if (!isOwner) {
+    supabase.rpc("increment_listing_view_count", { p_listing_id: listing.id }).then(({ error }) => {
+      if (error) console.error("Failed to increment listing view count:", error);
+    });
   }
 
   const images = (media ?? []).map((m) => resolveMediaUrl(m.storage_key, process.env.NEXT_PUBLIC_SUPABASE_URL!));
@@ -182,7 +210,7 @@ export default async function ListingPage({
     { key: "fuel_type", icon: Fuel, label: specByKey.get("fuel_type") },
     { key: "transmission", icon: Cog, label: specByKey.get("transmission") },
   ].filter((s): s is { key: string; icon: typeof Tag; label: string } => !!s.label);
-  const breadcrumbPath = [...categoryPath.map((n) => ({ id: n.id, name: n.name })), { id: listing.id, name: listing.title }];
+  const breadcrumbPath = [...categoryPath.map((n) => ({ id: n.id, name: n.name })), { id: listing.id, name: displayTitle }];
   const listingPath = `/listings/${breadcrumbSlugPath(categoryPath.map((n) => ({ name: n.name })), listing.title, listing.id)}`;
 
   const memberSince = new Date(seller?.created_at ?? listing.created_at);
@@ -216,7 +244,7 @@ export default async function ListingPage({
           )}
           <PhotoGallery
             images={images}
-            title={listing.title}
+            title={displayTitle}
             listingId={listing.id}
             initialFavorited={!!favoriteRow}
             signedIn={!!profile}
@@ -268,7 +296,7 @@ export default async function ListingPage({
               <ListenButton selector="#listing-description" />
             </div>
             <div id="listing-description">
-              <RichDescription text={listing.description ?? ""} />
+              <RichDescription text={displayDescription ?? ""} />
             </div>
           </section>
 
@@ -288,7 +316,7 @@ export default async function ListingPage({
           <SaveShareBar listingId={listing.id} title={listing.title} initialFavorited={!!favoriteRow} signedIn={!!profile} />
 
           <div>
-            <h1 className="text-xl font-semibold">{listing.title}</h1>
+            <h1 className="text-xl font-semibold">{displayTitle}</h1>
             <p className="mt-1 text-3xl font-bold">
               <Price minorUnits={listing.price_minor ?? 0} currency={listing.currency_code} displayCurrency={displayCurrency} rates={rates?.rates ?? null} locale={locale} />
             </p>
@@ -391,17 +419,37 @@ export default async function ListingPage({
                     {t("website")}
                   </a>
                 )}
-                {seller?.phone_number && <PhoneRevealButton phoneNumber={seller.phone_number} />}
-                <form action={messageSellerAction.bind(null, listing.id)}>
-                  <Button
-                    type="submit"
-                    variant={seller?.website_url || seller?.phone_number ? "outline" : "default"}
-                    className="w-full gap-1.5 transition-transform duration-150 hover:-translate-y-0.5"
+                {seller?.phone_number && (profile ? (
+                  <PhoneRevealButton phoneNumber={seller.phone_number} />
+                ) : (
+                  <a href="/login" className={buttonVariants({ variant: "outline", className: "w-full gap-1.5 transition-transform duration-150 hover:-translate-y-0.5" })}>
+                    <Phone className="size-4" />
+                    {t("signInToViewNumber")}
+                  </a>
+                ))}
+                {profile ? (
+                  <form action={messageSellerAction.bind(null, listing.id)}>
+                    <Button
+                      type="submit"
+                      variant={seller?.website_url || seller?.phone_number ? "outline" : "default"}
+                      className="w-full gap-1.5 transition-transform duration-150 hover:-translate-y-0.5"
+                    >
+                      <MessageCircle className="size-4" />
+                      {seller?.website_url || seller?.phone_number ? t("message") : t("messageSeller")}
+                    </Button>
+                  </form>
+                ) : (
+                  <a
+                    href="/login"
+                    className={buttonVariants({
+                      variant: seller?.website_url || seller?.phone_number ? "outline" : "default",
+                      className: "w-full gap-1.5 transition-transform duration-150 hover:-translate-y-0.5",
+                    })}
                   >
                     <MessageCircle className="size-4" />
-                    {seller?.website_url || seller?.phone_number ? t("message") : t("messageSeller")}
-                  </Button>
-                </form>
+                    {t("signInToMessage")}
+                  </a>
+                )}
               </div>
 
               {listing.offers_allowed && (

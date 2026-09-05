@@ -2331,6 +2331,13 @@ export type Database = {
         Returns: undefined
       }
       current_profile_id: { Args: never; Returns: string }
+      increment_ai_bonus_uses: { Args: { p_amount: number; p_profile_id: string }; Returns: number }
+      increment_ai_photo_analysis_uses: { Args: { p_profile_id: string }; Returns: number }
+      increment_listing_view_count: { Args: { p_listing_id: string }; Returns: undefined }
+      match_listings_by_embedding: {
+        Args: { filter_category_ids?: string[] | null; filter_city?: string | null; match_count?: number; query_embedding: string }
+        Returns: { id: string; similarity: number }[]
+      }
       start_conversation: { Args: { p_listing_id: string }; Returns: string }
       disablelongtransactions: { Args: never; Returns: string }
       dropgeometrycolumn:
