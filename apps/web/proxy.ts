@@ -41,7 +41,13 @@ export async function proxy(request: NextRequest) {
   const { data: setting } = await supabase.from("app_settings").select("value").eq("key", "require_login").maybeSingle();
   const requireLogin = setting?.value ?? true;
 
-  const PUBLIC_PATHS = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth", "/help", "/terms", "/safety", "/welcome", "/admin", "/robots.txt", "/sitemap.xml"];
+  // /api is exempt for a real reason, not just convenience: confirmed live that Stripe's webhook
+  // (the only route under here) was being redirected to /login on every single delivery attempt --
+  // Stripe doesn't have a browser session and never will, so every webhook this project has ever
+  // sent (payments, subscription updates, Connect account status) was silently dropped before it
+  // ever reached the route's own signature check. API routes authenticate themselves (this one via
+  // the Stripe signature, same as any future one should), not via this cookie-based gate.
+  const PUBLIC_PATHS = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth", "/help", "/terms", "/safety", "/welcome", "/admin", "/api", "/robots.txt", "/sitemap.xml"];
   const { pathname } = request.nextUrl;
   const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 
