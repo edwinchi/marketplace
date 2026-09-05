@@ -40,6 +40,7 @@
     "profile": "Profile",
     "aiFeatures": "AI features",
     "myListings": "My listings",
+    "sellerInsights": "Seller insights",
     "favorites": "Favorites",
     "bids": "Bids",
     "savedSearches": "Saved searches",
@@ -125,6 +126,8 @@
     "copyLink": "Copy link",
     "offerSent": "Your offer has been sent to the seller.",
     "signInToOffer": "Sign in to make an offer",
+    "signInToMessage": "Sign in to message the seller",
+    "signInToViewNumber": "Sign in to view number",
     "sending": "Sending…",
     "makeOffer": "Make offer"
   },
@@ -139,6 +142,7 @@
     "saveSearch": "Save this search",
     "clearFilter": "Clear filter ×",
     "noListingsYet": "No listings yet.",
+    "relatedToYourSearch": "Related to your search",
     "beTheFirst": "Be the first to post one."
   },
   "Profile": {
@@ -175,7 +179,7 @@
     "digitalInvoice": "Digital invoice",
     "digitalInvoiceBody": "Invoices for any paid features you use.",
     "aiFeatures": "AI features",
-    "aiFeaturesBody": "Free AI photo autofill, plus what's planned next.",
+    "aiFeaturesBody": "Free AI photo autofill, plus description polish, price suggestions, translation, and seller insights with Seller Pro.",
     "adLocationPreferences": "Ad & location preferences",
     "adLocationPreferencesBody": "Control how your city is used for nearby listings.",
     "notificationSettings": "Notification settings",

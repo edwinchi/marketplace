@@ -40,6 +40,7 @@
     "profile": "个人资料",
     "aiFeatures": "AI 功能",
     "myListings": "我的广告",
+    "sellerInsights": "卖家数据洞察",
     "favorites": "收藏",
     "bids": "出价",
     "savedSearches": "已保存的搜索",
@@ -125,6 +126,8 @@
     "copyLink": "复制链接",
     "offerSent": "您的出价已发送给卖家。",
     "signInToOffer": "登录后即可出价",
+    "signInToMessage": "登录后即可联系卖家",
+    "signInToViewNumber": "登录后即可显示电话号码",
     "sending": "发送中…",
     "makeOffer": "出价"
   },
@@ -139,6 +142,7 @@
     "saveSearch": "保存此搜索",
     "clearFilter": "清除筛选 ×",
     "noListingsYet": "暂时还没有广告。",
+    "relatedToYourSearch": "与您的搜索相关",
     "beTheFirst": "抢先发布第一条广告。"
   },
   "Profile": {
@@ -175,7 +179,7 @@
     "digitalInvoice": "电子发票",
     "digitalInvoiceBody": "查看您使用的任何付费功能的发票。",
     "aiFeatures": "AI 功能",
-    "aiFeaturesBody": "免费的 AI 图片自动填充功能，以及即将推出的更多功能。",
+    "aiFeaturesBody": "免费的 AI 图片自动填充功能，此外 Seller Pro 还提供描述润色、价格建议、翻译和卖家数据洞察。",
     "adLocationPreferences": "广告与位置偏好",
     "adLocationPreferencesBody": "控制您的城市信息如何用于附近广告推荐。",
     "notificationSettings": "通知设置",

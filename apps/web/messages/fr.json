@@ -40,6 +40,7 @@
     "profile": "Profil",
     "aiFeatures": "Fonctions IA",
     "myListings": "Mes annonces",
+    "sellerInsights": "Statistiques vendeur",
     "favorites": "Favoris",
     "bids": "Offres",
     "savedSearches": "Recherches enregistrées",
@@ -125,6 +126,8 @@
     "copyLink": "Copier le lien",
     "offerSent": "Votre offre a été envoyée au vendeur.",
     "signInToOffer": "Connectez-vous pour faire une offre",
+    "signInToMessage": "Connectez-vous pour contacter le vendeur",
+    "signInToViewNumber": "Connectez-vous pour voir le numéro",
     "sending": "Envoi…",
     "makeOffer": "Faire une offre"
   },
@@ -139,6 +142,7 @@
     "saveSearch": "Enregistrer cette recherche",
     "clearFilter": "Effacer le filtre ×",
     "noListingsYet": "Aucune annonce pour le moment.",
+    "relatedToYourSearch": "En rapport avec votre recherche",
     "beTheFirst": "Soyez le premier à en publier une."
   },
   "Profile": {
@@ -175,7 +179,7 @@
     "digitalInvoice": "Facture numérique",
     "digitalInvoiceBody": "Factures pour toute fonctionnalité payante que vous utilisez.",
     "aiFeatures": "Fonctions IA",
-    "aiFeaturesBody": "Remplissage automatique par IA gratuit, et ce qui est prévu ensuite.",
+    "aiFeaturesBody": "Remplissage automatique par IA gratuit, plus la retouche de description, les suggestions de prix, la traduction et les statistiques vendeur avec Seller Pro.",
     "adLocationPreferences": "Préférences d'annonces et de localisation",
     "adLocationPreferencesBody": "Contrôlez comment votre ville est utilisée pour les annonces à proximité.",
     "notificationSettings": "Paramètres de notification",

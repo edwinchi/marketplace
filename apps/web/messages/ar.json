@@ -40,6 +40,7 @@
     "profile": "الملف الشخصي",
     "aiFeatures": "ميزات الذكاء الاصطناعي",
     "myListings": "إعلاناتي",
+    "sellerInsights": "إحصاءات البائع",
     "favorites": "المفضلة",
     "bids": "العروض",
     "savedSearches": "عمليات البحث المحفوظة",
@@ -125,6 +126,8 @@
     "copyLink": "نسخ الرابط",
     "offerSent": "تم إرسال عرضك إلى البائع.",
     "signInToOffer": "سجّل الدخول لتقديم عرض",
+    "signInToMessage": "سجّل الدخول لمراسلة البائع",
+    "signInToViewNumber": "سجّل الدخول لإظهار الرقم",
     "sending": "جارٍ الإرسال…",
     "makeOffer": "تقديم عرض"
   },
@@ -139,6 +142,7 @@
     "saveSearch": "احفظ هذا البحث",
     "clearFilter": "إلغاء الفلتر ×",
     "noListingsYet": "لا توجد إعلانات بعد.",
+    "relatedToYourSearch": "ذو صلة بعملية البحث",
     "beTheFirst": "كن أول من ينشر إعلانًا."
   },
   "Profile": {
@@ -175,7 +179,7 @@
     "digitalInvoice": "الفاتورة الرقمية",
     "digitalInvoiceBody": "فواتير أي ميزات مدفوعة تستخدمها.",
     "aiFeatures": "ميزات الذكاء الاصطناعي",
-    "aiFeaturesBody": "تعبئة تلقائية مجانية بالصورة عبر الذكاء الاصطناعي، وما هو مخطط له لاحقًا.",
+    "aiFeaturesBody": "تعبئة تلقائية مجانية بالصورة عبر الذكاء الاصطناعي، بالإضافة إلى تحسين الوصف، واقتراح السعر، والترجمة، وإحصاءات البائع مع Seller Pro.",
     "adLocationPreferences": "تفضيلات الإعلان والموقع",
     "adLocationPreferencesBody": "تحكم في كيفية استخدام مدينتك لعرض الإعلانات القريبة.",
     "notificationSettings": "إعدادات الإشعارات",

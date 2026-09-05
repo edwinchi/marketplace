@@ -5,11 +5,9 @@ import { Phone } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 
-// The number is already present in the server-rendered page (same trust level as the seller's
-// display name or website URL, both shown unconditionally elsewhere on this page) -- this is a
-// plain reveal-on-click for a cleaner first impression, not a privacy boundary. Renders nothing
-// when the seller hasn't set a phone number (most sellers, since it's an optional profile field)
-// rather than showing a dead button.
+// Reveal-on-click for a cleaner first impression, gated behind an account -- the caller (see
+// app/listings/[...slug]/page.tsx) only passes the real phoneNumber prop when signed in, so an
+// anonymous visitor's page never even receives the number to reveal.
 export function PhoneRevealButton({ phoneNumber, className }: { phoneNumber: string; className?: string }) {
   const t = useTranslations("Listing");
   const [revealed, setRevealed] = useState(false);
