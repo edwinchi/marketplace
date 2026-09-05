@@ -49,6 +49,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true, duplicate: dedupeError.code === "23505" });
   }
 
+  try {
+    await handleEvent(event, stripe, supabase);
+  } catch (err) {
+    // Roll back the dedupe row we just committed above -- without this, a transient failure part-way
+    // through processing (a Supabase call erroring, an unexpected Stripe object shape) would throw
+    // here, Stripe would retry delivery, and the retry's dedupe check would find event.id already
+    // present and silently no-op forever, permanently dropping a real credit/status update with no
+    // error visible anywhere.
+    await supabase.from("stripe_webhook_events").delete().eq("id", event.id);
+    console.error(`Webhook processing failed for event ${event.id} (${event.type}):`, err);
+    return NextResponse.json({ error: "Processing failed" }, { status: 500 });
+  }
+
+  return NextResponse.json({ received: true });
+}
+
+async function handleEvent(event: Stripe.Event, stripe: Stripe, supabase: ReturnType<typeof createServiceClient>) {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
@@ -79,22 +96,24 @@ export async function POST(request: Request) {
       if (!profileId) break;
 
       if (session.mode === "payment") {
-        // One-time top-up -- add AI_TOPUP_USES to the existing balance, not a flat set, in case
-        // someone buys more than one top-up over time.
-        const { data: profile } = await supabase.from("profiles").select("ai_bonus_uses").eq("id", profileId).single();
-        await supabase
-          .from("profiles")
-          .update({ ai_bonus_uses: (profile?.ai_bonus_uses ?? 0) + AI_TOPUP_USES })
-          .eq("id", profileId);
+        // One-time top-up -- atomic DB-side increment (see
+        // supabase/migrations/20260101005400_atomic_ai_bonus_uses_increment.sql) rather than
+        // reading ai_bonus_uses into JS and writing back count + AI_TOPUP_USES -- two genuine
+        // top-up purchases in quick succession are two distinct events (the dedupe table above
+        // doesn't catch that), and a read-then-write here would let both read the same starting
+        // count and credit only one top-up's worth of uses while the customer paid for both.
+        const { error: incrementError } = await supabase.rpc("increment_ai_bonus_uses", { p_profile_id: profileId, p_amount: AI_TOPUP_USES });
+        if (incrementError) throw incrementError;
       } else if (session.mode === "subscription" && session.subscription) {
         const subscription = await stripe.subscriptions.retrieve(
           typeof session.subscription === "string" ? session.subscription : session.subscription.id,
         );
+        const periodEnd = subscription.items.data[0]?.current_period_end;
         await supabase
           .from("profiles")
           .update({
             ai_subscription_status: subscription.status,
-            ai_subscription_current_period_end: new Date(subscription.items.data[0].current_period_end * 1000).toISOString(),
+            ai_subscription_current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
           })
           .eq("id", profileId);
       }
@@ -108,11 +127,12 @@ export async function POST(request: Request) {
       const subscription = event.data.object as Stripe.Subscription;
       const customerId = typeof subscription.customer === "string" ? subscription.customer : subscription.customer.id;
       const status = event.type === "customer.subscription.deleted" ? "canceled" : subscription.status;
+      const periodEnd = subscription.items.data[0]?.current_period_end;
       await supabase
         .from("profiles")
         .update({
           ai_subscription_status: status,
-          ai_subscription_current_period_end: new Date(subscription.items.data[0].current_period_end * 1000).toISOString(),
+          ai_subscription_current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
         })
         .eq("stripe_customer_id", customerId);
       break;
@@ -133,6 +153,4 @@ export async function POST(request: Request) {
       break;
     }
   }
-
-  return NextResponse.json({ received: true });
 }

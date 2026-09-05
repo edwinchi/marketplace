@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Camera, X, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -30,15 +30,26 @@ export function EditPhotoManager({ initialPhotos, onCoverChange }: { initialPhot
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const newKeyCounter = useRef(0);
 
-  const urlCache = useRef(new Map<File, string>());
-  function previewUrl(item: Item): string {
-    if (item.kind === "existing") return item.url;
-    let url = urlCache.current.get(item.file);
-    if (!url) {
-      url = URL.createObjectURL(item.file);
-      urlCache.current.set(item.file, url);
+  // Building this as a memoized lookup rather than a ref cache mutated inline during render (the
+  // previous version) -- reading and writing a ref during render isn't safe under React's rules,
+  // since a render that gets thrown away/retried could commit an inconsistent cache. useMemo keyed
+  // on `items` recomputes the whole map on every reorder/removal (setItems always produces a new
+  // array), which is some redundant create+revoke churn, but it's a plain side-effect-free lookup
+  // and the paired cleanup effect below still guarantees exactly one live batch of URLs at a time.
+  const previewUrlByKey = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const item of items) {
+      if (item.kind === "new") map.set(item.key, URL.createObjectURL(item.file));
     }
-    return url;
+    return map;
+  }, [items]);
+  useEffect(() => {
+    return () => {
+      for (const url of previewUrlByKey.values()) URL.revokeObjectURL(url);
+    };
+  }, [previewUrlByKey]);
+  function previewUrl(item: Item): string {
+    return item.kind === "existing" ? item.url : previewUrlByKey.get(item.key)!;
   }
 
   // AI analysis (in listing-form.tsx) always targets whichever photo is currently first -- the
@@ -54,21 +65,6 @@ export function EditPhotoManager({ initialPhotos, onCoverChange }: { initialPhot
     // the identical reasoning in photo-upload.tsx.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items]);
-  useEffect(() => {
-    const liveFiles = new Set(items.filter((it): it is Item & { kind: "new" } => it.kind === "new").map((it) => it.file));
-    for (const [file, url] of urlCache.current) {
-      if (!liveFiles.has(file)) {
-        URL.revokeObjectURL(url);
-        urlCache.current.delete(file);
-      }
-    }
-  }, [items]);
-  useEffect(() => {
-    const cache = urlCache.current;
-    return () => {
-      for (const url of cache.values()) URL.revokeObjectURL(url);
-    };
-  }, []);
 
   function addFiles(newFiles: FileList | null) {
     if (!newFiles) return;

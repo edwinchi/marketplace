@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Camera, X, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -31,34 +31,21 @@ export function PhotoUpload({ initialFiles, onFilesChange }: { initialFiles?: Fi
     setFiles((prev) => (prev.length > 0 ? prev : initialFiles));
   }, [initialFiles]);
 
-  // createObjectURL mints a new, distinct blob URL every time it's called — even for the same
-  // File — so calling it inline during render would hand out a fresh unrevoked URL (and a real
-  // memory leak) on every reorder/removal, not just when a file is actually added. Caching one
-  // URL per File across renders, and revoking it once that File drops out of `files`, keeps it
-  // to exactly one live URL per selected photo.
-  const urlCache = useRef(new Map<File, string>());
-  const previewUrls = files.map((file) => {
-    let url = urlCache.current.get(file);
-    if (!url) {
-      url = URL.createObjectURL(file);
-      urlCache.current.set(file, url);
-    }
-    return url;
-  });
+  // createObjectURL mints a new, distinct blob URL every time it's called, and mutating a ref
+  // during render (the previous version of this cached one URL per File in a ref, read and
+  // written inline in the render body) isn't safe under React's rules -- a render that gets
+  // thrown away/retried could leave the cache inconsistent with what actually committed. useMemo
+  // keyed on `files` recomputes the whole batch on every reorder/removal (since setFiles always
+  // produces a new array), which is some redundant create+revoke churn, but it's a plain
+  // side-effect-free calculation and the paired cleanup effect below still guarantees exactly one
+  // live batch of URLs at a time — correct over efficient, and 24 photos is nowhere near enough
+  // for the churn to matter.
+  const previewUrls = useMemo(() => files.map((file) => URL.createObjectURL(file)), [files]);
   useEffect(() => {
-    for (const [file, url] of urlCache.current) {
-      if (!files.includes(file)) {
-        URL.revokeObjectURL(url);
-        urlCache.current.delete(file);
-      }
-    }
-  }, [files]);
-  useEffect(() => {
-    const cache = urlCache.current;
     return () => {
-      for (const url of cache.values()) URL.revokeObjectURL(url);
+      for (const url of previewUrls) URL.revokeObjectURL(url);
     };
-  }, []);
+  }, [previewUrls]);
 
   function addFiles(newFiles: FileList | null) {
     if (!newFiles) return;

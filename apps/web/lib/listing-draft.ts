@@ -24,9 +24,13 @@ export function takeListingDraft(title: string, categoryId: string): ListingDraf
   try {
     const raw = sessionStorage.getItem(LISTING_DRAFT_KEY);
     if (!raw) return null;
-    sessionStorage.removeItem(LISTING_DRAFT_KEY);
     const draft = JSON.parse(raw) as ListingDraft;
+    // Only consumed on an actual match -- a mismatch (the user tweaked the title/category after
+    // step 1's AI fill, e.g. via the category search) leaves the draft in place rather than
+    // burning it, so reverting back to the exact AI-filled title/category and continuing still
+    // picks it up instead of landing on a blank form.
     if (draft.title !== title || draft.categoryId !== categoryId) return null;
+    sessionStorage.removeItem(LISTING_DRAFT_KEY);
     return draft;
   } catch {
     return null;

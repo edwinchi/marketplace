@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -49,7 +49,11 @@ export function NewListingStep1({
     });
   }
 
+  const analyzeInFlight = useRef(false);
+
   async function handlePhotoSelected(file: File) {
+    if (analyzeInFlight.current) return;
+    analyzeInFlight.current = true;
     setAnalyzeError(null);
     setAiDescription(null);
     setAiCategoryLabel(null);
@@ -84,6 +88,8 @@ export function NewListingStep1({
         reader2.readAsDataURL(file);
       } catch {
         setAnalyzeError("Couldn't analyze that photo — try again or fill in the details yourself below.");
+      } finally {
+        analyzeInFlight.current = false;
       }
     });
   }

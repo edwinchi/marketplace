@@ -4,6 +4,7 @@ import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import { getCategoriesAndAttributes } from "@/lib/categories";
 import { isAdminEmail } from "@/lib/admin";
+import { parseJsonResponse } from "@/lib/ai-text";
 
 // Free tier: 5 uses per registered account, then an honest "upgrade" prompt — there's no payment
 // processor wired up yet to actually charge for more (see /my-account/ai-features), so this just
@@ -40,9 +41,9 @@ function usageFromRow(row: UsageRow | null, isAdmin: boolean) {
 // Exported so the listing-creation pages (Server Components) can show "N free uses left" before
 // the user ever uploads a photo, not just after — a plain read, no API call, so it costs nothing
 // to show proactively.
-export async function getAiUsageStatus(): Promise<{ usesLeft: number; freeLimit: number; unlimited: boolean }> {
+export async function getAiUsageStatus(): Promise<{ usesLeft: number; freeLimit: number; effectiveLimit: number; unlimited: boolean }> {
   const { user, profile } = await getCurrentUserAndProfile();
-  if (!user || !profile) return { usesLeft: 0, freeLimit: FREE_USE_LIMIT, unlimited: false };
+  if (!user || !profile) return { usesLeft: 0, freeLimit: FREE_USE_LIMIT, effectiveLimit: FREE_USE_LIMIT, unlimited: false };
   const supabase = await createClient();
   const { data: usageRow } = await supabase
     .from("profiles")
@@ -50,7 +51,7 @@ export async function getAiUsageStatus(): Promise<{ usesLeft: number; freeLimit:
     .eq("id", profile.id)
     .single();
   const usage = usageFromRow(usageRow, isAdminEmail(user.email));
-  return { usesLeft: usage.usesLeft, freeLimit: FREE_USE_LIMIT, unlimited: usage.unlimited };
+  return { usesLeft: usage.usesLeft, freeLimit: FREE_USE_LIMIT, effectiveLimit: usage.effectiveLimit, unlimited: usage.unlimited };
 }
 
 // Routed through OpenRouter (an OpenAI-compatible gateway that proxies to many providers,
@@ -132,6 +133,7 @@ If the photo doesn't clearly show a sellable item, respond with {"title": "", "d
   // fail the whole request when another free model would work.
   let res: Response | null = null;
   let lastStatus = 0;
+  let networkError = false;
   for (const model of modelsToTry) {
     try {
       res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -141,7 +143,7 @@ If the photo doesn't clearly show a sellable item, respond with {"title": "", "d
           authorization: `Bearer ${apiKey}`,
           // OpenRouter attributes usage to the calling app with these — optional, but keeps this
           // off their anonymous-traffic bucket.
-          "http-referer": "https://marketplace.apps-pilot.nl",
+          "http-referer": "https://afrodeals.net",
           "x-title": "AfroDeals",
         },
         body: JSON.stringify({
@@ -160,8 +162,13 @@ If the photo doesn't clearly show a sellable item, respond with {"title": "", "d
           ],
         }),
       });
+      networkError = false;
     } catch {
-      return { data: null, error: "Couldn't reach the photo analysis service. Check your connection and try again.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
+      // A blip on this one model shouldn't forfeit the whole fallback chain -- try the next model
+      // instead of giving up immediately, same as a retryable HTTP status below.
+      res = null;
+      networkError = true;
+      continue;
     }
     if (res.ok) break;
     lastStatus = res.status;
@@ -169,6 +176,9 @@ If the photo doesn't clearly show a sellable item, respond with {"title": "", "d
   }
 
   if (!res || !res.ok) {
+    if (!res && networkError) {
+      return { data: null, error: "Couldn't reach the photo analysis service. Check your connection and try again.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
+    }
     if (lastStatus === 429) return { data: null, error: "Photo analysis is busy right now — try again in a moment.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
     if (lastStatus === 402) return { data: null, error: "Photo analysis is temporarily unavailable — the account behind it needs more credits.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
     return { data: null, error: `Photo analysis failed (${lastStatus}). Try again in a moment.`, usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
@@ -179,18 +189,22 @@ If the photo doesn't clearly show a sellable item, respond with {"title": "", "d
   // their free tries. A real completed API call did happen at this point, win or lose below.
   // Still incremented for unlimited (subscribed/admin) accounts too -- keeps ai_photo_analysis_uses
   // an honest lifetime-usage count even though it no longer gates access for them.
-  await supabase.from("profiles").update({ ai_photo_analysis_uses: usesSoFar + 1 }).eq("id", profile.id);
-  const usesLeftAfter = unlimited ? effectiveLimit : Math.max(0, effectiveLimit - (usesSoFar + 1));
+  // Atomic DB-side increment (see supabase/migrations/20260101005300_atomic_ai_usage_increment.sql)
+  // rather than writing back usesSoFar + 1 -- two concurrent calls for the same profile (a
+  // double-fired click, a retried request) would otherwise both read the same starting count and
+  // each write count + 1, charging one real fill twice while the stored count only moved by one.
+  const { data: newCount, error: incrementError } = await supabase.rpc("increment_ai_photo_analysis_uses", { p_profile_id: profile.id });
+  if (incrementError) console.error(`Failed to increment ai_photo_analysis_uses for profile ${profile.id}:`, incrementError);
+  const usesAfter = newCount ?? usesSoFar + 1;
+  const usesLeftAfter = unlimited ? effectiveLimit : Math.max(0, effectiveLimit - usesAfter);
 
   const json = await res.json();
   const content = json?.choices?.[0]?.message?.content;
   const text: string =
     typeof content === "string" ? content : Array.isArray(content) ? content.map((p: { text?: string }) => p?.text ?? "").join("") : "";
 
-  let parsed: { title?: string; description?: string; category?: string };
-  try {
-    parsed = JSON.parse(text);
-  } catch {
+  const parsed = parseJsonResponse<{ title?: string; description?: string; category?: string }>(text);
+  if (!parsed) {
     return { data: null, error: "Couldn't make sense of that photo — try a clearer, closer shot of the item.", usesLeft: usesLeftAfter, freeLimit: FREE_USE_LIMIT, unlimited };
   }
 
@@ -198,7 +212,13 @@ If the photo doesn't clearly show a sellable item, respond with {"title": "", "d
     return { data: null, error: "Couldn't identify a sellable item in that photo — try a different photo.", usesLeft: usesLeftAfter, freeLimit: FREE_USE_LIMIT, unlimited };
   }
 
-  const matched = categoryOptions.find((c) => c.label.trim().toLowerCase() === parsed.category!.trim().toLowerCase());
+  // Tolerates the model swapping the "→" for a plain "-"/"->" or trimming spaces around it --
+  // free fallback models don't always reproduce the exact unicode arrow despite the prompt
+  // spelling it out, and a false "couldn't match category" after a use has already been charged
+  // is a bad experience for something purely cosmetic in the model's answer.
+  const normalizeCategoryLabel = (s: string) => s.trim().toLowerCase().replace(/\s*(?:->|-{1,2}>|→)\s*/g, " → ");
+  const wantedCategory = normalizeCategoryLabel(parsed.category);
+  const matched = categoryOptions.find((c) => normalizeCategoryLabel(c.label) === wantedCategory);
   if (!matched) {
     return { data: null, error: "Identified the item but couldn't match it to a category — please pick one manually below.", usesLeft: usesLeftAfter, freeLimit: FREE_USE_LIMIT, unlimited };
   }

@@ -44,6 +44,8 @@ type Props = {
   attributes: AttributeDef[];
   action: (state: ListingFormState, formData: FormData) => Promise<ListingFormState>;
   seller: { name: string; email: string; websiteUrl: string | null };
+  initialUsesLeft: number;
+  unlimited: boolean;
 };
 
 function SectionHeading({ icon: Icon, children }: { icon: React.ComponentType<{ className?: string }>; children: React.ReactNode }) {
@@ -57,7 +59,7 @@ function SectionHeading({ icon: Icon, children }: { icon: React.ComponentType<{ 
   );
 }
 
-export function NewListingStep2Form({ categoryId, categoryPath, title, attributes, action, seller }: Props) {
+export function NewListingStep2Form({ categoryId, categoryPath, title, attributes, action, seller, initialUsesLeft, unlimited }: Props) {
   const [state, formAction, pending] = useActionState(action, { error: null } as ListingFormState);
   const titleRef = useRef<HTMLInputElement>(null);
 
@@ -90,7 +92,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
   const [analyzing, startAnalyzing] = useTransition();
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
   const [categoryMismatch, setCategoryMismatch] = useState<string | null>(null);
-  const [usesLeft, setUsesLeft] = useState<number | null>(null);
+  const [usesLeft, setUsesLeft] = useState<number | null>(initialUsesLeft);
 
   // Plate lookup (RDW, Dutch-registered vehicles only — see lib/rdw.ts) is only useful once the
   // category actually has car-specific fields; fuel_type is only ever attached to the Cars
@@ -129,9 +131,12 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
     });
   }
 
+  const analyzeInFlight = useRef(false);
+
   function analyzeFromPhotos() {
     const cover = currentPhotos[0];
-    if (!cover) return;
+    if (!cover || analyzeInFlight.current) return;
+    analyzeInFlight.current = true;
     setAnalyzeError(null);
     setCategoryMismatch(null);
     startAnalyzing(async () => {
@@ -149,6 +154,8 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
         if (data.categoryId !== categoryId) setCategoryMismatch(data.categoryLabel);
       } catch {
         setAnalyzeError("Couldn't analyze that photo — try again.");
+      } finally {
+        analyzeInFlight.current = false;
       }
     });
   }
@@ -206,7 +213,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={currentPhotos.length === 0 || analyzing}
+                disabled={currentPhotos.length === 0 || analyzing || (!unlimited && usesLeft === 0)}
                 onClick={analyzeFromPhotos}
                 className="shrink-0 gap-1.5"
               >
@@ -319,9 +326,13 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
             name="description"
             required
             rows={6}
+            disabled={analyzing}
             defaultValue={draftDescription}
             className="text-base leading-relaxed md:text-base"
           />
+          {analyzing && (
+            <p className="text-xs text-muted-foreground">Description is locked while AI writes a draft — it&apos;ll unlock in a few seconds.</p>
+          )}
         </div>
       </section>
 
