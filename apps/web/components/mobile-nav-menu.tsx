@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Menu, X, MessageCircle, Bell, User, Megaphone } from "lucide-react";
+import { Menu, X, MessageCircle, Bell, User, Megaphone, BookOpen } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 // Hamburger for the mobile header's secondary controls. Messages/Notifications/Account/Post an ad
@@ -72,6 +72,12 @@ export function MobileNavMenu({
               </Link>
             </li>
             <li>
+              <Link href="/welcome" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]">
+                <BookOpen className="size-4 text-muted-foreground" />
+                {t("howItWorks")}
+              </Link>
+            </li>
+            <li>
               <Link href="/notifications" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]">
                 <Bell className="size-4 text-muted-foreground" />
                 {t("notifications")}
@@ -98,11 +104,6 @@ export function MobileNavMenu({
           </div>
           <div className="my-2 border-t" />
           <ul className="flex flex-col gap-0.5 pt-1">
-            <li>
-              <Link href="/welcome" onClick={() => setOpen(false)} className="block rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]">
-                {t("howItWorks")}
-              </Link>
-            </li>
             <li>
               <Link href="/help" onClick={() => setOpen(false)} className="block rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]">
                 {t("helpInfo")}

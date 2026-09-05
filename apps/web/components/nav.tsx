@@ -49,7 +49,14 @@ export async function Nav() {
             Absolute positioning frees the logo from that track entirely so it renders at its
             true size, while `left-1/2 -translate-x-1/2` still centers it on the full bar
             width regardless of the side groups' differing widths. */}
-        <div className="fixed inset-x-0 top-0 z-30 flex items-center justify-between gap-3 border-b bg-background px-4 py-3 sm:hidden">
+        {/* [transform:translate3d(0,0,0)] + will-change-transform: forces this fixed element onto
+            its own stable GPU compositing layer -- without it, iOS Safari can briefly repaint a
+            `position: fixed` element from scratch mid-scroll instead of keeping it pinned on its
+            own layer, letting scrolled-past page content flash through it for a frame. A fully
+            opaque background alone (bg-background here) doesn't prevent this -- it's a compositing
+            issue, not a color one. Chromium (this project's own Playwright checks) doesn't
+            reproduce it, which is why this wasn't caught until testing on a real iPhone. */}
+        <div className="fixed inset-x-0 top-0 z-30 flex origin-top-left transform-[translate3d(0,0,0)] items-center justify-between gap-3 border-b bg-background px-4 py-3 will-change-transform sm:hidden">
           <MobileNavMenu
             languageSwitcher={<LanguageSwitcher locale={locale} disabledLocales={[...disabledLocales]} />}
             currencySwitcher={<CurrencySwitcher currency={displayCurrency} />}
@@ -95,7 +102,7 @@ export async function Nav() {
             that menu's panel is `absolute`, and this row's own `overflow-x-auto` would clip it
             vertically the moment the row scrolls, since setting overflow on one axis resolves the
             other to `auto` too. */}
-        <div className="fixed inset-x-0 top-20 z-20 border-b bg-background shadow-[0_1px_2px_rgba(0,0,0,0.03)] sm:hidden">
+        <div className="fixed inset-x-0 top-20 z-20 origin-top-left transform-[translate3d(0,0,0)] border-b bg-background shadow-[0_1px_2px_rgba(0,0,0,0.03)] will-change-transform sm:hidden">
           {/* Right-edge fade instead of a hard cut -- signals "more to scroll" the way a native
               carousel does, rather than reading as content silently clipped by the viewport. */}
           <div className="flex items-center gap-1.5 overflow-x-auto px-3 py-2 [-ms-overflow-style:none] [mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent)] [scrollbar-width:none] [-webkit-mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent)] [&::-webkit-scrollbar]:hidden">
@@ -145,31 +152,17 @@ export async function Nav() {
             background, letting scrolled-past page content show through there while stuck. */}
         <div className="hidden border-b bg-background sm:block">
           <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-            {/* shrink-0: this is a flex item in the header's own outer row alongside the utility
-                <nav> on the right -- without it, a moderately narrow desktop window (a laptop at
-                ~900px, not just mobile) let the row's default flex-shrink squeeze the logo and
-                "How it works" down below their natural size, wrapping the link's two words onto
-                separate lines instead of leaving them full width. */}
-            <div className="flex shrink-0 items-center gap-6">
-              <Link href="/" aria-label="AfroDeals home" className="shrink-0">
-                {/* Plain <img>, not next/image — this is a small, rarely-changing static brand
-                    asset, and Next's dynamic image-optimizer route (/_next/image) has shown
-                    ETag/conditional-request staleness in dev that a source-file replacement didn't
-                    bust (confirmed: the raw /logo.png and a fresh-width optimizer request both
-                    returned the new file, but the browser's actual rendered request kept getting a
-                    304 against old cached bytes). Serving it as-is sidesteps that whole class of bug
-                    — no runtime resizing needed for a logo this size anyway. */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo.png" alt="AfroDeals" className="h-16 w-auto" />
-              </Link>
-              {/* xl, not md or lg: measured live at 900/1024/1280px -- the utility row on the right
-                  (language, currency, messages, notifications, account, Post an ad) already fills
-                  1024px to the point of clipping "Post an ad" off the edge, and only 1280px+ had
-                  real room to spare. Showing this any earlier reintroduces that overflow. */}
-              <Link href="/welcome" className="hidden shrink-0 text-sm font-medium whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground xl:inline-block">
-                {t("howItWorks")}
-              </Link>
-            </div>
+            <Link href="/" aria-label="AfroDeals home" className="shrink-0">
+              {/* Plain <img>, not next/image — this is a small, rarely-changing static brand
+                  asset, and Next's dynamic image-optimizer route (/_next/image) has shown
+                  ETag/conditional-request staleness in dev that a source-file replacement didn't
+                  bust (confirmed: the raw /logo.png and a fresh-width optimizer request both
+                  returned the new file, but the browser's actual rendered request kept getting a
+                  304 against old cached bytes). Serving it as-is sidesteps that whole class of bug
+                  — no runtime resizing needed for a logo this size anyway. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo.png" alt="AfroDeals" className="h-16 w-auto" />
+            </Link>
             <nav className="flex items-center gap-1 sm:gap-2">
               <LanguageSwitcher locale={locale} disabledLocales={[...disabledLocales]} />
               <CurrencySwitcher currency={displayCurrency} />
@@ -185,6 +178,14 @@ export async function Nav() {
                   </span>
                 )}
               </NavIconLink>
+              {/* xl, not md or lg: measured live at 900/1024/1280px -- this whole utility row
+                  already fills 1024px to the point of clipping "Post an ad" off the edge, and only
+                  1280px+ had real room to spare. Showing this any earlier reintroduces that
+                  overflow -- previously sat beside the logo instead, moved here (right after
+                  Messages) per a later request. */}
+              <Link href="/welcome" className="hidden shrink-0 px-1.5 text-sm font-medium whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground xl:inline-block">
+                {t("howItWorks")}
+              </Link>
               <NavIconLink
                 href="/notifications"
                 className="flex items-center gap-1.5 rounded-md px-1.5 py-1.5 text-sm text-muted-foreground transition-all duration-150 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground sm:px-2"
@@ -216,7 +217,7 @@ export async function Nav() {
         </div>
       </header>
 
-      <nav className="fixed inset-x-0 bottom-0 z-10 flex border-t bg-background md:hidden print:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-10 flex origin-bottom-left transform-[translate3d(0,0,0)] border-t bg-background will-change-transform md:hidden print:hidden">
         <Link href="/" className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs text-muted-foreground transition-colors active:bg-muted active:text-primary">
           <Home className="size-5" />
           {t("browse")}
