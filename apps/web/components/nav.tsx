@@ -87,61 +87,26 @@ export async function Nav() {
         </div>
         <div className="h-20 sm:hidden" aria-hidden="true" />
 
-        {/* Mobile quick-access bar — fixed directly under the header (not part of the page's
-            scroll flow), so Messages/Notifications/Account/Post an ad stay one tap away exactly
-            like the desktop header keeps them, instead of requiring a trip back to the top or into
-            the hamburger menu. `top-20` sits it flush against the header's own real height (the
-            h-20 spacer above); its own height is reserved below by the h-14 spacer, the same
-            two-spacer pairing the header itself already relies on.
-
-            The inner row scrolls horizontally (own scrollbar hidden) rather than wrapping or
-            shrinking its labels -- four full-width labels don't reliably fit a phone's width once
-            translated (French/Arabic run longer than English), and clipping the last item off the
-            edge silently, which a plain `flex` row would do here, is worse than an occasional
-            one-finger swipe. Account is a plain link, not the dropdown <AccountMenu> desktop uses:
-            that menu's panel is `absolute`, and this row's own `overflow-x-auto` would clip it
-            vertically the moment the row scrolls, since setting overflow on one axis resolves the
-            other to `auto` too. */}
-        <div className="fixed inset-x-0 top-20 z-20 origin-top-left transform-[translate3d(0,0,0)] border-b bg-background shadow-[0_1px_2px_rgba(0,0,0,0.03)] will-change-transform sm:hidden">
-          {/* Right-edge fade instead of a hard cut -- signals "more to scroll" the way a native
-              carousel does, rather than reading as content silently clipped by the viewport. */}
-          <div className="flex items-center gap-1.5 overflow-x-auto px-3 py-2 [-ms-overflow-style:none] [mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent)] [scrollbar-width:none] [-webkit-mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent)] [&::-webkit-scrollbar]:hidden">
-            <Link
-              href="/messages"
-              className="relative flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors active:bg-muted active:text-foreground"
-            >
-              <MessageCircle className="size-4" />
-              {t("messages")}
-              {unreadCount > 0 && (
-                <span className="absolute top-0.5 right-0.5 flex size-3.5 items-center justify-center rounded-full bg-primary text-[9px] font-semibold text-primary-foreground">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </span>
-              )}
-            </Link>
-            <Link
-              href="/notifications"
-              className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors active:bg-muted active:text-foreground"
-            >
-              <Bell className="size-4" />
-              {t("notifications")}
-            </Link>
-            <Link
-              href={user ? "/my-account/profile" : "/login"}
-              className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors active:bg-muted active:text-foreground"
-            >
-              <User className="size-4" />
-              <span className="max-w-20 truncate">{user ? profile?.username || t("myAccount") : t("signIn")}</span>
-            </Link>
-            <Link
-              href="/listings/new"
-              className="ml-auto flex shrink-0 items-center gap-1.5 rounded-full bg-[#008200] px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition-transform duration-150 active:scale-95 active:bg-[#006800]"
-            >
-              <Megaphone className="size-3.5" />
-              {t("postAd")}
-            </Link>
-          </div>
+        {/* Mobile Post an ad bar — fixed directly under the header, not part of the page's scroll
+            flow. Messages/Notifications/Account used to also live here, but they're already one
+            tap away in the hamburger menu (see mobile-nav-menu.tsx's Quick access section), so
+            they were dropped from here as pure duplication. Post an ad stays: it's "the single
+            most important button on the page" (see the desktop header's own button below), worth
+            keeping permanently visible rather than one tap deeper. `top-20` sits it flush against
+            the header's own real height (the h-20 spacer above); its own height is reserved below
+            by the h-13.25 spacer -- confirmed live via getBoundingClientRect (53px exactly, not
+            the h-14/56px this used before): the 3px gap between the two, uncovered by any fixed
+            element, let scrolled listing content peek through it right above the button. */}
+        <div className="fixed inset-x-0 top-20 z-20 origin-top-left transform-[translate3d(0,0,0)] border-b bg-background px-3 py-2 shadow-[0_1px_2px_rgba(0,0,0,0.03)] will-change-transform sm:hidden">
+          <Link
+            href="/listings/new"
+            className="flex items-center justify-center gap-1.5 rounded-full bg-[#008200] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-transform duration-150 active:scale-95 active:bg-[#006800]"
+          >
+            <Megaphone className="size-4" />
+            {t("postAd")}
+          </Link>
         </div>
-        <div className="h-14 sm:hidden" aria-hidden="true" />
+        <div className="h-13.25 sm:hidden" aria-hidden="true" />
 
         {/* Desktop header — sticky (not just the mobile bar) so it stays visible while scrolling
             any page, not only /welcome's own in-page sticky section nav. The sticky/border/bg
