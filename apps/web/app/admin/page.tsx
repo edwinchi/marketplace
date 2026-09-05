@@ -4,6 +4,7 @@ import {
   Building2, User as UserIcon, TrendingUp, MapPin, Tag, Clock,
 } from "lucide-react";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { createServiceClient } from "@/lib/supabase/service";
 import { isAdminEmail } from "@/lib/admin";
 import { getAdminStats } from "@/lib/admin-stats";
 import { formatPrice } from "@/lib/money";
@@ -13,6 +14,7 @@ import { LanguageToggles } from "@/components/admin/language-toggles";
 import { CollapsedLimitSetting } from "@/components/admin/collapsed-limit-setting";
 import { ListenFreeAccessToggle } from "@/components/admin/listen-free-access-toggle";
 import { BuyerFeeSettings } from "@/components/admin/buyer-fee-settings";
+import { BackfillEmbeddingsButton } from "@/components/admin/backfill-embeddings-button";
 import { getRequireLoginSetting, getListenFreeAccessSetting } from "@/lib/app-settings";
 import { getDisabledLocales } from "@/lib/language-settings";
 import { getNumericSetting } from "@/lib/numeric-settings";
@@ -105,7 +107,7 @@ export default async function AdminDashboardPage() {
   const { user } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) return <AdminLoginScreen />;
 
-  const [stats, requireLogin, disabledLocales, collapsedLimit, listenFreeAccess, buyerFeePercent, buyerFeeMin, buyerFeeMax] = await Promise.all([
+  const [stats, requireLogin, disabledLocales, collapsedLimit, listenFreeAccess, buyerFeePercent, buyerFeeMin, buyerFeeMax, { count: embeddingsRemaining }] = await Promise.all([
     getAdminStats(),
     getRequireLoginSetting(),
     getDisabledLocales(),
@@ -114,6 +116,10 @@ export default async function AdminDashboardPage() {
     getNumericSetting("buyer_fee_percent_x100"),
     getNumericSetting("buyer_fee_min_cents"),
     getNumericSetting("buyer_fee_max_cents"),
+    // Service-role client, not the normal RLS-bound one -- this needs a true count across every
+    // seller's listings (RLS's listing_read policy would otherwise only count active listings plus
+    // this admin's own).
+    createServiceClient().from("listings").select("id", { count: "exact", head: true }).is("title_embedding", null).neq("status", "deleted"),
   ]);
   const maxCategory = Math.max(1, ...stats.topCategories.map(([, c]) => c));
   const maxCity = Math.max(1, ...stats.topCities.map(([, c]) => c));
@@ -141,6 +147,9 @@ export default async function AdminDashboardPage() {
         </div>
         <div className="rounded-xl border bg-card p-5 shadow-sm">
           <BuyerFeeSettings initial={{ percentX100: buyerFeePercent, minCents: buyerFeeMin, maxCents: buyerFeeMax }} />
+        </div>
+        <div className="rounded-xl border bg-card p-5 shadow-sm">
+          <BackfillEmbeddingsButton initialRemaining={embeddingsRemaining ?? 0} />
         </div>
       </div>
 

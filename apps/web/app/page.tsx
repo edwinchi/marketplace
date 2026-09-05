@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getCategoriesAndAttributes, getCategoryDescendantIds } from "@/lib/categories";
+import { getTextEmbedding } from "@/lib/embeddings";
 import { slugPath } from "@/lib/slug";
 import { ListingGrid } from "@/components/listing-grid";
 import { CategoryQuickNav } from "@/components/category-quicknav";
@@ -23,21 +24,21 @@ export default async function HomePage({
 
   // Filtering by an embedded resource's column (locations.city) requires an inner join in
   // PostgREST's embed syntax — a plain left-embed silently ignores that filter.
+  const listingSelect = city
+    ? "id, title, price_minor, currency_code, locations!inner(city), listing_media(storage_key, sort_order)"
+    : "id, title, price_minor, currency_code, locations(city), listing_media(storage_key, sort_order)";
   let query = supabase
     .from("listings")
-    .select(
-      city
-        ? "id, title, price_minor, currency_code, locations!inner(city), listing_media(storage_key, sort_order)"
-        : "id, title, price_minor, currency_code, locations(city), listing_media(storage_key, sort_order)",
-    )
+    .select(listingSelect)
     .eq("status", "active")
     .order("published_at", { ascending: false })
     .limit(90);
 
-  if (category && category !== "all") {
+  const categoryIds = category && category !== "all" ? await getCategoryDescendantIds(category) : null;
+  if (categoryIds) {
     // Match the category itself and every descendant — a listing tagged under a leaf like "Cars >
     // Passenger cars" should still show up when filtering by the top-level "Cars".
-    query = query.in("category_id", await getCategoryDescendantIds(category));
+    query = query.in("category_id", categoryIds);
   }
   if (city) query = query.ilike("locations.city", city);
   if (q) {
@@ -55,6 +56,32 @@ export default async function HomePage({
   ]);
   const favoritedIds = new Set((favorites ?? []).map((f) => f.listing_id));
   const selectedCategory = categoryOptions.find((c) => c.id === category);
+
+  // Semantic search: surfaces listings that mean the same thing as the query without sharing its
+  // exact words (e.g. "phone" -> "smartphone"/"iPhone" listings) as a "related" tier below the
+  // keyword matches above, rather than replacing them — a plain substring match on an exact brand
+  // or model name is still the more precise result and should stay first. Skipped entirely (no
+  // fabricated "related" section) whenever there's no query, or the embedding call fails/isn't
+  // configured -- see lib/embeddings.ts's own best-effort design.
+  let relatedListings: NonNullable<typeof listings> = [];
+  if (q) {
+    const matchedIds = new Set((listings ?? []).map((l) => l.id));
+    const embedding = await getTextEmbedding(q);
+    if (embedding) {
+      const { data: matches } = await supabase.rpc("match_listings_by_embedding", {
+        query_embedding: embedding as unknown as string,
+        filter_category_ids: categoryIds,
+        filter_city: city || null,
+        match_count: 30,
+      });
+      const relatedIds = (matches ?? []).map((m) => m.id).filter((id) => !matchedIds.has(id));
+      if (relatedIds.length > 0) {
+        const { data: relatedRows } = await supabase.from("listings").select(listingSelect).in("id", relatedIds);
+        const rankById = new Map((matches ?? []).map((m, i) => [m.id, i]));
+        relatedListings = [...(relatedRows ?? [])].sort((a, b) => (rankById.get(a.id) ?? 0) - (rankById.get(b.id) ?? 0));
+      }
+    }
+  }
 
   return (
     <div className="flex flex-1 flex-col">
@@ -140,7 +167,14 @@ export default async function HomePage({
 
           <ListingGrid listings={listings ?? []} favoritedIds={favoritedIds} signedIn={!!profile} />
 
-          {!listings?.length && (
+          {relatedListings.length > 0 && (
+            <div className="mt-8">
+              <h2 className="mb-4 border-b pb-4 text-sm font-semibold text-muted-foreground">{t("relatedToYourSearch")}</h2>
+              <ListingGrid listings={relatedListings} favoritedIds={favoritedIds} signedIn={!!profile} />
+            </div>
+          )}
+
+          {!listings?.length && !relatedListings.length && (
             <div className="mt-8 flex flex-col items-center gap-2 rounded-xl border border-dashed py-12 text-center">
               <p className="text-muted-foreground">{t("noListingsYet")}</p>
               <Link href="/listings/new" className="font-medium text-primary underline underline-offset-4 hover:no-underline">
