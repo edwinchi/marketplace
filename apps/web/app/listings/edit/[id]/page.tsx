@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getCategoriesAndAttributes } from "@/lib/categories";
 import { updateListing } from "@/app/listings/actions";
+import { getAiUsageStatus } from "@/app/listings/new/analyze-photo-action";
+import { resolveMediaUrl } from "@/lib/media";
 import { ListingForm } from "@/components/listing-form";
 import { slugPath } from "@/lib/slug";
 
@@ -24,7 +26,12 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
   if (!listing) notFound();
   if (listing.seller_id !== profile.id) redirect(`/listings/${slugPath(listing.title, id)}`);
 
-  const { categoryOptions, attributesByCategory } = await getCategoriesAndAttributes();
+  const [{ categoryOptions, attributesByCategory }, { data: media }, aiUsage] = await Promise.all([
+    getCategoriesAndAttributes(),
+    supabase.from("listing_media").select("storage_key").eq("listing_id", id).eq("media_type", "image").order("sort_order").limit(1),
+    getAiUsageStatus(),
+  ]);
+  const coverPhotoUrl = media?.[0] ? resolveMediaUrl(media[0].storage_key, process.env.NEXT_PUBLIC_SUPABASE_URL!) : null;
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8">
@@ -36,6 +43,8 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
         action={updateListing.bind(null, id)}
         submitLabel="Save changes"
         hideLocation
+        coverPhotoUrl={coverPhotoUrl}
+        aiUsage={aiUsage}
         initial={{
           title: listing.title,
           description: listing.description,

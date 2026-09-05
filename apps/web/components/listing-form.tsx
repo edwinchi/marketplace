@@ -1,10 +1,14 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState, useTransition } from "react";
+import { Sparkles } from "lucide-react";
+import Link from "next/link";
 import type { AttributeDef, CategoryOption } from "@/lib/categories";
 import { SUPPORTED_CURRENCIES } from "@/lib/money";
 import { ANCHOR_COUNTRIES } from "@/lib/countries";
 import type { ListingFormState } from "@/app/listings/actions";
+import { analyzeListingPhoto } from "@/app/listings/new/analyze-photo-action";
+import { fileToResizedBase64 } from "@/lib/image";
 import { AttributeField } from "@/components/listing-attribute-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,23 +30,126 @@ type Props = {
     websiteUrl?: string | null;
   };
   hideLocation?: boolean;
+  // Present only on the edit form — lets a seller re-run AI against the listing's existing cover
+  // photo to refresh the title/description, the same analysis new-listing-step2-form.tsx offers,
+  // just sourced from the photo already on the listing instead of a fresh upload (editing doesn't
+  // have photo-management UI yet).
+  coverPhotoUrl?: string | null;
+  aiUsage?: { usesLeft: number; freeLimit: number; unlimited: boolean };
 };
 
-export function ListingForm({ categoryOptions, attributesByCategory, action, submitLabel, initial, hideLocation }: Props) {
+export function ListingForm({ categoryOptions, attributesByCategory, action, submitLabel, initial, hideLocation, coverPhotoUrl, aiUsage }: Props) {
   const [state, formAction, pending] = useActionState(action, { error: null } as ListingFormState);
   const [categoryId, setCategoryId] = useState(initial?.categoryId ?? "");
   const attributes = attributesByCategory[categoryId] ?? [];
 
+  const titleRef = useRef<HTMLInputElement>(null);
+  const [analyzing, startAnalyzing] = useTransition();
+  const [analyzeError, setAnalyzeError] = useState<string | null>(null);
+  const [aiDescription, setAiDescription] = useState<string | null>(null);
+  const [categoryMismatch, setCategoryMismatch] = useState<string | null>(null);
+  const [usesLeft, setUsesLeft] = useState<number | null>(aiUsage?.usesLeft ?? null);
+
+  function analyzeCoverPhoto() {
+    if (!coverPhotoUrl) return;
+    setAnalyzeError(null);
+    setCategoryMismatch(null);
+    startAnalyzing(async () => {
+      try {
+        const blob = await fetch(coverPhotoUrl).then((r) => r.blob());
+        const file = new File([blob], "cover.jpg", { type: blob.type || "image/jpeg" });
+        const { base64, mediaType } = await fileToResizedBase64(file);
+        const { data, error, usesLeft: left } = await analyzeListingPhoto(base64, mediaType);
+        setUsesLeft(left);
+        if (error || !data) {
+          setAnalyzeError(error ?? "Couldn't analyze that photo.");
+          return;
+        }
+        if (titleRef.current) titleRef.current.value = data.title;
+        setAiDescription(data.description);
+        if (data.categoryId !== categoryId) setCategoryMismatch(data.categoryLabel);
+      } catch {
+        setAnalyzeError("Couldn't analyze that photo — try again.");
+      }
+    });
+  }
+
   return (
     <form action={formAction} className="flex flex-col gap-4">
+      {coverPhotoUrl && aiUsage && (
+        <div className="rounded-lg border bg-muted/30 p-4">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Sparkles className="size-4 text-primary" />
+              <h2 className="text-sm font-semibold">Refresh with AI</h2>
+            </div>
+            {!aiUsage.unlimited && usesLeft === 0 && (
+              <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                0 free uses left
+              </span>
+            )}
+          </div>
+          <div className="flex items-start gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element -- existing listing photo, already a fixed remote URL */}
+            <img src={coverPhotoUrl} alt="" className="size-16 shrink-0 rounded-md border object-cover" />
+            <div className="flex-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={analyzing || (usesLeft !== null && usesLeft === 0 && !aiUsage.unlimited)}
+                onClick={analyzeCoverPhoto}
+                className="gap-1.5"
+              >
+                <Sparkles className="size-4 text-primary" />
+                {analyzing ? "Analyzing…" : "Fill in title & description with AI"}
+              </Button>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                {analyzing && "Looking at your cover photo…"}
+                {!analyzing && analyzeError && <span className="text-destructive">{analyzeError}</span>}
+                {!analyzing && !analyzeError && "Re-analyzes your current cover photo — review the result before saving."}
+              </p>
+              {categoryMismatch && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  This might fit better under <span className="font-medium text-foreground">{categoryMismatch}</span> — change the category below if so.
+                </p>
+              )}
+              {!aiUsage.unlimited && usesLeft !== null && usesLeft > 0 && usesLeft <= 2 && (
+                <p className="mt-1 text-xs text-amber-600">
+                  {usesLeft} free AI {usesLeft === 1 ? "use" : "uses"} left —{" "}
+                  <Link href="/my-account/ai-features" className="underline underline-offset-2">see what's next</Link>.
+                </p>
+              )}
+              {!aiUsage.unlimited && usesLeft === 0 && (
+                <p className="mt-1 text-xs text-amber-600">
+                  That was your last free AI use —{" "}
+                  <Link href="/my-account/ai-features" className="underline underline-offset-2">upgrade for more</Link>.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="title">Title</Label>
-        <Input id="title" name="title" required maxLength={160} defaultValue={initial?.title} />
+        <Input ref={titleRef} id="title" name="title" required maxLength={160} defaultValue={initial?.title} />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="description">Description</Label>
-        <Textarea id="description" name="description" required rows={5} defaultValue={initial?.description} />
+        <div className="flex items-center justify-between">
+          <Label htmlFor="description">Description</Label>
+          {aiDescription && (
+            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Sparkles className="size-3 text-primary" />
+              AI-generated — please review
+            </span>
+          )}
+        </div>
+        {/* key forces a remount when AI fills this in, the same trick new-listing-step2-form.tsx
+            uses -- defaultValue (uncontrolled, like every other field in this form) only applies
+            on first mount otherwise. */}
+        <Textarea key={aiDescription ?? "initial"} id="description" name="description" required rows={5} defaultValue={aiDescription ?? initial?.description} />
       </div>
 
       <div className="flex flex-col gap-1.5">

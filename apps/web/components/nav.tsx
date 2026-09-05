@@ -95,7 +95,7 @@ export async function Nav() {
             that menu's panel is `absolute`, and this row's own `overflow-x-auto` would clip it
             vertically the moment the row scrolls, since setting overflow on one axis resolves the
             other to `auto` too. */}
-        <div className="fixed inset-x-0 top-20 z-20 border-b bg-background/95 shadow-[0_1px_2px_rgba(0,0,0,0.03)] backdrop-blur-md sm:hidden">
+        <div className="fixed inset-x-0 top-20 z-20 border-b bg-background shadow-[0_1px_2px_rgba(0,0,0,0.03)] sm:hidden">
           {/* Right-edge fade instead of a hard cut -- signals "more to scroll" the way a native
               carousel does, rather than reading as content silently clipped by the viewport. */}
           <div className="flex items-center gap-1.5 overflow-x-auto px-3 py-2 [-ms-overflow-style:none] [mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent)] [scrollbar-width:none] [-webkit-mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent)] [&::-webkit-scrollbar]:hidden">
@@ -145,8 +145,13 @@ export async function Nav() {
             background, letting scrolled-past page content show through there while stuck. */}
         <div className="hidden border-b bg-background sm:block">
           <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-            <div className="flex items-center gap-6">
-              <Link href="/" aria-label="AfroDeals home">
+            {/* shrink-0: this is a flex item in the header's own outer row alongside the utility
+                <nav> on the right -- without it, a moderately narrow desktop window (a laptop at
+                ~900px, not just mobile) let the row's default flex-shrink squeeze the logo and
+                "How it works" down below their natural size, wrapping the link's two words onto
+                separate lines instead of leaving them full width. */}
+            <div className="flex shrink-0 items-center gap-6">
+              <Link href="/" aria-label="AfroDeals home" className="shrink-0">
                 {/* Plain <img>, not next/image — this is a small, rarely-changing static brand
                     asset, and Next's dynamic image-optimizer route (/_next/image) has shown
                     ETag/conditional-request staleness in dev that a source-file replacement didn't
@@ -157,11 +162,11 @@ export async function Nav() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/logo.png" alt="AfroDeals" className="h-16 w-auto" />
               </Link>
-              {/* Hidden below md, not just sm: the utility row on the right (language, currency,
-                  messages, notifications, account, Post an ad) already shows icon labels from
-                  sm upward, so this tier is its most crowded -- giving this link its own, later
-                  breakpoint keeps it from fighting that row for space on a tablet-width screen. */}
-              <Link href="/welcome" className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground md:inline-block">
+              {/* xl, not md or lg: measured live at 900/1024/1280px -- the utility row on the right
+                  (language, currency, messages, notifications, account, Post an ad) already fills
+                  1024px to the point of clipping "Post an ad" off the edge, and only 1280px+ had
+                  real room to spare. Showing this any earlier reintroduces that overflow. */}
+              <Link href="/welcome" className="hidden shrink-0 text-sm font-medium whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground xl:inline-block">
                 {t("howItWorks")}
               </Link>
             </div>
