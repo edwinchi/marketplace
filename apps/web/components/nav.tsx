@@ -98,6 +98,13 @@ export async function Nav() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/logo.png" alt="AfroDeals" className="h-16 w-auto" />
               </Link>
+              {/* Hidden below md, not just sm: the utility row on the right (language, currency,
+                  messages, notifications, account, Post an ad) already shows icon labels from
+                  sm upward, so this tier is its most crowded -- giving this link its own, later
+                  breakpoint keeps it from fighting that row for space on a tablet-width screen. */}
+              <Link href="/welcome" className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground md:inline-block">
+                {t("howItWorks")}
+              </Link>
             </div>
             <nav className="flex items-center gap-1 sm:gap-2">
               <LanguageSwitcher locale={locale} disabledLocales={[...disabledLocales]} />

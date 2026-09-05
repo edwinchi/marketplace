@@ -20,5 +20,6 @@ export async function getDisabledLocales(): Promise<Set<string>> {
 
 export async function setLocaleEnabled(locale: string, enabled: boolean): Promise<void> {
   const supabase = createServiceClient();
-  await supabase.from("language_settings").upsert({ locale, enabled, updated_at: new Date().toISOString() });
+  const { error } = await supabase.from("language_settings").upsert({ locale, enabled, updated_at: new Date().toISOString() });
+  if (error) throw new Error(error.message);
 }

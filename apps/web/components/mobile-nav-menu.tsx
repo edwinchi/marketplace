@@ -53,6 +53,11 @@ export function MobileNavMenu({ languageSwitcher, currencySwitcher }: { language
           <div className="my-2 border-t" />
           <ul className="flex flex-col gap-0.5 pt-1">
             <li>
+              <Link href="/welcome" onClick={() => setOpen(false)} className="block rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]">
+                {t("howItWorks")}
+              </Link>
+            </li>
+            <li>
               <Link href="/help" onClick={() => setOpen(false)} className="block rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]">
                 {t("helpInfo")}
               </Link>

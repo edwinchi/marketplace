@@ -10,5 +10,6 @@ export async function getRequireLoginSetting(): Promise<boolean> {
 
 export async function setRequireLoginSetting(value: boolean) {
   const supabase = createServiceClient();
-  await supabase.from("app_settings").upsert({ key: "require_login", value, updated_at: new Date().toISOString() });
+  const { error } = await supabase.from("app_settings").upsert({ key: "require_login", value, updated_at: new Date().toISOString() });
+  if (error) throw new Error(error.message);
 }
