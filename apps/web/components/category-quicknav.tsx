@@ -24,9 +24,20 @@ type QuickNavCategory = { id: string; label: string; stableKey: string };
 // wrapper div containing nothing but this component is exactly as tall as the component itself,
 // leaving zero room). Rendering this as a direct child of each page's tall outer container instead
 // gives it the whole page's height to stay stuck within.
+//
+// A flat border read as an abrupt seam once this is actually floating over scrolled content
+// instead of sitting in the page's normal flow -- a shadow instead (heavier on mobile's full-bleed
+// bar, the same rounded-border-shadow "card" treatment this project already uses elsewhere for
+// everything else on desktop, where it sits within the content column rather than bleeding to the
+// viewport edge) reads as a deliberately elevated toolbar rather than a stray line.
 export function CategoryQuickNav({ categories, activeId, className }: { categories: QuickNavCategory[]; activeId?: string; className?: string }) {
   return (
-    <div className={cn("sticky top-20 z-20 -mx-4 flex gap-5 overflow-x-auto border-b bg-background px-4 py-3 sm:top-[89px] sm:mx-0 sm:flex-wrap sm:border-b-0 sm:px-0 sm:py-0", className)}>
+    <div
+      className={cn(
+        "sticky top-20 z-20 -mx-4 flex gap-5 overflow-x-auto bg-background px-4 py-3 shadow-[0_6px_16px_-8px_rgba(0,0,0,0.18)] sm:top-[89px] sm:mx-0 sm:flex-wrap sm:rounded-xl sm:border sm:px-5 sm:py-4 sm:shadow-sm",
+        className,
+      )}
+    >
       {categories.map((c) => {
         const active = c.id === activeId;
         return (
