@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { User, Heart, Handshake, List, LogOut, Search, UserCheck, Eye, Receipt, Sparkles } from "lucide-react";
+import { User, Heart, Handshake, List, LogOut, Search, UserCheck, Eye, Receipt, Sparkles, BarChart3 } from "lucide-react";
 import { signOut } from "@/app/auth/signout/actions";
 import { Button } from "@/components/ui/button";
 
@@ -17,7 +17,10 @@ const NAV_GROUPS = [
   },
   {
     groupKey: "selling" as const,
-    items: [{ href: "/my-account/my-listings", key: "myListings" as const, icon: List }],
+    items: [
+      { href: "/my-account/my-listings", key: "myListings" as const, icon: List },
+      { href: "/my-account/seller-insights", key: "sellerInsights" as const, icon: BarChart3 },
+    ],
   },
   {
     groupKey: "buying" as const,
