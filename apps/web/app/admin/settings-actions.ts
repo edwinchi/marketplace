@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { isAdminEmail } from "@/lib/admin";
-import { setRequireLoginSetting } from "@/lib/app-settings";
+import { setRequireLoginSetting, setListenFreeAccessSetting } from "@/lib/app-settings";
 import { setLocaleEnabled } from "@/lib/language-settings";
 import { setNumericSetting } from "@/lib/numeric-settings";
 
@@ -12,6 +12,16 @@ export async function updateRequireLoginSetting(value: boolean) {
   if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
 
   await setRequireLoginSetting(value);
+  revalidatePath("/admin");
+}
+
+export async function updateListenFreeAccessSetting(value: boolean) {
+  const { user } = await getCurrentUserAndProfile();
+  if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
+
+  await setListenFreeAccessSetting(value);
+  // getCanListen() reads this fresh on every request (no caching layer of its own), so it takes
+  // effect for the very next page load site-wide -- /admin is the only route rendering the value.
   revalidatePath("/admin");
 }
 
