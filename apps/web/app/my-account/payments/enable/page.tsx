@@ -71,6 +71,9 @@ export default async function EnablePaymentsPage({
           {error === "not_configured" && (
             <p className="text-sm text-destructive">Payments aren&apos;t fully set up on this server yet — try again later.</p>
           )}
+          {error === "connect_not_ready" && (
+            <p className="text-sm text-destructive">Payments aren&apos;t fully turned on yet — try again shortly.</p>
+          )}
           <form action={startConnectOnboarding}>
             <Button type="submit" className="gap-1.5">
               {started ? "Continue setup" : "Connect your bank account"}

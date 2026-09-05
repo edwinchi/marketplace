@@ -21,27 +21,39 @@ export async function startConnectOnboarding() {
   const { data: row } = await supabase.from("profiles").select("stripe_connect_account_id").eq("id", profile.id).single();
   let accountId = row?.stripe_connect_account_id ?? undefined;
 
-  if (!accountId) {
-    const account = await stripe.accounts.create({
-      type: "express",
-      email: user.email ?? undefined,
-      metadata: { profile_id: profile.id },
+  // Both Stripe calls below throw if Connect hasn't been activated on this account yet (Settings
+  // -> Connect in the Stripe Dashboard) -- a real, one-time setup step Stripe requires a human to
+  // click through, not something the API can do on our behalf (confirmed live: accounts.create
+  // fails with "You can only create new accounts if you've signed up for Connect" until then).
+  // Left uncaught, that crashed to the generic error boundary instead of degrading honestly.
+  let accountLinkUrl: string;
+  try {
+    if (!accountId) {
+      const account = await stripe.accounts.create({
+        type: "express",
+        email: user.email ?? undefined,
+        metadata: { profile_id: profile.id },
+      });
+      accountId = account.id;
+      await supabase.from("profiles").update({ stripe_connect_account_id: accountId }).eq("id", profile.id);
+    }
+
+    const origin = await getSiteOrigin();
+    // refresh_url is hit if the onboarding link itself expires or the seller navigates back --
+    // sending them right back through startConnectOnboarding generates a fresh link rather than
+    // dead-ending on an expired one.
+    const accountLink = await stripe.accountLinks.create({
+      account: accountId,
+      refresh_url: `${origin}/my-account/payments/enable`,
+      return_url: `${origin}/my-account/payments/enable?onboarding=return`,
+      type: "account_onboarding",
     });
-    accountId = account.id;
-    await supabase.from("profiles").update({ stripe_connect_account_id: accountId }).eq("id", profile.id);
+    accountLinkUrl = accountLink.url;
+  } catch {
+    redirect("/my-account/payments/enable?error=connect_not_ready");
   }
 
-  const origin = await getSiteOrigin();
-  // refresh_url is hit if the onboarding link itself expires or the seller navigates back --
-  // sending them right back through startConnectOnboarding generates a fresh link rather than
-  // dead-ending on an expired one.
-  const accountLink = await stripe.accountLinks.create({
-    account: accountId,
-    refresh_url: `${origin}/my-account/payments/enable`,
-    return_url: `${origin}/my-account/payments/enable?onboarding=return`,
-    type: "account_onboarding",
-  });
-  redirect(accountLink.url);
+  redirect(accountLinkUrl);
 }
 
 // Stripe's own hosted dashboard for a connected Express account -- lets a seller see their payout
@@ -57,6 +69,12 @@ export async function openConnectDashboard() {
   const { data: row } = await supabase.from("profiles").select("stripe_connect_account_id").eq("id", profile.id).single();
   if (!row?.stripe_connect_account_id) redirect("/my-account/payments/enable");
 
-  const loginLink = await stripe.accounts.createLoginLink(row.stripe_connect_account_id);
-  redirect(loginLink.url);
+  let loginUrl: string;
+  try {
+    const loginLink = await stripe.accounts.createLoginLink(row.stripe_connect_account_id);
+    loginUrl = loginLink.url;
+  } catch {
+    redirect("/my-account/payments/enable?error=connect_not_ready");
+  }
+  redirect(loginUrl);
 }

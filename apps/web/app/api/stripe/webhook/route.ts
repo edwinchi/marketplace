@@ -7,8 +7,13 @@ import { createServiceClient } from "@/lib/supabase/service";
 // calling this server-to-server, authenticated only by the webhook signature below.
 export async function POST(request: Request) {
   const stripe = getStripe();
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  if (!stripe || !webhookSecret) return NextResponse.json({ error: "Stripe not configured" }, { status: 503 });
+  // Two separate Stripe webhook endpoints point at this same URL, each with its own signing
+  // secret: a regular one for platform-account events (checkout/subscriptions) and a Connect one
+  // (created with `connect: true`) for connected-account events (account.updated, fired when a
+  // seller's own Express account status changes) -- Stripe doesn't let one endpoint subscribe to
+  // both categories with a single secret. Try the platform secret first since it's the common case.
+  const webhookSecrets = [process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_CONNECT_WEBHOOK_SECRET].filter((s): s is string => !!s);
+  if (!stripe || webhookSecrets.length === 0) return NextResponse.json({ error: "Stripe not configured" }, { status: 503 });
 
   const signature = request.headers.get("stripe-signature");
   if (!signature) return NextResponse.json({ error: "Missing signature" }, { status: 400 });
@@ -16,11 +21,18 @@ export async function POST(request: Request) {
   // Signature verification needs the exact raw body bytes -- request.text() here, never
   // request.json(), which would re-serialize and invalidate the signature.
   const rawBody = await request.text();
-  let event: Stripe.Event;
-  try {
-    event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
-  } catch (err) {
-    return NextResponse.json({ error: `Invalid signature: ${err instanceof Error ? err.message : "unknown"}` }, { status: 400 });
+  let event: Stripe.Event | null = null;
+  let lastError: unknown;
+  for (const secret of webhookSecrets) {
+    try {
+      event = stripe.webhooks.constructEvent(rawBody, signature, secret);
+      break;
+    } catch (err) {
+      lastError = err;
+    }
+  }
+  if (!event) {
+    return NextResponse.json({ error: `Invalid signature: ${lastError instanceof Error ? lastError.message : "unknown"}` }, { status: 400 });
   }
 
   const supabase = createServiceClient();
