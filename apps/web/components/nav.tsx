@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
-import { Home, PlusCircle, User, MessageCircle, Bell, Megaphone } from "lucide-react";
+import { Home, PlusCircle, User, MessageCircle, Bell, PackagePlus } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getUnreadMessageCount } from "@/lib/messages";
@@ -87,27 +87,6 @@ export async function Nav() {
         </div>
         <div className="h-20 sm:hidden" aria-hidden="true" />
 
-        {/* Mobile Post an ad bar — fixed directly under the header, not part of the page's scroll
-            flow. Messages/Notifications/Account used to also live here, but they're already one
-            tap away in the hamburger menu (see mobile-nav-menu.tsx's Quick access section), so
-            they were dropped from here as pure duplication. Post an ad stays: it's "the single
-            most important button on the page" (see the desktop header's own button below), worth
-            keeping permanently visible rather than one tap deeper. `top-20` sits it flush against
-            the header's own real height (the h-20 spacer above); its own height is reserved below
-            by the h-13.25 spacer -- confirmed live via getBoundingClientRect (53px exactly, not
-            the h-14/56px this used before): the 3px gap between the two, uncovered by any fixed
-            element, let scrolled listing content peek through it right above the button. */}
-        <div className="fixed inset-x-0 top-20 z-20 origin-top-left transform-[translate3d(0,0,0)] border-b bg-background px-3 py-2 shadow-[0_1px_2px_rgba(0,0,0,0.03)] will-change-transform sm:hidden">
-          <Link
-            href="/listings/new"
-            className="flex items-center justify-center gap-1.5 rounded-full bg-[#008200] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-transform duration-150 active:scale-95 active:bg-[#006800]"
-          >
-            <Megaphone className="size-4" />
-            {t("postAd")}
-          </Link>
-        </div>
-        <div className="h-13.25 sm:hidden" aria-hidden="true" />
-
         {/* Desktop header — sticky (not just the mobile bar) so it stays visible while scrolling
             any page, not only /welcome's own in-page sticky section nav. The sticky/border/bg
             layer is this full-width outer div, with the max-w-[1600px] content constraint as an
@@ -174,7 +153,7 @@ export async function Nav() {
                 className: "ml-1 h-11 gap-2 rounded-full px-5 text-sm font-semibold shadow-sm transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-md",
               })}
             >
-              <Megaphone className="size-4.5" />
+              <PackagePlus className="size-4.5" />
               {t("postAd")}
             </Link>
             </nav>
