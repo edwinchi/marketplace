@@ -7,6 +7,7 @@ import { getAiUsageStatus } from "@/app/listings/new/analyze-photo-action";
 import { startSellerProCheckout, startTopUpCheckout, openBillingPortal } from "@/app/my-account/ai-features/checkout-action";
 import { getStripe, SELLER_PRO_PRICE_ID, AI_TOPUP_PRICE_ID, AI_TOPUP_USES, getPriceDisplay } from "@/lib/stripe";
 import { buttonVariants, Button } from "@/components/ui/button";
+import { PlanInfoDialog } from "@/components/ai-features/plan-info-dialog";
 import { cn } from "@/lib/utils";
 
 const PLANNED_FEATURES = [
@@ -110,7 +111,20 @@ export default async function AiFeaturesPage({
           </span>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="text-base font-semibold text-[#082040]">Photo autofill</h2>
+              <span className="flex items-center gap-1.5">
+                <h2 className="text-base font-semibold text-[#082040]">Photo autofill</h2>
+                <PlanInfoDialog
+                  triggerLabel="What's included in the Free plan"
+                  title="Free"
+                  tagline="What every registered account gets, no payment needed."
+                  features={[
+                    `${usage.freeLimit} AI photo autofill uses — upload a photo, get a title, description, and category to review`,
+                    "Full access to buy, sell, and message on AfroDeals",
+                    "No credit card required",
+                  ]}
+                  note="Once your free uses run out, Seller Pro or a one-time top-up picks up from there — everything else on the site keeps working either way."
+                />
+              </span>
               {usage.unlimited ? (
                 <span className="flex items-center gap-1 rounded-full bg-[#008848]/10 px-2.5 py-1 text-xs font-semibold text-[#046637]">
                   <Zap className="size-3" /> Unlimited{isSubscribed ? " — Seller Pro" : ""}
@@ -176,7 +190,17 @@ export default async function AiFeaturesPage({
                   Best value
                 </span>
                 <div>
-                  <p className="text-lg font-bold">Seller Pro</p>
+                  <p className="flex items-center gap-1.5 text-lg font-bold">
+                    Seller Pro
+                    <PlanInfoDialog
+                      triggerLabel="What's included in Seller Pro"
+                      title="Seller Pro"
+                      price={sellerProPrice ?? undefined}
+                      tagline="A monthly subscription for sellers who post regularly."
+                      features={SELLER_PRO_INCLUDES}
+                      note="Billed monthly through Stripe. Cancel anytime from the Manage subscription button — no minimum commitment."
+                    />
+                  </p>
                   <p className="mt-0.5 flex items-baseline gap-1">
                     <span className="text-3xl font-extrabold tracking-tight">{sellerProPrice ?? "—"}</span>
                   </p>
@@ -201,7 +225,21 @@ export default async function AiFeaturesPage({
 
               <div className="flex flex-col gap-4 rounded-2xl border bg-card p-6 shadow-sm">
                 <div>
-                  <p className="text-lg font-bold text-[#082040]">Top-up</p>
+                  <p className="flex items-center gap-1.5 text-lg font-bold text-[#082040]">
+                    Top-up
+                    <PlanInfoDialog
+                      triggerLabel="What's included in a Top-up"
+                      title="Top-up"
+                      price={topUpPrice ?? undefined}
+                      tagline="A one-time purchase, no subscription — for occasional sellers."
+                      features={[
+                        `+${AI_TOPUP_USES} AI photo autofill uses, added to your account immediately`,
+                        "Uses never expire",
+                        "Buy again anytime you run low",
+                      ]}
+                      note="This is a single payment, not a recurring charge — you won't be billed again unless you buy another top-up."
+                    />
+                  </p>
                   <p className="mt-0.5 flex items-baseline gap-1">
                     <span className="text-3xl font-extrabold tracking-tight text-[#082040]">{topUpPrice ?? "—"}</span>
                   </p>
