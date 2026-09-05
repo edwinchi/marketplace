@@ -183,9 +183,9 @@ export async function Nav() {
                   1280px+ had real room to spare. Showing this any earlier reintroduces that
                   overflow -- previously sat beside the logo instead, moved here (right after
                   Messages) per a later request. */}
-              <Link href="/welcome" className="hidden shrink-0 px-1.5 text-sm font-medium whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground xl:inline-block">
+              <NavIconLink href="/welcome" className="hidden shrink-0 rounded-md px-1.5 py-1.5 text-sm font-medium whitespace-nowrap text-muted-foreground transition-colors hover:bg-muted hover:text-foreground xl:inline-block">
                 {t("howItWorks")}
-              </Link>
+              </NavIconLink>
               <NavIconLink
                 href="/notifications"
                 className="flex items-center gap-1.5 rounded-md px-1.5 py-1.5 text-sm text-muted-foreground transition-all duration-150 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground sm:px-2"
