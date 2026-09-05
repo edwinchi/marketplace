@@ -13,7 +13,7 @@ export function ListingRowActions({ listingId, status }: { listingId: string; st
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <Link href={`/listings/edit/${listingId}`} className={buttonVariants({ variant: "outline", size: "sm" })}>
         Edit
       </Link>
@@ -72,7 +72,7 @@ export function ListingRowActions({ listingId, status }: { listingId: string; st
             </DialogDescription>
           </DialogHeader>
           {error && <p className="text-sm text-destructive">{error}</p>}
-          <div className="mt-3 flex justify-end gap-2">
+          <div className="mt-3 flex flex-wrap justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
             <Button
               type="button"

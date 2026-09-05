@@ -95,7 +95,7 @@ function ReportButton({ listingId, signedIn }: { listingId: string; signedIn: bo
               />
               {error && <p className="text-sm text-destructive">{error}</p>}
             </div>
-            <div className="mt-3 flex justify-end gap-2">
+            <div className="mt-3 flex flex-wrap justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
               <Button type="button" variant="destructive" disabled={!reason || pending} onClick={submit}>
                 {pending ? "Sending…" : "Submit report"}

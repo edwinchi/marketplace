@@ -12,7 +12,7 @@ export default function NotFound() {
       <p className="text-sm text-muted-foreground">
         This page doesn't exist, or the listing it pointed to may have been removed or sold.
       </p>
-      <div className="mt-2 flex gap-3">
+      <div className="mt-2 flex flex-wrap justify-center gap-3">
         <Link href="/" className={buttonVariants({ variant: "default" })}>
           Back to home
         </Link>

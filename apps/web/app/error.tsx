@@ -19,7 +19,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
       <p className="text-sm text-muted-foreground">
         That's on us, not you — try again, and let us know if it keeps happening.
       </p>
-      <div className="mt-2 flex gap-3">
+      <div className="mt-2 flex flex-wrap justify-center gap-3">
         <Button onClick={reset}>Try again</Button>
         <Link href="/feedback" className={buttonVariants({ variant: "outline" })}>
           Report this

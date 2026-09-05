@@ -250,7 +250,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
           </section>
 
           {isOwner && (
-            <div className="mt-6 flex gap-2">
+            <div className="mt-6 flex flex-wrap gap-2">
               <Link href={`/listings/edit/${listing.id}`} className={buttonVariants({ variant: "outline", className: "transition-transform duration-150 hover:-translate-y-0.5" })}>
                 {t("edit")}
               </Link>

@@ -91,7 +91,7 @@ export default async function MyAccountPage() {
             <Badge variant={fullProfile?.email_verified ? "default" : "outline"} className="mt-1 w-fit">
               {fullProfile?.email_verified ? t("emailVerified") : t("emailNotVerified")}
             </Badge>
-            <div className="mt-2 flex gap-2">
+            <div className="mt-2 flex flex-wrap gap-2">
               <Link href="/identity/v2/change-email/initiate" className={buttonVariants({ variant: "outline", size: "sm", className: "transition-transform duration-150 hover:-translate-y-0.5" })}>
                 {t("changeEmail")}
               </Link>
@@ -120,7 +120,7 @@ export default async function MyAccountPage() {
           </CardHeader>
           <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
             <p>{t("sellingBody")}</p>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Link href="/my-account/my-listings" className={buttonVariants({ variant: "outline", size: "sm", className: "transition-transform duration-150 hover:-translate-y-0.5" })}>{t("myListings")}</Link>
               <Link href="/listings/new" className={buttonVariants({ size: "sm", className: "transition-transform duration-150 hover:-translate-y-0.5" })}>{t("postAd")}</Link>
             </div>
