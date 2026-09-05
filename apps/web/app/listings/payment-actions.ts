@@ -65,6 +65,15 @@ export async function startOrderPayment(listingId: string) {
 
   const { data: buyerRow } = await supabase.from("profiles").select("stripe_customer_id").eq("id", profile.id).single();
   let customerId = buyerRow?.stripe_customer_id ?? undefined;
+  // A stored id only resolves under the mode (test/live) it was created in -- see the identical
+  // guard and real-world crash this fixed in app/my-account/ai-features/checkout-action.ts.
+  if (customerId) {
+    try {
+      await stripe.customers.retrieve(customerId);
+    } catch {
+      customerId = undefined;
+    }
+  }
   if (!customerId) {
     const customer = await stripe.customers.create({ email: user.email ?? undefined, metadata: { profile_id: profile.id } });
     customerId = customer.id;

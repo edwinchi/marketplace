@@ -22,6 +22,18 @@ async function startCheckout(mode: "subscription" | "payment", priceId: string |
   // narrow on purpose), so it's fetched separately here rather than widened everywhere.
   const { data: stripeRow } = await supabase.from("profiles").select("stripe_customer_id").eq("id", profile.id).single();
   let customerId = stripeRow?.stripe_customer_id ?? undefined;
+  // A stored id only actually resolves under the same mode (test/live) it was created in -- a
+  // customer created while testing with a test key 404s here the first time this runs for real
+  // against a live key (confirmed live: "a similar object exists in test mode, but a live mode
+  // key was used"), and that was an uncaught crash before this check existed. Treat that exactly
+  // like "no customer yet" rather than failing the whole checkout.
+  if (customerId) {
+    try {
+      await stripe.customers.retrieve(customerId);
+    } catch {
+      customerId = undefined;
+    }
+  }
   if (!customerId) {
     const customer = await stripe.customers.create({ email: user.email ?? undefined, metadata: { profile_id: profile.id } });
     customerId = customer.id;
@@ -63,9 +75,18 @@ export async function openBillingPortal() {
   if (!stripeRow?.stripe_customer_id) redirect("/my-account/ai-features");
 
   const origin = await getSiteOrigin();
-  const session = await stripe.billingPortal.sessions.create({
-    customer: stripeRow.stripe_customer_id,
-    return_url: `${origin}/my-account/ai-features`,
-  });
-  redirect(session.url);
+  let portalUrl: string;
+  try {
+    const session = await stripe.billingPortal.sessions.create({
+      customer: stripeRow.stripe_customer_id,
+      return_url: `${origin}/my-account/ai-features`,
+    });
+    portalUrl = session.url;
+  } catch {
+    // Same test/live-mode mismatch this file's other function guards against, but there's no
+    // sensible "create a fresh customer" fallback for managing a subscription that, under this
+    // mode, doesn't exist -- an honest bounce beats a crash.
+    redirect("/my-account/ai-features?error=not_configured");
+  }
+  redirect(portalUrl);
 }
