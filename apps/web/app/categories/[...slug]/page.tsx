@@ -130,9 +130,13 @@ export default async function CategoryPage({
       <>
         <div className="mx-auto w-full max-w-[1600px] px-4 pt-2 sm:px-6 lg:px-8">
           <Breadcrumbs path={breadcrumbPath} />
-          <div className="mt-4">
-            <CategoryQuickNav categories={topLevelCategories} activeId={topLevelActiveId} />
-          </div>
+          {/* This page's own containing block for the sticky row is only this div (Breadcrumbs
+              plus the row itself) -- CarsLanding below is a separate top-level sibling, not nested
+              inside it, so unlike the other two branches of this page this one doesn't have the
+              full page's height to actually stay stuck within. Left as-is (computes sticky
+              correctly, just without the visible benefit) rather than restructuring CarsLanding's
+              own wrapping without first understanding its internal layout. */}
+          <CategoryQuickNav categories={topLevelCategories} activeId={topLevelActiveId} className="mt-4" />
         </div>
         <CarsLanding
           carsRootId={id}
@@ -242,9 +246,7 @@ export default async function CategoryPage({
     return (
       <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
         <Breadcrumbs path={breadcrumbPath} />
-        <div className="mt-4 mb-6">
-          <CategoryQuickNav categories={topLevelCategories} activeId={topLevelActiveId} />
-        </div>
+        <CategoryQuickNav categories={topLevelCategories} activeId={topLevelActiveId} className="mt-4 mb-6" />
         <h1 className="mb-6 text-2xl font-semibold">{directory.self.name}</h1>
         <CategoryDirectoryGrid groups={groups} collapsedLimit={collapsedLimit} />
 
@@ -268,9 +270,7 @@ export default async function CategoryPage({
           below; revisit once real pagination exists for categories with more than a page of
           listings. */}
       <Breadcrumbs path={breadcrumbPath} resultCount={forYouListings?.length ?? 0} />
-      <div className="mt-4 mb-6">
-        <CategoryQuickNav categories={topLevelCategories} activeId={topLevelActiveId} />
-      </div>
+      <CategoryQuickNav categories={topLevelCategories} activeId={topLevelActiveId} className="mt-4 mb-6" />
 
       <CategoryGallery images={galleryImages} />
 
