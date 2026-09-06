@@ -49,6 +49,20 @@ export async function getAdminStats() {
     supabase.from("profiles").select("id, username, display_name, account_type, created_at").order("created_at", { ascending: false }).limit(8),
   ]);
 
+  // Real per-day visitor counts (see app/api/track-visit/route.ts) -- last 14 days, UTC-dated.
+  // Today's own count is whatever's landed so far, not a full day's worth yet.
+  const fourteenDaysAgo = new Date(Date.now() - 13 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  const { data: visitorRows } = await supabase
+    .from("daily_visitor_counts")
+    .select("day, count")
+    .gte("day", fourteenDaysAgo)
+    .order("day", { ascending: true });
+  const today = new Date().toISOString().slice(0, 10);
+  const visitorsToday = visitorRows?.find((r) => r.day === today)?.count ?? 0;
+  const visitorsLast7Days = (visitorRows ?? [])
+    .filter((r) => r.day > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10))
+    .reduce((sum, r) => sum + r.count, 0);
+
   const totalAiUses = (aiUsageRows ?? []).reduce((sum, r) => sum + (r.ai_photo_analysis_uses ?? 0), 0);
 
   // Real GMV-style total, converted to a single display currency (USD) via the same live
@@ -93,6 +107,9 @@ export async function getAdminStats() {
     totalFavorites: totalFavorites ?? 0,
     totalReviews: totalReviews ?? 0,
     totalAiUses,
+    visitorsToday,
+    visitorsLast7Days,
+    visitorsByDay: (visitorRows ?? []).map((r) => ({ day: r.day, count: r.count })),
     totalValueUsd,
     valueConvertedFrom: convertedCount,
     valueTotalActive: activeListingPrices?.length ?? 0,

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
   Users, Store, MessageSquare, Heart, Handshake, Star, Sparkles, DollarSign,
-  Building2, User as UserIcon, TrendingUp, MapPin, Tag, Clock,
+  Building2, User as UserIcon, TrendingUp, MapPin, Tag, Clock, Eye,
 } from "lucide-react";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createServiceClient } from "@/lib/supabase/service";
@@ -158,6 +158,7 @@ export default async function AdminDashboardPage() {
 
       {/* Primary KPIs */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard icon={Eye} label="Visitors today" value={stats.visitorsToday} sublabel={`${stats.visitorsLast7Days} in the last 7 days`} accent="bg-[#008848]/10 text-[#008848]" />
         <StatCard icon={Users} label="Total users" value={stats.totalUsers} sublabel={`${stats.businessUsers} business · ${stats.privateUsers} private`} accent="bg-[#082040]/10 text-[#082040]" />
         <StatCard icon={Store} label="Active listings" value={stats.activeListings} sublabel={`${stats.deletedListings} removed`} accent="bg-[#e89818]/10 text-[#e89818]" />
         <StatCard
@@ -177,6 +178,19 @@ export default async function AdminDashboardPage() {
         <StatCard icon={Heart} label="Favorites" value={stats.totalFavorites} accent="bg-muted text-foreground" />
         <StatCard icon={Star} label="Reviews" value={stats.totalReviews} accent="bg-muted text-foreground" />
       </div>
+
+      {stats.visitorsByDay.length > 0 && (
+        <div className="mt-8 rounded-xl border bg-card p-5 shadow-sm">
+          <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#082040]">
+            <Eye className="size-4" /> Visitors, last 14 days
+          </h2>
+          <div className="flex flex-col gap-2.5">
+            {[...stats.visitorsByDay].reverse().map(({ day, count }) => (
+              <BarRow key={day} label={day} count={count} max={Math.max(1, ...stats.visitorsByDay.map((d) => d.count))} />
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Top categories */}

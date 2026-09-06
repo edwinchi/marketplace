@@ -7,6 +7,7 @@ import "./globals.css";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
+import { VisitTracker } from "@/components/visit-tracker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -67,6 +68,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <main className="flex flex-1 flex-col pb-20">{children}</main>
           <Footer />
           <CookieConsentBanner />
+          <VisitTracker />
         </NextIntlClientProvider>
       </body>
     </html>

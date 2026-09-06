@@ -628,6 +628,21 @@ export type Database = {
           },
         ]
       }
+      daily_visitor_counts: {
+        Row: {
+          count: number
+          day: string
+        }
+        Insert: {
+          count?: number
+          day: string
+        }
+        Update: {
+          count?: number
+          day?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string
@@ -2333,6 +2348,7 @@ export type Database = {
       current_profile_id: { Args: never; Returns: string }
       increment_ai_bonus_uses: { Args: { p_amount: number; p_profile_id: string }; Returns: number }
       increment_ai_photo_analysis_uses: { Args: { p_profile_id: string }; Returns: number }
+      increment_daily_visitor_count: { Args: { p_day: string }; Returns: undefined }
       increment_listing_view_count: { Args: { p_listing_id: string }; Returns: undefined }
       match_listings_by_embedding: {
         Args: { filter_category_ids?: string[] | null; filter_city?: string | null; match_count?: number; query_embedding: string }
