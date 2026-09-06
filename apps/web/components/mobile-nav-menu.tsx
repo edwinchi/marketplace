@@ -31,7 +31,16 @@ export function MobileNavMenu({
   useEffect(() => {
     if (!open) return;
     function onClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      const target = e.target as Node;
+      if (ref.current && ref.current.contains(target)) return;
+      // The language/currency switchers below render their dropdown options through a portal to
+      // document.body (see components/ui/select.tsx) -- they're never a DOM descendant of `ref`
+      // even while visually inside this panel. Without this check, tapping "Français" (or any
+      // currency) closed this whole menu via this same handler on mousedown, before the Select's
+      // own click handling could commit the selection -- silently swallowing every attempt to
+      // change language or currency from the mobile menu.
+      if (target instanceof Element && target.closest('[data-slot="select-content"]')) return;
+      setOpen(false);
     }
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") setOpen(false);
