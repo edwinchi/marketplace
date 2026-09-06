@@ -10,6 +10,8 @@ import { toMinorUnits } from "@/lib/money";
 import type { Database } from "@/lib/supabase/database.types";
 import { slugPath } from "@/lib/slug";
 import { getTextEmbedding } from "@/lib/embeddings";
+import { isSellerProSubscriber } from "@/lib/seller-pro";
+import { translateListing } from "./translate-action";
 
 type AttributeValueInsert = Database["public"]["Tables"]["listing_attribute_values"]["Insert"];
 
@@ -27,6 +29,20 @@ function enqueueEmbedding(supabase: Awaited<ReturnType<typeof createClient>>, li
     if (!embedding) return;
     const { error } = await supabase.from("listings").update({ title_embedding: embedding as unknown as string }).eq("id", listingId);
     if (error) console.error(`Failed to store title_embedding for listing ${listingId}:`, error);
+  });
+}
+
+// Same after()-scheduled, best-effort pattern as enqueueEmbedding above. Checks eligibility first
+// (rather than just calling translateListing and swallowing its error) so a seller without Seller
+// Pro access -- by far the common case whenever the admin's global unlock (app_settings.
+// seller_pro_global_unlock, see lib/seller-pro.ts) is off -- doesn't log a spurious "not eligible"
+// error on every single listing save site-wide; a real translation failure once someone IS
+// eligible still gets logged.
+function enqueueTranslation(listingId: string) {
+  after(async () => {
+    if (!(await isSellerProSubscriber())) return;
+    const { error } = await translateListing(listingId, "fr");
+    if (error) console.error(`Failed to auto-translate listing ${listingId}:`, error);
   });
 }
 
@@ -228,6 +244,7 @@ export async function createListing(_prevState: ListingFormState, formData: Form
   }
 
   enqueueEmbedding(supabase, listing.id, title, description);
+  enqueueTranslation(listing.id);
 
   revalidatePath("/");
   redirect(`/listings/${slugPath(title, listing.id)}`);
@@ -277,6 +294,7 @@ export async function updateListing(
   }
 
   enqueueEmbedding(supabase, listingId, title, description);
+  enqueueTranslation(listingId);
 
   // The real page lives at a slugged path (/listings/[...slug]) this function has no way to
   // reconstruct without a DB round-trip -- revalidating the literal route pattern instead of a
