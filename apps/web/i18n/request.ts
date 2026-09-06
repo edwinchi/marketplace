@@ -6,6 +6,13 @@ export const SUPPORTED_LOCALES = ["en", "fr", "ar", "zh"] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "en";
 export const LOCALE_COOKIE = "afrodeals_locale";
+// Matches the languages table's own direction column (see supabase/migrations/20260101000000_core.sql)
+// -- kept here rather than queried per-request since SUPPORTED_LOCALES itself is already a fixed,
+// compile-time list for this cookie-based (non-URL-prefixed) locale system.
+const RTL_LOCALES: ReadonlySet<string> = new Set(["ar"]);
+export function isRtlLocale(locale: string): boolean {
+  return RTL_LOCALES.has(locale);
+}
 
 // Cookie-based locale, deliberately not URL-prefixed (no [locale] segment) — this app already has
 // ~100 real routes under app/, and moving every one of them under app/[locale]/ would be a huge,

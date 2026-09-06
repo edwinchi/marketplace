@@ -162,17 +162,17 @@ export async function Nav() {
       </header>
 
       <nav className="fixed inset-x-0 bottom-0 z-10 flex origin-bottom-left transform-[translate3d(0,0,0)] border-t bg-background will-change-transform md:hidden print:hidden">
-        <Link href="/" className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs text-muted-foreground transition-colors active:bg-muted active:text-primary">
+        <Link href="/" className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-semibold text-[#008848] transition-colors active:bg-muted">
           <Home className="size-5" />
           {t("browse")}
         </Link>
-        <Link href="/listings/new" className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs text-muted-foreground transition-colors active:bg-muted active:text-primary">
+        <Link href="/listings/new" className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-semibold text-[#008848] transition-colors active:bg-muted">
           <PlusCircle className="size-5" />
           {t("postAdShort")}
         </Link>
         <Link
           href={user ? "/my-account" : "/login"}
-          className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs text-muted-foreground transition-colors active:bg-muted active:text-primary"
+          className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-semibold text-[#008848] transition-colors active:bg-muted"
         >
           <User className="size-5" />
           {user ? t("account") : t("signIn")}

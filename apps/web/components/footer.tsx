@@ -42,15 +42,15 @@ export async function Footer() {
           </>
         )}
 
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t pt-6 text-sm text-muted-foreground">
-          <Link href="/welcome" className="hover:text-foreground hover:underline">{tNav("howItWorks")}</Link>
-          <Link href="/help" className="hover:text-foreground hover:underline">{tNav("helpInfo")}</Link>
-          <Link href="/terms" className="hover:text-foreground hover:underline">{tNav("terms")}</Link>
-          <Link href="/safety" className="hover:text-foreground hover:underline">{tNav("safetyCenter")}</Link>
-          <Link href="/feedback" className="hover:text-foreground hover:underline">{tNav("feedback")}</Link>
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t pt-6 text-sm font-semibold text-[#008848]">
+          <Link href="/welcome" className="hover:underline">{tNav("howItWorks")}</Link>
+          <Link href="/help" className="hover:underline">{tNav("helpInfo")}</Link>
+          <Link href="/terms" className="hover:underline">{tNav("terms")}</Link>
+          <Link href="/safety" className="hover:underline">{tNav("safetyCenter")}</Link>
+          <Link href="/feedback" className="hover:underline">{tNav("feedback")}</Link>
         </div>
 
-        <div className="mt-6 border-t pt-6 text-center text-xs text-muted-foreground">
+        <div className="mt-6 border-t pt-6 text-center text-xs text-[#082040]/65">
           <p className="mx-auto max-w-2xl">{t("disclaimer")}</p>
           <p className="mx-auto mt-1 max-w-2xl">
             {t("tradeSafely")}{" "}
