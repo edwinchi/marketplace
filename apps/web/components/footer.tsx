@@ -50,7 +50,7 @@ export async function Footer() {
           <Link href="/feedback" className="hover:underline">{tNav("feedback")}</Link>
         </div>
 
-        <div className="mt-6 border-t pt-6 text-center text-xs text-[#082040]/65">
+        <div className="mt-6 border-t pt-6 text-center text-sm text-[#082040]/65">
           <p className="mx-auto max-w-2xl">{t("disclaimer")}</p>
           <p className="mx-auto mt-1 max-w-2xl">
             {t("tradeSafely")}{" "}
