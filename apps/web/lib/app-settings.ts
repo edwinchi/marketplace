@@ -30,3 +30,19 @@ export async function setListenFreeAccessSetting(value: boolean) {
   const { error } = await supabase.from("app_settings").upsert({ key: "listen_free_access", value, updated_at: new Date().toISOString() });
   if (error) throw new Error(error.message);
 }
+
+// Same idea as listen_free_access above, but for the whole Seller Pro tier (description polish,
+// price suggestion, listing translation, performance insights) rather than one feature -- lets an
+// admin unlock every Seller Pro-gated AI feature for every seller, for everyone, without anyone
+// needing a real subscription, and flip it back off just as easily. See lib/seller-pro.ts.
+export async function getSellerProGlobalUnlockSetting(): Promise<boolean> {
+  const supabase = createServiceClient();
+  const { data } = await supabase.from("app_settings").select("value").eq("key", "seller_pro_global_unlock").maybeSingle();
+  return data?.value ?? false;
+}
+
+export async function setSellerProGlobalUnlockSetting(value: boolean) {
+  const supabase = createServiceClient();
+  const { error } = await supabase.from("app_settings").upsert({ key: "seller_pro_global_unlock", value, updated_at: new Date().toISOString() });
+  if (error) throw new Error(error.message);
+}

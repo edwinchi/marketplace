@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { isAdminEmail } from "@/lib/admin";
-import { setRequireLoginSetting, setListenFreeAccessSetting } from "@/lib/app-settings";
+import { setRequireLoginSetting, setListenFreeAccessSetting, setSellerProGlobalUnlockSetting } from "@/lib/app-settings";
 import { setLocaleEnabled } from "@/lib/language-settings";
 import { setNumericSetting } from "@/lib/numeric-settings";
 
@@ -22,6 +22,17 @@ export async function updateListenFreeAccessSetting(value: boolean) {
   await setListenFreeAccessSetting(value);
   // getCanListen() reads this fresh on every request (no caching layer of its own), so it takes
   // effect for the very next page load site-wide -- /admin is the only route rendering the value.
+  revalidatePath("/admin");
+}
+
+export async function updateSellerProGlobalUnlockSetting(value: boolean) {
+  const { user } = await getCurrentUserAndProfile();
+  if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
+
+  await setSellerProGlobalUnlockSetting(value);
+  // isSellerProSubscriber() reads this fresh on every call (no caching layer of its own), so it
+  // takes effect for the very next AI-feature action/page load site-wide -- /admin is the only
+  // route rendering the value itself.
   revalidatePath("/admin");
 }
 
