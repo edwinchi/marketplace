@@ -55,9 +55,10 @@ export async function getAiUsageStatus(): Promise<{ usesLeft: number; freeLimit:
   return { usesLeft: usage.usesLeft, freeLimit: FREE_USE_LIMIT, effectiveLimit: usage.effectiveLimit, unlimited: usage.unlimited };
 }
 
-// Tries Gemini first (see lib/ai-providers.ts) if GOOGLE_AI_API_KEY is set -- it's vision-capable
-// with its own 1,500/day free quota, independent of OpenRouter's. Groq is excluded here (text-only
-// free tier, no image input); it's still used for the text-only features in lib/ai-text.ts.
+// Tries Gemini, then GitHub Models (see lib/ai-providers.ts) if their env vars are set -- both are
+// vision-capable with their own free daily quotas, independent of OpenRouter's. Groq is excluded
+// here (text-only free tier, no image input); it's still used for the text-only features in
+// lib/ai-text.ts.
 //
 // Falls through to OpenRouter (an OpenAI-compatible gateway that proxies to many providers,
 // including Claude) after that. Free vision-capable OpenRouter models first, paid Claude only as a
@@ -81,14 +82,14 @@ export async function getAiUsageStatus(): Promise<{ usesLeft: number; freeLimit:
 // written). OpenRouter's free daily-request quota (50/day on this account until it's ever purchased
 // $10+ in credits, then 1000/day permanently) counts every attempt, success or not, so this list is
 // deliberately not unlimited.
-// OPENROUTER_MODEL overrides the OpenRouter portion with one forced model, e.g. for testing.
-const OPENROUTER_FALLBACK_MODELS = [
-  "openrouter/free",
-  "google/gemma-4-31b-it:free",
-  "google/gemma-4-26b-a4b-it:free",
-  "nex-agi/nex-n2.5-pro:free",
-  "anthropic/claude-sonnet-4.5",
-];
+//
+// OPENAI_API_KEY (direct api.openai.com, paid, no free tier at all) is tried after every free
+// option including these OpenRouter free models, but before OpenRouter's own paid
+// anthropic/claude-sonnet-4.5 fallback -- gpt-4o-mini is vision-capable and far cheaper per call.
+//
+// OPENROUTER_MODEL overrides the OpenRouter free-model portion with one forced model, e.g. for testing.
+const OPENROUTER_FREE_MODELS = ["openrouter/free", "google/gemma-4-31b-it:free", "google/gemma-4-26b-a4b-it:free", "nex-agi/nex-n2.5-pro:free"];
+const OPENROUTER_PAID_MODEL = "anthropic/claude-sonnet-4.5";
 
 // Grounds the model to categories that actually exist and can be posted to (getCategoriesAndAttributes
 // already filters to is_active + allows_listings leaf categories) — it picks a label verbatim from
@@ -116,8 +117,9 @@ export async function analyzeListingPhoto(imageBase64: string, mediaType: string
     };
   }
 
-  const openRouterModels = process.env.OPENROUTER_MODEL ? [process.env.OPENROUTER_MODEL] : OPENROUTER_FALLBACK_MODELS;
-  const attempts = buildProviderAttempts(openRouterModels, true);
+  const openRouterModels = process.env.OPENROUTER_MODEL ? [process.env.OPENROUTER_MODEL] : OPENROUTER_FREE_MODELS;
+  const openRouterPaidModel = process.env.OPENROUTER_MODEL ? null : OPENROUTER_PAID_MODEL;
+  const attempts = buildProviderAttempts(openRouterModels, openRouterPaidModel, true);
   if (attempts.length === 0)
     return { data: null, error: "Photo analysis isn't set up on this server yet.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
 

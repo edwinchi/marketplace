@@ -36,10 +36,21 @@
 // first time a real GITHUB_MODELS_TOKEN is set, the same way the Groq/Gemini model picks above
 // were corrected after their originally-researched models turned out stale.
 //
-// Entirely optional: GROQ_API_KEY / GOOGLE_AI_API_KEY / GITHUB_MODELS_TOKEN are only used if
-// actually set. Get free credentials (no payment method required) at console.groq.com/keys,
-// aistudio.google.com/apikey, and github.com/settings/personal-access-tokens (fine-grained PAT,
-// "Models" permission set to read-only).
+// OpenAI direct (api.openai.com) is a fifth provider, and the only one here with no free tier at
+// all -- there is no such thing as a free/unlimited ChatGPT API; the products people call "free
+// ChatGPT" (the consumer web/app product) and "the OpenAI API" are different things, and the API
+// is metered per request regardless of which model. Per this project's cost-minimization stance
+// (see feedback_ai_api_cost_management memory: prefer free calls, only pay when genuinely needed),
+// it's placed AFTER every free provider above and after OpenRouter's own free models -- so it only
+// gets used once every free option has already failed -- and BEFORE OpenRouter's
+// anthropic/claude-sonnet-4.5 paid fallback, since gpt-4o-mini is dramatically cheaper per call
+// than a paid Claude request while still covering both text and vision.
+//
+// Entirely optional: GROQ_API_KEY / GOOGLE_AI_API_KEY / GITHUB_MODELS_TOKEN / OPENAI_API_KEY are
+// only used if actually set. Get free credentials (no payment method required) at
+// console.groq.com/keys, aistudio.google.com/apikey, and
+// github.com/settings/personal-access-tokens (fine-grained PAT, "Models" permission set to
+// read-only). OPENAI_API_KEY is paid-only -- platform.openai.com/api-keys, billing required.
 export type ProviderAttempt = {
   baseUrl: string;
   apiKey: string;
@@ -49,11 +60,18 @@ export type ProviderAttempt = {
 };
 
 const OPENROUTER_HEADERS = { "http-referer": "https://afrodeals.net", "x-title": "AfroDeals" };
+const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 // visionCapable filters out Groq (its free-tier models are text-only Llama/Qwen variants, no
-// image input) when building the attempt list for photo analysis. GitHub Models' gpt-4o-mini and
-// Gemini are both vision-capable, so they stay in the list either way.
-export function buildProviderAttempts(openRouterModels: string[], visionCapable: boolean): ProviderAttempt[] {
+// image input) when building the attempt list for photo analysis. GitHub Models' gpt-4o-mini,
+// Gemini, and OpenAI's gpt-4o-mini are all vision-capable, so they stay in the list either way.
+//
+// openRouterPaidModel is split out from openRouterFreeModels (rather than just being the last
+// entry in one list, as it used to be) so OpenAI's direct gpt-4o-mini call -- cheaper than a paid
+// OpenRouter/Claude request -- can sit between "every free option" and "the one paid OpenRouter
+// model," rather than only after ALL OpenRouter models including the expensive one. Pass null to
+// skip the paid OpenRouter attempt entirely (used for the OPENROUTER_MODEL test-override case).
+export function buildProviderAttempts(openRouterFreeModels: string[], openRouterPaidModel: string | null, visionCapable: boolean): ProviderAttempt[] {
   const attempts: ProviderAttempt[] = [];
 
   if (!visionCapable && process.env.GROQ_API_KEY) {
@@ -76,9 +94,17 @@ export function buildProviderAttempts(openRouterModels: string[], visionCapable:
 
   const openRouterKey = process.env.OPENROUTER_API_KEY;
   if (openRouterKey) {
-    for (const model of openRouterModels) {
-      attempts.push({ baseUrl: "https://openrouter.ai/api/v1/chat/completions", apiKey: openRouterKey, model, extraHeaders: OPENROUTER_HEADERS });
+    for (const model of openRouterFreeModels) {
+      attempts.push({ baseUrl: OPENROUTER_URL, apiKey: openRouterKey, model, extraHeaders: OPENROUTER_HEADERS });
     }
+  }
+
+  if (process.env.OPENAI_API_KEY) {
+    attempts.push({ baseUrl: "https://api.openai.com/v1/chat/completions", apiKey: process.env.OPENAI_API_KEY, model: "gpt-4o-mini" });
+  }
+
+  if (openRouterKey && openRouterPaidModel) {
+    attempts.push({ baseUrl: OPENROUTER_URL, apiKey: openRouterKey, model: openRouterPaidModel, extraHeaders: OPENROUTER_HEADERS });
   }
 
   return attempts;
