@@ -46,6 +46,19 @@ function enqueueTranslation(listingId: string) {
   });
 }
 
+// Same after()-scheduled, best-effort pattern as the two helpers above -- fans a "new listing"
+// notification out to every registered user who hasn't opted out (profiles.notify_new_listings,
+// default true), in one set-based INSERT ... SELECT (see
+// supabase/migrations/20260101006100_new_listing_notifications.sql) rather than fetching every
+// eligible profile id into this request and inserting row-by-row. Only wired into createListing,
+// not updateListing -- this is about new postings, not edits to existing ones.
+function enqueueNewListingNotifications(supabase: Awaited<ReturnType<typeof createClient>>, listingId: string, sellerId: string, title: string) {
+  after(async () => {
+    const { error } = await supabase.rpc("notify_new_listing", { p_listing_id: listingId, p_seller_id: sellerId, p_title: title });
+    if (error) console.error(`Failed to fan out new-listing notifications for listing ${listingId}:`, error);
+  });
+}
+
 // Dynamic attribute inputs are named attr__<attributeId>__<stableKey>__<dataType> — the form
 // already knows this from attributesByCategory (lib/categories.ts), so encoding it here avoids a
 // second server-side lookup. It's not a trust boundary: worst case a mismatched dataType just
@@ -245,6 +258,7 @@ export async function createListing(_prevState: ListingFormState, formData: Form
 
   enqueueEmbedding(supabase, listing.id, title, description);
   enqueueTranslation(listing.id);
+  enqueueNewListingNotifications(supabase, listing.id, profile.id, title);
 
   revalidatePath("/");
   redirect(`/listings/${slugPath(title, listing.id)}`);

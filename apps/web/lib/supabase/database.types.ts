@@ -1752,6 +1752,7 @@ export type Database = {
           marketing_promotions_opt_in: boolean
           marketing_surveys_opt_in: boolean
           notify_listing_favorited: boolean
+          notify_new_listings: boolean
           notify_new_messages: boolean
           notify_offers: boolean
           phone_number: string | null
@@ -1790,6 +1791,7 @@ export type Database = {
           marketing_promotions_opt_in?: boolean
           marketing_surveys_opt_in?: boolean
           notify_listing_favorited?: boolean
+          notify_new_listings?: boolean
           notify_new_messages?: boolean
           notify_offers?: boolean
           phone_number?: string | null
@@ -1828,6 +1830,7 @@ export type Database = {
           marketing_promotions_opt_in?: boolean
           marketing_surveys_opt_in?: boolean
           notify_listing_favorited?: boolean
+          notify_new_listings?: boolean
           notify_new_messages?: boolean
           notify_offers?: boolean
           phone_number?: string | null
@@ -2398,6 +2401,7 @@ export type Database = {
       increment_ai_photo_analysis_uses: { Args: { p_profile_id: string }; Returns: number }
       increment_daily_visitor_count: { Args: { p_day: string }; Returns: undefined }
       increment_listing_view_count: { Args: { p_listing_id: string }; Returns: undefined }
+      notify_new_listing: { Args: { p_listing_id: string; p_seller_id: string; p_title: string }; Returns: undefined }
       match_listings_by_embedding: {
         Args: { filter_category_ids?: string[] | null; filter_city?: string | null; match_count?: number; query_embedding: string }
         Returns: { id: string; similarity: number }[]

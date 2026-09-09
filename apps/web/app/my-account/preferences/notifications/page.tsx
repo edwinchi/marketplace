@@ -13,7 +13,7 @@ export default async function NotificationSettingsPage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("profiles")
-    .select("notify_new_messages, notify_offers, allow_seller_contact_on_favorite, notify_listing_favorited")
+    .select("notify_new_messages, notify_offers, allow_seller_contact_on_favorite, notify_listing_favorited, notify_new_listings")
     .eq("id", profile.id)
     .single();
 
@@ -45,6 +45,21 @@ export default async function NotificationSettingsPage() {
             These control your preference — the in-app{" "}
             <Link href="/notifications" className="underline">notifications inbox</Link> itself doesn&apos;t filter by them yet.
           </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">New listings</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="font-medium">Notify me of new postings</p>
+              <p className="text-sm text-muted-foreground">Get a notification whenever anyone posts a new listing.</p>
+            </div>
+            <ProfileToggle field="notify_new_listings" checked={data?.notify_new_listings ?? true} returnTo="/my-account/preferences/notifications" />
+          </div>
         </CardContent>
       </Card>
 

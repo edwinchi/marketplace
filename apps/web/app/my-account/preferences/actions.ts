@@ -18,6 +18,7 @@ const TOGGLE_FIELDS = [
   "marketing_partner_ads_opt_in",
   "notify_new_messages",
   "notify_offers",
+  "notify_new_listings",
   "location_sharing_opt_in",
   "allow_seller_contact_on_favorite",
   "notify_listing_favorited",

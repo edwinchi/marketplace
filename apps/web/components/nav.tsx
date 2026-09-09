@@ -4,6 +4,7 @@ import { Home, PlusCircle, User, MessageCircle, Bell, PackagePlus } from "lucide
 import { getTranslations, getLocale } from "next-intl/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getUnreadMessageCount } from "@/lib/messages";
+import { getUnreadNotificationCount } from "@/lib/notifications";
 import { getDisabledLocales } from "@/lib/language-settings";
 import { DISPLAY_CURRENCY_COOKIE } from "@/lib/money";
 import { buttonVariants } from "@/components/ui/button";
@@ -15,7 +16,10 @@ import { MobileNavMenu } from "@/components/mobile-nav-menu";
 
 export async function Nav() {
   const { user, profile } = await getCurrentUserAndProfile();
-  const unreadCount = profile ? await getUnreadMessageCount(profile.id) : 0;
+  const [unreadCount, unreadNotifications] = await Promise.all([
+    profile ? getUnreadMessageCount(profile.id) : Promise.resolve(0),
+    profile ? getUnreadNotificationCount(profile.id) : Promise.resolve(0),
+  ]);
   const [t, locale, cookieStore, disabledLocales] = await Promise.all([getTranslations("Nav"), getLocale(), cookies(), getDisabledLocales()]);
   const displayCurrency = cookieStore.get(DISPLAY_CURRENCY_COOKIE)?.value ?? null;
 
@@ -80,8 +84,13 @@ export async function Nav() {
                 </span>
               )}
             </NavIconLink>
-            <NavIconLink href="/notifications" className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+            <NavIconLink href="/notifications" className="relative flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
               <Bell className="size-5" />
+              {unreadNotifications > 0 && (
+                <span className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
+                  {unreadNotifications > 9 ? "9+" : unreadNotifications}
+                </span>
+              )}
             </NavIconLink>
           </div>
         </div>
@@ -136,6 +145,11 @@ export async function Nav() {
               >
                 <Bell className="size-5" />
                 <span className="hidden sm:inline">{t("notifications")}</span>
+                {unreadNotifications > 0 && (
+                  <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
+                    {unreadNotifications > 9 ? "9+" : unreadNotifications}
+                  </span>
+                )}
               </NavIconLink>
               {user ? (
               <AccountMenu name={profile?.username || t("myAccount")} />
