@@ -70,9 +70,22 @@ export async function getAiUsageStatus(): Promise<{ usesLeft: number; freeLimit:
 // "unavailable for free", which broke this entire feature because the retry loop below didn't
 // treat 404 as retryable and never reached the paid fallback. openrouter/free is OpenRouter's own
 // router to whatever free model is actually up right now (confirmed working for vision input, real
-// test, $0 cost), so it self-maintains against exactly that failure mode.
+// test, $0 cost), so it self-maintains against exactly that failure mode. The named models after it
+// widen the pool further -- each confirmed vision-capable, content-first, and token-efficient with
+// reasoning:{exclude:true} below (nvidia/nemotron-3-nano-omni's "-reasoning" variant was tested and
+// dropped: it burned ~970 of a 1100 max_tokens budget on internal thinking alone for a trivial
+// 2-field JSON ask, real risk of truncating this feature's actual, longer title+description+
+// category output before it ever gets written). OpenRouter's free daily-request quota (50/day on
+// this account until it's ever purchased $10+ in credits, then 1000/day permanently) counts every
+// attempt, success or not, so this list is deliberately not unlimited.
 // OPENROUTER_MODEL overrides this whole list with one forced model, e.g. for testing.
-const FALLBACK_MODELS = ["openrouter/free", "google/gemma-4-31b-it:free", "google/gemma-4-26b-a4b-it:free", "anthropic/claude-sonnet-4.5"];
+const FALLBACK_MODELS = [
+  "openrouter/free",
+  "google/gemma-4-31b-it:free",
+  "google/gemma-4-26b-a4b-it:free",
+  "nex-agi/nex-n2.5-pro:free",
+  "anthropic/claude-sonnet-4.5",
+];
 
 // Grounds the model to categories that actually exist and can be posted to (getCategoriesAndAttributes
 // already filters to is_active + allows_listings leaf categories) — it picks a label verbatim from
@@ -158,6 +171,12 @@ If the photo doesn't clearly show a sellable item, respond with {"title": "", "d
           // Was 500 -- too tight for the richer, multi-section description format below; the
           // model was visibly truncating mid-sentence on longer items before this bump.
           max_tokens: 1100,
+          // Confirmed live that several current free models default to an internal "thinking"
+          // pass that can consume most or all of max_tokens before ever emitting the real answer
+          // (message.content stays null, message.reasoning holds the scratch-work instead). This
+          // still lets the model think, it just omits that text from the response and reliably
+          // leaves more of the budget for the actual title/description/category JSON.
+          reasoning: { exclude: true },
           messages: [
             {
               role: "user",

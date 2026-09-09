@@ -18,7 +18,9 @@ import { NewListingNotificationsToggle } from "@/components/admin/new-listing-no
 import { BuyerFeeSettings } from "@/components/admin/buyer-fee-settings";
 import { BackfillEmbeddingsButton } from "@/components/admin/backfill-embeddings-button";
 import { GrantAiUsesForm } from "@/components/admin/grant-ai-uses-form";
+import { OpenRouterStatusCard } from "@/components/admin/openrouter-status-card";
 import { getRequireLoginSetting, getListenFreeAccessSetting, getSellerProGlobalUnlockSetting, getNewListingNotificationsGlobalUnlockSetting } from "@/lib/app-settings";
+import { getOpenRouterStatus } from "@/lib/openrouter-status";
 import { getDisabledLocales } from "@/lib/language-settings";
 import { getNumericSetting } from "@/lib/numeric-settings";
 import { slugPath } from "@/lib/slug";
@@ -110,7 +112,7 @@ export default async function AdminDashboardPage() {
   const { user } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) return <AdminLoginScreen />;
 
-  const [stats, requireLogin, disabledLocales, collapsedLimit, listenFreeAccess, sellerProGlobalUnlock, newListingNotificationsUnlock, buyerFeePercent, buyerFeeMin, buyerFeeMax, { count: embeddingsRemaining }] = await Promise.all([
+  const [stats, requireLogin, disabledLocales, collapsedLimit, listenFreeAccess, sellerProGlobalUnlock, newListingNotificationsUnlock, buyerFeePercent, buyerFeeMin, buyerFeeMax, { count: embeddingsRemaining }, openRouterStatus] = await Promise.all([
     getAdminStats(),
     getRequireLoginSetting(),
     getDisabledLocales(),
@@ -125,6 +127,7 @@ export default async function AdminDashboardPage() {
     // seller's listings (RLS's listing_read policy would otherwise only count active listings plus
     // this admin's own).
     createServiceClient().from("listings").select("id", { count: "exact", head: true }).is("title_embedding", null).neq("status", "deleted"),
+    getOpenRouterStatus(),
   ]);
   const maxCategory = Math.max(1, ...stats.topCategories.map(([, c]) => c));
   const maxCity = Math.max(1, ...stats.topCities.map(([, c]) => c));
@@ -161,6 +164,7 @@ export default async function AdminDashboardPage() {
         <div className="rounded-xl border bg-card p-5 shadow-sm">
           <GrantAiUsesForm />
         </div>
+        <OpenRouterStatusCard status={openRouterStatus} />
       </div>
 
       {/* Primary KPIs */}

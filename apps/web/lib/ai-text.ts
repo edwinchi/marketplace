@@ -8,7 +8,19 @@
 // OpenRouter without notice (started returning 404 "unavailable for free"), which broke every AI
 // feature using this list until caught. openrouter/free is OpenRouter's own router to whatever
 // free model is actually up right now, so it self-maintains against exactly that failure mode.
-const FALLBACK_MODELS = ["openrouter/free", "google/gemma-4-31b-it:free", "google/gemma-4-26b-a4b-it:free", "anthropic/claude-sonnet-4.5"];
+// The rest are named free models to widen the pool further -- each one that's rate-limited or down
+// just costs one more attempt before the next, and OpenRouter's free daily-request quota (50/day
+// on this account until it's ever purchased $10+ in credits, then 1000/day permanently) counts
+// every attempt, success or not, so this list is deliberately not unlimited.
+const FALLBACK_MODELS = [
+  "openrouter/free",
+  "google/gemma-4-31b-it:free",
+  "google/gemma-4-26b-a4b-it:free",
+  "liquid/lfm-2.5-2.6b:free",
+  "nex-agi/nex-n2.5-pro:free",
+  "nvidia/nemotron-3-super-120b-a12b:free",
+  "anthropic/claude-sonnet-4.5",
+];
 
 export async function callFreeTextModel(prompt: string, maxTokens = 800): Promise<{ text: string | null; error: string | null }> {
   const apiKey = process.env.OPENROUTER_API_KEY;
@@ -28,7 +40,13 @@ export async function callFreeTextModel(prompt: string, maxTokens = 800): Promis
           "http-referer": "https://afrodeals.net",
           "x-title": "AfroDeals",
         },
-        body: JSON.stringify({ model, max_tokens: maxTokens, messages: [{ role: "user", content: prompt }] }),
+        // reasoning: { exclude: true } -- confirmed live that several current free models default
+        // to an internal "thinking" pass that can consume the entire max_tokens budget before ever
+        // emitting a real answer, leaving message.content null and message.reasoning holding the
+        // model's scratch-work instead. This still lets the model think, it just omits that text
+        // from the response and reliably leaves room for the actual content within a smaller
+        // max_tokens budget than fitting both would need.
+        body: JSON.stringify({ model, max_tokens: maxTokens, reasoning: { exclude: true }, messages: [{ role: "user", content: prompt }] }),
       });
       networkError = false;
     } catch {
