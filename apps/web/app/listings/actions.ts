@@ -11,6 +11,7 @@ import type { Database } from "@/lib/supabase/database.types";
 import { slugPath } from "@/lib/slug";
 import { getTextEmbedding } from "@/lib/embeddings";
 import { isSellerProSubscriber } from "@/lib/seller-pro";
+import { getNewListingNotificationsGlobalUnlockSetting } from "@/lib/app-settings";
 import { translateListing } from "./translate-action";
 
 type AttributeValueInsert = Database["public"]["Tables"]["listing_attribute_values"]["Insert"];
@@ -52,8 +53,18 @@ function enqueueTranslation(listingId: string) {
 // supabase/migrations/20260101006100_new_listing_notifications.sql) rather than fetching every
 // eligible profile id into this request and inserting row-by-row. Only wired into createListing,
 // not updateListing -- this is about new postings, not edits to existing ones.
+//
+// The broadcast itself is a Seller Pro perk for the POSTER, not a gate on who can receive it --
+// a Seller Pro seller's listing reaches every opted-in registered user; a non-subscriber's listing
+// doesn't get this treatment at all, unless the admin's global unlock (app_settings.
+// new_listing_notifications_global_unlock, see lib/app-settings.ts) makes it free for every
+// seller. isSellerProSubscriber() here reflects the CURRENT caller, i.e. the seller who just
+// posted, since this only ever runs from within their own createListing call.
 function enqueueNewListingNotifications(supabase: Awaited<ReturnType<typeof createClient>>, listingId: string, sellerId: string, title: string) {
   after(async () => {
+    const [sellerIsPro, globalUnlock] = await Promise.all([isSellerProSubscriber(), getNewListingNotificationsGlobalUnlockSetting()]);
+    if (!sellerIsPro && !globalUnlock) return;
+
     const { error } = await supabase.rpc("notify_new_listing", { p_listing_id: listingId, p_seller_id: sellerId, p_title: title });
     if (error) console.error(`Failed to fan out new-listing notifications for listing ${listingId}:`, error);
   });

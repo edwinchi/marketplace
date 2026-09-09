@@ -43,6 +43,7 @@ const SELLER_PRO_INCLUDES = [
   "AI price suggestion — a real price range from comparable active listings",
   "Listing translation — auto-translate to French in one click",
   "Seller performance insights — real tips from your own listing data",
+  "Every new listing you post notifies every registered user",
   "Every new AI feature lands here automatically, at no extra cost",
 ];
 

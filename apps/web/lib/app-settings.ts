@@ -46,3 +46,19 @@ export async function setSellerProGlobalUnlockSetting(value: boolean) {
   const { error } = await supabase.from("app_settings").upsert({ key: "seller_pro_global_unlock", value, updated_at: new Date().toISOString() });
   if (error) throw new Error(error.message);
 }
+
+// Same idea again, scoped to just the new-listing notification fan-out (see
+// app/listings/actions.ts's enqueueNewListingNotifications) -- receiving a notification for every
+// new posting is a Seller Pro perk; this lets an admin make it free for every registered user
+// regardless of subscription status, and flip it back off just as easily.
+export async function getNewListingNotificationsGlobalUnlockSetting(): Promise<boolean> {
+  const supabase = createServiceClient();
+  const { data } = await supabase.from("app_settings").select("value").eq("key", "new_listing_notifications_global_unlock").maybeSingle();
+  return data?.value ?? false;
+}
+
+export async function setNewListingNotificationsGlobalUnlockSetting(value: boolean) {
+  const supabase = createServiceClient();
+  const { error } = await supabase.from("app_settings").upsert({ key: "new_listing_notifications_global_unlock", value, updated_at: new Date().toISOString() });
+  if (error) throw new Error(error.message);
+}

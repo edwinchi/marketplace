@@ -51,6 +51,9 @@ export default async function NotificationSettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">New listings</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Listings from Seller Pro sellers notify every registered user — turn this off if you&apos;d rather not hear about them.
+          </p>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <div className="flex items-center justify-between gap-4">

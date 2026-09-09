@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { isAdminEmail } from "@/lib/admin";
-import { setRequireLoginSetting, setListenFreeAccessSetting, setSellerProGlobalUnlockSetting } from "@/lib/app-settings";
+import { setRequireLoginSetting, setListenFreeAccessSetting, setSellerProGlobalUnlockSetting, setNewListingNotificationsGlobalUnlockSetting } from "@/lib/app-settings";
 import { setLocaleEnabled } from "@/lib/language-settings";
 import { setNumericSetting } from "@/lib/numeric-settings";
 
@@ -33,6 +33,17 @@ export async function updateSellerProGlobalUnlockSetting(value: boolean) {
   // isSellerProSubscriber() reads this fresh on every call (no caching layer of its own), so it
   // takes effect for the very next AI-feature action/page load site-wide -- /admin is the only
   // route rendering the value itself.
+  revalidatePath("/admin");
+}
+
+export async function updateNewListingNotificationsGlobalUnlockSetting(value: boolean) {
+  const { user } = await getCurrentUserAndProfile();
+  if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
+
+  await setNewListingNotificationsGlobalUnlockSetting(value);
+  // Read fresh on every createListing call (see app/listings/actions.ts's
+  // enqueueNewListingNotifications), so it takes effect for the very next new listing posted --
+  // /admin is the only route rendering the value itself.
   revalidatePath("/admin");
 }
 
