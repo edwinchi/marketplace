@@ -17,6 +17,7 @@ import { SellerProGlobalUnlockToggle } from "@/components/admin/seller-pro-globa
 import { NewListingNotificationsToggle } from "@/components/admin/new-listing-notifications-toggle";
 import { BuyerFeeSettings } from "@/components/admin/buyer-fee-settings";
 import { BackfillEmbeddingsButton } from "@/components/admin/backfill-embeddings-button";
+import { GrantAiUsesForm } from "@/components/admin/grant-ai-uses-form";
 import { getRequireLoginSetting, getListenFreeAccessSetting, getSellerProGlobalUnlockSetting, getNewListingNotificationsGlobalUnlockSetting } from "@/lib/app-settings";
 import { getDisabledLocales } from "@/lib/language-settings";
 import { getNumericSetting } from "@/lib/numeric-settings";
@@ -156,6 +157,9 @@ export default async function AdminDashboardPage() {
         </div>
         <div className="rounded-xl border bg-card p-5 shadow-sm">
           <BackfillEmbeddingsButton initialRemaining={embeddingsRemaining ?? 0} />
+        </div>
+        <div className="rounded-xl border bg-card p-5 shadow-sm">
+          <GrantAiUsesForm />
         </div>
       </div>
 
