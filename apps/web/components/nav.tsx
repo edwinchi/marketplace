@@ -13,6 +13,7 @@ import { NavIconLink } from "@/components/nav-icon-link";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { CurrencySwitcher } from "@/components/currency-switcher";
 import { MobileNavMenu } from "@/components/mobile-nav-menu";
+import { MessageSoundNotifier } from "@/components/message-sound-notifier";
 
 export async function Nav() {
   const { user, profile } = await getCurrentUserAndProfile();
@@ -192,6 +193,7 @@ export async function Nav() {
           {user ? t("account") : t("signIn")}
         </Link>
       </nav>
+      {profile && <MessageSoundNotifier initialCount={unreadCount} />}
     </>
   );
 }
