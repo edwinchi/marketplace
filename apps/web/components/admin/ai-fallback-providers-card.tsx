@@ -106,6 +106,30 @@ export function AiFallbackProvidersCard({ status }: { status: AiFallbackProvider
             <li>Upgrading the GitHub account to a paid Copilot plan raises this token&apos;s rate limits — no code change needed either way.</li>
           </ol>
         </div>
+
+        <div className="border-t pt-3">
+          <div className="flex items-center justify-between gap-2">
+            <p className="font-medium text-foreground">OpenAI (direct)</p>
+            <ConfiguredPill configured={status.openaiConfigured} />
+          </div>
+          <p className="mt-1 text-muted-foreground">
+            Paid only — there is no free tier for this one. Tried last, after every free provider above including OpenRouter&apos;s own free
+            models, and only before OpenRouter&apos;s own (more expensive) paid Claude fallback. gpt-4o-mini is vision-capable and cheap per call.
+          </p>
+          <ol className="mt-1 list-decimal space-y-1 pl-4 text-muted-foreground">
+            <li>
+              Create a key at{" "}
+              <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+                platform.openai.com/api-keys
+              </a>{" "}
+              — billing must be set up on the account first.
+            </li>
+            <li>
+              Set it as <code className="rounded bg-muted px-1 py-0.5">OPENAI_API_KEY</code> in Vercel&apos;s production env vars.
+            </li>
+            <li>Add funds / a spend limit on the OpenAI billing page to control cost — this provider is billed per request with no free quota.</li>
+          </ol>
+        </div>
       </div>
     </div>
   );

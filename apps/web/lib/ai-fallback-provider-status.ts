@@ -8,6 +8,7 @@ export type AiFallbackProviderStatus = {
   groqConfigured: boolean;
   geminiConfigured: boolean;
   githubModelsConfigured: boolean;
+  openaiConfigured: boolean;
 };
 
 export function getAiFallbackProviderStatus(): AiFallbackProviderStatus {
@@ -15,5 +16,6 @@ export function getAiFallbackProviderStatus(): AiFallbackProviderStatus {
     groqConfigured: !!process.env.GROQ_API_KEY,
     geminiConfigured: !!process.env.GOOGLE_AI_API_KEY,
     githubModelsConfigured: !!process.env.GITHUB_MODELS_TOKEN,
+    openaiConfigured: !!process.env.OPENAI_API_KEY,
   };
 }
