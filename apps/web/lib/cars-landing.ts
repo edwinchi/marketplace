@@ -68,7 +68,7 @@ export async function getCarsLandingData(carsRootId: string, filters: CarsFilter
   let query = supabase
     .from("listings")
     .select(
-      "id, title, price_minor, currency_code, price_type, published_at, locations!inner(city), listing_media(storage_key, sort_order), profiles!listings_seller_id_fkey(display_name, username, website_url, account_type)",
+      "id, title, price_minor, currency_code, price_type, published_at, locations!inner(city), listing_media(storage_key, sort_order), profiles_public!listings_seller_id_fkey(display_name, username, website_url, account_type)",
     )
     .eq("status", "active")
     .in("category_id", scopeIds);
@@ -110,7 +110,7 @@ export async function getCarsLandingData(carsRootId: string, filters: CarsFilter
 
   const all: CarsListing[] = (rawListings ?? []).map((l) => {
     const facets = facetsByListing.get(l.id) ?? { brand: null, year: null, mileage: null, fuelType: null, transmission: null, condition: null };
-    const seller = firstOf(l.profiles);
+    const seller = firstOf(l.profiles_public);
     const media = [...(l.listing_media ?? [])].sort((a, b) => a.sort_order - b.sort_order)[0];
     return {
       id: l.id,

@@ -11,7 +11,7 @@ export default async function LeaveReviewPage({ params }: { params: Promise<{ pr
 
   const supabase = await createClient();
   const [{ data: reviewee }, { data: existing }] = await Promise.all([
-    supabase.from("profiles").select("display_name, username").eq("id", profileId).single(),
+    supabase.from("profiles_public").select("display_name, username").eq("id", profileId).single(),
     supabase.from("reviews").select("id").eq("reviewer_profile_id", profile.id).eq("reviewee_profile_id", profileId).maybeSingle(),
   ]);
   if (!reviewee) notFound();

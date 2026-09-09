@@ -107,18 +107,18 @@ export default async function ListingPage({
   const offersQuery = isOwner
     ? supabase
         .from("offers")
-        .select("id, amount_minor, currency_code, status, created_at, profiles(display_name, username)")
+        .select("id, amount_minor, currency_code, status, created_at, profiles_public(display_name, username)")
         .eq("listing_id", id)
         .order("created_at", { ascending: false })
     : profile
       ? supabase
           .from("offers")
-          .select("id, amount_minor, currency_code, status, created_at, profiles(display_name, username)")
+          .select("id, amount_minor, currency_code, status, created_at, profiles_public(display_name, username)")
           .eq("listing_id", id)
           .eq("buyer_id", profile.id)
           .order("created_at", { ascending: false })
       : Promise.resolve({
-          data: [] as { id: string; amount_minor: number; currency_code: string; status: string; created_at: string; profiles: { display_name: string | null; username: string } }[],
+          data: [] as { id: string; amount_minor: number; currency_code: string; status: string; created_at: string; profiles_public: { display_name: string | null; username: string } }[],
         });
 
   const [categoryPath, { data: location }, { data: seller }, { data: attributeValues }, { data: media }, { data: favoriteRow }, { count: otherListingsCount }, { count: favoriteCount }, { data: offers }, { data: followRow }, { data: sellerReviews }, { data: translation }] =
@@ -128,7 +128,7 @@ export default async function ListingPage({
         ? supabase.from("locations").select("city, country_code").eq("id", listing.location_id).single()
         : Promise.resolve({ data: null }),
       supabase
-        .from("profiles")
+        .from("profiles_public")
         .select("username, display_name, created_at, website_url, account_type, phone_number, stripe_connect_charges_enabled")
         .eq("id", listing.seller_id)
         .single(),
@@ -463,7 +463,7 @@ export default async function ListingPage({
               <h2 className="mb-2 text-sm font-semibold">{isOwner ? t("offersCount", { count: offers.length }) : t("yourOffers")}</h2>
               <ul className="flex flex-col gap-2">
                 {offers.map((o) => {
-                  const buyer = Array.isArray(o.profiles) ? o.profiles[0] : o.profiles;
+                  const buyer = Array.isArray(o.profiles_public) ? o.profiles_public[0] : o.profiles_public;
                   return (
                     <li key={o.id} className="flex items-center justify-between rounded-md border p-2 text-sm transition-colors hover:bg-muted/50">
                       <span className={isOwner ? "" : "text-muted-foreground capitalize"}>

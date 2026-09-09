@@ -16,7 +16,7 @@ type ConversationRow = {
   listing_id: string | null;
   updated_at: string;
   listings: { title: string } | { title: string }[] | null;
-  conversation_participants: { profile_id: string; last_read_at: string | null; profiles: { display_name: string | null; username: string } | { display_name: string | null; username: string }[] }[];
+  conversation_participants: { profile_id: string; last_read_at: string | null; profiles_public: { display_name: string | null; username: string } | { display_name: string | null; username: string }[] }[];
 };
 
 type MessageRow = { id: string; conversation_id: string; sender_id: string; content: string | null; created_at: string; attachment_key: string | null; message_type: string };
@@ -61,7 +61,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
     conversationIds.length
       ? supabase
           .from("conversations")
-          .select("id, listing_id, updated_at, listings(title), conversation_participants(profile_id, last_read_at, profiles(display_name, username))")
+          .select("id, listing_id, updated_at, listings(title), conversation_participants(profile_id, last_read_at, profiles_public(display_name, username))")
           .in("id", conversationIds)
           .order("updated_at", { ascending: false })
       : Promise.resolve({ data: [] as ConversationRow[] }),
@@ -80,7 +80,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
 
   const rows = (conversations as ConversationRow[] | null ?? []).map((c) => {
     const other = c.conversation_participants.find((p) => p.profile_id !== profile.id);
-    const otherProfile = other ? (Array.isArray(other.profiles) ? other.profiles[0] : other.profiles) : null;
+    const otherProfile = other ? (Array.isArray(other.profiles_public) ? other.profiles_public[0] : other.profiles_public) : null;
     const listing = Array.isArray(c.listings) ? c.listings[0] : c.listings;
     const msgs = messagesByConversation.get(c.id) ?? [];
     const lastMessage = msgs[0];
@@ -109,7 +109,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
   if (activeConversationId && conversationIds.includes(activeConversationId)) {
     const activeConv = (conversations as ConversationRow[] | null ?? []).find((c) => c.id === activeConversationId);
     const other = activeConv?.conversation_participants.find((p) => p.profile_id !== profile.id);
-    const otherProfileT = other ? (Array.isArray(other.profiles) ? other.profiles[0] : other.profiles) : null;
+    const otherProfileT = other ? (Array.isArray(other.profiles_public) ? other.profiles_public[0] : other.profiles_public) : null;
     const listingT = activeConv ? (Array.isArray(activeConv.listings) ? activeConv.listings[0] : activeConv.listings) : null;
     const msgs = [...(messagesByConversation.get(activeConversationId) ?? [])].reverse();
 

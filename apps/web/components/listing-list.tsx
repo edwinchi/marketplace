@@ -10,7 +10,7 @@ type Listing = {
   pickup_available: boolean;
   delivery_available: boolean;
   locations: { city: string | null } | { city: string | null }[] | null;
-  profiles: { display_name: string | null; username: string } | { display_name: string | null; username: string }[] | null;
+  profiles_public: { display_name: string | null; username: string } | { display_name: string | null; username: string }[] | null;
   listing_media: { storage_key: string; sort_order: number }[] | null;
 };
 
@@ -19,7 +19,7 @@ export function ListingList({ listings, favoritedIds, signedIn }: { listings: Li
     <div className="flex flex-col">
       {listings.map((l) => {
         const media = [...(l.listing_media ?? [])].sort((a, b) => a.sort_order - b.sort_order)[0];
-        const seller = Array.isArray(l.profiles) ? l.profiles[0] : l.profiles;
+        const seller = Array.isArray(l.profiles_public) ? l.profiles_public[0] : l.profiles_public;
         return (
           <ListingRow
             key={l.id}

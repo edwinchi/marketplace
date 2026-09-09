@@ -8,11 +8,11 @@ import { buttonVariants } from "@/components/ui/button";
 export async function ReviewsDisplay({ profileId, viewerProfileId }: { profileId: string; viewerProfileId: string | null }) {
   const supabase = await createClient();
   const [{ data: reviewee }, { data: reviews }] = await Promise.all([
-    supabase.from("profiles").select("display_name, username, created_at").eq("id", profileId).single(),
+    supabase.from("profiles_public").select("display_name, username, created_at").eq("id", profileId).single(),
     supabase
       .from("reviews")
       .select(
-        "id, rating, positive_tags, comment, created_at, reviewer_profile_id, profiles!reviews_reviewer_profile_id_fkey(display_name, username)",
+        "id, rating, positive_tags, comment, created_at, reviewer_profile_id, profiles_public!reviews_reviewer_profile_id_fkey(display_name, username)",
       )
       .eq("reviewee_profile_id", profileId)
       .order("created_at", { ascending: false }),
@@ -82,7 +82,7 @@ export async function ReviewsDisplay({ profileId, viewerProfileId }: { profileId
           <div className="flex flex-col gap-4 border-t pt-4">
             <h2 className="font-semibold">Reviews from others</h2>
             {reviews!.map((r) => {
-              const reviewer = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
+              const reviewer = Array.isArray(r.profiles_public) ? r.profiles_public[0] : r.profiles_public;
               return (
                 <div key={r.id} className="flex flex-col gap-1 border-b pb-4 last:border-b-0">
                   <div className="flex items-center justify-between">

@@ -25,16 +25,18 @@ const CARS_TYPE_STABLE_KEYS = new Set([
   "cars-vans-and-commercial-vehicles",
 ]);
 
-// profiles!listings_seller_id_fkey (not just "profiles"): favorites also links listings to
-// profiles (many-to-many via profile_id/listing_id), so PostgREST can't tell which relationship
-// "profiles(...)" means once both exist — it errors rather than picking one.
+// profiles_public!listings_seller_id_fkey (not just "profiles_public"): favorites also links
+// listings to profiles (many-to-many via profile_id/listing_id), so PostgREST can't tell which
+// relationship "profiles_public(...)" means once both exist — it errors rather than picking one.
+// profiles_public (a view exposing only public-safe columns), not the profiles table directly --
+// see supabase/migrations/20260101006000_profiles_rls_lockdown.sql.
 const LISTING_SELECT =
-  "id, title, description, price_minor, currency_code, pickup_available, delivery_available, locations(city), profiles!listings_seller_id_fkey(display_name, username), listing_media(storage_key, sort_order)";
+  "id, title, description, price_minor, currency_code, pickup_available, delivery_available, locations(city), profiles_public!listings_seller_id_fkey(display_name, username), listing_media(storage_key, sort_order)";
 // Filtering by an embedded resource's column (locations.city) requires an inner join in
 // PostgREST's embed syntax — a plain left-embed silently ignores that filter (same gotcha
 // app/page.tsx's own city filter already works around).
 const LISTING_SELECT_NEAR_YOU =
-  "id, title, description, price_minor, currency_code, pickup_available, delivery_available, locations!inner(city), profiles!listings_seller_id_fkey(display_name, username), listing_media(storage_key, sort_order)";
+  "id, title, description, price_minor, currency_code, pickup_available, delivery_available, locations!inner(city), profiles_public!listings_seller_id_fkey(display_name, username), listing_media(storage_key, sort_order)";
 
 function parseNum(v: string | undefined) {
   if (!v) return undefined;

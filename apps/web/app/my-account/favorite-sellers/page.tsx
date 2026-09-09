@@ -14,11 +14,11 @@ export default async function FavoriteSellersPage() {
   const supabase = await createClient();
   const { data: follows } = await supabase
     .from("favorite_sellers")
-    .select("seller_profile_id, profiles!favorite_sellers_seller_profile_id_fkey(id, username, display_name)")
+    .select("seller_profile_id, profiles_public!favorite_sellers_seller_profile_id_fkey(id, username, display_name)")
     .eq("profile_id", profile.id)
     .order("created_at", { ascending: false });
 
-  const sellers = (follows ?? []).map((f) => (Array.isArray(f.profiles) ? f.profiles[0] : f.profiles)).filter((s) => !!s);
+  const sellers = (follows ?? []).map((f) => (Array.isArray(f.profiles_public) ? f.profiles_public[0] : f.profiles_public)).filter((s) => !!s);
 
   return (
     <div className="flex flex-col gap-6">
