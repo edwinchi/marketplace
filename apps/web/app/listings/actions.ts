@@ -55,17 +55,24 @@ function enqueueTranslation(listingId: string) {
 // not updateListing -- this is about new postings, not edits to existing ones.
 //
 // The broadcast itself is a Seller Pro perk for the POSTER, not a gate on who can receive it --
-// a Seller Pro seller's listing reaches every opted-in registered user; a non-subscriber's listing
-// doesn't get this treatment at all, unless the admin's global unlock (app_settings.
-// new_listing_notifications_global_unlock, see lib/app-settings.ts) makes it free for every
-// seller. isSellerProSubscriber() here reflects the CURRENT caller, i.e. the seller who just
-// posted, since this only ever runs from within their own createListing call.
-function enqueueNewListingNotifications(supabase: Awaited<ReturnType<typeof createClient>>, listingId: string, sellerId: string, title: string) {
+// a Seller Pro seller's listing reaches every opted-in registered user in the listing's own
+// country; a non-subscriber's listing doesn't get this treatment at all, unless the admin's global
+// unlock (app_settings.new_listing_notifications_global_unlock, see lib/app-settings.ts) makes it
+// free for every seller. isSellerProSubscriber() here reflects the CURRENT caller, i.e. the seller
+// who just posted, since this only ever runs from within their own createListing call.
+//
+// countryCode scopes recipients to profiles.country_code (see
+// supabase/migrations/20260101006200_profile_country_and_notification_scoping.sql) -- an explicit,
+// user-set field, not inferred -- to cut exposure to people not really in that market and the size
+// of each broadcast. A recipient with no country set never matches and won't be notified; only a
+// null countryCode here (which shouldn't happen in practice, every listing requires a country at
+// creation) would skip the filter and notify everyone regardless of country.
+function enqueueNewListingNotifications(supabase: Awaited<ReturnType<typeof createClient>>, listingId: string, sellerId: string, title: string, countryCode: string | null) {
   after(async () => {
     const [sellerIsPro, globalUnlock] = await Promise.all([isSellerProSubscriber(), getNewListingNotificationsGlobalUnlockSetting()]);
     if (!sellerIsPro && !globalUnlock) return;
 
-    const { error } = await supabase.rpc("notify_new_listing", { p_listing_id: listingId, p_seller_id: sellerId, p_title: title });
+    const { error } = await supabase.rpc("notify_new_listing", { p_listing_id: listingId, p_seller_id: sellerId, p_title: title, p_country_code: countryCode });
     if (error) console.error(`Failed to fan out new-listing notifications for listing ${listingId}:`, error);
   });
 }
@@ -269,7 +276,7 @@ export async function createListing(_prevState: ListingFormState, formData: Form
 
   enqueueEmbedding(supabase, listing.id, title, description);
   enqueueTranslation(listing.id);
-  enqueueNewListingNotifications(supabase, listing.id, profile.id, title);
+  enqueueNewListingNotifications(supabase, listing.id, profile.id, title, countryCode || null);
 
   revalidatePath("/");
   redirect(`/listings/${slugPath(title, listing.id)}`);

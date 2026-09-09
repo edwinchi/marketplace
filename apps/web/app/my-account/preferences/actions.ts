@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { ANCHOR_COUNTRIES } from "@/lib/countries";
 
 // Whitelisted, not a raw column name from the client — formData is user-controlled input, and
 // writing an arbitrary column name straight from it would let a crafted request touch any column
@@ -48,6 +49,21 @@ export async function updatePreferredCity(formData: FormData) {
   const city = String(formData.get("preferred_city") || "").trim();
   const supabase = await createClient();
   await supabase.from("profiles").update({ preferred_city: city || null }).eq("id", profile.id);
+
+  revalidatePath("/my-account/preferences/location");
+}
+
+// Powers new-listing notification scoping (see app/listings/actions.ts's
+// enqueueNewListingNotifications) -- validated server-side against the real country list, not
+// just whatever a crafted request sends, same reasoning as TOGGLE_FIELDS above.
+export async function updateCountry(formData: FormData) {
+  const { profile } = await getCurrentUserAndProfile();
+  if (!profile) redirect("/login");
+
+  const country = String(formData.get("country_code") || "");
+  const countryCode = country && ANCHOR_COUNTRIES.some((c) => c.code === country) ? country : null;
+  const supabase = await createClient();
+  await supabase.from("profiles").update({ country_code: countryCode }).eq("id", profile.id);
 
   revalidatePath("/my-account/preferences/location");
 }

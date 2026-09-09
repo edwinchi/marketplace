@@ -1739,6 +1739,7 @@ export type Database = {
           ai_subscription_status: string
           allow_seller_contact_on_favorite: boolean
           auth_user_id: string
+          country_code: string | null
           created_at: string
           digital_invoice_opt_in: boolean
           display_name: string | null
@@ -1777,6 +1778,7 @@ export type Database = {
           ai_subscription_current_period_end?: string | null
           ai_subscription_status?: string
           allow_seller_contact_on_favorite?: boolean
+          country_code?: string | null
           auth_user_id: string
           created_at?: string
           digital_invoice_opt_in?: boolean
@@ -1816,6 +1818,7 @@ export type Database = {
           ai_subscription_current_period_end?: string | null
           ai_subscription_status?: string
           allow_seller_contact_on_favorite?: boolean
+          country_code?: string | null
           auth_user_id?: string
           created_at?: string
           digital_invoice_opt_in?: boolean
@@ -2401,7 +2404,7 @@ export type Database = {
       increment_ai_photo_analysis_uses: { Args: { p_profile_id: string }; Returns: number }
       increment_daily_visitor_count: { Args: { p_day: string }; Returns: undefined }
       increment_listing_view_count: { Args: { p_listing_id: string }; Returns: undefined }
-      notify_new_listing: { Args: { p_listing_id: string; p_seller_id: string; p_title: string }; Returns: undefined }
+      notify_new_listing: { Args: { p_country_code: string | null; p_listing_id: string; p_seller_id: string; p_title: string }; Returns: undefined }
       match_listings_by_embedding: {
         Args: { filter_category_ids?: string[] | null; filter_city?: string | null; match_count?: number; query_embedding: string }
         Returns: { id: string; similarity: number }[]
