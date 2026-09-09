@@ -7,6 +7,7 @@ import { randomUUID } from "crypto";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { toMinorUnits } from "@/lib/money";
+import { getCurrencyForCountry } from "@/lib/countries";
 import type { Database } from "@/lib/supabase/database.types";
 import { slugPath } from "@/lib/slug";
 import { getTextEmbedding } from "@/lib/embeddings";
@@ -211,7 +212,6 @@ export async function createListing(_prevState: ListingFormState, formData: Form
   const description = String(formData.get("description") ?? "").trim();
   const categoryId = String(formData.get("category_id") ?? "");
   const price = Number(formData.get("price") ?? 0);
-  const currencyCode = String(formData.get("currency_code") ?? "");
   const city = String(formData.get("city") ?? "").trim();
   const countryCode = String(formData.get("country_code") ?? "");
   const postalCode = String(formData.get("postal_code") ?? "").trim();
@@ -221,9 +221,14 @@ export async function createListing(_prevState: ListingFormState, formData: Form
   const priceType = formData.get("price_type") === "bidding" ? "bidding" : "fixed";
   const websiteUrlRaw = String(formData.get("website_url") ?? "");
 
-  if (!title || !description || !categoryId || !price || !currencyCode || !city || !countryCode) {
+  if (!title || !description || !categoryId || !price || !city || !countryCode) {
     return { error: "Please fill in every required field." };
   }
+  // Currency is derived from country server-side, not trusted from the client -- a stale form,
+  // browser extension, or a client bug could otherwise submit a currency_code that doesn't match
+  // the country actually being saved (confirmed live in production before this fix: real listings
+  // existed with mismatched country/currency pairs, e.g. a Cameroon listing stored as NGN).
+  const currencyCode = getCurrencyForCountry(countryCode);
   if (websiteUrlRaw.trim() && !normalizeWebsiteUrl(websiteUrlRaw)) {
     return { error: "That website address doesn't look right." };
   }
@@ -294,10 +299,9 @@ export async function updateListing(
   const description = String(formData.get("description") ?? "").trim();
   const categoryId = String(formData.get("category_id") ?? "");
   const price = Number(formData.get("price") ?? 0);
-  const currencyCode = String(formData.get("currency_code") ?? "");
   const websiteUrlRaw = String(formData.get("website_url") ?? "");
 
-  if (!title || !description || !categoryId || !price || !currencyCode) {
+  if (!title || !description || !categoryId || !price) {
     return { error: "Please fill in every required field." };
   }
   if (websiteUrlRaw.trim() && !normalizeWebsiteUrl(websiteUrlRaw)) {
@@ -310,10 +314,14 @@ export async function updateListing(
   // intentionally clears it, unlike create, since this is the one place a seller can remove it.
   await supabase.from("profiles").update({ website_url: normalizeWebsiteUrl(websiteUrlRaw) }).eq("id", profile.id);
 
+  // currency_code is deliberately not updated here -- it's derived from the listing's country at
+  // creation (see createListing), and country isn't editable post-creation (v1 limitation), so
+  // there's nothing for currency to legitimately change to. Not accepting it from the client at
+  // all avoids the edit-time half of the country/currency mismatch bug this whole change fixes.
   // RLS's listing_write policy already scopes this update to seller_id = current_profile_id().
   const { error: updateError } = await supabase
     .from("listings")
-    .update({ title, description, category_id: categoryId, price_minor: toMinorUnits(price), currency_code: currencyCode })
+    .update({ title, description, category_id: categoryId, price_minor: toMinorUnits(price) })
     .eq("id", listingId);
   if (updateError) return { error: updateError.message };
 

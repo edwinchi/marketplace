@@ -4,7 +4,6 @@ import { useActionState, useRef, useState, useTransition } from "react";
 import { Sparkles, Lock } from "lucide-react";
 import Link from "next/link";
 import type { AttributeDef, CategoryOption } from "@/lib/categories";
-import { SUPPORTED_CURRENCIES } from "@/lib/money";
 import { ANCHOR_COUNTRIES } from "@/lib/countries";
 import type { ListingFormState } from "@/app/listings/actions";
 import { analyzeListingPhoto } from "@/app/listings/new/analyze-photo-action";
@@ -67,7 +66,12 @@ export function ListingForm({
 }: Props) {
   const [state, formAction, pending] = useActionState(action, { error: null } as ListingFormState);
   const [categoryId, setCategoryId] = useState(initial?.categoryId ?? "");
-  const [currencyCode, setCurrencyCode] = useState(initial?.currencyCode ?? SUPPORTED_CURRENCIES[0]);
+  // Currency is derived from the listing's country at creation and never independently editable
+  // (see new-listing-step2-form.tsx) -- country itself isn't editable here either (hideLocation is
+  // always passed for this edit-only form), so there's nothing to re-derive currency from on edit.
+  // This just carries the listing's existing currency through unchanged for price-suggestion calls
+  // and the read-only display below.
+  const currencyCode = initial?.currencyCode ?? "EUR";
   const attributes = attributesByCategory[categoryId] ?? [];
 
   const titleRef = useRef<HTMLInputElement>(null);
@@ -312,18 +316,10 @@ export function ListingForm({
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="currency_code">Currency</Label>
-          <Select name="currency_code" value={currencyCode} onValueChange={(v) => setCurrencyCode(v ?? SUPPORTED_CURRENCIES[0])}>
-            <SelectTrigger id="currency_code" className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {SUPPORTED_CURRENCIES.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {c}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <input type="hidden" name="currency_code" value={currencyCode} />
+          <div id="currency_code" className="flex h-9 items-center rounded-md border bg-muted/40 px-3 text-sm text-muted-foreground">
+            {currencyCode}
+          </div>
         </div>
       </div>
 
