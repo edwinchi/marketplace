@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCategoriesAndAttributes } from "@/lib/categories";
 import { isAdminEmail } from "@/lib/admin";
 import { parseJsonResponse } from "@/lib/ai-text";
+import { buildProviderAttempts } from "@/lib/ai-providers";
 
 // Free tier: 5 uses per registered account, then an honest "upgrade" prompt — there's no payment
 // processor wired up yet to actually charge for more (see /my-account/ai-features), so this just
@@ -54,32 +55,34 @@ export async function getAiUsageStatus(): Promise<{ usesLeft: number; freeLimit:
   return { usesLeft: usage.usesLeft, freeLimit: FREE_USE_LIMIT, effectiveLimit: usage.effectiveLimit, unlimited: usage.unlimited };
 }
 
-// Routed through OpenRouter (an OpenAI-compatible gateway that proxies to many providers,
-// including Claude) rather than calling Anthropic directly — same vision capability, just a
-// different endpoint/auth shape.
+// Tries Gemini first (see lib/ai-providers.ts) if GOOGLE_AI_API_KEY is set -- it's vision-capable
+// with its own 1,500/day free quota, independent of OpenRouter's. Groq is excluded here (text-only
+// free tier, no image input); it's still used for the text-only features in lib/ai-text.ts.
 //
-// Free vision-capable models first, paid Claude only as a last resort — the OpenRouter account
-// backing this ran out of credits (confirmed via /api/v1/credits: 0 remaining), so a paid-only
-// call fails every time with 402. Free OpenRouter models share a rate-limited pool across all
-// their users, so a single free model can occasionally 429 — trying a couple of alternates before
-// falling back to paid is worth the extra request.
+// Falls through to OpenRouter (an OpenAI-compatible gateway that proxies to many providers,
+// including Claude) after that. Free vision-capable OpenRouter models first, paid Claude only as a
+// last resort — the OpenRouter account backing this ran out of credits (confirmed via
+// /api/v1/credits: 0 remaining), so a paid-only call fails every time with 402. Free OpenRouter
+// models share a rate-limited pool across all their users, so a single free model can occasionally
+// 429 — trying a couple of alternates before falling back to paid is worth the extra request.
 //
-// "openrouter/free" leads the list rather than a specific named free model -- confirmed live that
-// a hardcoded free model slug (minimax/minimax-m3:free, formerly first here, and formerly verified
-// to do vision correctly) can be deprecated by OpenRouter without notice: it started returning 404
-// "unavailable for free", which broke this entire feature because the retry loop below didn't
-// treat 404 as retryable and never reached the paid fallback. openrouter/free is OpenRouter's own
-// router to whatever free model is actually up right now (confirmed working for vision input, real
-// test, $0 cost), so it self-maintains against exactly that failure mode. The named models after it
-// widen the pool further -- each confirmed vision-capable, content-first, and token-efficient with
-// reasoning:{exclude:true} below (nvidia/nemotron-3-nano-omni's "-reasoning" variant was tested and
-// dropped: it burned ~970 of a 1100 max_tokens budget on internal thinking alone for a trivial
-// 2-field JSON ask, real risk of truncating this feature's actual, longer title+description+
-// category output before it ever gets written). OpenRouter's free daily-request quota (50/day on
-// this account until it's ever purchased $10+ in credits, then 1000/day permanently) counts every
-// attempt, success or not, so this list is deliberately not unlimited.
-// OPENROUTER_MODEL overrides this whole list with one forced model, e.g. for testing.
-const FALLBACK_MODELS = [
+// "openrouter/free" leads the OpenRouter portion of the list rather than a specific named free
+// model -- confirmed live that a hardcoded free model slug (minimax/minimax-m3:free, formerly
+// first here, and formerly verified to do vision correctly) can be deprecated by OpenRouter without
+// notice: it started returning 404 "unavailable for free", which broke this entire feature because
+// the retry loop below didn't treat 404 as retryable and never reached the paid fallback.
+// openrouter/free is OpenRouter's own router to whatever free model is actually up right now
+// (confirmed working for vision input, real test, $0 cost), so it self-maintains against exactly
+// that failure mode. The named models after it widen the pool further -- each confirmed
+// vision-capable, content-first, and token-efficient with reasoning:{exclude:true} below
+// (nvidia/nemotron-3-nano-omni's "-reasoning" variant was tested and dropped: it burned ~970 of a
+// 1100 max_tokens budget on internal thinking alone for a trivial 2-field JSON ask, real risk of
+// truncating this feature's actual, longer title+description+category output before it ever gets
+// written). OpenRouter's free daily-request quota (50/day on this account until it's ever purchased
+// $10+ in credits, then 1000/day permanently) counts every attempt, success or not, so this list is
+// deliberately not unlimited.
+// OPENROUTER_MODEL overrides the OpenRouter portion with one forced model, e.g. for testing.
+const OPENROUTER_FALLBACK_MODELS = [
   "openrouter/free",
   "google/gemma-4-31b-it:free",
   "google/gemma-4-26b-a4b-it:free",
@@ -113,10 +116,10 @@ export async function analyzeListingPhoto(imageBase64: string, mediaType: string
     };
   }
 
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey)
+  const openRouterModels = process.env.OPENROUTER_MODEL ? [process.env.OPENROUTER_MODEL] : OPENROUTER_FALLBACK_MODELS;
+  const attempts = buildProviderAttempts(openRouterModels, true);
+  if (attempts.length === 0)
     return { data: null, error: "Photo analysis isn't set up on this server yet.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
-  const modelsToTry = process.env.OPENROUTER_MODEL ? [process.env.OPENROUTER_MODEL] : FALLBACK_MODELS;
 
   const { categoryOptions } = await getCategoriesAndAttributes();
   // ~210 leaf categories at "- Parent → Leaf" each (repeating the parent name on every single line)
@@ -154,39 +157,39 @@ If the photo doesn't clearly show a sellable item, respond with {"title": "", "d
   let res: Response | null = null;
   let lastStatus = 0;
   let networkError = false;
-  for (const model of modelsToTry) {
+  for (const attempt of attempts) {
+    // reasoning:{exclude:true} is an OpenRouter-specific extension -- Gemini's OpenAI-compatible
+    // endpoint doesn't recognize it, so only send it to OpenRouter.
+    const body: Record<string, unknown> = {
+      model: attempt.model,
+      // Was 500 -- too tight for the richer, multi-section description format below; the
+      // model was visibly truncating mid-sentence on longer items before this bump.
+      max_tokens: 1100,
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: prompt },
+            { type: "image_url", image_url: { url: `data:${mediaType};base64,${imageBase64}` } },
+          ],
+        },
+      ],
+    };
+    // Confirmed live that several current free OpenRouter models default to an internal "thinking"
+    // pass that can consume most or all of max_tokens before ever emitting the real answer
+    // (message.content stays null, message.reasoning holds the scratch-work instead). This still
+    // lets the model think, it just omits that text from the response and reliably leaves more of
+    // the budget for the actual title/description/category JSON.
+    if (attempt.baseUrl.includes("openrouter.ai")) body.reasoning = { exclude: true };
     try {
-      res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      res = await fetch(attempt.baseUrl, {
         method: "POST",
         headers: {
           "content-type": "application/json",
-          authorization: `Bearer ${apiKey}`,
-          // OpenRouter attributes usage to the calling app with these — optional, but keeps this
-          // off their anonymous-traffic bucket.
-          "http-referer": "https://afrodeals.net",
-          "x-title": "AfroDeals",
+          authorization: `Bearer ${attempt.apiKey}`,
+          ...attempt.extraHeaders,
         },
-        body: JSON.stringify({
-          model,
-          // Was 500 -- too tight for the richer, multi-section description format below; the
-          // model was visibly truncating mid-sentence on longer items before this bump.
-          max_tokens: 1100,
-          // Confirmed live that several current free models default to an internal "thinking"
-          // pass that can consume most or all of max_tokens before ever emitting the real answer
-          // (message.content stays null, message.reasoning holds the scratch-work instead). This
-          // still lets the model think, it just omits that text from the response and reliably
-          // leaves more of the budget for the actual title/description/category JSON.
-          reasoning: { exclude: true },
-          messages: [
-            {
-              role: "user",
-              content: [
-                { type: "text", text: prompt },
-                { type: "image_url", image_url: { url: `data:${mediaType};base64,${imageBase64}` } },
-              ],
-            },
-          ],
-        }),
+        body: JSON.stringify(body),
       });
       networkError = false;
     } catch {
