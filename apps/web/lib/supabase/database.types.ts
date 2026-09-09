@@ -2170,6 +2170,19 @@ export type Database = {
       }
     }
     Views: {
+      profiles_public: {
+        Row: {
+          id: string
+          username: string
+          display_name: string | null
+          account_type: string
+          created_at: string
+          website_url: string | null
+          stripe_connect_charges_enabled: boolean
+          phone_number: string | null
+        }
+        Relationships: []
+      }
       geography_columns: {
         Row: {
           coord_dimension: number | null
