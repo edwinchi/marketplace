@@ -2,7 +2,13 @@
 // suggestion write-up, translation) -- the same free-models-first, paid-fallback-last strategy
 // analyze-photo-action.ts already uses for photo analysis, pulled out here so four separate
 // features don't each reimplement the same fetch/retry loop.
-const FALLBACK_MODELS = ["minimax/minimax-m3:free", "google/gemma-4-31b-it:free", "google/gemma-4-26b-a4b-it:free", "anthropic/claude-sonnet-4.5"];
+//
+// "openrouter/free" leads the list rather than a specific named free model -- confirmed live that
+// a hardcoded free model slug (minimax/minimax-m3:free, formerly first here) can be deprecated by
+// OpenRouter without notice (started returning 404 "unavailable for free"), which broke every AI
+// feature using this list until caught. openrouter/free is OpenRouter's own router to whatever
+// free model is actually up right now, so it self-maintains against exactly that failure mode.
+const FALLBACK_MODELS = ["openrouter/free", "google/gemma-4-31b-it:free", "google/gemma-4-26b-a4b-it:free", "anthropic/claude-sonnet-4.5"];
 
 export async function callFreeTextModel(prompt: string, maxTokens = 800): Promise<{ text: string | null; error: string | null }> {
   const apiKey = process.env.OPENROUTER_API_KEY;
@@ -34,7 +40,11 @@ export async function callFreeTextModel(prompt: string, maxTokens = 800): Promis
     }
     if (res.ok) break;
     lastStatus = res.status;
-    if (res.status !== 429 && res.status !== 402 && res.status !== 503) break;
+    // Try every model in the list regardless of why the previous one failed -- confirmed live
+    // that OpenRouter can deprecate a free model out from under this list entirely (a 404, not a
+    // retryable-looking status), and stopping at the first failure meant this whole feature was
+    // silently dead until the fallback list was updated, never even reaching the paid model at
+    // the end. The only real cost of trying one more model is a small added latency.
   }
 
   if (!res || !res.ok) {

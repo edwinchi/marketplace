@@ -62,10 +62,17 @@ export async function getAiUsageStatus(): Promise<{ usesLeft: number; freeLimit:
 // backing this ran out of credits (confirmed via /api/v1/credits: 0 remaining), so a paid-only
 // call fails every time with 402. Free OpenRouter models share a rate-limited pool across all
 // their users, so a single free model can occasionally 429 — trying a couple of alternates before
-// falling back to paid is worth the extra request. Verified minimax/minimax-m3:free actually does
-// vision correctly (real test: correctly described the AfroDeals logo) at $0 cost.
+// falling back to paid is worth the extra request.
+//
+// "openrouter/free" leads the list rather than a specific named free model -- confirmed live that
+// a hardcoded free model slug (minimax/minimax-m3:free, formerly first here, and formerly verified
+// to do vision correctly) can be deprecated by OpenRouter without notice: it started returning 404
+// "unavailable for free", which broke this entire feature because the retry loop below didn't
+// treat 404 as retryable and never reached the paid fallback. openrouter/free is OpenRouter's own
+// router to whatever free model is actually up right now (confirmed working for vision input, real
+// test, $0 cost), so it self-maintains against exactly that failure mode.
 // OPENROUTER_MODEL overrides this whole list with one forced model, e.g. for testing.
-const FALLBACK_MODELS = ["minimax/minimax-m3:free", "google/gemma-4-31b-it:free", "google/gemma-4-26b-a4b-it:free", "anthropic/claude-sonnet-4.5"];
+const FALLBACK_MODELS = ["openrouter/free", "google/gemma-4-31b-it:free", "google/gemma-4-26b-a4b-it:free", "anthropic/claude-sonnet-4.5"];
 
 // Grounds the model to categories that actually exist and can be posted to (getCategoriesAndAttributes
 // already filters to is_active + allows_listings leaf categories) — it picks a label verbatim from
@@ -128,9 +135,9 @@ ${categoryListText}
 
 If the photo doesn't clearly show a sellable item, respond with {"title": "", "description": "", "category": ""} instead.`;
 
-  // Try each model in order, moving on to the next only on a retryable failure (rate limit / no
-  // credit / model unavailable) — a free model's shared pool being briefly rate-limited shouldn't
-  // fail the whole request when another free model would work.
+  // Try each model in order, moving on to the next on ANY failure (rate limit, no credit, model
+  // deprecated/unavailable, anything) -- see the fallback list's own comment above for why this
+  // isn't narrowed to specific "retryable" statuses.
   let res: Response | null = null;
   let lastStatus = 0;
   let networkError = false;
@@ -172,7 +179,11 @@ If the photo doesn't clearly show a sellable item, respond with {"title": "", "d
     }
     if (res.ok) break;
     lastStatus = res.status;
-    if (res.status !== 429 && res.status !== 402 && res.status !== 503) break;
+    // Try every model in the list regardless of why the previous one failed -- confirmed live
+    // that OpenRouter can deprecate a free model out from under this list entirely (a 404, not a
+    // retryable-looking status), and stopping at the first failure meant this whole feature was
+    // silently dead until the fallback list was updated, never even reaching the paid model at
+    // the end. The only real cost of trying one more model is a small added latency.
   }
 
   if (!res || !res.ok) {
