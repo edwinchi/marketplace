@@ -26,20 +26,33 @@
 // pointing at whatever Google's current lite/flash model is as their catalog keeps moving,
 // the same self-maintaining property "openrouter/free" has below.
 //
-// Entirely optional: GROQ_API_KEY / GOOGLE_AI_API_KEY are only used if actually set. Get free keys
-// (no payment method required) at console.groq.com/keys and aistudio.google.com/apikey.
+// GitHub Models -- the free API behind "GitHub Copilot free tier" -- is a fourth provider, tried
+// after Gemini and before OpenRouter. It authenticates with a GitHub personal access token (needs
+// the "Models" read permission on a fine-grained PAT) rather than a dedicated API key, and its
+// free-tier daily cap is lower than Groq/Gemini's (documented as ~50 requests/day for gpt-4o-mini
+// on the free Copilot tier, higher on paid Copilot plans) -- still a separate quota bucket on top
+// of the others, just not the first place to spend it. NOT yet confirmed live against a real
+// token as of this writing (unlike Groq/Gemini, which were) -- verify with a real request the
+// first time a real GITHUB_MODELS_TOKEN is set, the same way the Groq/Gemini model picks above
+// were corrected after their originally-researched models turned out stale.
+//
+// Entirely optional: GROQ_API_KEY / GOOGLE_AI_API_KEY / GITHUB_MODELS_TOKEN are only used if
+// actually set. Get free credentials (no payment method required) at console.groq.com/keys,
+// aistudio.google.com/apikey, and github.com/settings/personal-access-tokens (fine-grained PAT,
+// "Models" permission set to read-only).
 export type ProviderAttempt = {
   baseUrl: string;
   apiKey: string;
   model: string;
-  // OpenRouter-specific attribution headers -- harmless to omit for Groq/Gemini, which don't use them.
+  // OpenRouter-specific attribution headers -- harmless to omit for the other providers, which don't use them.
   extraHeaders?: Record<string, string>;
 };
 
 const OPENROUTER_HEADERS = { "http-referer": "https://afrodeals.net", "x-title": "AfroDeals" };
 
-// visionCapable filters out Groq (its free-tier models are text-only Llama variants, no image
-// input) when building the attempt list for photo analysis.
+// visionCapable filters out Groq (its free-tier models are text-only Llama/Qwen variants, no
+// image input) when building the attempt list for photo analysis. GitHub Models' gpt-4o-mini and
+// Gemini are both vision-capable, so they stay in the list either way.
 export function buildProviderAttempts(openRouterModels: string[], visionCapable: boolean): ProviderAttempt[] {
   const attempts: ProviderAttempt[] = [];
 
@@ -51,6 +64,13 @@ export function buildProviderAttempts(openRouterModels: string[], visionCapable:
       baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
       apiKey: process.env.GOOGLE_AI_API_KEY,
       model: "gemini-flash-lite-latest",
+    });
+  }
+  if (process.env.GITHUB_MODELS_TOKEN) {
+    attempts.push({
+      baseUrl: "https://models.github.ai/inference/chat/completions",
+      apiKey: process.env.GITHUB_MODELS_TOKEN,
+      model: "openai/gpt-4o-mini",
     });
   }
 

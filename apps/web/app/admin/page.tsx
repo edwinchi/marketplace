@@ -19,8 +19,10 @@ import { BuyerFeeSettings } from "@/components/admin/buyer-fee-settings";
 import { BackfillEmbeddingsButton } from "@/components/admin/backfill-embeddings-button";
 import { GrantAiUsesForm } from "@/components/admin/grant-ai-uses-form";
 import { OpenRouterStatusCard } from "@/components/admin/openrouter-status-card";
+import { AiFallbackProvidersCard } from "@/components/admin/ai-fallback-providers-card";
 import { getRequireLoginSetting, getListenFreeAccessSetting, getSellerProGlobalUnlockSetting, getNewListingNotificationsGlobalUnlockSetting } from "@/lib/app-settings";
 import { getOpenRouterStatus } from "@/lib/openrouter-status";
+import { getAiFallbackProviderStatus } from "@/lib/ai-fallback-provider-status";
 import { getDisabledLocales } from "@/lib/language-settings";
 import { getNumericSetting } from "@/lib/numeric-settings";
 import { slugPath } from "@/lib/slug";
@@ -129,6 +131,7 @@ export default async function AdminDashboardPage() {
     createServiceClient().from("listings").select("id", { count: "exact", head: true }).is("title_embedding", null).neq("status", "deleted"),
     getOpenRouterStatus(),
   ]);
+  const aiFallbackProviderStatus = getAiFallbackProviderStatus();
   const maxCategory = Math.max(1, ...stats.topCategories.map(([, c]) => c));
   const maxCity = Math.max(1, ...stats.topCities.map(([, c]) => c));
 
@@ -165,6 +168,7 @@ export default async function AdminDashboardPage() {
           <GrantAiUsesForm />
         </div>
         <OpenRouterStatusCard status={openRouterStatus} />
+        <AiFallbackProvidersCard status={aiFallbackProviderStatus} />
       </div>
 
       {/* Primary KPIs */}

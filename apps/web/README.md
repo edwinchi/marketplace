@@ -14,30 +14,43 @@ analysis, which needs a vision-capable model).
 
 | Order | Provider | Model | Env var | Free quota | Vision? |
 |---|---|---|---|---|---|
-| 1 (text only) | Groq | `qwen/qwen3.8-27b` | `GROQ_API_KEY` | 30 req/min, 1,000/day | No |
-| 2 | Google Gemini | `gemini-flash-lite-latest` | `GOOGLE_AI_API_KEY` | 1,500 req/day (per Google's docs) | Yes |
-| 3+ | OpenRouter | `openrouter/free` + several named free models, then `anthropic/claude-sonnet-4.5` (paid) | `OPENROUTER_API_KEY` | 50/day, permanently 1,000/day once the account has ever purchased $10+ in credits | Yes (for the models used in the vision list) |
+| 1 (text only) | Groq | `qwen/qwen3.8-27b` | `GROQ_API_KEY` | ~30 req/min, 1,000/day | No |
+| 2 | Google Gemini | `gemini-flash-lite-latest` | `GOOGLE_AI_API_KEY` | Varies by tier, resets daily | Yes |
+| 3 | GitHub Models (Copilot free tier) | `openai/gpt-4o-mini` | `GITHUB_MODELS_TOKEN` | ~10 req/min, ~50/day on a free Copilot account, higher on paid plans | Yes |
+| 4+ | OpenRouter | `openrouter/free` + several named free models, then `anthropic/claude-sonnet-4.5` (paid) | `OPENROUTER_API_KEY` | 50/day, permanently 1,000/day once the account has ever purchased $10+ in credits | Yes (for the models used in the vision list) |
 
-Groq and Gemini are tried first specifically because each has its **own, separate** daily quota —
-using them first means real traffic draws down 1,000/day and 1,500/day pools before ever touching
-OpenRouter's much scarcer 50–1,000/day pool, which is kept as the backup-of-backups (ending in a
-paid Claude call so a feature never just goes down). Groq is skipped for photo analysis because its
-free-tier models are text-only.
+Groq, Gemini, and GitHub Models are tried first specifically because each has its **own, separate**
+daily quota — using them first means real traffic draws down their independent pools before ever
+touching OpenRouter's much scarcer 50–1,000/day pool, which is kept as the backup-of-backups
+(ending in a paid Claude call so a feature never just goes down). Groq is skipped for photo
+analysis because its free-tier models are text-only; the other three are all vision-capable.
 
 Every provider here is **optional** — `buildProviderAttempts()` only adds a provider to the list if
 its env var is actually set. With no keys at all, everything falls straight through to the
-OpenRouter chain exactly as it worked before Groq/Gemini existed.
+OpenRouter chain exactly as it worked before the others existed. `/admin` has a status card
+showing which of the three are currently configured, plus per-provider top-up/upgrade instructions
+(none of the three expose a live usage API the way OpenRouter does, so it's status + a guide, not
+live numbers).
 
 ### Adding or rotating a key
 
-1. Get a free key — no payment method required for either:
+1. Get a free credential — no payment method required for any of these:
    - Groq: [console.groq.com/keys](https://console.groq.com/keys)
    - Gemini: [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
-2. Add it to Vercel production: `vercel env add GROQ_API_KEY production` (or `GOOGLE_AI_API_KEY`),
-   or via the Vercel dashboard → Settings → Environment Variables.
+   - GitHub Models: a fine-grained personal access token at
+     [github.com/settings/personal-access-tokens](https://github.com/settings/personal-access-tokens)
+     with the "Models" account permission set to read-only (this is a GitHub PAT, not a
+     provider-issued API key — its rate limit scales with the account's GitHub Copilot plan).
+2. Add it to Vercel production: `vercel env add GROQ_API_KEY production` (or `GOOGLE_AI_API_KEY` /
+   `GITHUB_MODELS_TOKEN`), or via the Vercel dashboard → Settings → Environment Variables.
 3. Add the same value to `.env.local` for local testing.
 4. Redeploy (or just wait for the next deploy) — no code changes needed, the provider activates
    automatically once its env var is present.
+
+GitHub Models was added to the code without a real token available to test against (unlike
+Groq/Gemini, which were verified live) — the first time a real `GITHUB_MODELS_TOKEN` is set, send
+one real request and check `message.content` isn't empty before trusting it in production, the
+same verification Groq/Gemini already went through.
 
 ### Gotcha this chain works around: "reasoning" models that eat their own output
 
