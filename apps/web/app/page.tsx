@@ -8,6 +8,7 @@ import { getTextEmbedding } from "@/lib/embeddings";
 import { slugPath } from "@/lib/slug";
 import { ListingGrid } from "@/components/listing-grid";
 import { CategoryQuickNav } from "@/components/category-quicknav";
+import { SearchQueryInput } from "@/components/search-query-input";
 import { saveSearch } from "@/app/my-account/saved-searches/actions";
 import { Input } from "@/components/ui/input";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -119,7 +120,7 @@ export default async function HomePage({
           </div>
 
           <form className="flex flex-col gap-2 rounded-xl border bg-background p-2 shadow-sm sm:flex-row sm:items-center">
-            <Input type="search" name="q" placeholder={t("searchPlaceholder")} defaultValue={q} className="border-0 shadow-none sm:flex-1" />
+            <SearchQueryInput name="q" placeholder={t("searchPlaceholder")} defaultValue={q} />
             {/* items (plain data, not a render function) is required here because this Select is
                 rendered from a Server Component — a function child can't cross that boundary. */}
             <Select
@@ -176,9 +177,10 @@ export default async function HomePage({
         {/* Results */}
         <main className="flex-1">
           <div className="mb-5 flex items-center justify-between border-b pb-4">
-            <h1 className="text-xl font-bold tracking-tight">{selectedCategory ? selectedCategory.label : q ? t("resultsFor", { q }) : t("recentListings")}</h1>
+            {/* h2, not h1 -- the hero above already carries the page's one h1 (t("heroHeadline")). */}
+            <h2 className="text-xl font-bold tracking-tight">{selectedCategory ? selectedCategory.label : q ? t("resultsFor", { q }) : t("recentListings")}</h2>
             <div className="flex items-center gap-3">
-              {profile && (q || (category && category !== "all")) && (
+              {profile && (q || (category && category !== "all") || city) && (
                 <form action={saveSearch}>
                   {q && <input type="hidden" name="q" value={q} />}
                   {category && <input type="hidden" name="category" value={category} />}
@@ -187,7 +189,9 @@ export default async function HomePage({
                   <Button type="submit" variant="outline" size="sm" className="transition-transform duration-150 hover:-translate-y-0.5">{t("saveSearch")}</Button>
                 </form>
               )}
-              {category && category !== "all" && (
+              {/* Previously only shown for a category filter -- a text or city search with no
+                  category had no way back to the unfiltered feed except editing the URL. */}
+              {(q || (category && category !== "all") || city) && (
                 <Link href="/" className="text-sm text-muted-foreground transition-colors hover:text-primary hover:underline">
                   {t("clearFilter")}
                 </Link>
