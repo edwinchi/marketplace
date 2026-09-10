@@ -87,21 +87,33 @@ export default async function HomePage({
   return (
     <div className="flex flex-1 flex-col">
       {/* Search hero */}
-      <div className="border-b bg-linear-to-b from-muted/60 to-muted/20">
-        <div className="mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-7 sm:px-6 lg:px-8">
+      <div className="relative overflow-hidden border-b bg-linear-to-b from-muted/60 to-muted/20">
+        {/* Same soft radial-blur language as /login and /admin's hero bands, dialed way down --
+            this is still a functional search page, not a marketing splash, so it's a hint of depth
+            behind the headline rather than a full illustrated hero. */}
+        <div aria-hidden className="pointer-events-none absolute -top-24 -left-20 size-72 rounded-full bg-[#e89818]/10 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -right-16 -bottom-28 size-72 rounded-full bg-[#008848]/10 blur-3xl" />
+
+        <div className="relative mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-7 sm:px-6 lg:px-8">
           {/* This was previously just the search form below with no headline or CTA at all --
               anyone landing here (an ad click, a shared link, organic search) saw a functional
               search bar and nothing telling them AfroDeals is also where they'd sell. */}
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-[#082040] sm:text-3xl">{t("heroHeadline")}</h1>
-              <p className="mt-1 text-muted-foreground">{t("heroSubtext")}</p>
+              <h1 className="text-balance bg-linear-to-r from-[#c8630c] via-[#e89818] to-[#f0ad3d] bg-clip-text text-3xl font-extrabold tracking-tight text-transparent sm:text-4xl">
+                {t("heroHeadline")}
+              </h1>
+              <p className="mt-1.5 text-base font-medium text-[#046637] sm:text-lg">{t("heroSubtext")}</p>
             </div>
             <Link
               href="/listings/new"
-              className={buttonVariants({ size: "lg", className: "shrink-0 gap-1.5 whitespace-nowrap transition-transform duration-150 hover:-translate-y-0.5" })}
+              className={buttonVariants({
+                size: "lg",
+                className:
+                  "group shrink-0 gap-1.5 whitespace-nowrap shadow-[0_8px_24px_-8px_rgba(232,152,24,0.55)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-8px_rgba(232,152,24,0.7)]",
+              })}
             >
-              <PackagePlus className="size-4" />
+              <PackagePlus className="size-4 transition-transform duration-200 group-hover:rotate-12" />
               {t("heroCta")}
             </Link>
           </div>
