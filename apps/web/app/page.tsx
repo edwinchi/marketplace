@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PackagePlus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
@@ -9,7 +10,7 @@ import { ListingGrid } from "@/components/listing-grid";
 import { CategoryQuickNav } from "@/components/category-quicknav";
 import { saveSearch } from "@/app/my-account/saved-searches/actions";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default async function HomePage({
@@ -88,6 +89,23 @@ export default async function HomePage({
       {/* Search hero */}
       <div className="border-b bg-linear-to-b from-muted/60 to-muted/20">
         <div className="mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-7 sm:px-6 lg:px-8">
+          {/* This was previously just the search form below with no headline or CTA at all --
+              anyone landing here (an ad click, a shared link, organic search) saw a functional
+              search bar and nothing telling them AfroDeals is also where they'd sell. */}
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-[#082040] sm:text-3xl">{t("heroHeadline")}</h1>
+              <p className="mt-1 text-muted-foreground">{t("heroSubtext")}</p>
+            </div>
+            <Link
+              href="/listings/new"
+              className={buttonVariants({ size: "lg", className: "shrink-0 gap-1.5 whitespace-nowrap transition-transform duration-150 hover:-translate-y-0.5" })}
+            >
+              <PackagePlus className="size-4" />
+              {t("heroCta")}
+            </Link>
+          </div>
+
           <form className="flex flex-col gap-2 rounded-xl border bg-background p-2 shadow-sm sm:flex-row sm:items-center">
             <Input type="search" name="q" placeholder={t("searchPlaceholder")} defaultValue={q} className="border-0 shadow-none sm:flex-1" />
             {/* items (plain data, not a render function) is required here because this Select is

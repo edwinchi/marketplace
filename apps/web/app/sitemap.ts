@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { createServiceClient } from "@/lib/supabase/service";
 import { getCategoriesAndAttributes } from "@/lib/categories";
+import { TARGET_CITIES } from "@/lib/target-cities";
 import { slugPath } from "@/lib/slug";
 
 // A fixed canonical origin, not request-derived (see lib/site-url.ts's getSiteOrigin, which is
@@ -33,6 +34,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  const cityEntries: MetadataRoute.Sitemap = TARGET_CITIES.map((c) => ({
+    url: `${SITE_ORIGIN}/cities/${c.slug}`,
+    changeFrequency: "daily",
+    priority: 0.7,
+  }));
+
   const listingEntries: MetadataRoute.Sitemap = (listings ?? []).map((l) => ({
     url: `${SITE_ORIGIN}/listings/${slugPath(l.title, l.id)}`,
     lastModified: l.updated_at ?? undefined,
@@ -40,5 +47,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticEntries, ...categoryEntries, ...listingEntries];
+  return [...staticEntries, ...categoryEntries, ...cityEntries, ...listingEntries];
 }

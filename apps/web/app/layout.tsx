@@ -40,7 +40,8 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "AfroDeals",
+  metadataBase: new URL("https://afrodeals.net"),
+  title: { default: "AfroDeals", template: "%s | AfroDeals" },
   description: "Buy and sell across African markets.",
 };
 

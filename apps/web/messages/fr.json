@@ -133,6 +133,9 @@
     "makeOffer": "Faire une offre"
   },
   "Home": {
+    "heroHeadline": "Publiez votre première annonce — gratuitement",
+    "heroSubtext": "Achetez et vendez entre marchés africains et la diaspora. Aucun frais pour commencer.",
+    "heroCta": "Publier une annonce gratuite",
     "searchPlaceholder": "Rechercher des annonces…",
     "allCategories": "Toutes les catégories",
     "city": "Ville",

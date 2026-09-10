@@ -133,6 +133,9 @@
     "makeOffer": "Make offer"
   },
   "Home": {
+    "heroHeadline": "Post your first ad — free",
+    "heroSubtext": "Buy and sell across African markets and the diaspora. No fee to get started.",
+    "heroCta": "Post a free ad",
     "searchPlaceholder": "Search listings…",
     "allCategories": "All categories",
     "city": "City",

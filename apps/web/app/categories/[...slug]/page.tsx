@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
@@ -37,6 +38,28 @@ const LISTING_SELECT =
 // app/page.tsx's own city filter already works around).
 const LISTING_SELECT_NEAR_YOU =
   "id, title, description, price_minor, currency_code, pickup_available, delivery_available, locations!inner(city), profiles_public!listings_seller_id_fkey(display_name, username), listing_media(storage_key, sort_order)";
+
+// Every category page previously fell through to the root layout's generic "AfroDeals — Buy and
+// sell across African markets" title/description on every one of the ~2,630 category pages --
+// meaning Google saw the exact same title for Cars, Kitchen & Tableware, and everything else. This
+// gives each one a real, distinct title built from its own breadcrumb, which is the single
+// highest-leverage SEO fix available here (an existing, already-crawlable page, not a new route).
+export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const id = idFromSlugSegments(slug);
+  const path = await getCategoryPath(id);
+  if (path.length === 0) return {};
+
+  const name = path[path.length - 1].name;
+  const breadcrumb = path.map((n) => n.name).join(" > ");
+  const canonicalPath = `/categories/${breadcrumbSlugPath(path.slice(0, -1), name, id)}`;
+
+  return {
+    title: `${name} for sale`,
+    description: `Buy and sell ${name} on AfroDeals — real listings under ${breadcrumb}, from sellers across Africa and the diaspora.`,
+    alternates: { canonical: canonicalPath },
+  };
+}
 
 function parseNum(v: string | undefined) {
   if (!v) return undefined;

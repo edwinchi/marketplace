@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getFooterCategories } from "@/lib/categories";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { TARGET_CITIES } from "@/lib/target-cities";
 import { slugPath } from "@/lib/slug";
 
 // No app-store badges here (unlike the Marktplaats reference this is modeled on) — there is no
@@ -42,7 +43,19 @@ export async function Footer() {
           </>
         )}
 
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t pt-6 text-sm font-semibold text-[#008848]">
+        {/* Unlike the categories list above, this is always visible (not gated behind `user &&`) --
+            these are real, crawlable landing pages (app/cities/[city]/page.tsx), and hiding their
+            only on-site links behind a login check would hide them from anonymous visitors and
+            search engines too, defeating the point of building them. */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 border-t pt-6 text-sm text-muted-foreground">
+          {TARGET_CITIES.map((c) => (
+            <Link key={c.slug} href={`/cities/${c.slug}`} className="transition-colors hover:text-foreground hover:underline">
+              {c.name}
+            </Link>
+          ))}
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t pt-6 text-sm font-semibold text-[#008848]">
           <Link href="/welcome" className="hover:underline">{tNav("howItWorks")}</Link>
           <Link href="/help" className="hover:underline">{tNav("helpInfo")}</Link>
           <Link href="/terms" className="hover:underline">{tNav("terms")}</Link>
