@@ -5,6 +5,7 @@ import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteOrigin } from "@/lib/site-url";
 import { getStripe } from "@/lib/stripe";
+import { isStripeEligibleCountry } from "@/lib/payment-coverage";
 
 // Express, not Standard or Custom -- Stripe's own quick hosted onboarding (ID, bank details)
 // rather than a full Stripe dashboard, matching a casual buy/sell marketplace where most sellers
@@ -18,7 +19,17 @@ export async function startConnectOnboarding() {
   if (!stripe) redirect("/my-account/payments/enable?error=not_configured");
 
   const supabase = await createClient();
-  const { data: row } = await supabase.from("profiles").select("stripe_connect_account_id").eq("id", profile.id).single();
+  const { data: row } = await supabase.from("profiles").select("stripe_connect_account_id, country_code").eq("id", profile.id).single();
+
+  // Real gap found by auditing this flow: accounts.create() used to pass no country at all, so a
+  // seller from any of the 99 anchor countries could start onboarding and hit a broken/rejected
+  // Stripe flow with no explanation. The "enable payments" page already hides this button unless
+  // the seller's saved country is Stripe-eligible, so reaching here without one is either a stale
+  // page or a direct POST -- redirect honestly rather than let Stripe reject it.
+  if (!row?.country_code || !isStripeEligibleCountry(row.country_code)) {
+    redirect("/my-account/payments/enable?error=country_not_supported");
+  }
+
   let accountId = row?.stripe_connect_account_id ?? undefined;
 
   // Both Stripe calls below throw if Connect hasn't been activated on this account yet (Settings
@@ -32,6 +43,7 @@ export async function startConnectOnboarding() {
       const account = await stripe.accounts.create({
         type: "express",
         email: user.email ?? undefined,
+        country: row.country_code,
         metadata: { profile_id: profile.id },
       });
       accountId = account.id;

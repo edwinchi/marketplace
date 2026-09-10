@@ -1,9 +1,11 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Landmark, CheckCircle2, ExternalLink } from "lucide-react";
+import { Landmark, CheckCircle2, ExternalLink, Clock } from "lucide-react";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import { getStripe } from "@/lib/stripe";
+import { isStripeEligibleCountry } from "@/lib/payment-coverage";
+import { getCountryName } from "@/lib/countries";
 import { startConnectOnboarding, openConnectDashboard } from "@/app/my-account/payments/actions";
 import { buttonVariants, Button } from "@/components/ui/button";
 
@@ -24,13 +26,19 @@ export default async function EnablePaymentsPage({
   const supabase = await createClient();
   const { data: row } = await supabase
     .from("profiles")
-    .select("stripe_connect_account_id, stripe_connect_charges_enabled, stripe_connect_payouts_enabled")
+    .select("stripe_connect_account_id, stripe_connect_charges_enabled, stripe_connect_payouts_enabled, country_code")
     .eq("id", profile.id)
     .single();
 
   const stripeConfigured = !!getStripe();
   const connected = !!row?.stripe_connect_charges_enabled;
   const started = !!row?.stripe_connect_account_id && !connected;
+  // Direct Buy payouts only work where Stripe Connect actually operates (see lib/payment-coverage.ts)
+  // -- checked before ever showing the "Connect your bank account" button, not after it fails.
+  // A seller who hasn't set their country yet (profiles.country_code is opt-in, added for
+  // notification scoping) is treated the same as an unsupported one: honest "set your country
+  // first" beats guessing and risking a broken onboarding attempt.
+  const countryEligible = !!row?.country_code && isStripeEligibleCountry(row.country_code);
 
   return (
     <div className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 py-16 text-center">
@@ -47,6 +55,10 @@ export default async function EnablePaymentsPage({
           </p>
         </div>
       ) : connected ? (
+        // Already live -- trust real Stripe state over the self-reported country field below.
+        // A seller onboarded before this fix existed could have gone through under whatever
+        // country Stripe assumed at the time; if charges are genuinely enabled, don't tell them
+        // "coming soon" for a feature they're already using.
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed py-16">
           <CheckCircle2 className="size-10 text-[#008848]" />
           <p className="font-medium">Payments enabled</p>
@@ -59,6 +71,29 @@ export default async function EnablePaymentsPage({
               Manage on Stripe <ExternalLink className="size-3.5" />
             </Button>
           </form>
+        </div>
+      ) : !row?.country_code ? (
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed py-16">
+          <Landmark className="size-10 text-muted-foreground" />
+          <p className="font-medium">Set your country first</p>
+          <p className="max-w-xs text-sm text-muted-foreground">
+            We need to know which country you&apos;re in to know how you can get paid — Stripe&apos;s
+            supported countries differ from region to region.
+          </p>
+          <Link href="/my-account/preferences/location" className={buttonVariants({ size: "sm" })}>
+            Set your country
+          </Link>
+        </div>
+      ) : !countryEligible ? (
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed py-16">
+          <Clock className="size-10 text-[#e89818]" />
+          <p className="font-medium">Coming soon to {getCountryName(row.country_code)}</p>
+          <p className="max-w-xs text-sm text-muted-foreground">
+            Direct bank payouts run on Stripe, which doesn&apos;t yet support {getCountryName(row.country_code)} —
+            we&apos;re working on mobile money and local payment support for more countries. For now,
+            arrange payment directly with buyers — see our{" "}
+            <Link href="/safety" className="underline underline-offset-2">Safety Center</Link> for tips.
+          </p>
         </div>
       ) : (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed py-16">
