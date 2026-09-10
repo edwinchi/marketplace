@@ -1761,6 +1761,7 @@ export type Database = {
           postal_code: string | null
           preferred_city: string | null
           preferred_language: string | null
+          referred_by_profile_id: string | null
           status: string
           stripe_connect_account_id: string | null
           stripe_connect_charges_enabled: boolean
@@ -1801,6 +1802,7 @@ export type Database = {
           postal_code?: string | null
           preferred_city?: string | null
           preferred_language?: string | null
+          referred_by_profile_id?: string | null
           status?: string
           stripe_connect_account_id?: string | null
           stripe_connect_charges_enabled?: boolean
@@ -1841,6 +1843,7 @@ export type Database = {
           postal_code?: string | null
           preferred_city?: string | null
           preferred_language?: string | null
+          referred_by_profile_id?: string | null
           status?: string
           stripe_connect_account_id?: string | null
           stripe_connect_charges_enabled?: boolean
@@ -1857,6 +1860,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "languages"
             referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "profiles_referred_by_profile_id_fkey"
+            columns: ["referred_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
         ]
       }

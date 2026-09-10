@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { CheckCircle2, Lock, Mail, User, UserPlus } from "lucide-react";
 import { signup, type SignupFormState } from "@/app/signup/actions";
 import { GoogleButton } from "@/components/auth/google-button";
+import { FacebookButton } from "@/components/auth/facebook-button";
 import { AuthField } from "@/components/auth/auth-field";
 import { PasswordRequirements } from "@/components/auth/password-requirements";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 
 const initialState: SignupFormState = { error: null, checkEmail: false };
 
-export function SignupForm({ next = "/" }: { next?: string }) {
+export function SignupForm({ next = "/", referralCode }: { next?: string; referralCode?: string }) {
   const t = useTranslations("Auth");
   const [state, formAction, pending] = useActionState(signup, initialState);
   const [password, setPassword] = useState("");
@@ -34,15 +35,24 @@ export function SignupForm({ next = "/" }: { next?: string }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <GoogleButton />
+      <div className="flex flex-col gap-2">
+        <GoogleButton />
+        <FacebookButton />
+      </div>
 
       <div className="relative flex items-center justify-center text-xs text-muted-foreground">
         <Separator className="absolute inset-x-0" />
         <span className="relative bg-card px-2">{t("orUseEmail")}</span>
       </div>
 
+      {referralCode && (
+        <p className="rounded-lg border border-[#008848]/20 bg-[#008848]/5 px-3 py-2 text-sm text-[#046637]">
+          You&apos;ve been invited — sign up and you&apos;ll both get free AI uses.
+        </p>
+      )}
       <form action={formAction} className="flex flex-col gap-4">
         <input type="hidden" name="next" value={next} />
+        {referralCode && <input type="hidden" name="ref" value={referralCode} />}
         <AuthField icon={User} id="display_name" name="display_name" required maxLength={30} autoComplete="name" label={t("yourName")} />
         <AuthField icon={Mail} id="email" name="email" type="email" required autoComplete="email" label={t("email")} />
         <div className="flex flex-col gap-1.5">

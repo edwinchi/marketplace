@@ -6,7 +6,7 @@ import { LoginForm } from "@/components/auth/login-form";
 import { SignupForm } from "@/components/auth/signup-form";
 import { cn } from "@/lib/utils";
 
-export function AuthCard({ initialTab, next = "/" }: { initialTab: "login" | "signup"; next?: string }) {
+export function AuthCard({ initialTab, next = "/", referralCode }: { initialTab: "login" | "signup"; next?: string; referralCode?: string }) {
   const t = useTranslations("Auth");
   const [tab, setTab] = useState(initialTab);
 
@@ -62,7 +62,7 @@ export function AuthCard({ initialTab, next = "/" }: { initialTab: "login" | "si
             </>
           )}
         </p>
-        {tab === "login" ? <LoginForm next={next} /> : <SignupForm next={next} />}
+        {tab === "login" ? <LoginForm next={next} /> : <SignupForm next={next} referralCode={referralCode} />}
       </div>
     </div>
   );

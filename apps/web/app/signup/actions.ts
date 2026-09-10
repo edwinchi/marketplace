@@ -23,6 +23,7 @@ export async function signup(_prevState: SignupFormState, formData: FormData): P
   const password = String(formData.get("password") ?? "");
   const passwordConfirm = String(formData.get("password_confirm") ?? "");
   const displayName = String(formData.get("display_name") ?? "").trim();
+  const referralCode = String(formData.get("ref") ?? "").trim();
 
   if (!displayName) return { error: "Please enter your name.", checkEmail: false };
   if (!isPasswordValid(password)) return { error: "Password doesn't meet the requirements below.", checkEmail: false };
@@ -44,7 +45,13 @@ export async function signup(_prevState: SignupFormState, formData: FormData): P
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { username, display_name: displayName }, emailRedirectTo: `${origin}/auth/callback` },
+      options: {
+        // referral_code is read by the handle_new_user() DB trigger (20260101006500) to credit
+        // both sides with bonus AI uses -- passed as plain account_number text, resolved to a
+        // profile id server-side inside the trigger, never trusted as anything more than a lookup key.
+        data: { username, display_name: displayName, referral_code: referralCode || undefined },
+        emailRedirectTo: `${origin}/auth/callback`,
+      },
     });
 
     if (!error) {

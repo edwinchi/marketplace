@@ -4,9 +4,9 @@ import { Globe2, Handshake, ShieldCheck } from "lucide-react";
 import { AuthCard } from "@/components/auth/auth-card";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ tab?: string; next?: string }> }) {
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ tab?: string; next?: string; ref?: string }> }) {
   const { user } = await getCurrentUserAndProfile();
-  const { tab, next } = await searchParams;
+  const { tab, next, ref } = await searchParams;
   // Only a same-site relative path is honored — "next" comes from a URL query param, so treating
   // it as a trusted redirect target without this check would be an open-redirect hole.
   const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
@@ -48,7 +48,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <p className="mt-3 max-w-md text-center text-sm text-white/60 sm:text-base">{t("welcomeSubtext")}</p>
 
         <div className="mt-9 w-full max-w-md">
-          <AuthCard initialTab={tab === "signup" ? "signup" : "login"} next={safeNext} />
+          <AuthCard initialTab={tab === "signup" || ref ? "signup" : "login"} next={safeNext} referralCode={ref} />
         </div>
 
         <div className="mt-12 grid w-full max-w-3xl grid-cols-1 gap-x-8 gap-y-7 sm:grid-cols-3">

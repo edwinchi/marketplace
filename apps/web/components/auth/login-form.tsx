@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Lock, LogIn, Mail } from "lucide-react";
 import { login, type AuthFormState } from "@/app/login/actions";
 import { GoogleButton } from "@/components/auth/google-button";
+import { FacebookButton } from "@/components/auth/facebook-button";
 import { AuthField } from "@/components/auth/auth-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +20,10 @@ export function LoginForm({ next = "/" }: { next?: string }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <GoogleButton />
+      <div className="flex flex-col gap-2">
+        <GoogleButton />
+        <FacebookButton />
+      </div>
 
       <div className="relative flex items-center justify-center text-xs text-muted-foreground">
         <Separator className="absolute inset-x-0" />

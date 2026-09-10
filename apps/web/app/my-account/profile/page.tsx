@@ -235,6 +235,18 @@ export default async function MyAccountPage() {
             </Link>
           </CardContent>
         </Card>
+
+        <Card className={cardHover}>
+          <CardHeader>
+            <CardTitle className="text-base">Refer a friend</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
+            <p>Share your invite link — you both get free AI uses when they join.</p>
+            <Link href="/my-account/referrals" className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit transition-transform duration-150 hover:-translate-y-0.5" })}>
+              View
+            </Link>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
