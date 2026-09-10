@@ -106,8 +106,29 @@ export async function analyzeListingPhoto(imageBase64: string, mediaType: string
     .eq("id", profile.id)
     .single();
   const isAdmin = isAdminEmail(user.email);
-  const { unlimited, usesSoFar, effectiveLimit, usesLeft: usesLeftBefore } = usageFromRow(usageRow, isAdmin);
-  if (!unlimited && usesSoFar >= effectiveLimit) {
+  const { unlimited, effectiveLimit, usesLeft: usesLeftBefore } = usageFromRow(usageRow, isAdmin);
+
+  const openRouterModels = process.env.OPENROUTER_MODEL ? [process.env.OPENROUTER_MODEL] : OPENROUTER_FREE_MODELS;
+  const openRouterPaidModel = process.env.OPENROUTER_MODEL ? null : OPENROUTER_PAID_MODEL;
+  const attempts = buildProviderAttempts(openRouterModels, openRouterPaidModel, true);
+  if (attempts.length === 0)
+    return { data: null, error: "Photo analysis isn't set up on this server yet.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
+
+  // Reserved BEFORE any provider call, not after -- an atomic check-and-increment (the limit
+  // check and the increment happen in one database statement) closes a race where concurrent
+  // requests could each read the same pre-call count, each pass the limit check, and each trigger
+  // a real (potentially paid) provider call before any of them had actually advanced the stored
+  // count. See supabase/migrations/20260101006700_atomic_ai_use_reservation.sql.
+  const { data: reservedCount, error: reserveError } = await supabase.rpc("reserve_ai_photo_analysis_use", {
+    p_profile_id: profile.id,
+    p_effective_limit: effectiveLimit,
+    p_unlimited: unlimited,
+  });
+  if (reserveError) {
+    console.error(`Failed to reserve an AI photo-analysis use for profile ${profile.id}:`, reserveError);
+    return { data: null, error: "Couldn't check your AI usage — try again in a moment.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
+  }
+  if (reservedCount == null) {
     return {
       data: null,
       error: `You've used all ${effectiveLimit} AI analyses on your account. See /my-account/ai-features for what's next.`,
@@ -116,12 +137,7 @@ export async function analyzeListingPhoto(imageBase64: string, mediaType: string
       unlimited: false,
     };
   }
-
-  const openRouterModels = process.env.OPENROUTER_MODEL ? [process.env.OPENROUTER_MODEL] : OPENROUTER_FREE_MODELS;
-  const openRouterPaidModel = process.env.OPENROUTER_MODEL ? null : OPENROUTER_PAID_MODEL;
-  const attempts = buildProviderAttempts(openRouterModels, openRouterPaidModel, true);
-  if (attempts.length === 0)
-    return { data: null, error: "Photo analysis isn't set up on this server yet.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
+  const usesLeftAfter = unlimited ? effectiveLimit : Math.max(0, effectiveLimit - reservedCount);
 
   const { categoryOptions } = await getCategoriesAndAttributes();
   // ~210 leaf categories at "- Parent → Leaf" each (repeating the parent name on every single line)
@@ -211,6 +227,14 @@ If the photo doesn't clearly show a sellable item, respond with {"title": "", "d
   }
 
   if (!res || !res.ok) {
+    // The reservation above already spent a use before this call was even made -- a service
+    // failure (rate limit, no credit, network error, every provider down) isn't the user's fault,
+    // so it's refunded here rather than left charged against their count. usesLeftBefore (computed
+    // before the reservation) is what the response reports, matching what actually happened from
+    // the user's point of view: nothing was spent.
+    const { error: releaseError } = await supabase.rpc("release_ai_photo_analysis_use", { p_profile_id: profile.id });
+    if (releaseError) console.error(`Failed to release a reserved AI photo-analysis use for profile ${profile.id}:`, releaseError);
+
     if (!res && networkError) {
       return { data: null, error: "Couldn't reach the photo analysis service. Check your connection and try again.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
     }
@@ -218,20 +242,6 @@ If the photo doesn't clearly show a sellable item, respond with {"title": "", "d
     if (lastStatus === 402) return { data: null, error: "Photo analysis is temporarily unavailable — the account behind it needs more credits.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
     return { data: null, error: `Photo analysis failed (${lastStatus}). Try again in a moment.`, usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
   }
-
-  // Counts against the free-use limit here, not earlier — a service failure (rate limit, no
-  // credit, network error) above never reaches this line, so it doesn't cost the user one of
-  // their free tries. A real completed API call did happen at this point, win or lose below.
-  // Still incremented for unlimited (subscribed/admin) accounts too -- keeps ai_photo_analysis_uses
-  // an honest lifetime-usage count even though it no longer gates access for them.
-  // Atomic DB-side increment (see supabase/migrations/20260101005300_atomic_ai_usage_increment.sql)
-  // rather than writing back usesSoFar + 1 -- two concurrent calls for the same profile (a
-  // double-fired click, a retried request) would otherwise both read the same starting count and
-  // each write count + 1, charging one real fill twice while the stored count only moved by one.
-  const { data: newCount, error: incrementError } = await supabase.rpc("increment_ai_photo_analysis_uses", { p_profile_id: profile.id });
-  if (incrementError) console.error(`Failed to increment ai_photo_analysis_uses for profile ${profile.id}:`, incrementError);
-  const usesAfter = newCount ?? usesSoFar + 1;
-  const usesLeftAfter = unlimited ? effectiveLimit : Math.max(0, effectiveLimit - usesAfter);
 
   const json = await res.json();
   const content = json?.choices?.[0]?.message?.content;

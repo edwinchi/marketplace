@@ -3,16 +3,26 @@
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { isSellerProSubscriber } from "@/lib/seller-pro";
 import { callFreeTextModel } from "@/lib/ai-text";
+import { checkRateLimit } from "@/lib/rate-limit";
 
-// Seller Pro exclusive, no free tier or per-use counting -- matches /my-account/ai-features' own
-// copy ("every AI feature below" ships as a Seller Pro perk, not a metered trial). Unlike photo
+// Seller Pro exclusive, no per-use counting like photo analysis has -- matches /my-account/ai-features'
+// own copy ("every AI feature below" ships as a Seller Pro perk, not a metered trial). Unlike photo
 // analysis, this can't observe new facts -- it only reorganizes what the seller already wrote, so
 // the prompt explicitly forbids inventing specs, matching this project's real-data-only rule.
+//
+// The rate limit below (not present until this was flagged in a security review) exists because
+// "no per-use counting" previously meant no cap of any kind -- a signed-in Seller Pro subscriber
+// (or, when the admin's seller_pro_global_unlock toggle is on, ANY signed-in user) could call this
+// directly as many times as a script wanted. 20/hour comfortably covers real iterative use (trying
+// a polish a few times while refining a listing) while ruling out unbounded scripted cost abuse.
 export async function polishDescription(title: string, description: string): Promise<{ description: string | null; error: string | null }> {
   const { user, profile } = await getCurrentUserAndProfile();
   if (!user || !profile) return { description: null, error: "Sign in to use this." };
   if (!(await isSellerProSubscriber())) {
     return { description: null, error: "Polish with AI is a Seller Pro feature — see /my-account/ai-features to subscribe." };
+  }
+  if (!(await checkRateLimit(`polish-description:${profile.id}`, 20, 3600))) {
+    return { description: null, error: "You've used this a lot in the last hour — try again shortly." };
   }
 
   const trimmedDescription = description.trim();

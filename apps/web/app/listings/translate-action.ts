@@ -5,6 +5,7 @@ import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import { isSellerProSubscriber } from "@/lib/seller-pro";
 import { callFreeTextModel, parseJsonResponse } from "@/lib/ai-text";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { slugPath } from "@/lib/slug";
 
 const LANGUAGE_NAMES: Record<string, string> = { en: "English", fr: "French" };
@@ -13,11 +14,19 @@ const LANGUAGE_NAMES: Record<string, string> = { en: "English", fr: "French" };
 // than returning it for the seller to paste in themselves -- the point of "for a wider audience"
 // is that a French-locale visitor sees it automatically on the listing page itself (see the
 // display-side read in app/listings/[...slug]/page.tsx), not that the seller gets a one-off draft.
+//
+// Rate limit added for the same reason polish-description-action.ts has one -- this had no cap of
+// any kind, so a signed-in subscriber (or every signed-in user, if the admin's
+// seller_pro_global_unlock toggle is on) could call it an unlimited number of times. 20/hour per
+// account covers legitimately re-translating several real listings in a session.
 export async function translateListing(listingId: string, targetLang: "en" | "fr"): Promise<{ error: string | null }> {
   const { profile } = await getCurrentUserAndProfile();
   if (!profile) return { error: "Sign in to use this." };
   if (!(await isSellerProSubscriber())) {
     return { error: "Listing translation is a Seller Pro feature — see /my-account/ai-features to subscribe." };
+  }
+  if (!(await checkRateLimit(`translate-listing:${profile.id}`, 20, 3600))) {
+    return { error: "You've used this a lot in the last hour — try again shortly." };
   }
 
   const supabase = await createClient();

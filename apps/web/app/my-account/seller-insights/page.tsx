@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
 import { BarChart3, Eye, Heart, MessageCircle, Handshake, Camera, Clock, Lock, TrendingUp } from "lucide-react";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
@@ -19,6 +20,25 @@ const MIN_LISTINGS_FOR_INSIGHTS = 3;
 const MIN_AGE_DAYS_FOR_VIEW_COMPARISON = 3;
 // Only benchmark against a category when there's a real crowd to compare against.
 const MIN_OTHER_ACTIVE_FOR_CATEGORY_BENCHMARK = 5;
+
+// This page previously called callFreeTextModel() on every single render -- a script that just
+// keeps refreshing this page generated one real (rate-limited, and once free providers are
+// exhausted, billable) AI call per refresh, forever, with nothing to stop it. Cached per profile,
+// keyed by the actual computed facts (not just profile id) -- real new activity (a fresh listing,
+// more views) changes the facts array and naturally busts the cache on its own; unchanged facts
+// reuse the cached summary. The 6-hour ceiling is just a backstop so a cache entry doesn't live
+// forever if the facts genuinely never change again for an inactive seller.
+const getCachedInsightsSummary = unstable_cache(
+  async (_profileId: string, facts: string[]) => {
+    const { text } = await callFreeTextModel(
+      `You are summarizing a seller's real listing performance data on AfroDeals, a classifieds marketplace. Here are the only facts you know, already computed from their real data:\n${facts.map((f) => `- ${f}`).join("\n")}\n\nWrite 1-2 short, encouraging, actionable sentences based ONLY on these facts. Do not invent any number, percentage, or fact not listed above. No markdown, no headers, plain sentences only.`,
+      200,
+    );
+    return text;
+  },
+  ["seller-insights-summary"],
+  { revalidate: 21600 },
+);
 
 type ListingRow = {
   id: string;
@@ -183,11 +203,7 @@ export default async function SellerInsightsPage() {
   if (avgDaysToSell != null) facts.push(`Sold listings took an average of ${avgDaysToSell.toFixed(1)} days to sell.`);
   if (bestListing && worstListing && bestListing.id !== worstListing.id) facts.push(`Best-performing listing has ${bestListing.view_count ?? 0} views; lowest-performing has ${worstListing.view_count ?? 0} views.`);
   if (facts.length > 0) {
-    const { text } = await callFreeTextModel(
-      `You are summarizing a seller's real listing performance data on AfroDeals, a classifieds marketplace. Here are the only facts you know, already computed from their real data:\n${facts.map((f) => `- ${f}`).join("\n")}\n\nWrite 1-2 short, encouraging, actionable sentences based ONLY on these facts. Do not invent any number, percentage, or fact not listed above. No markdown, no headers, plain sentences only.`,
-      200,
-    );
-    aiSummary = text;
+    aiSummary = await getCachedInsightsSummary(profile.id, facts);
   }
 
   return (

@@ -7,7 +7,7 @@ import { randomUUID } from "crypto";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { toMinorUnits } from "@/lib/money";
-import { getCurrencyForCountry } from "@/lib/countries";
+import { getCurrencyForCountry, ANCHOR_COUNTRIES } from "@/lib/countries";
 import type { Database } from "@/lib/supabase/database.types";
 import { slugPath } from "@/lib/slug";
 import { getTextEmbedding } from "@/lib/embeddings";
@@ -223,6 +223,14 @@ export async function createListing(_prevState: ListingFormState, formData: Form
 
   if (!title || !description || !categoryId || !price || !city || !countryCode) {
     return { error: "Please fill in every required field." };
+  }
+  // Validated against the real country list server-side -- a direct call to this action (bypassing
+  // the <select> the UI renders) with a bogus code would otherwise silently store a garbage
+  // locations.country_code and price in EUR (getCurrencyForCountry's fallback for an unrecognized
+  // code), the same class of bug this whole country/currency fix was about. Same check
+  // updateCountry() (my-account/preferences/actions.ts) already applies to the profile-level field.
+  if (!ANCHOR_COUNTRIES.some((c) => c.code === countryCode)) {
+    return { error: "Please choose a valid country." };
   }
   // Currency is derived from country server-side, not trusted from the client -- a stale form,
   // browser extension, or a client bug could otherwise submit a currency_code that doesn't match

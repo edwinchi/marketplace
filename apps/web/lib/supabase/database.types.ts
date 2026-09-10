@@ -2412,6 +2412,8 @@ export type Database = {
       current_profile_id: { Args: never; Returns: string }
       increment_ai_bonus_uses: { Args: { p_amount: number; p_profile_id: string }; Returns: number }
       increment_ai_photo_analysis_uses: { Args: { p_profile_id: string }; Returns: number }
+      reserve_ai_photo_analysis_use: { Args: { p_effective_limit: number; p_profile_id: string; p_unlimited: boolean }; Returns: number | null }
+      release_ai_photo_analysis_use: { Args: { p_profile_id: string }; Returns: number }
       increment_daily_visitor_count: { Args: { p_day: string }; Returns: undefined }
       increment_listing_view_count: { Args: { p_listing_id: string }; Returns: undefined }
       notify_new_listing: { Args: { p_country_code: string | null; p_listing_id: string; p_seller_id: string; p_title: string }; Returns: undefined }
