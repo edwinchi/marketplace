@@ -2148,6 +2148,27 @@ export type Database = {
         }
         Relationships: []
       }
+      health_check_log: {
+        Row: {
+          all_passed: boolean
+          checked_at: string
+          failures: Json
+          id: string
+        }
+        Insert: {
+          all_passed: boolean
+          checked_at?: string
+          failures?: Json
+          id?: string
+        }
+        Update: {
+          all_passed?: boolean
+          checked_at?: string
+          failures?: Json
+          id?: string
+        }
+        Relationships: []
+      }
       rate_limit_events: {
         Row: {
           bucket_key: string

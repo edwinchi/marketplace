@@ -20,9 +20,11 @@ import { BackfillEmbeddingsButton } from "@/components/admin/backfill-embeddings
 import { GrantAiUsesForm } from "@/components/admin/grant-ai-uses-form";
 import { OpenRouterStatusCard } from "@/components/admin/openrouter-status-card";
 import { AiFallbackProvidersCard } from "@/components/admin/ai-fallback-providers-card";
+import { HealthCheckCard } from "@/components/admin/health-check-card";
 import { getRequireLoginSetting, getListenFreeAccessSetting, getSellerProGlobalUnlockSetting, getNewListingNotificationsGlobalUnlockSetting } from "@/lib/app-settings";
 import { getOpenRouterStatus } from "@/lib/openrouter-status";
 import { getAiFallbackProviderStatus } from "@/lib/ai-fallback-provider-status";
+import { getLatestHealthCheck } from "@/lib/health-check";
 import { getDisabledLocales } from "@/lib/language-settings";
 import { getNumericSetting } from "@/lib/numeric-settings";
 import { slugPath } from "@/lib/slug";
@@ -114,7 +116,7 @@ export default async function AdminDashboardPage() {
   const { user } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) return <AdminLoginScreen />;
 
-  const [stats, requireLogin, disabledLocales, collapsedLimit, listenFreeAccess, sellerProGlobalUnlock, newListingNotificationsUnlock, buyerFeePercent, buyerFeeMin, buyerFeeMax, { count: embeddingsRemaining }, openRouterStatus] = await Promise.all([
+  const [stats, requireLogin, disabledLocales, collapsedLimit, listenFreeAccess, sellerProGlobalUnlock, newListingNotificationsUnlock, buyerFeePercent, buyerFeeMin, buyerFeeMax, { count: embeddingsRemaining }, openRouterStatus, healthCheck] = await Promise.all([
     getAdminStats(),
     getRequireLoginSetting(),
     getDisabledLocales(),
@@ -130,6 +132,7 @@ export default async function AdminDashboardPage() {
     // this admin's own).
     createServiceClient().from("listings").select("id", { count: "exact", head: true }).is("title_embedding", null).neq("status", "deleted"),
     getOpenRouterStatus(),
+    getLatestHealthCheck(),
   ]);
   const aiFallbackProviderStatus = getAiFallbackProviderStatus();
   const maxCategory = Math.max(1, ...stats.topCategories.map(([, c]) => c));
@@ -167,6 +170,7 @@ export default async function AdminDashboardPage() {
         <div className="rounded-xl border bg-card p-5 shadow-sm">
           <GrantAiUsesForm />
         </div>
+        <HealthCheckCard result={healthCheck} />
         <OpenRouterStatusCard status={openRouterStatus} />
         <AiFallbackProvidersCard status={aiFallbackProviderStatus} />
       </div>
