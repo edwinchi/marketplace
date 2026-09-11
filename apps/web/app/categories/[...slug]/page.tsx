@@ -32,12 +32,12 @@ const CARS_TYPE_STABLE_KEYS = new Set([
 // profiles_public (a view exposing only public-safe columns), not the profiles table directly --
 // see supabase/migrations/20260101006000_profiles_rls_lockdown.sql.
 const LISTING_SELECT =
-  "id, title, description, price_minor, currency_code, pickup_available, delivery_available, locations(city), profiles_public!listings_seller_id_fkey(display_name, username), listing_media(storage_key, sort_order)";
+  "id, title, description, price_minor, currency_code, pickup_available, delivery_available, published_at, locations(city), profiles_public!listings_seller_id_fkey(display_name, username), listing_media(storage_key, sort_order)";
 // Filtering by an embedded resource's column (locations.city) requires an inner join in
 // PostgREST's embed syntax — a plain left-embed silently ignores that filter (same gotcha
 // app/page.tsx's own city filter already works around).
 const LISTING_SELECT_NEAR_YOU =
-  "id, title, description, price_minor, currency_code, pickup_available, delivery_available, locations!inner(city), profiles_public!listings_seller_id_fkey(display_name, username), listing_media(storage_key, sort_order)";
+  "id, title, description, price_minor, currency_code, pickup_available, delivery_available, published_at, locations!inner(city), profiles_public!listings_seller_id_fkey(display_name, username), listing_media(storage_key, sort_order)";
 
 // Every category page previously fell through to the root layout's generic "AfroDeals — Buy and
 // sell across African markets" title/description on every one of the ~2,630 category pages --

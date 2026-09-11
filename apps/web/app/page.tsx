@@ -9,17 +9,22 @@ import { slugPath } from "@/lib/slug";
 import { ListingGrid } from "@/components/listing-grid";
 import { CategoryQuickNav } from "@/components/category-quicknav";
 import { SearchQueryInput } from "@/components/search-query-input";
+import { SortSelect } from "@/components/sort-select";
 import { saveSearch } from "@/app/my-account/saved-searches/actions";
 import { Input } from "@/components/ui/input";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+const SORT_OPTIONS = { newest: "newest", price_asc: "price_asc", price_desc: "price_desc" } as const;
+type SortOption = keyof typeof SORT_OPTIONS;
+
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string; city?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; city?: string; sort?: string }>;
 }) {
-  const { q, category, city } = await searchParams;
+  const { q, category, city, sort: sortParam } = await searchParams;
+  const sort: SortOption = sortParam && sortParam in SORT_OPTIONS ? (sortParam as SortOption) : "newest";
   const supabase = await createClient();
   const { profile } = await getCurrentUserAndProfile();
   const t = await getTranslations("Home");
@@ -27,13 +32,16 @@ export default async function HomePage({
   // Filtering by an embedded resource's column (locations.city) requires an inner join in
   // PostgREST's embed syntax — a plain left-embed silently ignores that filter.
   const listingSelect = city
-    ? "id, title, price_minor, currency_code, locations!inner(city), listing_media(storage_key, sort_order)"
-    : "id, title, price_minor, currency_code, locations(city), listing_media(storage_key, sort_order)";
+    ? "id, title, price_minor, currency_code, pickup_available, delivery_available, published_at, locations!inner(city), listing_media(storage_key, sort_order)"
+    : "id, title, price_minor, currency_code, pickup_available, delivery_available, published_at, locations(city), listing_media(storage_key, sort_order)";
+  // "exact" count with head:false still returns the full row payload -- this is the one query
+  // whose real total the results heading needs, so it's worth the (small, already-filtered)
+  // extra cost rather than leaving a silent 90-item cutoff with no indication more exist.
   let query = supabase
     .from("listings")
-    .select(listingSelect)
+    .select(listingSelect, { count: "exact" })
     .eq("status", "active")
-    .order("published_at", { ascending: false })
+    .order(sort === "price_asc" || sort === "price_desc" ? "price_minor" : "published_at", { ascending: sort === "price_asc" })
     .limit(90);
 
   const categoryIds = category && category !== "all" ? await getCategoryDescendantIds(category) : null;
@@ -49,7 +57,7 @@ export default async function HomePage({
     query = query.or(`title.ilike.%${term}%,description.ilike.%${term}%`);
   }
 
-  const [{ data: listings }, { categoryOptions, topLevelCategories }, { data: favorites }] = await Promise.all([
+  const [{ data: listings, count: totalCount }, { categoryOptions, topLevelCategories }, { data: favorites }] = await Promise.all([
     query,
     getCategoriesAndAttributes(),
     profile
@@ -88,33 +96,25 @@ export default async function HomePage({
   return (
     <div className="flex flex-1 flex-col">
       {/* Search hero */}
-      <div className="relative overflow-hidden border-b bg-linear-to-b from-muted/60 to-muted/20">
-        {/* Same soft radial-blur language as /login and /admin's hero bands, dialed way down --
-            this is still a functional search page, not a marketing splash, so it's a hint of depth
-            behind the headline rather than a full illustrated hero. */}
-        <div aria-hidden className="pointer-events-none absolute -top-24 -left-20 size-72 rounded-full bg-[#e89818]/10 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -right-16 -bottom-28 size-72 rounded-full bg-[#008848]/10 blur-3xl" />
-
-        <div className="relative mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-7 sm:px-6 lg:px-8">
+      <div className="border-b bg-muted/30">
+        <div className="mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-7 sm:px-6 lg:px-8">
           {/* This was previously just the search form below with no headline or CTA at all --
               anyone landing here (an ad click, a shared link, organic search) saw a functional
-              search bar and nothing telling them AfroDeals is also where they'd sell. */}
+              search bar and nothing telling them AfroDeals is also where they'd sell. Kept
+              deliberately plain (solid color, no gradient/glow) -- a classifieds marketplace reads
+              as more trustworthy with restrained color than with landing-page-style decoration. */}
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
-              <h1 className="text-balance bg-linear-to-r from-[#c8630c] via-[#e89818] to-[#f0ad3d] bg-clip-text text-3xl font-extrabold tracking-tight text-transparent sm:text-4xl">
+              <h1 className="text-balance text-3xl font-extrabold tracking-tight text-[#e89818] sm:text-4xl">
                 {t("heroHeadline")}
               </h1>
               <p className="mt-1.5 text-base font-medium text-[#046637] sm:text-lg">{t("heroSubtext")}</p>
             </div>
             <Link
               href="/listings/new"
-              className={buttonVariants({
-                size: "lg",
-                className:
-                  "group shrink-0 gap-1.5 whitespace-nowrap shadow-[0_8px_24px_-8px_rgba(232,152,24,0.55)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-8px_rgba(232,152,24,0.7)]",
-              })}
+              className={buttonVariants({ size: "lg", className: "shrink-0 gap-1.5 whitespace-nowrap" })}
             >
-              <PackagePlus className="size-4 transition-transform duration-200 group-hover:rotate-12" />
+              <PackagePlus className="size-4" />
               {t("heroCta")}
             </Link>
           </div>
@@ -176,10 +176,17 @@ export default async function HomePage({
 
         {/* Results */}
         <main className="flex-1">
-          <div className="mb-5 flex items-center justify-between border-b pb-4">
-            {/* h2, not h1 -- the hero above already carries the page's one h1 (t("heroHeadline")). */}
-            <h2 className="text-xl font-bold tracking-tight">{selectedCategory ? selectedCategory.label : q ? t("resultsFor", { q }) : t("recentListings")}</h2>
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b pb-4">
+            <div>
+              {/* h2, not h1 -- the hero above already carries the page's one h1 (t("heroHeadline")). */}
+              <h2 className="text-xl font-bold tracking-tight">{selectedCategory ? selectedCategory.label : q ? t("resultsFor", { q }) : t("recentListings")}</h2>
+              {/* Previously a silent .limit(90) cutoff with no indication more listings existed --
+                  a real count (from the same query's exact-count, not a guess) at least tells a
+                  visitor how big the actual pool is, even before real pagination exists. */}
+              {totalCount != null && <p className="mt-0.5 text-xs text-muted-foreground">{totalCount.toLocaleString()} results</p>}
+            </div>
             <div className="flex items-center gap-3">
+              <SortSelect sort={sort} />
               {profile && (q || (category && category !== "all") || city) && (
                 <form action={saveSearch}>
                   {q && <input type="hidden" name="q" value={q} />}
