@@ -2,7 +2,7 @@ import { getRequestConfig } from "next-intl/server";
 import { cookies } from "next/headers";
 import { getDisabledLocales } from "@/lib/language-settings";
 
-export const SUPPORTED_LOCALES = ["en", "fr", "ar", "zh"] as const;
+export const SUPPORTED_LOCALES = ["en", "fr", "ar", "zh", "nl"] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "en";
 export const LOCALE_COOKIE = "afrodeals_locale";

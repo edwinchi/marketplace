@@ -8,6 +8,7 @@ const LANGUAGES = [
   { locale: "fr", label: "Français (French)" },
   { locale: "ar", label: "العربية (Arabic)" },
   { locale: "zh", label: "中文 (Chinese, Mandarin)" },
+  { locale: "nl", label: "Nederlands (Dutch)" },
 ];
 
 function LocaleSwitch({ locale, label, initialEnabled }: { locale: string; label: string; initialEnabled: boolean }) {

@@ -5,12 +5,13 @@ import { Globe } from "lucide-react";
 import { setLocale } from "@/app/actions/set-locale";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const LABELS: Record<string, string> = { en: "EN", fr: "FR", ar: "AR", zh: "ZH" };
+const LABELS: Record<string, string> = { en: "EN", fr: "FR", ar: "AR", zh: "ZH", nl: "NL" };
 const ALL_OPTIONS = [
   { value: "en", label: "English" },
   { value: "fr", label: "Français" },
   { value: "ar", label: "العربية" },
   { value: "zh", label: "中文" },
+  { value: "nl", label: "Nederlands" },
 ];
 
 // disabledLocales comes from the admin-flippable language_settings table (see
