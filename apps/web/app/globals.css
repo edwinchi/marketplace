@@ -51,6 +51,13 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  /* Real Tailwind v4 theme tokens for the three brand colors (sampled from public/logo.png),
+     generating actual utility classes (text-brand-gold, bg-brand-navy, border-brand-green, etc.)
+     instead of the raw text-[#e89818]-style arbitrary values scattered across the app -- one
+     source of truth, and each can shift independently in dark mode via the --brand-* vars below. */
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-gold: var(--brand-gold);
+  --color-brand-green: var(--brand-green);
 }
 
 :root {
@@ -89,6 +96,9 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: #e89818;
+  --brand-navy: #082040;
+  --brand-gold: #e89818;
+  --brand-green: #008848;
 }
 
 .dark {
@@ -123,6 +133,48 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: #f2ad3d;
+  /* Lifted a touch in dark mode -- the light-mode brand hex read too muddy against a near-black
+     background, same reasoning --primary already gets its own dark-mode value above. */
+  --brand-navy: #9fc1f2;
+  --brand-gold: #f2ad3d;
+  --brand-green: #1db56b;
+}
+
+@layer components {
+  /* A distinctive, brand-colored signature for the homepage hero -- what actually sets AfroDeals
+     apart from Marktplaats' plain, undecorated header band, without reintroducing the "SaaS
+     landing page" glow-blob/gradient-text look that was deliberately removed. Two crossed
+     repeating-linear-gradients form an abstract diamond lattice (a widely-used, respectfully
+     generic geometric motif, not a specific named cultural textile pattern) in the brand navy at
+     very low opacity -- present enough to read as a deliberate choice, quiet enough to never
+     compete with the actual headline/search bar sitting on top of it. Pure CSS, no image asset. */
+  .brand-lattice {
+    background-image:
+      repeating-linear-gradient(45deg, color-mix(in oklch, var(--brand-navy) 6%, transparent) 0 1.5px, transparent 1.5px 22px),
+      repeating-linear-gradient(-45deg, color-mix(in oklch, var(--brand-navy) 6%, transparent) 0 1.5px, transparent 1.5px 22px);
+  }
+
+  /* @starting-style: a genuinely new (Baseline 2025) CSS feature -- defines the "before" state for
+     a transition on an element's first paint, so a normally-instant appearance (no prior state to
+     transition FROM) gets a real entrance instead. Used for the hero content only, once, rather
+     than sprinkled everywhere -- the same "spend animation on one deliberate moment" restraint
+     applied to removing the per-card hover-lift from the listing grid. */
+  .hero-enter {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  }
+  @starting-style {
+    .hero-enter {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-enter {
+      transition: none;
+    }
+  }
 }
 
 @layer base {
