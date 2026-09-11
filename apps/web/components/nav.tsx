@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
-import { Home, PlusCircle, User, MessageCircle, Bell, PackagePlus } from "lucide-react";
+import { Home, PlusCircle, User, MessageCircle, Bell, PackagePlus, Search } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getUnreadMessageCount } from "@/lib/messages";
@@ -14,6 +14,7 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { CurrencySwitcher } from "@/components/currency-switcher";
 import { MobileNavMenu } from "@/components/mobile-nav-menu";
 import { MessageSoundNotifier } from "@/components/message-sound-notifier";
+import { SearchQueryInput } from "@/components/search-query-input";
 
 export async function Nav() {
   const { user, profile } = await getCurrentUserAndProfile();
@@ -117,6 +118,21 @@ export async function Nav() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.png" alt="AfroDeals" className="h-16 w-auto" />
             </Link>
+            {/* xl, matching "How it works" right below -- the same measured constraint applies
+                (this row already fills 1024-1280px, only 1280px+ has real spare room). Search was
+                previously only reachable from the homepage's own hero form -- anywhere else on the
+                site (a listing page, My Account, anything) had no way to start a new search except
+                navigating back to "/" first. A plain GET form, not a client component -- Enter or
+                the icon button both just load "/?q=...", the same destination the homepage's own
+                search already targets. */}
+            <form action="/" className="hidden max-w-md flex-1 xl:block">
+              <div className="flex items-center rounded-full border bg-muted/40 pr-1 pl-3 transition-colors focus-within:border-ring focus-within:bg-background">
+                <SearchQueryInput name="q" placeholder={t("searchPlaceholder")} />
+                <button type="submit" aria-label={t("search")} className="flex size-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-background hover:text-foreground">
+                  <Search className="size-4" />
+                </button>
+              </div>
+            </form>
             <nav className="flex items-center gap-1 sm:gap-2">
               <LanguageSwitcher locale={locale} disabledLocales={[...disabledLocales]} />
               <CurrencySwitcher currency={displayCurrency} />

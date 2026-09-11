@@ -17,6 +17,9 @@ export function SortSelect({ sort }: { sort: string }) {
     const params = new URLSearchParams(searchParams.toString());
     if (value === "newest") params.delete("sort");
     else params.set("sort", value);
+    // A different sort re-orders the whole result set -- staying on "page 3" of that new order
+    // would show different listings than page 3 meant a moment ago, not a continuation of it.
+    params.delete("page");
     router.push(`/?${params.toString()}`);
   }
 

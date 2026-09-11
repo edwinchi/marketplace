@@ -17,14 +17,27 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 const SORT_OPTIONS = { newest: "newest", price_asc: "price_asc", price_desc: "price_desc" } as const;
 type SortOption = keyof typeof SORT_OPTIONS;
+const PAGE_SIZE = 60;
+// Real seeded stable_keys for the "condition" attribute (attribute_options table) -- not a fixed
+// enum on the listings table itself (condition_code is a plain unconstrained varchar, set from
+// whichever of these an attribute value resolved to at listing-creation time), so this list is
+// kept in sync with the actual seeded options rather than invented.
+const CONDITIONS = [
+  { value: "new", label: "New" },
+  { value: "as_new", label: "As new" },
+  { value: "good", label: "Good" },
+  { value: "fair", label: "Fair" },
+  { value: "for_parts", label: "For parts" },
+];
 
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string; city?: string; sort?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; city?: string; sort?: string; page?: string; priceMin?: string; priceMax?: string; condition?: string }>;
 }) {
-  const { q, category, city, sort: sortParam } = await searchParams;
+  const { q, category, city, sort: sortParam, page: pageParam, priceMin, priceMax, condition } = await searchParams;
   const sort: SortOption = sortParam && sortParam in SORT_OPTIONS ? (sortParam as SortOption) : "newest";
+  const page = Math.max(1, Number(pageParam) || 1);
   const supabase = await createClient();
   const { profile } = await getCurrentUserAndProfile();
   const t = await getTranslations("Home");
@@ -35,14 +48,14 @@ export default async function HomePage({
     ? "id, title, price_minor, currency_code, pickup_available, delivery_available, published_at, locations!inner(city), listing_media(storage_key, sort_order)"
     : "id, title, price_minor, currency_code, pickup_available, delivery_available, published_at, locations(city), listing_media(storage_key, sort_order)";
   // "exact" count with head:false still returns the full row payload -- this is the one query
-  // whose real total the results heading needs, so it's worth the (small, already-filtered)
-  // extra cost rather than leaving a silent 90-item cutoff with no indication more exist.
+  // whose real total the results heading (and pagination) needs, so it's worth the (small,
+  // already-filtered) extra cost rather than leaving a silent cutoff with no indication more exist.
   let query = supabase
     .from("listings")
     .select(listingSelect, { count: "exact" })
     .eq("status", "active")
     .order(sort === "price_asc" || sort === "price_desc" ? "price_minor" : "published_at", { ascending: sort === "price_asc" })
-    .limit(90);
+    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 
   const categoryIds = category && category !== "all" ? await getCategoryDescendantIds(category) : null;
   if (categoryIds) {
@@ -56,6 +69,11 @@ export default async function HomePage({
     const term = q.replaceAll(",", " ").replaceAll("%", "");
     query = query.or(`title.ilike.%${term}%,description.ilike.%${term}%`);
   }
+  const priceMinMinor = priceMin ? Math.round(Number(priceMin) * 100) : null;
+  const priceMaxMinor = priceMax ? Math.round(Number(priceMax) * 100) : null;
+  if (priceMinMinor != null && Number.isFinite(priceMinMinor)) query = query.gte("price_minor", priceMinMinor);
+  if (priceMaxMinor != null && Number.isFinite(priceMaxMinor)) query = query.lte("price_minor", priceMaxMinor);
+  if (condition) query = query.eq("condition_code", condition);
 
   const [{ data: listings, count: totalCount }, { categoryOptions, topLevelCategories }, { data: favorites }] = await Promise.all([
     query,
@@ -173,6 +191,42 @@ export default async function HomePage({
               </li>
             ))}
           </ul>
+
+          {/* Previously the only filters on this page were category (in the hero form above) and a
+              free-text city -- no price range or condition, despite condition_code already being
+              stored on every listing. A plain GET form: submitting resets to page 1 (a new filter
+              set makes any existing page number meaningless) while q/category/city/sort survive
+              as hidden inputs so this doesn't clobber whatever's already applied. */}
+          <form className="mt-6 flex flex-col gap-4 border-t pt-4 text-sm">
+            {q && <input type="hidden" name="q" value={q} />}
+            {category && <input type="hidden" name="category" value={category} />}
+            {city && <input type="hidden" name="city" value={city} />}
+            {sort !== "newest" && <input type="hidden" name="sort" value={sort} />}
+            <div>
+              <p className="mb-2 font-semibold">Price</p>
+              <div className="flex items-center gap-2">
+                <Input type="number" name="priceMin" placeholder="Min" min="0" defaultValue={priceMin} className="h-8" />
+                <span className="text-muted-foreground">–</span>
+                <Input type="number" name="priceMax" placeholder="Max" min="0" defaultValue={priceMax} className="h-8" />
+              </div>
+            </div>
+            <div>
+              <p className="mb-2 font-semibold">Condition</p>
+              <div className="flex flex-col gap-1.5">
+                <label className="flex items-center gap-2 text-muted-foreground">
+                  <input type="radio" name="condition" value="" defaultChecked={!condition} className="accent-primary" />
+                  Any
+                </label>
+                {CONDITIONS.map((c) => (
+                  <label key={c.value} className="flex items-center gap-2 text-muted-foreground">
+                    <input type="radio" name="condition" value={c.value} defaultChecked={condition === c.value} className="accent-primary" />
+                    {c.label}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <Button type="submit" size="sm" variant="outline">Apply filters</Button>
+          </form>
         </aside>
 
         {/* Results */}
@@ -181,9 +235,8 @@ export default async function HomePage({
             <div>
               {/* h2, not h1 -- the hero above already carries the page's one h1 (t("heroHeadline")). */}
               <h2 className="text-xl font-bold tracking-tight">{selectedCategory ? selectedCategory.label : q ? t("resultsFor", { q }) : t("recentListings")}</h2>
-              {/* Previously a silent .limit(90) cutoff with no indication more listings existed --
-                  a real count (from the same query's exact-count, not a guess) at least tells a
-                  visitor how big the actual pool is, even before real pagination exists. */}
+              {/* Previously a silent .limit(90) cutoff with no indication more listings existed at
+                  all -- a real count from the same query's exact-count, not a guess. */}
               {totalCount != null && <p className="mt-0.5 text-xs text-muted-foreground">{totalCount.toLocaleString()} results</p>}
             </div>
             <div className="flex items-center gap-3">
@@ -223,6 +276,64 @@ export default async function HomePage({
                 {t("beTheFirst")}
               </Link>
             </div>
+          )}
+
+          {/* Real pagination, not a silent 90-item cutoff -- pageHref preserves every other active
+              param (q/category/city/sort/price/condition) so paging never resets a filter. */}
+          {totalCount != null && totalCount > PAGE_SIZE && (
+            <nav className="mt-8 flex items-center justify-center gap-2" aria-label="Pagination">
+              {(() => {
+                const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+                const pageHref = (p: number) => {
+                  const params = new URLSearchParams();
+                  if (q) params.set("q", q);
+                  if (category) params.set("category", category);
+                  if (city) params.set("city", city);
+                  if (sort !== "newest") params.set("sort", sort);
+                  if (priceMin) params.set("priceMin", priceMin);
+                  if (priceMax) params.set("priceMax", priceMax);
+                  if (condition) params.set("condition", condition);
+                  if (p > 1) params.set("page", String(p));
+                  const qs = params.toString();
+                  return qs ? `/?${qs}` : "/";
+                };
+                // A compact window around the current page rather than every page number -- with
+                // up to hundreds of pages possible at PAGE_SIZE=60, listing every one would be its
+                // own usability problem.
+                const windowStart = Math.max(1, page - 2);
+                const windowEnd = Math.min(totalPages, page + 2);
+                const pages = Array.from({ length: windowEnd - windowStart + 1 }, (_, i) => windowStart + i);
+                return (
+                  <>
+                    <Link
+                      href={pageHref(page - 1)}
+                      aria-disabled={page <= 1}
+                      className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${page <= 1 ? "pointer-events-none opacity-40" : "hover:bg-muted"}`}
+                    >
+                      Previous
+                    </Link>
+                    {windowStart > 1 && <span className="px-1 text-sm text-muted-foreground">…</span>}
+                    {pages.map((p) => (
+                      <Link
+                        key={p}
+                        href={pageHref(p)}
+                        className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${p === page ? "border-primary bg-primary/10 font-semibold text-primary" : "hover:bg-muted"}`}
+                      >
+                        {p}
+                      </Link>
+                    ))}
+                    {windowEnd < totalPages && <span className="px-1 text-sm text-muted-foreground">…</span>}
+                    <Link
+                      href={pageHref(page + 1)}
+                      aria-disabled={page >= totalPages}
+                      className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${page >= totalPages ? "pointer-events-none opacity-40" : "hover:bg-muted"}`}
+                    >
+                      Next
+                    </Link>
+                  </>
+                );
+              })()}
+            </nav>
           )}
         </main>
       </div>

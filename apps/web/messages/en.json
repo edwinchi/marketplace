@@ -22,7 +22,9 @@
     "myAccount": "My account",
     "browse": "Browse",
     "postAdShort": "Post ad",
-    "account": "Account"
+    "account": "Account",
+    "searchPlaceholder": "Search listings…",
+    "search": "Search"
   },
   "AccountMenu": {
     "profile": "Profile",

@@ -22,7 +22,9 @@
     "myAccount": "حسابي",
     "browse": "تصفح",
     "postAdShort": "أضف إعلانًا",
-    "account": "الحساب"
+    "account": "الحساب",
+    "searchPlaceholder": "ابحث في الإعلانات…",
+    "search": "بحث"
   },
   "AccountMenu": {
     "profile": "الملف الشخصي",

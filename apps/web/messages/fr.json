@@ -22,7 +22,9 @@
     "myAccount": "Mon compte",
     "browse": "Parcourir",
     "postAdShort": "Déposer",
-    "account": "Compte"
+    "account": "Compte",
+    "searchPlaceholder": "Rechercher des annonces…",
+    "search": "Rechercher"
   },
   "AccountMenu": {
     "profile": "Profil",

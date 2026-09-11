@@ -22,7 +22,9 @@
     "myAccount": "Mijn account",
     "browse": "Bladeren",
     "postAdShort": "Plaatsen",
-    "account": "Account"
+    "account": "Account",
+    "searchPlaceholder": "Zoek advertenties…",
+    "search": "Zoeken"
   },
   "AccountMenu": {
     "profile": "Profiel",
