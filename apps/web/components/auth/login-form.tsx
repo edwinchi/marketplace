@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Lock, LogIn, Mail } from "lucide-react";
 import { login, type AuthFormState } from "@/app/login/actions";
 import { GoogleButton } from "@/components/auth/google-button";
-import { FacebookButton } from "@/components/auth/facebook-button";
+// import { FacebookButton } from "@/components/auth/facebook-button"; -- see the note below, disabled for now
 import { AuthField } from "@/components/auth/auth-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +22,12 @@ export function LoginForm({ next = "/" }: { next?: string }) {
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <GoogleButton />
-        <FacebookButton />
+        {/* Hidden until the Facebook app is verified and its App ID/Secret are added in Supabase
+            (Authentication -> Providers -> Facebook) -- clicking it today would silently bounce
+            back to /login with no explanation, since signInWithFacebook() (app/login/facebook-action.ts)
+            redirects to ?error=facebook_not_configured on failure, which nothing currently displays.
+            Re-enable by uncommenting once that setup is confirmed working end-to-end. */}
+        {/* <FacebookButton /> */}
       </div>
 
       <div className="relative flex items-center justify-center text-xs text-muted-foreground">
