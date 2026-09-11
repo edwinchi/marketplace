@@ -24,7 +24,7 @@ export function CookieConsentBanner() {
           <Cookie className="size-4 shrink-0 text-[#e89818]" />
           We use essential cookies to keep you signed in, and would like your OK for optional
           analytics cookies that help us improve AfroDeals.{" "}
-          <Link href="/terms" className="underline hover:text-foreground">Learn more</Link>
+          <Link href="/privacy" className="underline hover:text-foreground">Learn more</Link>
         </p>
         <div className="flex shrink-0 gap-2">
           <Button

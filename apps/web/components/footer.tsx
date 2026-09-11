@@ -59,6 +59,8 @@ export async function Footer() {
           <Link href="/welcome" className="hover:underline">{tNav("howItWorks")}</Link>
           <Link href="/help" className="hover:underline">{tNav("helpInfo")}</Link>
           <Link href="/terms" className="hover:underline">{tNav("terms")}</Link>
+          <Link href="/privacy" className="hover:underline">{tNav("privacy")}</Link>
+          <Link href="/data-deletion" className="hover:underline">{tNav("dataDeletion")}</Link>
           <Link href="/safety" className="hover:underline">{tNav("safetyCenter")}</Link>
           <Link href="/feedback" className="hover:underline">{tNav("feedback")}</Link>
         </div>
