@@ -9,7 +9,7 @@ import { MessageComposer } from "@/components/messages/message-composer";
 import { MarkRead } from "@/components/messages/mark-read";
 import { slugPath } from "@/lib/slug";
 
-export const metadata = { title: "Messages — AfroDeals" };
+export const metadata = { title: "Messages — MarketitNow" };
 
 type ConversationRow = {
   id: string;

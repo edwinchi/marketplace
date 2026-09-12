@@ -39,7 +39,7 @@ import { ShieldCheck } from "lucide-react";
 // Drives the rich preview card WhatsApp/Facebook/X/iMessage/Slack generate when someone shares a
 // listing link (components/listings/save-share-bar.tsx) -- those platforms scrape these tags from
 // the URL itself rather than anything the share menu passes, so this is the only way to make a
-// shared listing show AfroDeals' own branding (logo + site name) instead of no preview at all.
+// shared listing show MarketitNow' own branding (logo + site name) instead of no preview at all.
 export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }): Promise<Metadata> {
   const { slug } = await params;
   const id = idFromSlugSegments(slug);
@@ -57,14 +57,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const origin = await getSiteOrigin();
   const url = `${origin}/listings/${slug.join("/")}`;
-  const description = displayDescription ? displayDescription.slice(0, 200) : "Buy and sell across African markets.";
-  const title = `${displayTitle} | AfroDeals`;
-  const logo = { url: `${origin}/logo.png`, width: 1916, height: 821, alt: "AfroDeals" };
+  const description = displayDescription ? displayDescription.slice(0, 200) : "Buy and sell from anywhere in the world.";
+  const title = `${displayTitle} | MarketitNow`;
+  const logo = { url: `${origin}/logo.png`, width: 1167, height: 500, alt: "MarketitNow" };
 
   return {
     title,
     description,
-    openGraph: { title, description, url, siteName: "AfroDeals", images: [logo], type: "website" },
+    openGraph: { title, description, url, siteName: "MarketitNow", images: [logo], type: "website" },
     twitter: { card: "summary_large_image", title, description, images: [logo.url] },
   };
 }
@@ -359,7 +359,7 @@ export default async function ListingPage({
                 <div className="flex items-start gap-2">
                   <ShieldCheck className="mt-0.5 size-4 shrink-0 text-[#008200]" />
                   <div className="text-xs text-muted-foreground">
-                    <p className="font-medium text-foreground">Direct Buy — pay securely through AfroDeals</p>
+                    <p className="font-medium text-foreground">Direct Buy — pay securely through MarketitNow</p>
                     <p className="mt-0.5">
                       Item price {formatPrice(listing.price_minor ?? 0, listing.currency_code, locale)} + buyer protection fee{" "}
                       {formatPrice(buyerFeeMinor, listing.currency_code, locale)} = {formatPrice((listing.price_minor ?? 0) + buyerFeeMinor, listing.currency_code, locale)}{" "}

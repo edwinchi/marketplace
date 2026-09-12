@@ -277,7 +277,7 @@ export function CarsLanding({
           </div>
         </div>
 
-        {/* Free document templates — real, AfroDeals-branded, no fake paywall */}
+        {/* Free document templates — real, MarketitNow-branded, no fake paywall */}
         <div className="mt-10">
           <h2 className="mb-3 text-lg font-semibold">Free templates for your sale</h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">

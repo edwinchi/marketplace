@@ -74,7 +74,7 @@ function ReportButton({ listingId, signedIn }: { listingId: string; signedIn: bo
           <>
             <DialogHeader>
               <DialogTitle>Report this listing</DialogTitle>
-              <DialogDescription>Tell us what&apos;s wrong — reports are reviewed by AfroDeals, not shown to the seller.</DialogDescription>
+              <DialogDescription>Tell us what&apos;s wrong — reports are reviewed by MarketitNow, not shown to the seller.</DialogDescription>
             </DialogHeader>
             <div className="flex flex-col gap-3">
               <Select value={reason} onValueChange={(v) => v && setReason(v)}>
@@ -133,16 +133,16 @@ function XIcon({ className }: { className?: string }) {
 }
 
 // Facebook and X build their own preview card straight from the URL's Open Graph/Twitter Card
-// tags (see generateMetadata in app/listings/[...slug]/page.tsx) -- that's where the AfroDeals
+// tags (see generateMetadata in app/listings/[...slug]/page.tsx) -- that's where the MarketitNow
 // logo comes from on those two, not anything passed here. WhatsApp and Email don't reliably
 // render link previews at all (WhatsApp usually does, but many email clients never fetch OG tags),
-// so those two get an explicit "via AfroDeals <site link>" signature in the message text itself.
+// so those two get an explicit "via MarketitNow <site link>" signature in the message text itself.
 const SHARE_TARGETS = [
   {
     key: "whatsapp",
     label: "WhatsApp",
     icon: WhatsAppIcon,
-    href: (url: string, title: string) => `https://wa.me/?text=${encodeURIComponent(`${title}\n${url}\n\nvia AfroDeals — ${new URL(url).origin}`)}`,
+    href: (url: string, title: string) => `https://wa.me/?text=${encodeURIComponent(`${title}\n${url}\n\nvia MarketitNow — ${new URL(url).origin}`)}`,
   },
   {
     key: "facebook",
@@ -161,7 +161,7 @@ const SHARE_TARGETS = [
     label: "Email",
     icon: Mail,
     href: (url: string, title: string) =>
-      `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`${title}\n${url}\n\nvia AfroDeals — ${new URL(url).origin}`)}`,
+      `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`${title}\n${url}\n\nvia MarketitNow — ${new URL(url).origin}`)}`,
   },
 ];
 
@@ -212,7 +212,7 @@ function ShareMenu({ title }: { title: string }) {
           // the fallback for desktop browsers that don't support the Web Share API at all.
           if (canNativeShare) {
             try {
-              await navigator.share({ title, text: "via AfroDeals", url: window.location.href });
+              await navigator.share({ title, text: "via MarketitNow", url: window.location.href });
               return;
             } catch (err) {
               // AbortError means the user closed the native share sheet themselves — respect

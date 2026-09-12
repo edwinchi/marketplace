@@ -30,7 +30,7 @@ import { StickyAnchorNav } from "@/components/welcome/sticky-anchor-nav";
 import { FloatingCtaBar } from "@/components/welcome/floating-cta-bar";
 import { ListenButton } from "@/components/listen-button";
 
-export const metadata: Metadata = { title: "Welcome to AfroDeals" };
+export const metadata: Metadata = { title: "Welcome to MarketitNow" };
 
 type IconType = typeof Search;
 
@@ -309,7 +309,7 @@ export default async function WelcomePage() {
         </div>
       </section>
 
-      {/* Closing CTA — no app-store badges/QR here: there is no AfroDeals mobile app (see
+      {/* Closing CTA — no app-store badges/QR here: there is no MarketitNow mobile app (see
           components/footer.tsx's own note on this exact point), so this closes on the real thing
           instead of a fictional download. */}
       <section className="bg-muted/30 px-4 py-16 text-center sm:px-6 lg:px-8">

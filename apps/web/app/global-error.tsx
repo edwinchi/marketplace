@@ -22,7 +22,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
         <div style={{ maxWidth: 420, margin: "6rem auto", padding: "0 1rem", textAlign: "center" }}>
           {isStaleDeployment ? (
             <>
-              <h1 style={{ fontSize: "1.5rem", fontWeight: 600, marginBottom: "0.75rem" }}>A new version of AfroDeals is ready</h1>
+              <h1 style={{ fontSize: "1.5rem", fontWeight: 600, marginBottom: "0.75rem" }}>A new version of MarketitNow is ready</h1>
               <p style={{ color: "#666", marginBottom: "1.5rem" }}>
                 This page was open from before an update — refresh to load the latest version and continue where you left off.
               </p>
@@ -37,7 +37,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
             <>
               <h1 style={{ fontSize: "1.5rem", fontWeight: 600, marginBottom: "0.75rem" }}>Something went wrong</h1>
               <p style={{ color: "#666", marginBottom: "1.5rem" }}>
-                AfroDeals hit an unexpected error. Try again in a moment.
+                MarketitNow hit an unexpected error. Try again in a moment.
               </p>
               <button
                 onClick={reset}

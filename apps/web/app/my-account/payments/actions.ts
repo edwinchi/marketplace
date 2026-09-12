@@ -9,7 +9,7 @@ import { isStripeEligibleCountry } from "@/lib/payment-coverage";
 
 // Express, not Standard or Custom -- Stripe's own quick hosted onboarding (ID, bank details)
 // rather than a full Stripe dashboard, matching a casual buy/sell marketplace where most sellers
-// aren't running a registered business. Neither AfroDeals nor its database ever sees the bank
+// aren't running a registered business. Neither MarketitNow nor its database ever sees the bank
 // details themselves -- Stripe collects them directly and just hands back an account id.
 export async function startConnectOnboarding() {
   const { user, profile } = await getCurrentUserAndProfile();
@@ -69,7 +69,7 @@ export async function startConnectOnboarding() {
 }
 
 // Stripe's own hosted dashboard for a connected Express account -- lets a seller see their payout
-// history and update their bank details without AfroDeals building any of that itself.
+// history and update their bank details without MarketitNow building any of that itself.
 export async function openConnectDashboard() {
   const { profile } = await getCurrentUserAndProfile();
   if (!profile) redirect("/login");

@@ -11,7 +11,7 @@ export default function DataDeletionPage() {
     <div className="mx-auto w-full max-w-2xl px-4 py-8">
       <h1 className="mb-2 text-2xl font-semibold">Data Deletion Instructions</h1>
       <p className="mb-8 text-sm text-muted-foreground">
-        How to delete your AfroDeals account and personal data, and exactly what that does.
+        How to delete your MarketitNow account and personal data, and exactly what that does.
       </p>
 
       <div className="flex flex-col gap-6 text-sm text-muted-foreground">
@@ -52,9 +52,9 @@ export default function DataDeletionPage() {
         <section>
           <h2 className="mb-2 text-base font-semibold text-foreground">Payment records</h2>
           <p>
-            If you&apos;ve made or received a payment through AfroDeals, our payment provider (Stripe) keeps its own
-            transaction records independently of your AfroDeals account, as required for fraud prevention and tax
-            compliance — deleting your AfroDeals account doesn&apos;t delete Stripe&apos;s own records of a completed
+            If you&apos;ve made or received a payment through MarketitNow, our payment provider (Stripe) keeps its own
+            transaction records independently of your MarketitNow account, as required for fraud prevention and tax
+            compliance — deleting your MarketitNow account doesn&apos;t delete Stripe&apos;s own records of a completed
             payment.
           </p>
         </section>

@@ -10,7 +10,7 @@ export default async function CarSaleAgreementPage() {
     <DocumentPage
       title="Car Sale Agreement"
       subtitle="A fill-in-the-blanks template both sides can sign when a car changes hands off-platform. Print it, fill it in by hand, and both keep a signed copy."
-      disclaimer="Using this template doesn't guarantee the sale is valid or problem-free. Always confirm the seller actually owns the car, check for hidden defects, and take a test drive. AfroDeals is not a party to this agreement and isn't responsible for its use — adapt the wording to your country's requirements where needed."
+      disclaimer="Using this template doesn't guarantee the sale is valid or problem-free. Always confirm the seller actually owns the car, check for hidden defects, and take a test drive. MarketitNow is not a party to this agreement and isn't responsible for its use — adapt the wording to your country's requirements where needed."
     >
       <Section number={1} title="Parties">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">

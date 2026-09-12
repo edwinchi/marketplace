@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { ListenButton } from "@/components/listen-button";
 
-export const metadata = { title: "Safety Center — AfroDeals" };
+export const metadata = { title: "Safety Center — MarketitNow" };
 
 export default async function SafetyPage() {
   const t = await getTranslations("Safety");

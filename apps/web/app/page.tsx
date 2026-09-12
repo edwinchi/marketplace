@@ -118,7 +118,7 @@ export default async function HomePage({
         <div className="hero-enter relative mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-7 sm:px-6 lg:px-8">
           {/* This was previously just the search form below with no headline or CTA at all --
               anyone landing here (an ad click, a shared link, organic search) saw a functional
-              search bar and nothing telling them AfroDeals is also where they'd sell. Solid brand
+              search bar and nothing telling them MarketitNow is also where they'd sell. Solid brand
               color, not a gradient/glow -- restrained enough to still read as a trustworthy
               classifieds marketplace, not a SaaS landing page. The real-photo collage behind it
               (.brand-lattice::before, see globals.css) is the actual differentiator from

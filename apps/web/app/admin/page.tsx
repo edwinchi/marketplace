@@ -64,7 +64,7 @@ function AdminLoginScreen() {
 
         <p className="mt-6 text-center text-xs text-white/30">
           <Link href="/" className="underline underline-offset-2 hover:text-white/60">
-            Back to AfroDeals
+            Back to MarketitNow
           </Link>
         </p>
       </div>
@@ -142,7 +142,7 @@ export default async function AdminDashboardPage() {
     <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-3 border-b pb-6">
         <div>
-          <p className="text-xs font-semibold tracking-wide text-[#e89818] uppercase">AfroDeals</p>
+          <p className="text-xs font-semibold tracking-wide text-[#e89818] uppercase">MarketitNow</p>
           <h1 className="text-2xl font-bold tracking-tight text-[#082040]">Executive Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">Real, live figures straight from the database — no sample or placeholder data.</p>
         </div>

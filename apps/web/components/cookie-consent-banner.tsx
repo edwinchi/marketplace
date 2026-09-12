@@ -23,7 +23,7 @@ export function CookieConsentBanner() {
         <p className="flex items-center gap-2 text-sm text-muted-foreground">
           <Cookie className="size-4 shrink-0 text-[#e89818]" />
           We use essential cookies to keep you signed in, and would like your OK for optional
-          analytics cookies that help us improve AfroDeals.{" "}
+          analytics cookies that help us improve MarketitNow.{" "}
           <Link href="/privacy" className="underline hover:text-foreground">Learn more</Link>
         </p>
         <div className="flex shrink-0 gap-2">

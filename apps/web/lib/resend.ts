@@ -29,7 +29,7 @@ export async function sendEmail(params: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "AfroDeals Feedback <onboarding@resend.dev>",
+      from: "MarketitNow Feedback <onboarding@resend.dev>",
       to: params.to,
       subject: params.subject,
       html: params.html,

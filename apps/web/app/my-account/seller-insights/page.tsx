@@ -31,7 +31,7 @@ const MIN_OTHER_ACTIVE_FOR_CATEGORY_BENCHMARK = 5;
 const getCachedInsightsSummary = unstable_cache(
   async (_profileId: string, facts: string[]) => {
     const { text } = await callFreeTextModel(
-      `You are summarizing a seller's real listing performance data on AfroDeals, a classifieds marketplace. Here are the only facts you know, already computed from their real data:\n${facts.map((f) => `- ${f}`).join("\n")}\n\nWrite 1-2 short, encouraging, actionable sentences based ONLY on these facts. Do not invent any number, percentage, or fact not listed above. No markdown, no headers, plain sentences only.`,
+      `You are summarizing a seller's real listing performance data on MarketitNow, a classifieds marketplace. Here are the only facts you know, already computed from their real data:\n${facts.map((f) => `- ${f}`).join("\n")}\n\nWrite 1-2 short, encouraging, actionable sentences based ONLY on these facts. Do not invent any number, percentage, or fact not listed above. No markdown, no headers, plain sentences only.`,
       200,
     );
     return text;

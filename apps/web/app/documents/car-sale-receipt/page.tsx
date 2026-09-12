@@ -10,7 +10,7 @@ export default async function CarSaleReceiptPage() {
     <DocumentPage
       title="Payment Receipt"
       subtitle="A simple proof-of-payment both sides can sign at handover — bring it along with the sale agreement."
-      disclaimer="This template is a convenience, not legal advice. AfroDeals is not a party to any agreement made between a buyer and seller, and isn't responsible for how this receipt is used."
+      disclaimer="This template is a convenience, not legal advice. MarketitNow is not a party to any agreement made between a buyer and seller, and isn't responsible for how this receipt is used."
     >
       <Section number={1} title="The vehicle">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

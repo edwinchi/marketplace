@@ -4,7 +4,7 @@ import { Bell, Megaphone, Truck, TrendingDown } from "lucide-react";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata = { title: "Notifications — AfroDeals" };
+export const metadata = { title: "Notifications — MarketitNow" };
 
 type NotificationRow = {
   id: string;

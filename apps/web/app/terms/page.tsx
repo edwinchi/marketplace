@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { ListenButton } from "@/components/listen-button";
 
-export const metadata = { title: "Terms of Use — AfroDeals" };
+export const metadata = { title: "Terms of Use — MarketitNow" };
 
 export default async function TermsPage() {
   const t = await getTranslations("Terms");

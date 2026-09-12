@@ -154,7 +154,7 @@ export async function analyzeListingPhoto(imageBase64: string, mediaType: string
   }
   const categoryListText = [...byParent.entries()].map(([parent, leaves]) => `${parent}: ${leaves.join(", ")}`).join("\n");
 
-  const prompt = `You are helping a seller on AfroDeals, a classifieds marketplace, list an item from a photo.
+  const prompt = `You are helping a seller on MarketitNow, a classifieds marketplace, list an item from a photo.
 Respond with ONLY a JSON object (no markdown fences, no commentary) with exactly these keys:
 {"title": "short listing title, max 80 characters, no marketing fluff", "description": "a rich, structured draft description in simple markdown -- see format below", "category": "the single best-matching category, formatted EXACTLY as \\"Parent → Leaf\\" using names copied verbatim from the list below"}
 

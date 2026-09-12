@@ -30,7 +30,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
         <span className="flex size-16 items-center justify-center rounded-full bg-[#e89818]/10 text-[#e89818]">
           <RefreshCw className="size-8" />
         </span>
-        <h1 className="text-2xl font-semibold">A new version of AfroDeals is ready</h1>
+        <h1 className="text-2xl font-semibold">A new version of MarketitNow is ready</h1>
         <p className="text-sm text-muted-foreground">
           This page was open from before an update — refresh to load the latest version and continue where you left off.
         </p>

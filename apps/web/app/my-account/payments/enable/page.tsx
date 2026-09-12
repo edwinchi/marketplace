@@ -9,7 +9,7 @@ import { getCountryName } from "@/lib/countries";
 import { startConnectOnboarding, openConnectDashboard } from "@/app/my-account/payments/actions";
 import { buttonVariants, Button } from "@/components/ui/button";
 
-// Real onboarding via Stripe Connect Express, not a bank-details form of our own -- AfroDeals
+// Real onboarding via Stripe Connect Express, not a bank-details form of our own -- MarketitNow
 // never collects or stores raw account numbers; Stripe's own hosted flow does, and just hands back
 // an account id (see app/my-account/payments/actions.ts). The button only renders once a real
 // Stripe account exists (getStripe() returns non-null) -- same "no button that doesn't work" rule
@@ -49,7 +49,7 @@ export default async function EnablePaymentsPage({
           <Landmark className="size-10 text-muted-foreground" />
           <p className="font-medium">Not available yet.</p>
           <p className="max-w-xs text-sm text-muted-foreground">
-            AfroDeals doesn&apos;t collect payout bank details yet — we&apos;d rather wait for a
+            MarketitNow doesn&apos;t collect payout bank details yet — we&apos;d rather wait for a
             secure, licensed way to do it than store sensitive account details ourselves. You&apos;ll
             be able to add a payout method here once that&apos;s built.
           </p>
@@ -63,7 +63,7 @@ export default async function EnablePaymentsPage({
           <CheckCircle2 className="size-10 text-[#008848]" />
           <p className="font-medium">Payments enabled</p>
           <p className="max-w-xs text-sm text-muted-foreground">
-            Buyers can pay you directly through AfroDeals — funds go straight to your own bank
+            Buyers can pay you directly through MarketitNow — funds go straight to your own bank
             account via Stripe.
           </p>
           <form action={openConnectDashboard}>
@@ -100,7 +100,7 @@ export default async function EnablePaymentsPage({
           <Landmark className="size-10 text-muted-foreground" />
           <p className="font-medium">{started ? "Finish setting up your payout account" : "Get paid directly to your bank"}</p>
           <p className="max-w-xs text-sm text-muted-foreground">
-            Stripe handles your ID and bank details securely — AfroDeals never sees or stores them.
+            Stripe handles your ID and bank details securely — MarketitNow never sees or stores them.
             Takes a few minutes.
           </p>
           {error === "not_configured" && (

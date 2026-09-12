@@ -28,7 +28,7 @@ export async function polishDescription(title: string, description: string): Pro
   const trimmedDescription = description.trim();
   if (!trimmedDescription) return { description: null, error: "Write a draft description first, then polish it." };
 
-  const prompt = `You are helping a seller on AfroDeals, a classifieds marketplace, improve their listing description.
+  const prompt = `You are helping a seller on MarketitNow, a classifieds marketplace, improve their listing description.
 
 Title: "${title.trim() || "(no title yet)"}"
 Their current draft description:

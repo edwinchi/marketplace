@@ -41,8 +41,8 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://afrodeals.net"),
-  title: { default: "AfroDeals", template: "%s | AfroDeals" },
-  description: "Buy and sell across African markets.",
+  title: { default: "MarketitNow", template: "%s | MarketitNow" },
+  description: "Buy and sell from anywhere in the world.",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {

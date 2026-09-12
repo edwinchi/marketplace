@@ -36,7 +36,7 @@ export async function ReviewsDisplay({ profileId, viewerProfileId }: { profileId
     <div className="flex flex-col gap-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold">{reviewee?.display_name || reviewee?.username || "AfroDeals user"}</h1>
+          <h1 className="text-xl font-bold">{reviewee?.display_name || reviewee?.username || "MarketitNow user"}</h1>
           {count > 0 ? (
             <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
               <Star className="size-4 fill-primary text-primary" />
@@ -86,7 +86,7 @@ export async function ReviewsDisplay({ profileId, viewerProfileId }: { profileId
               return (
                 <div key={r.id} className="flex flex-col gap-1 border-b pb-4 last:border-b-0">
                   <div className="flex items-center justify-between">
-                    <p className="font-medium">{reviewer?.display_name || reviewer?.username || "AfroDeals user"}</p>
+                    <p className="font-medium">{reviewer?.display_name || reviewer?.username || "MarketitNow user"}</p>
                     <p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</p>
                   </div>
                   <div className="flex gap-0.5">
@@ -109,7 +109,7 @@ export async function ReviewsDisplay({ profileId, viewerProfileId }: { profileId
         <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed py-12 text-center">
           <Star className="size-8 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">
-            {canReview ? "Be the first to leave a review." : "Reviews from other AfroDeals users will show up here."}
+            {canReview ? "Be the first to leave a review." : "Reviews from other MarketitNow users will show up here."}
           </p>
         </div>
       )}

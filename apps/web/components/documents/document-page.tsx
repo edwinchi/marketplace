@@ -10,7 +10,7 @@ type Props = {
 };
 
 // Shared chrome for the three downloadable document templates (sale agreement, receipt, buying
-// checklist) — real AfroDeals branding baked in from the start (not a reskin of anyone else's
+// checklist) — real MarketitNow branding baked in from the start (not a reskin of anyone else's
 // template; see the commit that added this for why). The watermark and print button are the only
 // two pieces every document needs; the actual legal/checklist content is each page's own.
 export function DocumentPage({ title, subtitle, disclaimer, children }: Props) {
@@ -24,7 +24,7 @@ export function DocumentPage({ title, subtitle, disclaimer, children }: Props) {
       </div>
 
       <div className="relative overflow-hidden rounded-2xl border bg-card shadow-sm print:overflow-visible print:rounded-none print:border-0 print:shadow-none">
-        {/* Watermark — large, faint, rotated AfroDeals logo behind the document content. Visible
+        {/* Watermark — large, faint, rotated MarketitNow logo behind the document content. Visible
             both on-screen and in print (opacity kept low enough not to interfere with legibility
             or with a scanned/printed copy being read back later). */}
         {/* eslint-disable-next-line @next/next/no-img-element -- decorative watermark, not content */}

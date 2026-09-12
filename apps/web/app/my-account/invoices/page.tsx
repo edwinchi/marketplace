@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ProfileToggle } from "@/components/profile-toggle";
 import { buttonVariants } from "@/components/ui/button";
 
-// Real, not decorative — it's just genuinely empty, because AfroDeals has no paid features
+// Real, not decorative — it's just genuinely empty, because MarketitNow has no paid features
 // (promotions/boosts/subscriptions are a later phase per agents.md §10) to have generated an
 // invoice for yet. Same honest-empty-state treatment as Transactions and every other real-but-
 // currently-unused query on this account hub. The monthly-invoice-by-email opt-in below is real
@@ -25,7 +25,7 @@ export default async function InvoicesPage() {
         <FileText className="size-10 text-muted-foreground" />
         <p className="font-medium">No invoices yet.</p>
         <p className="max-w-xs text-sm text-muted-foreground">
-          This invoice covers any paid products you&apos;ve already paid for. AfroDeals doesn&apos;t
+          This invoice covers any paid products you&apos;ve already paid for. MarketitNow doesn&apos;t
           have any paid features yet — everything (listing, browsing, messaging) is free. You&apos;ll
           see an invoice here if that changes.
         </p>

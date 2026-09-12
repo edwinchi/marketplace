@@ -25,16 +25,16 @@ const CATEGORIES = [
   {
     field: "marketing_surveys_opt_in" as const,
     title: "Surveys",
-    body: "Help us make AfroDeals better by taking part in surveys and satisfaction research.",
+    body: "Help us make MarketitNow better by taking part in surveys and satisfaction research.",
   },
   {
     field: "marketing_partner_ads_opt_in" as const,
-    title: "Personalized ads outside AfroDeals",
+    title: "Personalized ads outside MarketitNow",
     body: "Ads matched to your interests on partner sites and apps, based on pseudonymized data like your email address.",
   },
 ];
 
-// AfroDeals doesn't send any of these emails yet (no campaign system, no partner-ad network) —
+// MarketitNow doesn't send any of these emails yet (no campaign system, no partner-ad network) —
 // same honest-not-yet framing as the rest of Marketing preferences: real per-category columns,
 // genuinely saved, just nothing reads them yet.
 export default async function MarketingPreferencesPage() {

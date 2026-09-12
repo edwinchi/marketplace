@@ -39,7 +39,7 @@ const LISTING_SELECT =
 const LISTING_SELECT_NEAR_YOU =
   "id, title, description, price_minor, currency_code, pickup_available, delivery_available, published_at, locations!inner(city), profiles_public!listings_seller_id_fkey(display_name, username), listing_media(storage_key, sort_order)";
 
-// Every category page previously fell through to the root layout's generic "AfroDeals — Buy and
+// Every category page previously fell through to the root layout's generic "MarketitNow — Buy and
 // sell across African markets" title/description on every one of the ~2,630 category pages --
 // meaning Google saw the exact same title for Cars, Kitchen & Tableware, and everything else. This
 // gives each one a real, distinct title built from its own breadcrumb, which is the single
@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   return {
     title: `${name} for sale`,
-    description: `Buy and sell ${name} on AfroDeals — real listings under ${breadcrumb}, from sellers across Africa and the diaspora.`,
+    description: `Buy and sell ${name} on MarketitNow — real listings under ${breadcrumb}, from sellers around the world.`,
     alternates: { canonical: canonicalPath },
   };
 }

@@ -10,7 +10,7 @@ export default async function BuyingChecklistPage() {
     <DocumentPage
       title="Checklist Before You Buy a Car"
       subtitle="Not exhaustive — just a set of practical things to check on a used car before you commit. If you want real certainty about hidden defects, have it inspected by a qualified mechanic."
-      disclaimer="This checklist is a helper, not a guarantee. AfroDeals doesn't inspect or vouch for any vehicle listed on the platform, and isn't a party to any sale — use this at your own judgement."
+      disclaimer="This checklist is a helper, not a guarantee. MarketitNow doesn't inspect or vouch for any vehicle listed on the platform, and isn't a party to any sale — use this at your own judgement."
     >
       <Section number={1} title="The car itself">
         <div className="flex flex-col gap-4">

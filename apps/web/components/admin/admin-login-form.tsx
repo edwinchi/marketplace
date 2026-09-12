@@ -23,7 +23,7 @@ export function AdminLoginForm() {
             type="email"
             required
             autoComplete="email"
-            placeholder="you@afrodeals.com"
+            placeholder="you@marketitnow.com"
             className="w-full rounded-lg border border-[#082040]/15 bg-white/70 py-2.5 pr-3 pl-9 text-sm text-[#082040] outline-none transition-colors placeholder:text-[#082040]/30 focus:border-[#e89818]/60 focus:bg-white"
           />
         </div>

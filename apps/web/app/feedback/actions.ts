@@ -45,14 +45,14 @@ export async function submitFeedback(_prevState: FeedbackState, formData: FormDa
   );
 
   const html = `
-    <p><strong>New AfroDeals feedback</strong></p>
+    <p><strong>New MarketitNow feedback</strong></p>
     <p>${escapeHtml(message).replace(/\n/g, "<br>")}</p>
     <p style="color:#666;font-size:12px;">From: ${fromEmail ? escapeHtml(fromEmail) : "anonymous"}${user ? " (signed in)" : ""}</p>
   `;
 
   const ok = await sendEmail({
     to: FEEDBACK_RECIPIENT,
-    subject: "AfroDeals feedback",
+    subject: "MarketitNow feedback",
     html,
     replyTo: fromEmail ?? undefined,
     attachments,

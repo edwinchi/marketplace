@@ -30,7 +30,7 @@ export default async function LocationPreferencesPage() {
             <div>
               <p className="font-medium">Use my city for nearby listings</p>
               <p className="text-sm text-muted-foreground">
-                Pre-fills the &quot;Near you&quot; tab with this city. AfroDeals doesn&apos;t use precise device location anywhere.
+                Pre-fills the &quot;Near you&quot; tab with this city. MarketitNow doesn&apos;t use precise device location anywhere.
               </p>
             </div>
             <ProfileToggle field="location_sharing_opt_in" checked={data?.location_sharing_opt_in ?? false} returnTo="/my-account/preferences/location" />

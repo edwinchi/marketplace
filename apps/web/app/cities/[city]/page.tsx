@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ city: str
   if (!target) return {};
   return {
     title: `Buy & sell in ${target.name}`,
-    description: `Free classifieds in ${target.name}, ${getCountryName(target.countryCode)} — phones, cars, electronics and more from real local sellers on AfroDeals. Post your first ad free.`,
+    description: `Free classifieds in ${target.name}, ${getCountryName(target.countryCode)} — phones, cars, electronics and more from real local sellers on MarketitNow. Post your first ad free.`,
     alternates: { canonical: `/cities/${target.slug}` },
   };
 }

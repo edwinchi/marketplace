@@ -2,7 +2,7 @@
 // baai/bge-m3, not a free-tier model -- OpenRouter's embeddings endpoint has no free option at all,
 // unlike the vision/text-completion models used elsewhere in this app -- but at $0.01/M tokens a
 // listing title costs a fraction of a cent to embed, and bge-m3 is OpenRouter's own top pick for
-// multilingual retrieval, which matters here since AfroDeals serves en/fr/ar/zh.
+// multilingual retrieval, which matters here since MarketitNow serves en/fr/ar/zh.
 const EMBEDDING_MODEL = "baai/bge-m3";
 
 // Best-effort by design: every caller treats a null return as "skip this enrichment" rather than
@@ -20,7 +20,7 @@ export async function getTextEmbedding(text: string): Promise<number[] | null> {
         "content-type": "application/json",
         authorization: `Bearer ${apiKey}`,
         "http-referer": "https://afrodeals.net",
-        "x-title": "AfroDeals",
+        "x-title": "MarketitNow",
       },
       body: JSON.stringify({ model: EMBEDDING_MODEL, input }),
     });

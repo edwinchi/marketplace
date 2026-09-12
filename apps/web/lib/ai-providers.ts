@@ -59,7 +59,7 @@ export type ProviderAttempt = {
   extraHeaders?: Record<string, string>;
 };
 
-const OPENROUTER_HEADERS = { "http-referer": "https://afrodeals.net", "x-title": "AfroDeals" };
+const OPENROUTER_HEADERS = { "http-referer": "https://afrodeals.net", "x-title": "MarketitNow" };
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 // visionCapable filters out Groq (its free-tier models are text-only Llama/Qwen variants, no

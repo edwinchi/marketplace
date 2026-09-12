@@ -93,7 +93,7 @@ export default async function AiFeaturesPage({
           </span>
           <h1 className="text-2xl font-bold tracking-tight text-balance sm:text-3xl">List faster. Sell smarter.</h1>
           <p className="max-w-lg text-sm text-white/70">
-            AfroDeals uses AI to turn one photo into a ready-to-review listing — and every registered
+            MarketitNow uses AI to turn one photo into a ready-to-review listing — and every registered
             seller gets a real free tier, not just a teaser.
           </p>
         </div>
@@ -130,7 +130,7 @@ export default async function AiFeaturesPage({
                   tagline="What every registered account gets, no payment needed."
                   features={[
                     `${usage.freeLimit} AI photo autofill uses — upload a photo, get a title, description, and category to review`,
-                    "Full access to buy, sell, and message on AfroDeals",
+                    "Full access to buy, sell, and message on MarketitNow",
                     "No credit card required",
                   ]}
                   note="Once your free uses run out, Seller Pro or a one-time top-up picks up from there — everything else on the site keeps working either way."

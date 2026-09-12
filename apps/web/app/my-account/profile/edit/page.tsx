@@ -70,7 +70,7 @@ export default async function EditProfilePage() {
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
             <p className="text-xs text-muted-foreground">
-              To keep AfroDeals transparent, we ask every seller whether they&apos;re a private
+              To keep MarketitNow transparent, we ask every seller whether they&apos;re a private
               individual or a business. It&apos;s not permitted to present yourself as a private
               seller while operating as a business. Once set to business, this can&apos;t be
               switched back to private.
