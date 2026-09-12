@@ -143,13 +143,16 @@
 @layer components {
   /* A distinctive, brand-colored signature for the homepage hero -- what actually sets AfroDeals
      apart from Marktplaats' plain, undecorated header band, without reintroducing the "SaaS
-     landing page" glow-blob/gradient-text look that was deliberately removed. Went through three
-     iterations: a pure-CSS crossed-gradient lattice, then a scattered collage of the site's own
-     category icons, now a real photo collage (public/hero-photo-collage.jpg -- 16 CC0/public-
-     domain photos, one per product category, from Openverse; zero attribution owed, zero
-     licensing risk) standing in for "everything that can be sold here" as actual photography
-     rather than illustration. Kept full color per request -- the "faded enough not to compete
-     with the headline/search bar" requirement is handled entirely in this ::before layer via a
+     landing page" glow-blob/gradient-text look that was deliberately removed. Went through four
+     iterations: a pure-CSS crossed-gradient lattice, a scattered collage of the site's own
+     category icons, a stitched grid of 16 individually-vetted CC0 stock photos, now a single
+     professionally composed flat-lay banner (public/hero-photo-collage.jpg) -- generated from a
+     prompt, then retouched (several visible real-brand logos -- Sony, Pentax, Apple, New Balance,
+     Coach -- spot-blurred out for trademark safety, since generated product photography can and
+     did reproduce recognizable real logos) -- standing in for "everything that can be sold here"
+     as actual photography rather than illustration. Kept full color per request -- the "faded
+     enough not to compete with the headline/search bar" requirement is handled entirely in this
+     ::before layer via a
      --background-driven color-mix() scrim (so it automatically relights for dark mode the same
      way every other brand-token usage in this file does) plus a real CSS mask-image edge fade,
      rather than by desaturating or baking a fixed opacity into the image itself. A flat (not
