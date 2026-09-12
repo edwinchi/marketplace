@@ -283,15 +283,26 @@ export default async function CategoryPage({
     }));
 
     return (
-      <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
-        <Breadcrumbs path={breadcrumbPath} />
-        <CategoryQuickNav categories={topLevelCategories} activeId={topLevelActiveId} className="mt-4 mb-6" />
-        <h1 className="mb-6 text-2xl font-semibold">{directory.self.name}</h1>
-        <CategoryDirectoryGrid groups={groups} collapsedLimit={collapsedLimit} />
+      <>
+        <div className="brand-lattice relative border-b bg-muted/30" style={heroBannerStyle}>
+          <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
+            <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
+              Buy and sell {categoryName}
+            </h1>
+            <p className="hero-text-halo mt-1 text-sm font-medium text-[#046637] sm:text-base">
+              Real listings from sellers around the world.
+            </p>
+          </div>
+        </div>
+        <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
+          <Breadcrumbs path={breadcrumbPath} />
+          <CategoryQuickNav categories={topLevelCategories} activeId={topLevelActiveId} className="mt-4 mb-6" />
+          <CategoryDirectoryGrid groups={groups} collapsedLimit={collapsedLimit} />
 
-        <div className="my-10 border-t" />
-        {feedTabs}
-      </div>
+          <div className="my-10 border-t" />
+          {feedTabs}
+        </div>
+      </>
     );
   }
 
