@@ -8,6 +8,7 @@ import { getTextEmbedding } from "@/lib/embeddings";
 import { slugPath } from "@/lib/slug";
 import { ListingGrid } from "@/components/listing-grid";
 import { CategoryQuickNav } from "@/components/category-quicknav";
+import { HeroCollage } from "@/components/hero-collage";
 import { SearchQueryInput } from "@/components/search-query-input";
 import { SortSelect } from "@/components/sort-select";
 import { saveSearch } from "@/app/my-account/saved-searches/actions";
@@ -115,13 +116,14 @@ export default async function HomePage({
     <div className="flex flex-1 flex-col">
       {/* Search hero */}
       <div className="brand-lattice relative border-b bg-muted/30">
+        <HeroCollage />
         <div className="hero-enter relative mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-7 sm:px-6 lg:px-8">
           {/* This was previously just the search form below with no headline or CTA at all --
               anyone landing here (an ad click, a shared link, organic search) saw a functional
               search bar and nothing telling them AfroDeals is also where they'd sell. Solid brand
               color, not a gradient/glow -- restrained enough to still read as a trustworthy
-              classifieds marketplace, not a SaaS landing page. The .brand-lattice pattern behind it
-              (see globals.css) is the actual differentiator from Marktplaats' plain header band. */}
+              classifieds marketplace, not a SaaS landing page. The <HeroCollage /> icon collage
+              behind it is the actual differentiator from Marktplaats' plain header band. */}
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <h1 className="text-brand-gold text-balance text-3xl font-extrabold tracking-tight sm:text-4xl">

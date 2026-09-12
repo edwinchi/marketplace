@@ -143,15 +143,15 @@
 @layer components {
   /* A distinctive, brand-colored signature for the homepage hero -- what actually sets AfroDeals
      apart from Marktplaats' plain, undecorated header band, without reintroducing the "SaaS
-     landing page" glow-blob/gradient-text look that was deliberately removed. Two crossed
-     repeating-linear-gradients form an abstract diamond lattice (a widely-used, respectfully
-     generic geometric motif, not a specific named cultural textile pattern) in the brand navy at
-     very low opacity -- present enough to read as a deliberate choice, quiet enough to never
-     compete with the actual headline/search bar sitting on top of it. Pure CSS, no image asset. */
+     landing page" glow-blob/gradient-text look that was deliberately removed. Previously a pure-
+     CSS crossed-gradient lattice; now a scattered collage of the site's own category icons
+     (components/hero-collage.tsx), blurred and faded, standing in for "everything that can be
+     sold here" -- present enough to read as a deliberate choice, quiet enough to never compete
+     with the actual headline/search bar sitting on top of it. This class now just establishes the
+     positioning context for that absolutely-positioned collage. */
   .brand-lattice {
-    background-image:
-      repeating-linear-gradient(45deg, color-mix(in oklch, var(--brand-navy) 6%, transparent) 0 1.5px, transparent 1.5px 22px),
-      repeating-linear-gradient(-45deg, color-mix(in oklch, var(--brand-navy) 6%, transparent) 0 1.5px, transparent 1.5px 22px);
+    position: relative;
+    overflow: hidden;
   }
 
   /* @starting-style: a genuinely new (Baseline 2025) CSS feature -- defines the "before" state for
