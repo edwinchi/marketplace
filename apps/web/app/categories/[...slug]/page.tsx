@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getCategoryPath, getCategoryDirectory, getCategoryDescendantIds, getCategoryGallery, getCategoriesAndAttributes } from "@/lib/categories";
 import { getNumericSetting } from "@/lib/numeric-settings";
+import { getRandomHeroBanner } from "@/lib/hero-banner";
 import { getCarsLandingData, type CarsFilters } from "@/lib/cars-landing";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
@@ -110,6 +111,9 @@ export default async function CategoryPage({
 
   const breadcrumbPath = path.map((n) => ({ id: n.id, name: n.name }));
   const topLevelActiveId = path[0]?.id;
+  const categoryName = path[path.length - 1]?.name ?? "";
+  const heroBanner = getRandomHeroBanner();
+  const heroBannerStyle = { "--hero-bg-image": `url(${heroBanner})` } as React.CSSProperties;
 
   if (directory.self.stableKey === "cars") {
     const sp = await searchParams;
@@ -153,6 +157,16 @@ export default async function CategoryPage({
 
     return (
       <>
+        <div className="brand-lattice relative border-b bg-muted/30" style={heroBannerStyle}>
+          <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
+            <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
+              Buy and sell {categoryName}
+            </h1>
+            <p className="hero-text-halo mt-1 text-sm font-medium text-[#046637] sm:text-base">
+              Real listings from sellers around the world.
+            </p>
+          </div>
+        </div>
         <div className="mx-auto w-full max-w-[1600px] px-4 pt-2 sm:px-6 lg:px-8">
           <Breadcrumbs path={breadcrumbPath} />
           {/* This page's own containing block for the sticky row is only this div (Breadcrumbs
@@ -290,7 +304,18 @@ export default async function CategoryPage({
   const galleryImages = await getCategoryGallery(id);
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
+    <>
+      <div className="brand-lattice relative border-b bg-muted/30" style={heroBannerStyle}>
+        <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
+          <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
+            Buy and sell {categoryName}
+          </h1>
+          <p className="hero-text-halo mt-1 text-sm font-medium text-[#046637] sm:text-base">
+            Real listings from sellers around the world.
+          </p>
+        </div>
+      </div>
+      <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
       {/* forYouListings.length, not a separate exact-count query — accurate up to the limit(24)
           below; revisit once real pagination exists for categories with more than a page of
           listings. */}
@@ -310,6 +335,7 @@ export default async function CategoryPage({
       </div>
 
       {feedTabs}
-    </div>
+      </div>
+    </>
   );
 }

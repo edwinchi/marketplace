@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getCategoriesAndAttributes, getCategoryDescendantIds } from "@/lib/categories";
 import { getTextEmbedding } from "@/lib/embeddings";
+import { getRandomHeroBanner } from "@/lib/hero-banner";
 import { slugPath } from "@/lib/slug";
 import { ListingGrid } from "@/components/listing-grid";
 import { CategoryQuickNav } from "@/components/category-quicknav";
@@ -111,10 +112,15 @@ export default async function HomePage({
     }
   }
 
+  const heroBanner = getRandomHeroBanner();
+
   return (
     <div className="flex flex-1 flex-col">
       {/* Search hero */}
-      <div className="brand-lattice relative border-b bg-muted/30">
+      <div
+        className="brand-lattice relative border-b bg-muted/30"
+        style={{ "--hero-bg-image": `url(${heroBanner})` } as React.CSSProperties}
+      >
         <div className="hero-enter relative mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-7 sm:px-6 lg:px-8">
           {/* This was previously just the search form below with no headline or CTA at all --
               anyone landing here (an ad click, a shared link, organic search) saw a functional

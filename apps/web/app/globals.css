@@ -171,12 +171,17 @@
     position: absolute;
     inset: 0;
     z-index: -1;
+    /* --hero-bg-image is set inline per-request (see lib/hero-banner.ts's getRandomHeroBanner,
+       called from both app/page.tsx and the category page) so a refresh can show a different one
+       of the 9 vetted banners -- the url() literal here is only the fallback for the rare case
+       nothing set the variable. A custom property set inline on .brand-lattice itself is visible
+       here because pseudo-elements inherit their originating element's custom properties. */
     background-image:
       linear-gradient(
         color-mix(in oklch, var(--background) 45%, transparent),
         color-mix(in oklch, var(--background) 45%, transparent)
       ),
-      url("/hero-photo-collage.jpg");
+      var(--hero-bg-image, url("/hero-banner-1.jpg"));
     background-size: cover;
     background-position: center;
     /* A real edge vignette (not a hard-cropped photo rectangle) -- fades to fully transparent at
