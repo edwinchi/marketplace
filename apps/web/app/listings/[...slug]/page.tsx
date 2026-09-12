@@ -465,7 +465,7 @@ export default async function ListingPage({
                 {offers.map((o) => {
                   const buyer = Array.isArray(o.profiles_public) ? o.profiles_public[0] : o.profiles_public;
                   return (
-                    <li key={o.id} className="flex items-center justify-between rounded-md border p-2 text-sm transition-colors hover:bg-primary/10">
+                    <li key={o.id} className="flex items-center justify-between rounded-md border p-2 text-sm transition-colors hover:bg-brand-green/10">
                       <span className={isOwner ? "" : "text-muted-foreground capitalize"}>
                         {isOwner ? buyer?.display_name || buyer?.username || t("aBuyer") : o.status}
                       </span>

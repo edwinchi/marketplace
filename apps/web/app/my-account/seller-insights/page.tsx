@@ -249,12 +249,12 @@ export default async function SellerInsightsPage() {
                 <TrendingUp className="size-4 text-[#008848]" /> Your best vs. lowest performing listing
               </p>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <Link href={`/listings/${slugPath(bestListing.title, bestListing.id)}`} className="rounded-lg border p-3 transition-colors hover:bg-primary/10">
+                <Link href={`/listings/${slugPath(bestListing.title, bestListing.id)}`} className="rounded-lg border p-3 transition-colors hover:bg-brand-green/10">
                   <p className="text-xs text-muted-foreground">Best performing</p>
                   <p className="truncate text-sm font-medium">{bestListing.title}</p>
                   <p className="mt-1 text-xs text-[#046637]">{bestListing.view_count ?? 0} views</p>
                 </Link>
-                <Link href={`/listings/${slugPath(worstListing.title, worstListing.id)}`} className="rounded-lg border p-3 transition-colors hover:bg-primary/10">
+                <Link href={`/listings/${slugPath(worstListing.title, worstListing.id)}`} className="rounded-lg border p-3 transition-colors hover:bg-brand-green/10">
                   <p className="text-xs text-muted-foreground">Lowest performing</p>
                   <p className="truncate text-sm font-medium">{worstListing.title}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{worstListing.view_count ?? 0} views</p>

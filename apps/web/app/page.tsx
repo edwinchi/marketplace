@@ -176,7 +176,7 @@ export default async function HomePage({
             <li>
               <Link
                 href="/"
-                className={`block rounded-md px-2 py-1.5 transition-all duration-150 ${!category ? "bg-primary/10 font-medium text-primary" : "text-muted-foreground hover:translate-x-0.5 hover:bg-primary/10 hover:text-foreground"}`}
+                className={`block rounded-md px-2 py-1.5 transition-all duration-150 ${!category ? "bg-primary/10 font-medium text-primary" : "text-muted-foreground hover:translate-x-0.5 hover:bg-brand-green/10 hover:text-foreground"}`}
               >
                 {t("allCategories")}
               </Link>
@@ -185,7 +185,7 @@ export default async function HomePage({
               <li key={c.id}>
                 <Link
                   href={`/categories/${slugPath(c.label, c.id)}`}
-                  className={`block rounded-md px-2 py-1.5 transition-all duration-150 ${category === c.id ? "bg-primary/10 font-medium text-primary" : "text-muted-foreground hover:translate-x-0.5 hover:bg-primary/10 hover:text-foreground"}`}
+                  className={`block rounded-md px-2 py-1.5 transition-all duration-150 ${category === c.id ? "bg-primary/10 font-medium text-primary" : "text-muted-foreground hover:translate-x-0.5 hover:bg-brand-green/10 hover:text-foreground"}`}
                 >
                   {c.label}
                 </Link>
@@ -309,7 +309,7 @@ export default async function HomePage({
                     <Link
                       href={pageHref(page - 1)}
                       aria-disabled={page <= 1}
-                      className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${page <= 1 ? "pointer-events-none opacity-40" : "hover:bg-primary/10"}`}
+                      className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${page <= 1 ? "pointer-events-none opacity-40" : "hover:bg-brand-green/10"}`}
                     >
                       Previous
                     </Link>
@@ -318,7 +318,7 @@ export default async function HomePage({
                       <Link
                         key={p}
                         href={pageHref(p)}
-                        className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${p === page ? "border-primary bg-primary/10 font-semibold text-primary" : "hover:bg-primary/10"}`}
+                        className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${p === page ? "border-primary bg-primary/10 font-semibold text-primary" : "hover:bg-brand-green/10"}`}
                       >
                         {p}
                       </Link>
@@ -327,7 +327,7 @@ export default async function HomePage({
                     <Link
                       href={pageHref(page + 1)}
                       aria-disabled={page >= totalPages}
-                      className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${page >= totalPages ? "pointer-events-none opacity-40" : "hover:bg-primary/10"}`}
+                      className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${page >= totalPages ? "pointer-events-none opacity-40" : "hover:bg-brand-green/10"}`}
                     >
                       Next
                     </Link>

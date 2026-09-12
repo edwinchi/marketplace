@@ -47,7 +47,7 @@ export function ConversationList({ rows, activeId }: { rows: Row[]; activeId?: s
             <Link
               href={`/messages?c=${r.id}`}
               className={`group flex items-center gap-3 rounded-xl px-2.5 py-2.5 transition-all duration-150 ${
-                active ? "bg-[#008200]/10" : "hover:bg-primary/10"
+                active ? "bg-[#008200]/10" : "hover:bg-brand-green/10"
               }`}
             >
               <span className={`flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${tintFor(r.otherName)}`}>

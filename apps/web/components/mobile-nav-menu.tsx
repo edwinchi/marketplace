@@ -60,7 +60,7 @@ export function MobileNavMenu({
         aria-expanded={open}
         aria-label={open ? "Close menu" : "Open menu"}
         onClick={() => setOpen((v) => !v)}
-        className="flex size-9 items-center justify-center rounded-md text-foreground transition-colors hover:bg-primary/10"
+        className="flex size-9 items-center justify-center rounded-md text-foreground transition-colors hover:bg-brand-green/10"
       >
         {open ? <X className="size-5" /> : <Menu className="size-5" />}
       </button>

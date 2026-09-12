@@ -52,7 +52,7 @@ export function StickyAnchorNav() {
             href={`#${id}`}
             onClick={() => setActive(id)}
             className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium whitespace-nowrap transition-colors ${
-              active === id ? "bg-[#c8f0c8] text-[#046637]" : "text-muted-foreground hover:bg-primary/10 hover:text-foreground"
+              active === id ? "bg-[#c8f0c8] text-[#046637]" : "text-muted-foreground hover:bg-brand-green/10 hover:text-foreground"
             }`}
           >
             {t(NAV_KEYS[id])}

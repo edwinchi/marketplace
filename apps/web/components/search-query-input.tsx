@@ -28,7 +28,7 @@ export function SearchQueryInput({ name, placeholder, defaultValue }: { name: st
           type="button"
           onClick={() => setValue("")}
           aria-label="Clear search"
-          className="absolute top-1/2 right-1.5 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
+          className="absolute top-1/2 right-1.5 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-brand-green/10 hover:text-foreground"
         >
           <X className="size-3.5" />
         </button>
