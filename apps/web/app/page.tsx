@@ -9,6 +9,7 @@ import { getRandomHeroBanner } from "@/lib/hero-banner";
 import { slugPath } from "@/lib/slug";
 import { ListingGrid } from "@/components/listing-grid";
 import { CategoryQuickNav } from "@/components/category-quicknav";
+import { BuyerSellerLinks } from "@/components/buyer-seller-links";
 import { SearchQueryInput } from "@/components/search-query-input";
 import { SortSelect } from "@/components/sort-select";
 import { saveSearch } from "@/app/my-account/saved-searches/actions";
@@ -85,6 +86,10 @@ export default async function HomePage({
   ]);
   const favoritedIds = new Set((favorites ?? []).map((f) => f.listing_id));
   const selectedCategory = categoryOptions.find((c) => c.id === category);
+  const servicesCategory = topLevelCategories.find((c) => c.stableKey === "services-trades");
+  const toysCategory = topLevelCategories.find((c) => c.stableKey === "children-babies");
+  const servicesHref = servicesCategory ? `/categories/${slugPath(servicesCategory.label, servicesCategory.id)}` : null;
+  const toysHref = toysCategory ? `/categories/${slugPath(toysCategory.label, toysCategory.id)}` : null;
 
   // Semantic search: surfaces listings that mean the same thing as the query without sharing its
   // exact words (e.g. "phone" -> "smartphone"/"iPhone" listings) as a "related" tier below the
@@ -234,6 +239,8 @@ export default async function HomePage({
             </div>
             <Button type="submit" size="sm" variant="outline">Apply filters</Button>
           </form>
+
+          <BuyerSellerLinks servicesHref={servicesHref} toysHref={toysHref} />
         </aside>
 
         {/* Results */}
