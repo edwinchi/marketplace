@@ -19,7 +19,7 @@ export async function getTextEmbedding(text: string): Promise<number[] | null> {
       headers: {
         "content-type": "application/json",
         authorization: `Bearer ${apiKey}`,
-        "http-referer": "https://afrodeals.net",
+        "http-referer": "https://marketitnow.net",
         "x-title": "MarketitNow",
       },
       body: JSON.stringify({ model: EMBEDDING_MODEL, input }),

@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { createServiceClient } from "@/lib/supabase/service";
 
-const SITE_ORIGIN = "https://afrodeals.net";
+const SITE_ORIGIN = "https://marketitnow.net";
 
 // Mirrors proxy.ts's own require_login check -- while the site is sign-in-gated, every crawlable
 // page just redirects to /login, so there's nothing worth indexing and telling crawlers to stay

@@ -7,7 +7,7 @@ import { slugPath } from "@/lib/slug";
 // A fixed canonical origin, not request-derived (see lib/site-url.ts's getSiteOrigin, which is
 // deliberately request-scoped for auth-redirect purposes -- a sitemap needs one stable declared
 // domain regardless of which host header a crawler request happened to arrive on).
-const SITE_ORIGIN = "https://afrodeals.net";
+const SITE_ORIGIN = "https://marketitnow.net";
 
 const STATIC_ROUTES = ["", "/welcome", "/help", "/terms", "/safety"];
 

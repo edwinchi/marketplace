@@ -782,3 +782,23 @@ back to its default Site URL for any `redirect_to` not on that allow-list.
 **Current status: live**, confirmed via real page content and successful authenticated
 click-through testing (login, search, category browse, listing detail, favoriting, messages,
 notifications, my-account pages, the plate-lookup feature) — not just an HTTP 200.
+
+**Migration in progress: `afrodeals.net` → `marketitnow.net`.** `marketitnow.net` was also bought
+directly through Vercel, so both domains sit on Vercel's own nameservers — no external
+registrar/DNS to coordinate, which is what makes a near-zero-downtime cutover possible at all.
+Sequence: (1) attach `marketitnow.net` as an additional alias on the same `afrodeals.net` project
+(purely additive — both domains serve the identical deployment simultaneously); (2) add
+`marketitnow.net` to Supabase Auth's Redirect URLs allow-list and Google Cloud Console's OAuth
+redirect URIs *alongside* the existing `afrodeals.net` entries (don't remove those yet); (3) code's
+hardcoded canonical-origin references (`app/layout.tsx` metadataBase, `app/sitemap.ts` +
+`app/robots.ts` SITE_ORIGIN, `lib/ai-providers.ts` + `lib/embeddings.ts` OpenRouter
+`http-referer`) already point at `marketitnow.net` — this alone doesn't change which domain(s)
+resolve, so it ships safely regardless of step 1/2's status; (4) verify `marketitnow.net` end to
+end (OAuth login, AI features, sitemap/robots/OG output) before doing anything below.
+
+Only once verified: `next.config.ts` has a `redirects()` rule, gated behind the
+`REDIRECT_AFRODEALS_TO_MARKETITNOW` env var (unset = no-op, returns `[]`), that 308-redirects all
+`afrodeals.net` traffic to the equivalent `marketitnow.net` path. It stays off by default on
+purpose — enabling it before `marketitnow.net` is actually attached/verified would redirect 100% of
+live traffic to a domain serving nothing, i.e. a self-inflicted outage. Flip it on by setting
+`REDIRECT_AFRODEALS_TO_MARKETITNOW=1` in Vercel's Production env vars and redeploying.

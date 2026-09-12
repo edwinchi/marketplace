@@ -6,7 +6,7 @@
 // can only deliver to the Resend account's own registered address without a verified custom
 // domain -- confirmed via a real 403 ("You can only send testing emails to your own email
 // address") followed by a real successful send (returned a real message id) once pointed at that
-// address. Swap `from` for a verified afrodeals.net address in the Resend dashboard to lift that
+// address. Swap `from` for a verified marketitnow.net address in the Resend dashboard to lift that
 // restriction.
 export function isResendConfigured(): boolean {
   return !!process.env.RESEND_API_KEY;

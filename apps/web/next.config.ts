@@ -45,6 +45,24 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.supabase.co", pathname: "/storage/v1/object/public/**" },
     ],
   },
+  redirects: async () => {
+    // Final step of the afrodeals.net -> marketitnow.net domain migration (agents.md §13). This
+    // must stay off (returns []) until marketitnow.net is fully verified: attached as a domain on
+    // the Vercel project, and added to Supabase Auth's Redirect URLs allow-list + Google Cloud
+    // Console's OAuth redirect URIs. Flipping it on before then would redirect 100% of
+    // afrodeals.net's live traffic to a domain that isn't serving anything yet, taking the whole
+    // site down. Enable by setting REDIRECT_AFRODEALS_TO_MARKETITNOW=1 in Vercel's Production env
+    // vars and redeploying — do not remove this gate, just satisfy it.
+    if (!process.env.REDIRECT_AFRODEALS_TO_MARKETITNOW) return [];
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host" as const, value: "afrodeals.net" }],
+        destination: "https://marketitnow.net/:path*",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);
