@@ -49,7 +49,7 @@ function AdminLoginScreen() {
         <div className="mb-6 flex justify-center">
           <div className="rounded-2xl bg-white px-6 py-3 shadow-lg">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="AfroDeals" className="h-10 w-auto" />
+            <img src="/logo.png" alt="MarketitNow" className="h-10 w-auto" />
           </div>
         </div>
 

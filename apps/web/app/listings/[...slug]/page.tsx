@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const url = `${origin}/listings/${slug.join("/")}`;
   const description = displayDescription ? displayDescription.slice(0, 200) : "Buy and sell across African markets.";
   const title = `${displayTitle} | AfroDeals`;
-  const logo = { url: `${origin}/logo.png`, width: 1400, height: 474, alt: "AfroDeals" };
+  const logo = { url: `${origin}/logo.png`, width: 1916, height: 821, alt: "AfroDeals" };
 
   return {
     title,

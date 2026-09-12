@@ -40,7 +40,7 @@ export function DocumentPage({ title, subtitle, disclaimer, children }: Props) {
         <div className="relative p-6 sm:p-10 print:p-6">
           <div className="mb-6 flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="AfroDeals" className="h-9 w-auto" />
+            <img src="/logo.png" alt="MarketitNow" className="h-9 w-auto" />
           </div>
 
           <p className="text-xs font-semibold tracking-wide text-[#e89818] uppercase">Template</p>

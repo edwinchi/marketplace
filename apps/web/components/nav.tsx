@@ -70,12 +70,12 @@ export async function Nav() {
             accountName={profile?.username || t("myAccount")}
             unreadCount={unreadCount}
           />
-          <Link href="/" aria-label="AfroDeals home" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <Link href="/" aria-label="MarketitNow home" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             {/* logo-compact.png: the same source artwork cropped tight to just the cart+map+
                 wordmark (no swoosh underline) so it reads at full size in this shorter mobile
                 bar instead of looking squeezed -- full original resolution, just trimmed. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-compact.png" alt="AfroDeals" className="h-11 w-auto" />
+            <img src="/logo-compact.png" alt="MarketitNow" className="h-11 w-auto" />
           </Link>
           <div className="flex items-center">
             <NavIconLink href="/messages" className="relative flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground">
@@ -107,7 +107,7 @@ export async function Nav() {
             background, letting scrolled-past page content show through there while stuck. */}
         <div className="hidden border-b bg-background sm:block">
           <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-            <Link href="/" aria-label="AfroDeals home" className="shrink-0">
+            <Link href="/" aria-label="MarketitNow home" className="shrink-0">
               {/* Plain <img>, not next/image — this is a small, rarely-changing static brand
                   asset, and Next's dynamic image-optimizer route (/_next/image) has shown
                   ETag/conditional-request staleness in dev that a source-file replacement didn't
@@ -116,7 +116,7 @@ export async function Nav() {
                   304 against old cached bytes). Serving it as-is sidesteps that whole class of bug
                   — no runtime resizing needed for a logo this size anyway. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="AfroDeals" className="h-16 w-auto" />
+              <img src="/logo.png" alt="MarketitNow" className="h-16 w-auto" />
             </Link>
             {/* xl, matching "How it works" right below -- the same measured constraint applies
                 (this row already fills 1024-1280px, only 1280px+ has real spare room). Search was
