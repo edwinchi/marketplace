@@ -23,6 +23,11 @@ export default async function HelpPage() {
         <p className="text-sm text-muted-foreground">{t("sellingBody")}</p>
       </section>
 
+      <section className="mb-6">
+        <h2 className="mb-2 text-lg font-medium">{t("directBuyTitle")}</h2>
+        <p className="text-sm text-muted-foreground">{t("directBuyBody")}</p>
+      </section>
+
       <section>
         <h2 className="mb-2 text-lg font-medium">{t("moreHelpTitle")}</h2>
         <p className="text-sm text-muted-foreground">

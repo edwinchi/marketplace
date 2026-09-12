@@ -235,6 +235,8 @@
     "buyingBody": "Browse or search listings, and message a seller directly from a listing page to ask questions or arrange pickup. Always review a seller's listing details carefully before agreeing to buy.",
     "sellingTitle": "Selling on AfroDeals",
     "sellingBody": "Tap \"Post an ad\", choose a category, and fill in the details buyers will want to know — price, condition, and location. You can edit or remove your listing at any time from \"My listings\".",
+    "directBuyTitle": "Direct Buy protections",
+    "directBuyBody": "When you buy with Direct Buy, the seller has 5 days from payment to ship your order and mark it as shipped — you'll get notified as soon as it's on its way. Favorite a listing and we'll let you know if its price drops.",
     "moreHelpTitle": "Need more help?",
     "moreHelpBody": "See our <safetyCenter>Safety Center</safetyCenter> for tips on trading safely."
   },

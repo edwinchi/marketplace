@@ -235,6 +235,8 @@
     "buyingBody": "Parcourez ou recherchez des annonces, et contactez directement un vendeur depuis la page d'une annonce pour poser des questions ou organiser un retrait. Vérifiez toujours attentivement les détails d'une annonce avant d'accepter d'acheter.",
     "sellingTitle": "Vendre sur AfroDeals",
     "sellingBody": "Appuyez sur « Publier une annonce », choisissez une catégorie et renseignez les informations que les acheteurs voudront connaître — prix, état et localisation. Vous pouvez modifier ou supprimer votre annonce à tout moment depuis « Mes annonces ».",
+    "directBuyTitle": "Protections Direct Buy",
+    "directBuyBody": "Lorsque vous achetez avec Direct Buy, le vendeur dispose de 5 jours après le paiement pour expédier votre commande et la marquer comme expédiée — vous serez averti dès son envoi. Ajoutez une annonce à vos favoris et nous vous préviendrons si son prix baisse.",
     "moreHelpTitle": "Besoin d'aide supplémentaire ?",
     "moreHelpBody": "Consultez notre <safetyCenter>Centre de sécurité</safetyCenter> pour des conseils sur la sécurité des transactions."
   },
