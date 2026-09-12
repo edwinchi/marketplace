@@ -13,7 +13,9 @@ export default async function NotificationSettingsPage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("profiles")
-    .select("notify_new_messages, notify_offers, allow_seller_contact_on_favorite, notify_listing_favorited, notify_new_listings")
+    .select(
+      "notify_new_messages, notify_offers, allow_seller_contact_on_favorite, notify_listing_favorited, notify_new_listings, notify_price_drops",
+    )
     .eq("id", profile.id)
     .single();
 
@@ -90,6 +92,17 @@ export default async function NotificationSettingsPage() {
             <ProfileToggle
               field="notify_listing_favorited"
               checked={data?.notify_listing_favorited ?? true}
+              returnTo="/my-account/preferences/notifications"
+            />
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="font-medium">Price drops</p>
+              <p className="text-sm text-muted-foreground">When a listing you&apos;ve favorited gets cheaper.</p>
+            </div>
+            <ProfileToggle
+              field="notify_price_drops"
+              checked={data?.notify_price_drops ?? true}
               returnTo="/my-account/preferences/notifications"
             />
           </div>

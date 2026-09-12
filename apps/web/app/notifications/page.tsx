@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Bell, Megaphone } from "lucide-react";
+import { Bell, Megaphone, Truck, TrendingDown } from "lucide-react";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 
@@ -16,7 +16,7 @@ type NotificationRow = {
   created_at: string;
 };
 
-const ICONS: Record<string, typeof Bell> = { new_listing: Megaphone };
+const ICONS: Record<string, typeof Bell> = { new_listing: Megaphone, order_shipped: Truck, price_drop: TrendingDown };
 
 export default async function NotificationsPage() {
   const { profile } = await getCurrentUserAndProfile();
