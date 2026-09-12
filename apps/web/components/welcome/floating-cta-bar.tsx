@@ -24,7 +24,7 @@ export function FloatingCtaBar() {
   return (
     <div
       className={`fixed inset-x-0 z-40 border-t bg-background/95 p-3 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] backdrop-blur transition-[bottom] duration-200 print:hidden ${
-        bannerShowing ? "bottom-[72px]" : "bottom-0"
+        bannerShowing ? "bottom-18" : "bottom-0"
       }`}
     >
       <div className="mx-auto flex max-w-md justify-center">

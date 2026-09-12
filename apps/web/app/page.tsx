@@ -8,7 +8,6 @@ import { getTextEmbedding } from "@/lib/embeddings";
 import { slugPath } from "@/lib/slug";
 import { ListingGrid } from "@/components/listing-grid";
 import { CategoryQuickNav } from "@/components/category-quicknav";
-import { HeroCollage } from "@/components/hero-collage";
 import { SearchQueryInput } from "@/components/search-query-input";
 import { SortSelect } from "@/components/sort-select";
 import { saveSearch } from "@/app/my-account/saved-searches/actions";
@@ -116,20 +115,20 @@ export default async function HomePage({
     <div className="flex flex-1 flex-col">
       {/* Search hero */}
       <div className="brand-lattice relative border-b bg-muted/30">
-        <HeroCollage />
         <div className="hero-enter relative mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-7 sm:px-6 lg:px-8">
           {/* This was previously just the search form below with no headline or CTA at all --
               anyone landing here (an ad click, a shared link, organic search) saw a functional
               search bar and nothing telling them AfroDeals is also where they'd sell. Solid brand
               color, not a gradient/glow -- restrained enough to still read as a trustworthy
-              classifieds marketplace, not a SaaS landing page. The <HeroCollage /> icon collage
-              behind it is the actual differentiator from Marktplaats' plain header band. */}
+              classifieds marketplace, not a SaaS landing page. The real-photo collage behind it
+              (.brand-lattice::before, see globals.css) is the actual differentiator from
+              Marktplaats' plain header band. */}
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
-              <h1 className="text-brand-gold text-balance text-3xl font-extrabold tracking-tight sm:text-4xl">
+              <h1 className="hero-text-halo text-brand-gold text-balance text-3xl font-extrabold tracking-tight sm:text-4xl">
                 {t("heroHeadline")}
               </h1>
-              <p className="mt-1.5 text-base font-medium text-[#046637] sm:text-lg">{t("heroSubtext")}</p>
+              <p className="hero-text-halo mt-1.5 text-base font-medium text-[#046637] sm:text-lg">{t("heroSubtext")}</p>
             </div>
             <Link
               href="/listings/new"
@@ -177,7 +176,7 @@ export default async function HomePage({
             <li>
               <Link
                 href="/"
-                className={`block rounded-md px-2 py-1.5 transition-all duration-150 ${!category ? "bg-primary/10 font-medium text-primary" : "text-muted-foreground hover:translate-x-0.5 hover:bg-muted hover:text-foreground"}`}
+                className={`block rounded-md px-2 py-1.5 transition-all duration-150 ${!category ? "bg-primary/10 font-medium text-primary" : "text-muted-foreground hover:translate-x-0.5 hover:bg-primary/10 hover:text-foreground"}`}
               >
                 {t("allCategories")}
               </Link>
@@ -186,7 +185,7 @@ export default async function HomePage({
               <li key={c.id}>
                 <Link
                   href={`/categories/${slugPath(c.label, c.id)}`}
-                  className={`block rounded-md px-2 py-1.5 transition-all duration-150 ${category === c.id ? "bg-primary/10 font-medium text-primary" : "text-muted-foreground hover:translate-x-0.5 hover:bg-muted hover:text-foreground"}`}
+                  className={`block rounded-md px-2 py-1.5 transition-all duration-150 ${category === c.id ? "bg-primary/10 font-medium text-primary" : "text-muted-foreground hover:translate-x-0.5 hover:bg-primary/10 hover:text-foreground"}`}
                 >
                   {c.label}
                 </Link>
@@ -310,7 +309,7 @@ export default async function HomePage({
                     <Link
                       href={pageHref(page - 1)}
                       aria-disabled={page <= 1}
-                      className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${page <= 1 ? "pointer-events-none opacity-40" : "hover:bg-muted"}`}
+                      className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${page <= 1 ? "pointer-events-none opacity-40" : "hover:bg-primary/10"}`}
                     >
                       Previous
                     </Link>
@@ -319,7 +318,7 @@ export default async function HomePage({
                       <Link
                         key={p}
                         href={pageHref(p)}
-                        className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${p === page ? "border-primary bg-primary/10 font-semibold text-primary" : "hover:bg-muted"}`}
+                        className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${p === page ? "border-primary bg-primary/10 font-semibold text-primary" : "hover:bg-primary/10"}`}
                       >
                         {p}
                       </Link>
@@ -328,7 +327,7 @@ export default async function HomePage({
                     <Link
                       href={pageHref(page + 1)}
                       aria-disabled={page >= totalPages}
-                      className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${page >= totalPages ? "pointer-events-none opacity-40" : "hover:bg-muted"}`}
+                      className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${page >= totalPages ? "pointer-events-none opacity-40" : "hover:bg-primary/10"}`}
                     >
                       Next
                     </Link>

@@ -80,7 +80,7 @@ export default async function TransactionsPage({
           <Link
             key={f.key}
             href={`/my-account/transactions?tab=${tab}${f.key === "all" ? "" : `&status=${f.key}`}`}
-            className={`rounded-full border px-3 py-1 text-sm transition-colors ${status === f.key ? "border-primary bg-primary/10 font-medium text-primary" : "text-muted-foreground hover:bg-muted"}`}
+            className={`rounded-full border px-3 py-1 text-sm transition-colors ${status === f.key ? "border-primary bg-primary/10 font-medium text-primary" : "text-muted-foreground hover:bg-primary/10"}`}
           >
             {f.label}
           </Link>

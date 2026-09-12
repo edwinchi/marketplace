@@ -143,15 +143,50 @@
 @layer components {
   /* A distinctive, brand-colored signature for the homepage hero -- what actually sets AfroDeals
      apart from Marktplaats' plain, undecorated header band, without reintroducing the "SaaS
-     landing page" glow-blob/gradient-text look that was deliberately removed. Previously a pure-
-     CSS crossed-gradient lattice; now a scattered collage of the site's own category icons
-     (components/hero-collage.tsx), blurred and faded, standing in for "everything that can be
-     sold here" -- present enough to read as a deliberate choice, quiet enough to never compete
-     with the actual headline/search bar sitting on top of it. This class now just establishes the
-     positioning context for that absolutely-positioned collage. */
+     landing page" glow-blob/gradient-text look that was deliberately removed. Went through three
+     iterations: a pure-CSS crossed-gradient lattice, then a scattered collage of the site's own
+     category icons, now a real photo collage (public/hero-photo-collage.jpg -- 16 CC0/public-
+     domain photos, one per product category, from Openverse; zero attribution owed, zero
+     licensing risk) standing in for "everything that can be sold here" as actual photography
+     rather than illustration. Kept full color per request -- the "faded enough not to compete
+     with the headline/search bar" requirement is handled entirely in this ::before layer via a
+     --background-driven color-mix() scrim (so it automatically relights for dark mode the same
+     way every other brand-token usage in this file does) plus a real CSS mask-image edge fade,
+     rather than by desaturating or baking a fixed opacity into the image itself. A flat (not
+     top/bottom-graded) scrim -- an earlier graded version left the headline's own top strip the
+     LEAST muted part of the photo, which read fine in the abstract but produced real orange-on-
+     reddish-photo contrast failures wherever a warm-toned tile happened to land there. Legibility
+     for the headline/subtext specifically is handled independently by .hero-text-halo below, so
+     this scrim only has to keep the photo "just visible enough" everywhere, not fully guarantee
+     contrast on its own. */
   .brand-lattice {
     position: relative;
     overflow: hidden;
+  }
+  .brand-lattice::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(
+        color-mix(in oklch, var(--background) 45%, transparent),
+        color-mix(in oklch, var(--background) 45%, transparent)
+      ),
+      url("/hero-photo-collage.jpg");
+    background-size: cover;
+    background-position: center;
+    /* A real edge vignette (not a hard-cropped photo rectangle) -- fades to fully transparent at
+       both the left/right edges and top/bottom, so the photo collage dissolves into the page's own
+       background color rather than looking like a pasted-in banner image. */
+    -webkit-mask-image:
+      linear-gradient(to right, transparent, black 8%, black 92%, transparent),
+      linear-gradient(to bottom, black, black 70%, transparent);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(to right, transparent, black 8%, black 92%, transparent),
+      linear-gradient(to bottom, black, black 70%, transparent);
+    mask-composite: intersect;
   }
 
   /* @starting-style: a genuinely new (Baseline 2025) CSS feature -- defines the "before" state for
@@ -174,6 +209,19 @@
     .hero-enter {
       transition: none;
     }
+  }
+
+  /* A soft halo (three stacked blur radii, not a single hard drop-shadow) behind the hero
+     headline/subtext -- guarantees contrast against whatever the photo collage happens to show
+     directly behind that specific text, without needing the whole-hero scrim to be strong enough
+     to protect it everywhere (which would just wash the photo out uniformly instead of letting it
+     stay "just visible enough"). var(--background)-based so it's a white glow in light mode and a
+     dark glow in dark mode, same as the scrim above. */
+  .hero-text-halo {
+    text-shadow:
+      0 0 3px var(--background),
+      0 0 7px var(--background),
+      0 0 14px var(--background);
   }
 }
 

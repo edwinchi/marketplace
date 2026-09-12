@@ -78,7 +78,7 @@ export async function Nav() {
             <img src="/logo-compact.png" alt="AfroDeals" className="h-11 w-auto" />
           </Link>
           <div className="flex items-center">
-            <NavIconLink href="/messages" className="relative flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+            <NavIconLink href="/messages" className="relative flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground">
               <MessageCircle className="size-5" />
               {unreadCount > 0 && (
                 <span className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
@@ -86,7 +86,7 @@ export async function Nav() {
                 </span>
               )}
             </NavIconLink>
-            <NavIconLink href="/notifications" className="relative flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+            <NavIconLink href="/notifications" className="relative flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground">
               <Bell className="size-5" />
               {unreadNotifications > 0 && (
                 <span className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
@@ -138,10 +138,10 @@ export async function Nav() {
               <CurrencySwitcher currency={displayCurrency} />
               <NavIconLink
                 href="/messages"
-                className="relative flex items-center gap-1.5 rounded-md px-1.5 py-1.5 text-sm text-muted-foreground transition-all duration-150 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground sm:px-2"
+                className="relative flex items-center gap-1.5 rounded-md px-1.5 py-1.5 text-sm text-muted-foreground transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary/10 hover:text-foreground sm:px-2"
               >
                 <MessageCircle className="size-5" />
-                <span className="hidden sm:inline">{t("messages")}</span>
+                <span className="sr-only">{t("messages")}</span>
                 {unreadCount > 0 && (
                   <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
                     {unreadCount > 9 ? "9+" : unreadCount}
@@ -152,16 +152,19 @@ export async function Nav() {
                   already fills 1024px to the point of clipping "Post an ad" off the edge, and only
                   1280px+ had real room to spare. Showing this any earlier reintroduces that
                   overflow -- previously sat beside the logo instead, moved here (right after
-                  Messages) per a later request. */}
-              <NavIconLink href="/welcome" className="hidden shrink-0 rounded-md px-1.5 py-1.5 text-sm font-medium whitespace-nowrap text-muted-foreground transition-colors hover:bg-muted hover:text-foreground xl:inline-block">
+                  Messages) per a later request. Messages/Notifications went icon-only (sr-only
+                  label) after that measurement, freeing real width in this row -- if that turns
+                  out to be enough room to drop this to lg, that's a live-measurement call, not one
+                  to guess at from here. */}
+              <NavIconLink href="/welcome" className="hidden shrink-0 rounded-md px-1.5 py-1.5 text-sm font-medium whitespace-nowrap text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground xl:inline-block">
                 {t("howItWorks")}
               </NavIconLink>
               <NavIconLink
                 href="/notifications"
-                className="flex items-center gap-1.5 rounded-md px-1.5 py-1.5 text-sm text-muted-foreground transition-all duration-150 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground sm:px-2"
+                className="flex items-center gap-1.5 rounded-md px-1.5 py-1.5 text-sm text-muted-foreground transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary/10 hover:text-foreground sm:px-2"
               >
                 <Bell className="size-5" />
-                <span className="hidden sm:inline">{t("notifications")}</span>
+                <span className="sr-only">{t("notifications")}</span>
                 {unreadNotifications > 0 && (
                   <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
                     {unreadNotifications > 9 ? "9+" : unreadNotifications}

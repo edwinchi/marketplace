@@ -87,7 +87,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             <Link
               key={c.id}
               href={`/categories/${slugPath(c.label, c.id)}?city=${encodeURIComponent(target.name)}`}
-              className="rounded-full border px-3 py-1.5 text-sm transition-colors hover:bg-muted"
+              className="rounded-full border px-3 py-1.5 text-sm transition-colors hover:bg-primary/10"
             >
               {c.label}
             </Link>

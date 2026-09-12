@@ -67,7 +67,7 @@ export function ReviewForm({ revieweeId }: { revieweeId: string }) {
                   type="button"
                   onClick={() => toggleTag(tag)}
                   className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                    tags.includes(tag) ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"
+                    tags.includes(tag) ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground hover:bg-primary/10"
                   }`}
                 >
                   {tag}

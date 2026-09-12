@@ -184,7 +184,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
                 </div>
               </div>
 
-              <div className="flex items-start gap-2 border-b bg-[#082040]/[0.03] p-3 text-xs text-muted-foreground">
+              <div className="flex items-start gap-2 border-b bg-[#082040]/3 p-3 text-xs text-muted-foreground">
                 <ShieldAlert className="mt-0.5 size-4 shrink-0 text-[#082040]/70" />
                 <span>
                   Stay alert and trade safely — never pay before you&apos;ve seen an item in person. See our{" "}

@@ -72,7 +72,7 @@ export default async function NotificationsPage() {
             return (
               <li key={n.id}>
                 {listingId ? (
-                  <Link href={`/listings/x-${listingId}`} className="flex items-start gap-3 rounded-xl border p-4 shadow-sm transition-colors hover:bg-muted/50">
+                  <Link href={`/listings/x-${listingId}`} className="flex items-start gap-3 rounded-xl border p-4 shadow-sm transition-colors hover:bg-primary/10">
                     {content}
                   </Link>
                 ) : (
