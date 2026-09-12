@@ -201,7 +201,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
       </div>
 
       <section className={card}>
-        <SectionHeading icon={Camera}>Photos</SectionHeading>
+        <SectionHeading icon={Camera}>Photos (optional, but listings with photos sell faster)</SectionHeading>
         <PhotoUpload initialFiles={draftPhotoFiles} onFilesChange={handlePhotosChange} />
 
         <div className="mt-4 border-t pt-4">
@@ -212,7 +212,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
               onChange={(e) => setUseAi(e.target.checked)}
               className="size-3.5"
             />
-            Use AI to help write the title &amp; description
+            Use AI to help write the title &amp; description (optional — saves you the typing)
           </label>
           {useAi && (
             <div className="flex items-start gap-3">

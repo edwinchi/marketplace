@@ -105,7 +105,7 @@ export function NewListingStep1({
         <div className="mb-3 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Sparkles className="size-4 text-primary" />
-            <h2 className="text-sm font-semibold">Have a photo? Let AI fill this in</h2>
+            <h2 className="text-sm font-semibold">Optional: skip the typing with AI</h2>
           </div>
           {usesLeft > 0 ? (
             <label className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
@@ -203,7 +203,9 @@ export function NewListingStep1({
             )}
             {!analyzing && !analyzeError && !aiCategoryLabel && (
               <p className="text-muted-foreground">
-                Upload a photo of the item and AI will suggest a title, category, and description for you to review.
+                Upload a photo and AI drafts a title, category, and description for you to review — saves you the
+                typing, but it&apos;s entirely optional. Prefer to do it yourself? Just skip this and fill in the
+                fields below.
               </p>
             )}
           </div>
