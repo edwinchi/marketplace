@@ -53,7 +53,13 @@ export async function proxy(request: NextRequest) {
 
   if (requireLogin && !user && !isPublic) {
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("next", pathname);
+    // pathname alone drops the query string -- confirmed live: a signed-in user bounced here
+    // mid-way through /listings/new/details?title=...&category=... (a session hiccup, not a data
+    // bug -- that category was independently confirmed valid) got sent back to plain
+    // /listings/new/details with no title/category, which redirects to step 1 and throws away
+    // their already-AI-drafted title/description. Preserving the full path+search means logging
+    // back in returns them to the exact page they were on, not just the right route.
+    loginUrl.searchParams.set("next", pathname + request.nextUrl.search);
     return NextResponse.redirect(loginUrl);
   }
 
