@@ -39,7 +39,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       <div className="relative z-10 flex w-full flex-col items-center">
         <div className="rounded-2xl bg-white px-6 py-3 shadow-lg">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="MarketitNow" className="h-10 w-auto sm:h-11" />
+          <img src="/logo.png?v=2" alt="MarketitNow" className="h-10 w-auto sm:h-11" />
         </div>
 
         <h1 className="mt-6 max-w-lg text-center text-3xl leading-tight font-bold text-white sm:text-4xl">

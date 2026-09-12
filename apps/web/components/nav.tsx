@@ -75,7 +75,7 @@ export async function Nav() {
                 wordmark (no swoosh underline) so it reads at full size in this shorter mobile
                 bar instead of looking squeezed -- full original resolution, just trimmed. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-compact.png" alt="MarketitNow" className="h-11 w-auto" />
+            <img src="/logo-compact.png?v=2" alt="MarketitNow" className="h-11 w-auto" />
           </Link>
           <div className="flex items-center">
             <NavIconLink href="/messages" className="relative flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground">
@@ -114,9 +114,14 @@ export async function Nav() {
                   bust (confirmed: the raw /logo.png and a fresh-width optimizer request both
                   returned the new file, but the browser's actual rendered request kept getting a
                   304 against old cached bytes). Serving it as-is sidesteps that whole class of bug
-                  — no runtime resizing needed for a logo this size anyway. */}
+                  — no runtime resizing needed for a logo this size anyway. The ?v= query string on
+                  every /logo*.png reference below is the same fix applied at the URL level: it hit
+                  the same 304-against-stale-bytes problem again after the MarketitNow swap, and a
+                  changed URL is a guaranteed cache miss everywhere (browser + CDN), unlike hoping a
+                  revalidation notices the file changed. Bump the version whenever the file changes
+                  again. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="MarketitNow" className="h-16 w-auto" />
+              <img src="/logo.png?v=2" alt="MarketitNow" className="h-20 w-auto" />
             </Link>
             {/* xl, matching "How it works" right below -- the same measured constraint applies
                 (this row already fills 1024-1280px, only 1280px+ has real spare room). Search was

@@ -29,7 +29,7 @@ export function DocumentPage({ title, subtitle, disclaimer, children }: Props) {
             or with a scanned/printed copy being read back later). */}
         {/* eslint-disable-next-line @next/next/no-img-element -- decorative watermark, not content */}
         <img
-          src="/logo.png"
+          src="/logo.png?v=2"
           alt=""
           aria-hidden="true"
           className="pointer-events-none absolute top-1/2 left-1/2 w-[140%] max-w-none -translate-x-1/2 -translate-y-1/2 -rotate-12 opacity-[0.05] select-none print:opacity-[0.08]"
@@ -40,7 +40,7 @@ export function DocumentPage({ title, subtitle, disclaimer, children }: Props) {
         <div className="relative p-6 sm:p-10 print:p-6">
           <div className="mb-6 flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="MarketitNow" className="h-9 w-auto" />
+            <img src="/logo.png?v=2" alt="MarketitNow" className="h-9 w-auto" />
           </div>
 
           <p className="text-xs font-semibold tracking-wide text-[#e89818] uppercase">Template</p>
