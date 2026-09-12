@@ -157,17 +157,11 @@ export default async function CategoryPage({
 
     return (
       <>
-        <div className="brand-lattice relative border-b bg-muted/30" style={heroBannerStyle}>
-          <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
-            <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
-              Buy and sell {categoryName}
-            </h1>
-            <p className="hero-text-halo mt-1 text-sm font-medium text-[#046637] sm:text-base">
-              Real listings from sellers around the world.
-            </p>
-          </div>
-        </div>
-        <div className="mx-auto w-full max-w-[1600px] px-4 pt-2 sm:px-6 lg:px-8">
+        {/* No .brand-lattice rotating-banner hero here (unlike the other two branches) --
+            CarsLanding below already has its own dedicated, Cars-specific hero with real filter
+            controls. Stacking both put two hero bands back to back before any actual listings,
+            which is exactly the "too much space" this was built to avoid. */}
+        <div className="mx-auto w-full max-w-[1600px] px-4 pt-4 sm:px-6 lg:px-8">
           <Breadcrumbs path={breadcrumbPath} />
           {/* This page's own containing block for the sticky row is only this div (Breadcrumbs
               plus the row itself) -- CarsLanding below is a separate top-level sibling, not nested

@@ -76,22 +76,22 @@ export function CarsLanding({
 
   return (
     <div className="w-full">
-      {/* Hero — an angled two-tone band evokes the reference's diagonal cut, using the brand's
-          own navy/orange rather than copying Marktplaats' beige. */}
+      {/* Hero — a slim angled two-tone band, still evoking the diagonal cut, without spending a
+          near-full screen's height on it before any actual listings show up. Headline, subtext,
+          and the live count now share one line instead of stacking three. */}
       <div className="relative overflow-hidden bg-[#082040]">
         <div
-          className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-br from-[#e89818] via-[#f2ad3d] to-[#008848]/80"
+          className="absolute inset-y-0 right-0 w-2/3 bg-linear-to-br from-[#e89818] via-[#f2ad3d] to-[#008848]/80"
           style={{ clipPath: "polygon(35% 0, 100% 0, 100% 100%, 0% 100%)" }}
         />
-        <div className="relative mx-auto w-full max-w-[1600px] px-4 py-14 sm:px-6 lg:px-8">
-          <h1 className="max-w-xl text-3xl font-bold text-white sm:text-4xl">Buy a used or new car</h1>
-          <p className="mt-3 max-w-lg text-sm text-white/80 sm:text-base">
-            Practical, sporty, or electric — browse real listings from private sellers and dealers across the
-            continent, or list your own car for free in minutes.
+        <div className="relative mx-auto flex w-full max-w-[1600px] flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-5 sm:px-6 lg:px-8">
+          <h1 className="text-xl font-bold text-white sm:text-2xl">Buy a used or new car</h1>
+          <p className="text-xs text-white/80 sm:text-sm">
+            Practical, sporty, or electric — browse real listings, or list your own for free.
           </p>
-          <p className="mt-4 text-sm font-medium text-white/90">
+          <p className="text-xs font-medium text-white/90 sm:text-sm">
             {totalActiveCount > 0
-              ? `${totalActiveCount} ${totalActiveCount === 1 ? "car" : "cars"} available right now`
+              ? `${totalActiveCount} ${totalActiveCount === 1 ? "car" : "cars"} available now`
               : "Be the first to list a car"}
           </p>
         </div>
@@ -101,7 +101,7 @@ export function CarsLanding({
         {/* Floating filter card, overlapping the hero like the reference's search panel. */}
         <form
           action={basePath}
-          className="relative -mt-8 rounded-2xl border bg-card p-5 shadow-lg ring-1 ring-black/5 sm:-mt-10 sm:p-6"
+          className="relative -mt-4 rounded-2xl border bg-card p-5 shadow-lg ring-1 ring-black/5 sm:-mt-5 sm:p-6"
         >
           <div className="flex flex-wrap gap-2">
             <Link
