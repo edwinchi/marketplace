@@ -2,7 +2,7 @@
 -- schema but were never populated or queried by any app code. title_embedding was sized for
 -- OpenAI text-embedding-3-small (1536 dims) -- the model actually used here is OpenRouter's
 -- baai/bge-m3 instead (no OpenAI key is configured, and bge-m3 is OpenRouter's own top multilingual
--- recommendation, which matters more here than for an English-only site given AfroDeals serves
+-- recommendation, which matters more here than for an English-only site given MarketitNow serves
 -- en/fr/ar/zh). bge-m3 outputs 1024 dims, not 1536. Safe to resize now since the column has never
 -- actually been populated -- dropping and re-adding rather than a same-column type change since
 -- pgvector doesn't support directly altering a vector column's dimension in place.

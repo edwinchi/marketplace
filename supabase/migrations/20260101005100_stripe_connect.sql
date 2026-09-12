@@ -1,5 +1,5 @@
 -- Stripe Connect Express accounts for sellers -- lets a buyer's payment go straight to the
--- seller's own bank account (via transfer_data.destination on the PaymentIntent) while AfroDeals
+-- seller's own bank account (via transfer_data.destination on the PaymentIntent) while MarketitNow
 -- keeps a platform fee (via application_fee_amount), without ever touching a seller's bank details
 -- itself. Express, not Standard or Custom: sellers get Stripe's own quick hosted onboarding (ID,
 -- bank details) rather than a full Stripe dashboard, matching a casual buy/sell marketplace where

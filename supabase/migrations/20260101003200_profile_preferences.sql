@@ -1,4 +1,4 @@
--- Real, working preference storage for settings AfroDeals doesn't act on yet (no marketing email
+-- Real, working preference storage for settings MarketitNow doesn't act on yet (no marketing email
 -- campaigns, no push notification dispatch beyond the in-app inbox, no location-based ranking) —
 -- saving a genuine preference ahead of the sender/feature existing is normal sequencing, not
 -- fabrication. Distinct from "Enable payments" (would need real bank-detail handling this project

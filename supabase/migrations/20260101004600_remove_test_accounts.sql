@@ -3,7 +3,7 @@
 -- *debug*, msgseller/msgbuyer pairs, the original afrodeals_demo seed seller, etc). Scoped to 95
 -- profiles identified by clearly automated username patterns (bot-generated, clustered in tight
 -- same-second timestamp bursts) plus 28 of their listings -- 17 of which were LIVE and publicly
--- visible in search results (including the entire "AfroDeals Demo Seller" catalog). Real-looking
+-- visible in search results (including the entire "MarketitNow Demo Seller" catalog). Real-looking
 -- accounts (human usernames, isolated signups, a business account, the site owner's own accounts)
 -- were deliberately excluded -- see the classification this migration was generated from.
 --
