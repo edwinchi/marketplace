@@ -27,14 +27,37 @@ export async function Footer() {
           orange #E89818, green #008848) — the one place the full trio appears together, rather
           than scattering brand color everywhere. */}
       <div className="h-1 bg-[linear-gradient(to_right,#082040_0%,#082040_33%,#e89818_33%,#e89818_67%,#008848_67%,#008848_100%)]" />
-      <div className="mx-auto w-full max-w-[1600px] px-4 py-10 sm:px-6 lg:px-8">
+      {/* @container turns the categories grid's breakpoints below (@sm/@lg/@xl) into queries
+          against THIS wrapper's own rendered width, not the viewport -- genuinely more correct
+          than a viewport breakpoint here, since nothing guarantees the footer is ever viewport-
+          width (e.g. if it's ever reused inside a narrower panel), and it's real Tailwind v4
+          container-query support, not a polyfill. */}
+      <div className="@container mx-auto w-full max-w-[1600px] px-4 py-10 sm:px-6 lg:px-8">
         {user && (
           <>
-            <h2 className="mb-4 text-sm font-semibold text-[#082040]">{t("categories")}</h2>
-            <ul className="grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#082040]">
+              {/* Same three brand colors as the top bar, in miniature, right next to the heading
+                  that opens the section it introduces -- a small deliberate echo, not decoration
+                  repeated for its own sake. color-mix() softens each toward the page background
+                  rather than using the raw hex, so it reads as a tasteful accent, not a swatch. */}
+              <span className="flex h-3 w-6 overflow-hidden rounded-full">
+                <span className="flex-1" style={{ backgroundColor: "color-mix(in oklch, #082040 80%, var(--background))" }} />
+                <span className="flex-1" style={{ backgroundColor: "color-mix(in oklch, #e89818 80%, var(--background))" }} />
+                <span className="flex-1" style={{ backgroundColor: "color-mix(in oklch, #008848 80%, var(--background))" }} />
+              </span>
+              {t("categories")}
+            </h2>
+            {/* Column-major (grid-flow-col), not row-major -- links fill top-to-bottom then wrap to
+                the next column, like a phone book or a real classifieds footer, instead of reading
+                left-to-right in no particular browsable order. A fixed row count per container
+                width plus auto-cols-fr lets the column count emerge on its own rather than being
+                hand-picked to match however many categories exist today. **:hover:underline
+                (Tailwind v4's "all descendants" arbitrary variant) sets the hover rule once on the
+                list instead of repeating it on every single link. */}
+            <ul className="**:hover:underline grid auto-cols-fr grid-flow-col grid-rows-[repeat(18,auto)] gap-x-6 gap-y-2 @sm:grid-rows-[repeat(12,auto)] @lg:grid-rows-[repeat(9,auto)] @xl:grid-rows-[repeat(7,auto)]">
               {categories.map((cat) => (
                 <li key={cat.id}>
-                  <Link href={`/categories/${slugPath(cat.name, cat.id)}`} className="text-sm text-muted-foreground transition-colors hover:text-foreground hover:underline">
+                  <Link href={`/categories/${slugPath(cat.name, cat.id)}`} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                     {cat.name}
                   </Link>
                 </li>
@@ -65,7 +88,7 @@ export async function Footer() {
           <Link href="/feedback" className="hover:underline">{tNav("feedback")}</Link>
         </div>
 
-        <div className="mt-6 border-t pt-6 text-center text-sm text-[#082040]/65">
+        <div className="mt-6 border-t pt-6 text-center text-sm text-pretty text-[#082040]/65">
           <p className="mx-auto max-w-2xl">{t("disclaimer")}</p>
           <p className="mx-auto mt-1 max-w-2xl">
             {t("tradeSafely")}{" "}
