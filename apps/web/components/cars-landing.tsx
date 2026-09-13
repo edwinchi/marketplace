@@ -76,20 +76,25 @@ export function CarsLanding({
 
   return (
     <div className="w-full">
-      {/* Hero — a slim angled two-tone band, still evoking the diagonal cut, without spending a
-          near-full screen's height on it before any actual listings show up. Headline, subtext,
-          and the live count now share one line instead of stacking three. */}
-      <div className="relative overflow-hidden bg-[#082040]">
+      {/* Hero — a slim angled two-tone band over a real photo background (public/cars-hero.jpg, a
+          CC0 parking-lot photo -- see scratchpad retouch pass; every visible manufacturer badge
+          was spot-blurred out, since incidental trademark exposure across a dozen different car
+          brands in one wide shot isn't something a license alone clears). A left-to-right dark
+          scrim keeps the headline legible over the photo's busiest area, fading out toward the
+          right so the photo itself stays visible under the brand-color diagonal accent instead of
+          being fully hidden behind a flat navy block like before. */}
+      <div className="relative overflow-hidden bg-[#082040] bg-cover bg-center" style={{ backgroundImage: "url('/cars-hero.jpg')" }}>
+        <div className="absolute inset-0 bg-linear-to-r from-[#082040] via-[#082040]/85 to-[#082040]/35" />
         <div
-          className="absolute inset-y-0 right-0 w-2/3 bg-linear-to-br from-[#e89818] via-[#f2ad3d] to-[#008848]/80"
+          className="absolute inset-y-0 right-0 w-2/3 bg-linear-to-br from-[#e89818]/80 via-[#f2ad3d]/75 to-[#008848]/65"
           style={{ clipPath: "polygon(35% 0, 100% 0, 100% 100%, 0% 100%)" }}
         />
-        <div className="relative mx-auto flex w-full max-w-[1600px] flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-5 sm:px-6 lg:px-8">
-          <h1 className="text-xl font-bold text-white sm:text-2xl">Buy a used or new car</h1>
-          <p className="text-xs text-white/80 sm:text-sm">
+        <div className="relative mx-auto flex w-full max-w-[1600px] flex-col gap-1 px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+          <h1 className="text-2xl font-bold text-white [text-shadow:0_1px_4px_rgb(0_0_0_/_0.45)] sm:text-3xl">Buy a used or new car</h1>
+          <p className="max-w-md text-sm text-white/90 [text-shadow:0_1px_3px_rgb(0_0_0_/_0.45)] sm:text-base">
             Practical, sporty, or electric — browse real listings, or list your own for free.
           </p>
-          <p className="text-xs font-medium text-white/90 sm:text-sm">
+          <p className="text-sm font-medium text-white [text-shadow:0_1px_3px_rgb(0_0_0_/_0.45)]">
             {totalActiveCount > 0
               ? `${totalActiveCount} ${totalActiveCount === 1 ? "car" : "cars"} available now`
               : "Be the first to list a car"}
@@ -101,7 +106,7 @@ export function CarsLanding({
         {/* Floating filter card, overlapping the hero like the reference's search panel. */}
         <form
           action={basePath}
-          className="relative -mt-4 rounded-2xl border bg-card p-5 shadow-lg ring-1 ring-black/5 sm:-mt-5 sm:p-6"
+          className="relative -mt-6 rounded-2xl border bg-card p-5 shadow-lg ring-1 ring-black/5 sm:-mt-8 sm:p-6"
         >
           <div className="flex flex-wrap gap-2">
             <Link
