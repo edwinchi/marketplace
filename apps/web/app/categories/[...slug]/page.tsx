@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const breadcrumb = path.map((n) => n.name).join(" > ");
   const canonicalPath = `/categories/${breadcrumbSlugPath(path.slice(0, -1), name, id)}`;
   const title = `${name} for sale`;
-  const description = `Buy and sell ${name} on MarketitNow — real listings under ${breadcrumb}, from sellers around the world.`;
+  const description = `Buy, sell, advertise ${name} on MarketitNow — real listings under ${breadcrumb}, from sellers around the world.`;
 
   return {
     title,
@@ -315,7 +315,7 @@ export default async function CategoryPage({
         <div className="brand-lattice relative border-b bg-muted/30" style={heroBannerStyle}>
           <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
             <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
-              Buy and sell {categoryName}
+              Buy, sell, advertise {categoryName}
             </h1>
             <p className="hero-text-halo mt-1 text-sm font-medium text-[#046637] sm:text-base">
               Real listings from sellers around the world.
@@ -349,7 +349,7 @@ export default async function CategoryPage({
       <div className="brand-lattice relative border-b bg-muted/30" style={heroBannerStyle}>
         <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
           <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
-            Buy and sell {categoryName}
+            Buy, sell, advertise {categoryName}
           </h1>
           <p className="hero-text-halo mt-1 text-sm font-medium text-[#046637] sm:text-base">
             Real listings from sellers around the world.
