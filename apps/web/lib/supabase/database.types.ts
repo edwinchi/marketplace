@@ -429,6 +429,7 @@ export type Database = {
           is_active: boolean
           level: number
           metadata: Json
+          name_embedding: string | null
           parent_id: string | null
           sort_order: number
           stable_key: string
@@ -441,6 +442,7 @@ export type Database = {
           is_active?: boolean
           level?: number
           metadata?: Json
+          name_embedding?: string | null
           parent_id?: string | null
           sort_order?: number
           stable_key: string
@@ -453,6 +455,7 @@ export type Database = {
           is_active?: boolean
           level?: number
           metadata?: Json
+          name_embedding?: string | null
           parent_id?: string | null
           sort_order?: number
           stable_key?: string
@@ -2444,6 +2447,10 @@ export type Database = {
       mark_order_shipped: { Args: { p_order_id: string; p_carrier?: string | null; p_tracking_number?: string | null }; Returns: undefined }
       match_listings_by_embedding: {
         Args: { filter_category_ids?: string[] | null; filter_city?: string | null; match_count?: number; query_embedding: string }
+        Returns: { id: string; similarity: number }[]
+      }
+      match_category_by_embedding: {
+        Args: { query_embedding: string; match_count?: number }
         Returns: { id: string; similarity: number }[]
       }
       start_conversation: { Args: { p_listing_id: string }; Returns: string }

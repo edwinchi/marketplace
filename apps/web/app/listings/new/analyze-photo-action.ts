@@ -6,6 +6,7 @@ import { getCategoriesAndAttributes } from "@/lib/categories";
 import { isAdminEmail } from "@/lib/admin";
 import { parseJsonResponse } from "@/lib/ai-text";
 import { buildProviderAttempts } from "@/lib/ai-providers";
+import { getTextEmbedding } from "@/lib/embeddings";
 
 // Free tier: 5 uses per registered account, then an honest "upgrade" prompt — there's no payment
 // processor wired up yet to actually charge for more (see /my-account/ai-features), so this just
@@ -140,23 +141,21 @@ export async function analyzeListingPhoto(imageBase64: string, mediaType: string
   const usesLeftAfter = unlimited ? effectiveLimit : Math.max(0, effectiveLimit - reservedCount);
 
   const { categoryOptions } = await getCategoriesAndAttributes();
-  // ~210 leaf categories at "- Parent → Leaf" each (repeating the parent name on every single line)
-  // was the dominant cost in this prompt — enough on its own to tip a request over OpenRouter's
-  // free-tier per-request token cap regardless of image size (agents.md §12). Grouping under one
-  // parent header instead cuts that repetition out; the model still gets every real category name
-  // to ground against, just not the parent prefix duplicated ~210 times.
-  const byParent = new Map<string, string[]>();
-  for (const c of categoryOptions) {
-    const arrowIdx = c.label.indexOf(" → ");
-    const parent = arrowIdx === -1 ? "Other" : c.label.slice(0, arrowIdx);
-    const leaf = arrowIdx === -1 ? c.label : c.label.slice(arrowIdx + 3);
-    (byParent.get(parent) ?? byParent.set(parent, []).get(parent)!).push(leaf);
-  }
-  const categoryListText = [...byParent.entries()].map(([parent, leaves]) => `${parent}: ${leaves.join(", ")}`).join("\n");
 
+  // Category is deliberately NOT asked for here anymore -- it used to be a third field the model
+  // picked verbatim out of a ~210-item list, and a free-tier fallback model occasionally
+  // hallucinated a plausible-looking but wrong pick from a list that long even when the
+  // title/description came out right (confirmed live: a photo of a backpack got filed under Cars
+  // -> SUVs and crossovers). Below, the category is instead chosen deterministically by embedding
+  // this response's own title+description and finding the nearest real category by cosine
+  // similarity (match_category_by_embedding, supabase/migrations/20260101007000_category_embeddings.sql)
+  // -- a lookup against real categories can't invent one that doesn't exist, unlike free-form
+  // generation. This also shrinks the prompt considerably, which was itself a real cost (the
+  // category list used to be the dominant token cost here, enough on its own to tip a request over
+  // OpenRouter's free-tier per-request cap regardless of image size, agents.md §12).
   const prompt = `You are helping a seller on MarketitNow, a classifieds marketplace, list an item from a photo.
 Respond with ONLY a JSON object (no markdown fences, no commentary) with exactly these keys:
-{"title": "short listing title, max 80 characters, no marketing fluff", "description": "a rich, structured draft description in simple markdown -- see format below", "category": "the single best-matching category, formatted EXACTLY as \\"Parent → Leaf\\" using names copied verbatim from the list below"}
+{"title": "short listing title, max 80 characters, no marketing fluff", "description": "a rich, structured draft description in simple markdown -- see format below"}
 
 Description format (this is a draft the seller reviews and edits before anything publishes, so favor real, visible detail over filler):
 - 2-3 short sections, each starting with its own "## " header naming one real, visible aspect of the item (what it's for, a standout feature, its finish/style, etc.) -- write real headers specific to this item, not generic labels like "Overview". A couple of engaging, honest sentences under each.
@@ -164,10 +163,7 @@ Description format (this is a draft the seller reviews and edits before anything
 - Mention visible condition or wear honestly if there is any.
 - Never invent measurements, technical specs, power ratings, model numbers, or box contents you can't actually see in the photo -- a specific number that isn't genuinely visible (on a label, tag, or the item itself) does not belong in the description at all. It's fine, and expected, to leave precise specs for the seller to add themselves.
 
-Valid categories, grouped as "Parent: leaf, leaf, ..." (pick exactly one leaf, do not invent one):
-${categoryListText}
-
-If the photo doesn't clearly show a sellable item, respond with {"title": "", "description": "", "category": ""} instead.`;
+If the photo doesn't clearly show a sellable item, respond with {"title": "", "description": ""} instead.`;
 
   // Try each model in order, moving on to the next on ANY failure (rate limit, no credit, model
   // deprecated/unavailable, anything) -- see the fallback list's own comment above for why this
@@ -248,22 +244,24 @@ If the photo doesn't clearly show a sellable item, respond with {"title": "", "d
   const text: string =
     typeof content === "string" ? content : Array.isArray(content) ? content.map((p: { text?: string }) => p?.text ?? "").join("") : "";
 
-  const parsed = parseJsonResponse<{ title?: string; description?: string; category?: string }>(text);
+  const parsed = parseJsonResponse<{ title?: string; description?: string }>(text);
   if (!parsed) {
     return { data: null, error: "Couldn't make sense of that photo — try a clearer, closer shot of the item.", usesLeft: usesLeftAfter, freeLimit: FREE_USE_LIMIT, unlimited };
   }
 
-  if (!parsed.title || !parsed.category) {
+  if (!parsed.title) {
     return { data: null, error: "Couldn't identify a sellable item in that photo — try a different photo.", usesLeft: usesLeftAfter, freeLimit: FREE_USE_LIMIT, unlimited };
   }
 
-  // Tolerates the model swapping the "→" for a plain "-"/"->" or trimming spaces around it --
-  // free fallback models don't always reproduce the exact unicode arrow despite the prompt
-  // spelling it out, and a false "couldn't match category" after a use has already been charged
-  // is a bad experience for something purely cosmetic in the model's answer.
-  const normalizeCategoryLabel = (s: string) => s.trim().toLowerCase().replace(/\s*(?:->|-{1,2}>|→)\s*/g, " → ");
-  const wantedCategory = normalizeCategoryLabel(parsed.category);
-  const matched = categoryOptions.find((c) => normalizeCategoryLabel(c.label) === wantedCategory);
+  // Category comes from a nearest-neighbor lookup against real categories' own precomputed
+  // embeddings (scripts/backfill-category-embeddings.mjs), not from the model naming one -- see
+  // the prompt comment above for why. Embedding this response's own title+description keeps it
+  // grounded in what the model actually saw in the photo.
+  const queryEmbedding = await getTextEmbedding(`${parsed.title}\n${parsed.description ?? ""}`);
+  const { data: categoryMatches } = queryEmbedding
+    ? await supabase.rpc("match_category_by_embedding", { query_embedding: queryEmbedding as unknown as string, match_count: 1 })
+    : { data: null };
+  const matched = categoryMatches?.[0] ? categoryOptions.find((c) => c.id === categoryMatches[0].id) : undefined;
   if (!matched) {
     return { data: null, error: "Identified the item but couldn't match it to a category — please pick one manually below.", usesLeft: usesLeftAfter, freeLimit: FREE_USE_LIMIT, unlimited };
   }
