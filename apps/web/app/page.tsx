@@ -46,8 +46,13 @@ const CONDITIONS = [
 // against a large restructuring -- not something to redo as a side effect of an SEO pass.
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Home");
-  const title = t("metaTitle");
   const description = t("metaDescription");
+  // The root layout's title.template ("%s | MarketitNow") only wraps NESTED child segments --
+  // app/page.tsx shares the exact same "/" route as the root layout rather than being nested
+  // under it, so it never goes through the template at all (confirmed live: every other page on
+  // the site got the " | MarketitNow" suffix, the homepage alone didn't). Appended directly here
+  // instead, so the homepage's <title> stays consistent with the rest of the site.
+  const title = `${t("metaTitle")} | MarketitNow`;
   return {
     title,
     description,
