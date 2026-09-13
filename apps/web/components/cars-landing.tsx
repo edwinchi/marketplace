@@ -90,7 +90,7 @@ export function CarsLanding({
           style={{ clipPath: "polygon(35% 0, 100% 0, 100% 100%, 0% 100%)" }}
         />
         <div className="relative mx-auto flex w-full max-w-[1600px] flex-col gap-1 px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-          <h1 className="text-2xl font-bold text-white [text-shadow:0_1px_4px_rgb(0_0_0_/_0.45)] sm:text-3xl">Buy, sell, advertise Cars</h1>
+          <h1 className="text-2xl font-bold text-white [text-shadow:0_1px_4px_rgb(0_0_0_/_0.45)] sm:text-3xl">Advertise a used or new car</h1>
           <p className="max-w-md text-sm text-white/90 [text-shadow:0_1px_3px_rgb(0_0_0_/_0.45)] sm:text-base">
             Practical, sporty, or electric — browse real listings, or list your own for free.
           </p>
