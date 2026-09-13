@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { getCategoryPath, getCategoryDirectory, getCategoryDescendantIds, getCategoryGallery, getCategoriesAndAttributes } from "@/lib/categories";
 import { getNumericSetting } from "@/lib/numeric-settings";
 import { getRandomHeroBanner } from "@/lib/hero-banner";
+import { getCategoryCollageImage } from "@/lib/category-collage";
 import { getCarsLandingData, type CarsFilters } from "@/lib/cars-landing";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
@@ -112,7 +113,10 @@ export default async function CategoryPage({
   const breadcrumbPath = path.map((n) => ({ id: n.id, name: n.name }));
   const topLevelActiveId = path[0]?.id;
   const categoryName = path[path.length - 1]?.name ?? "";
-  const heroBanner = getRandomHeroBanner();
+  // A dedicated collage banner for this branch's top-level category, if one's been built yet
+  // (see lib/category-collage.ts) -- otherwise every page under it still gets the generic rotating
+  // banner rather than no image at all.
+  const heroBanner = getCategoryCollageImage(path[0]?.stableKey) ?? getRandomHeroBanner();
   const heroBannerStyle = { "--hero-bg-image": `url(${heroBanner})` } as React.CSSProperties;
 
   if (directory.self.stableKey === "cars") {
