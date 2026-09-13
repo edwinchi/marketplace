@@ -13,6 +13,7 @@ import { slugPath } from "@/lib/slug";
 import { getTextEmbedding } from "@/lib/embeddings";
 import { isSellerProSubscriber } from "@/lib/seller-pro";
 import { getNewListingNotificationsGlobalUnlockSetting } from "@/lib/app-settings";
+import { pingIndexNow } from "@/lib/indexnow";
 import { translateListing } from "./translate-action";
 
 type AttributeValueInsert = Database["public"]["Tables"]["listing_attribute_values"]["Insert"];
@@ -290,6 +291,7 @@ export async function createListing(_prevState: ListingFormState, formData: Form
   enqueueEmbedding(supabase, listing.id, title, description);
   enqueueTranslation(listing.id);
   enqueueNewListingNotifications(supabase, listing.id, profile.id, title, countryCode || null);
+  after(() => pingIndexNow([`https://marketitnow.net/listings/${slugPath(title, listing.id)}`]));
 
   revalidatePath("/");
   redirect(`/listings/${slugPath(title, listing.id)}`);
@@ -343,6 +345,7 @@ export async function updateListing(
 
   enqueueEmbedding(supabase, listingId, title, description);
   enqueueTranslation(listingId);
+  after(() => pingIndexNow([`https://marketitnow.net/listings/${slugPath(title, listingId)}`]));
 
   // The real page lives at a slugged path (/listings/[...slug]) this function has no way to
   // reconstruct without a DB round-trip -- revalidating the literal route pattern instead of a

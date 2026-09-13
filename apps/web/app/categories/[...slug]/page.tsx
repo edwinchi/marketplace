@@ -55,11 +55,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const name = path[path.length - 1].name;
   const breadcrumb = path.map((n) => n.name).join(" > ");
   const canonicalPath = `/categories/${breadcrumbSlugPath(path.slice(0, -1), name, id)}`;
+  const title = `${name} for sale`;
+  const description = `Buy and sell ${name} on MarketitNow — real listings under ${breadcrumb}, from sellers around the world.`;
 
   return {
-    title: `${name} for sale`,
-    description: `Buy and sell ${name} on MarketitNow — real listings under ${breadcrumb}, from sellers around the world.`,
+    title,
+    description,
     alternates: { canonical: canonicalPath },
+    openGraph: { title, description, url: canonicalPath, type: "website" },
+    twitter: { card: "summary", title, description },
   };
 }
 
@@ -113,6 +117,24 @@ export default async function CategoryPage({
   const breadcrumbPath = path.map((n) => ({ id: n.id, name: n.name }));
   const topLevelActiveId = path[0]?.id;
   const categoryName = path[path.length - 1]?.name ?? "";
+  // BreadcrumbList structured data -- makes Google render the actual category trail (Home > Cars >
+  // SUVs...) in the search snippet instead of a raw URL, and is a real relevance signal for how
+  // this page fits the site's hierarchy. path[0..i] mirrors how breadcrumbSlugPath itself builds a
+  // URL for an ancestor: every segment up to and including position i.
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://marketitnow.net/" },
+      ...path.map((node, i) => ({
+        "@type": "ListItem",
+        position: i + 2,
+        name: node.name,
+        item: `https://marketitnow.net/categories/${breadcrumbSlugPath(path.slice(0, i), node.name, node.id)}`,
+      })),
+    ],
+  };
+  const breadcrumbJsonLdScript = <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />;
   // A dedicated collage banner for this branch's top-level category, if one's been built yet
   // (see lib/category-collage.ts) -- otherwise every page under it still gets the generic rotating
   // banner rather than no image at all.
@@ -161,6 +183,7 @@ export default async function CategoryPage({
 
     return (
       <>
+        {breadcrumbJsonLdScript}
         {/* No .brand-lattice rotating-banner hero here (unlike the other two branches) --
             CarsLanding below already has its own dedicated, Cars-specific hero with real filter
             controls. Stacking both put two hero bands back to back before any actual listings,
@@ -288,6 +311,7 @@ export default async function CategoryPage({
 
     return (
       <>
+        {breadcrumbJsonLdScript}
         <div className="brand-lattice relative border-b bg-muted/30" style={heroBannerStyle}>
           <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
             <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
@@ -321,6 +345,7 @@ export default async function CategoryPage({
 
   return (
     <>
+      {breadcrumbJsonLdScript}
       <div className="brand-lattice relative border-b bg-muted/30" style={heroBannerStyle}>
         <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
           <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">

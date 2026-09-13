@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { PackagePlus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -31,6 +32,45 @@ const CONDITIONS = [
   { value: "fair", label: "Fair" },
   { value: "for_parts", label: "For parts" },
 ];
+
+// Deliberately no `alternates.languages` (hreflang) here -- this app switches locale via a cookie
+// (i18n/request.ts), not a URL prefix, so every language renders at this exact same URL. hreflang
+// exists to tell Google "these different URLs are translations of each other"; pointing several
+// language tags at one identical URL isn't a lighter version of that, it's just wrong, so it's
+// omitted rather than added for appearances. The real, load-bearing consequence -- worth knowing,
+// not fixable from this file -- is that Googlebot never sends the locale cookie, so it only ever
+// crawls and indexes the English (default-locale) rendering of every page; the fr/nl/ar/zh
+// translations exist for signed-in users who set a preference, but aren't separately indexable or
+// rankable in their own language's search results today. Fixing that for real means URL-based
+// locales (e.g. /fr/...), which agents.md already documents as a deliberate, reasoned trade-off
+// against a large restructuring -- not something to redo as a side effect of an SEO pass.
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Home");
+  const title = t("metaTitle");
+  const description = t("metaDescription");
+  return {
+    title,
+    description,
+    alternates: { canonical: "/" },
+    openGraph: { title, description, url: "/", type: "website" },
+    twitter: { card: "summary", title, description },
+  };
+}
+
+// WebSite + SearchAction structured data -- the standard way to make a site eligible for Google's
+// sitelinks search box (a search field right under the result on the SERP). Belongs on the
+// homepage specifically per Google's own guidance, not repeated on every page.
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "MarketitNow",
+  url: "https://marketitnow.net",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: { "@type": "EntryPoint", urlTemplate: "https://marketitnow.net/?q={search_term_string}" },
+    "query-input": "required name=search_term_string",
+  },
+};
 
 export default async function HomePage({
   searchParams,
@@ -121,6 +161,7 @@ export default async function HomePage({
 
   return (
     <div className="flex flex-1 flex-col">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
       {/* Search hero */}
       <div
         className="brand-lattice relative border-b bg-muted/30"

@@ -227,8 +227,45 @@ export default async function ListingPage({
   const canDirectBuy = !isOwner && !!profile && !!getStripe() && !!seller?.stripe_connect_charges_enabled;
   const buyerFeeMinor = canDirectBuy ? await calculateBuyerFeeMinor(listing.price_minor ?? 0) : 0;
 
+  // Product/Offer structured data -- the single highest-value SEO addition for a classifieds
+  // listing page: it's what lets Google show price, availability and a thumbnail directly in
+  // search results (a "rich result") instead of a plain blue link, and is a real quality/relevance
+  // signal the ranking algorithm itself uses, not just a cosmetic snippet. availability maps from
+  // this app's actual status values (agents.md's listing lifecycle) rather than assuming
+  // active/sold are the only two that exist.
+  const availabilityMap: Record<string, string> = {
+    active: "https://schema.org/InStock",
+    sold: "https://schema.org/SoldOut",
+  };
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: displayTitle,
+    description: displayDescription?.slice(0, 500),
+    image: images,
+    category: categoryPath.map((c) => c.name).join(" > ") || undefined,
+    offers: {
+      "@type": "Offer",
+      url: `https://marketitnow.net${listingPath}`,
+      priceCurrency: listing.currency_code,
+      price: ((listing.price_minor ?? 0) / 100).toFixed(2),
+      availability: availabilityMap[listing.status] ?? "https://schema.org/OutOfStock",
+      itemCondition: "https://schema.org/UsedCondition",
+      seller: {
+        "@type": seller?.account_type === "business" ? "Organization" : "Person",
+        name: sellerName,
+      },
+    },
+  };
+  // JSON.stringify never escapes "</", so a title/description containing a literal "</script>"
+  // could otherwise break out of this script tag -- the standard guard for embedding user content
+  // in inline JSON-LD.
+  const productJsonLdString = JSON.stringify(productJsonLd).replace(/</g, "\\u003c");
+
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
+      {/* eslint-disable-next-line react/no-danger -- JSON-LD requires raw script content; productJsonLdString is escaped above */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: productJsonLdString }} />
       <div className="mb-3">
         <BackButton />
       </div>
