@@ -263,6 +263,12 @@ export default async function CategoryPage({
   );
 
   if (directory.children.length > 0) {
+    // Every hub category (top-level, or any mid-level one with children) already has its own
+    // curated gallery row from scripts/source-category-photos.mjs / source-subcategory-photos.mjs
+    // -- this branch just wasn't rendering it, the same "missed branch" bug class as the hero
+    // banner fix above. ~829 of 2,666 categories have at least one photo as of this writing.
+    const galleryImages = await getCategoryGallery(id);
+
     // Every group and leaf link mirrors the full breadcrumb chain down to itself -- groups sit one
     // level under the current page (breadcrumbPath), their leaves one level further under the group.
     const groups = directory.children.map((group) => ({
@@ -291,6 +297,7 @@ export default async function CategoryPage({
         <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
           <Breadcrumbs path={breadcrumbPath} />
           <CategoryQuickNav categories={topLevelCategories} activeId={topLevelActiveId} className="mt-4 mb-6" />
+          <CategoryGallery images={galleryImages} />
           <CategoryDirectoryGrid groups={groups} collapsedLimit={collapsedLimit} />
 
           <div className="my-10 border-t" />
