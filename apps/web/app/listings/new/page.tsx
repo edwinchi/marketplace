@@ -6,7 +6,7 @@ import { NewListingStep1 } from "@/components/listings/new-listing-step1";
 
 export default async function NewListingPage() {
   const { user } = await getCurrentUserAndProfile();
-  if (!user) redirect("/login");
+  if (!user) redirect("/login?next=/listings/new");
 
   const [{ categoryOptions }, aiUsage] = await Promise.all([getCategoriesAndAttributes(), getAiUsageStatus()]);
 

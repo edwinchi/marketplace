@@ -21,7 +21,7 @@ export function LoginForm({ next = "/" }: { next?: string }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <GoogleButton />
+        <GoogleButton next={next} />
         {/* Hidden until the Facebook app is verified and its App ID/Secret are added in Supabase
             (Authentication -> Providers -> Facebook) -- clicking it today would silently bounce
             back to /login with no explanation, since signInWithFacebook() (app/login/facebook-action.ts)

@@ -13,7 +13,11 @@ export async function GET(request: Request) {
   // signup/forgot-password/Google sign-in — see docs/email-auth-troubleshooting.md.
   const origin = await getSiteOrigin();
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/";
+  const rawNext = searchParams.get("next");
+  // Only a same-site relative path is honored — see the identical check in login/page.tsx.
+  // `next` here can come from Google's OAuth redirect as well as email links, so treating it as
+  // a trusted redirect target without this check would be an open-redirect hole.
+  const next = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
 
   if (code) {
     const supabase = await createClient();

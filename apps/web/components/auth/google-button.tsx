@@ -15,10 +15,10 @@ function GoogleIcon() {
   );
 }
 
-export function GoogleButton() {
+export function GoogleButton({ next = "/" }: { next?: string }) {
   const t = useTranslations("Auth");
   return (
-    <form action={signInWithGoogle}>
+    <form action={signInWithGoogle.bind(null, next)}>
       <Button type="submit" variant="outline" className="w-full gap-2">
         <GoogleIcon />
         {t("continueWithGoogle")}

@@ -10,10 +10,15 @@ export default async function NewListingDetailsPage({
 }: {
   searchParams: Promise<{ title?: string; category?: string }>;
 }) {
-  const { user, profile } = await getCurrentUserAndProfile();
-  if (!user || !profile) redirect("/login");
-
   const { title, category } = await searchParams;
+  const { user, profile } = await getCurrentUserAndProfile();
+  if (!user || !profile) {
+    const qs = new URLSearchParams();
+    if (title) qs.set("title", title);
+    if (category) qs.set("category", category);
+    const next = qs.size > 0 ? `/listings/new/details?${qs.toString()}` : "/listings/new/details";
+    redirect(`/login?next=${encodeURIComponent(next)}`);
+  }
   if (!title || !category) redirect("/listings/new");
 
   const [{ categoryOptions, attributesByCategory }, categoryPath, aiUsage] = await Promise.all([
