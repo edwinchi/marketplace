@@ -94,7 +94,11 @@
     "showMore": "Voir {count} de plus",
     "forYou": "Pour vous",
     "nearYou": "Près de vous",
-    "setCityHint": "Renseignez votre ville dans les <preferences>préférences</preferences> pour voir les annonces près de chez vous."
+    "setCityHint": "Renseignez votre ville dans les <preferences>préférences</preferences> pour voir les annonces près de chez vous.",
+    "heroHeadingPrefix": "Achetez, vendez, annoncez",
+    "heroSubtext": "Des annonces réelles de vendeurs du monde entier.",
+    "metaTitle": "{name} à vendre",
+    "metaDescription": "Achetez, vendez, annoncez {name} sur MarketitNow — des annonces réelles sous {breadcrumb}, publiées par des vendeurs du monde entier."
   },
   "Listing": {
     "characteristics": "Caractéristiques",

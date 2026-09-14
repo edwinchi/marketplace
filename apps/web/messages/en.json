@@ -94,7 +94,11 @@
     "showMore": "Show {count} more",
     "forYou": "For You",
     "nearYou": "Near You",
-    "setCityHint": "Set your city in <preferences>preferences</preferences> to see listings near you."
+    "setCityHint": "Set your city in <preferences>preferences</preferences> to see listings near you.",
+    "heroHeadingPrefix": "Buy, sell, advertise",
+    "heroSubtext": "Real listings from sellers around the world.",
+    "metaTitle": "{name} for sale",
+    "metaDescription": "Buy, sell, advertise {name} on MarketitNow — real listings under {breadcrumb}, from sellers around the world."
   },
   "Listing": {
     "characteristics": "Characteristics",

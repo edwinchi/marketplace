@@ -17,7 +17,7 @@ import { CategoryQuickNav } from "@/components/category-quicknav";
 import { CategoryFeedTabs } from "@/components/category-feed-tabs";
 import { CarsLanding } from "@/components/cars-landing";
 import { Badge } from "@/components/ui/badge";
-import { idFromSlugSegments, breadcrumbSlugPath } from "@/lib/slug";
+import { idFromSlugSegments, breadcrumbSlugPath, slugPath } from "@/lib/slug";
 
 const CARS_TYPE_STABLE_KEYS = new Set([
   "cars-passenger-cars",
@@ -49,14 +49,14 @@ const LISTING_SELECT_NEAR_YOU =
 export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }): Promise<Metadata> {
   const { slug } = await params;
   const id = idFromSlugSegments(slug);
-  const path = await getCategoryPath(id);
+  const [path, t] = await Promise.all([getCategoryPath(id), getTranslations("Categories")]);
   if (path.length === 0) return {};
 
   const name = path[path.length - 1].name;
   const breadcrumb = path.map((n) => n.name).join(" > ");
   const canonicalPath = `/categories/${breadcrumbSlugPath(path.slice(0, -1), name, id)}`;
-  const title = `${name} for sale`;
-  const description = `Buy, sell, advertise ${name} on MarketitNow — real listings under ${breadcrumb}, from sellers around the world.`;
+  const title = t("metaTitle", { name });
+  const description = t("metaDescription", { name, breadcrumb });
 
   return {
     title,
@@ -249,6 +249,27 @@ export default async function CategoryPage({
   if (forYouError) console.error("Category listings query failed:", forYouError);
   const favoritedIds = new Set((favorites ?? []).map((f) => f.listing_id));
 
+  // ItemList structured data for the default (For You) feed -- tells Google this page is a list of
+  // real product listings, not just a bare category label, which is what backs a search-result
+  // carousel/rich-list treatment rather than a single blue link. Listing pages already carry their
+  // own Product/Offer JSON-LD (app/listings/[...slug]/page.tsx); this is the complementary "this
+  // page indexes these N items" signal for the category/feed page itself.
+  const itemListJsonLd =
+    forYouListings && forYouListings.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          itemListElement: forYouListings.map((listing, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            url: `https://marketitnow.net/listings/${slugPath(listing.title, listing.id)}`,
+          })),
+        }
+      : null;
+  const itemListJsonLdScript = itemListJsonLd ? (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />
+  ) : null;
+
   const myCity = myCityRow?.preferred_city ?? null;
   const { data: nearYouListings } = myCity
     ? await supabase
@@ -312,14 +333,15 @@ export default async function CategoryPage({
     return (
       <>
         {breadcrumbJsonLdScript}
+        {itemListJsonLdScript}
         <div className="brand-lattice relative border-b bg-muted/30" style={heroBannerStyle}>
           <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
             <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
-              Buy, sell, advertise {categoryName}
+              {t("heroHeadingPrefix")}
+              <br />
+              {categoryName}
             </h1>
-            <p className="hero-text-halo mt-1 text-sm font-medium text-[#046637] sm:text-base">
-              Real listings from sellers around the world.
-            </p>
+            <p className="hero-text-halo mt-1 text-sm font-medium text-[#046637] sm:text-base">{t("heroSubtext")}</p>
           </div>
         </div>
         <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
@@ -346,14 +368,15 @@ export default async function CategoryPage({
   return (
     <>
       {breadcrumbJsonLdScript}
+      {itemListJsonLdScript}
       <div className="brand-lattice relative border-b bg-muted/30" style={heroBannerStyle}>
         <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
           <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
-            Buy, sell, advertise {categoryName}
+            {t("heroHeadingPrefix")}
+            <br />
+            {categoryName}
           </h1>
-          <p className="hero-text-halo mt-1 text-sm font-medium text-[#046637] sm:text-base">
-            Real listings from sellers around the world.
-          </p>
+          <p className="hero-text-halo mt-1 text-sm font-medium text-[#046637] sm:text-base">{t("heroSubtext")}</p>
         </div>
       </div>
       <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
