@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { getTranslations, getLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { ChevronRight, Home } from "lucide-react";
 import { breadcrumbSlugPath } from "@/lib/slug";
 
 type Crumb = { id: string; name: string };
 
-export async function Breadcrumbs({ path, resultCount }: { path: Crumb[]; resultCount?: number }) {
-  const [t, locale] = await Promise.all([getTranslations("Categories"), getLocale()]);
+export async function Breadcrumbs({ path }: { path: Crumb[] }) {
+  const t = await getTranslations("Categories");
 
   return (
     <nav aria-label="Breadcrumb" className="mb-4 flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
@@ -15,7 +15,7 @@ export async function Breadcrumbs({ path, resultCount }: { path: Crumb[]; result
         {t("home")}
       </Link>
       {path.map((crumb, i) => {
-        const isLast = i === path.length - 1 && resultCount === undefined;
+        const isLast = i === path.length - 1;
         return (
           <span key={crumb.id} className="flex items-center gap-1">
             <ChevronRight className="size-3.5" />
@@ -32,12 +32,6 @@ export async function Breadcrumbs({ path, resultCount }: { path: Crumb[]; result
           </span>
         );
       })}
-      {resultCount !== undefined && (
-        <span className="flex items-center gap-1">
-          <ChevronRight className="size-3.5" />
-          <span className="font-medium text-foreground">{t("results", { count: resultCount.toLocaleString(locale) })}</span>
-        </span>
-      )}
     </nav>
   );
 }

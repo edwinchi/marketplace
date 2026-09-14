@@ -357,10 +357,7 @@ export default async function CategoryPage({
         </div>
       </div>
       <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
-      {/* forYouListings.length, not a separate exact-count query — accurate up to the limit(24)
-          below; revisit once real pagination exists for categories with more than a page of
-          listings. */}
-      <Breadcrumbs path={breadcrumbPath} resultCount={forYouListings?.length ?? 0} />
+      <Breadcrumbs path={breadcrumbPath} />
       <CategoryQuickNav categories={topLevelCategories} activeId={topLevelActiveId} className="mt-4 mb-6" />
 
       <CategoryGallery images={galleryImages} />
