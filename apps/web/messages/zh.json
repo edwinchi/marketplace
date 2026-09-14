@@ -96,6 +96,7 @@
     "nearYou": "附近",
     "setCityHint": "请在<preferences>偏好设置</preferences>中设置您的城市，即可查看附近的广告。",
     "heroHeadingPrefix": "购买、出售、发布广告",
+    "heroHeadingLine2": "{name}",
     "heroSubtext": "来自世界各地卖家的真实广告。",
     "metaTitle": "{name}出售",
     "metaDescription": "在 MarketitNow 上购买、出售、发布{name}广告——{breadcrumb}下来自世界各地卖家的真实广告。"

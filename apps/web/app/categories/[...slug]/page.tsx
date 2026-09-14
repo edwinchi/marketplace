@@ -339,7 +339,7 @@ export default async function CategoryPage({
             <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
               {t("heroHeadingPrefix")}
               <br />
-              {categoryName}
+              {t("heroHeadingLine2", { name: categoryName })}
             </h1>
             <p className="hero-text-halo mt-1 text-sm font-medium text-[#046637] sm:text-base">{t("heroSubtext")}</p>
           </div>
@@ -374,7 +374,7 @@ export default async function CategoryPage({
           <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
             {t("heroHeadingPrefix")}
             <br />
-            {categoryName}
+            {t("heroHeadingLine2", { name: categoryName })}
           </h1>
           <p className="hero-text-halo mt-1 text-sm font-medium text-[#046637] sm:text-base">{t("heroSubtext")}</p>
         </div>

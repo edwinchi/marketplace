@@ -96,6 +96,7 @@
     "nearYou": "Bij jou in de buurt",
     "setCityHint": "Stel je stad in bij <preferences>voorkeuren</preferences> om advertenties bij jou in de buurt te zien.",
     "heroHeadingPrefix": "Koop, verkoop, adverteer",
+    "heroHeadingLine2": "{name}",
     "heroSubtext": "Echte advertenties van verkopers van over de hele wereld.",
     "metaTitle": "{name} te koop",
     "metaDescription": "Koop, verkoop, adverteer {name} op MarketitNow — echte advertenties onder {breadcrumb}, van verkopers van over de hele wereld."

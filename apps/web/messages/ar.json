@@ -96,6 +96,7 @@
     "nearYou": "بالقرب منك",
     "setCityHint": "حدد مدينتك في <preferences>التفضيلات</preferences> لعرض الإعلانات القريبة منك.",
     "heroHeadingPrefix": "اشترِ وبِع وأعلِن عن",
+    "heroHeadingLine2": "{name}",
     "heroSubtext": "إعلانات حقيقية من بائعين حول العالم.",
     "metaTitle": "{name} للبيع",
     "metaDescription": "اشترِ وبِع وأعلِن عن {name} على MarketitNow — إعلانات حقيقية ضمن {breadcrumb}، من بائعين حول العالم."
