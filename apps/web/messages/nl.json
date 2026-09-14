@@ -81,7 +81,10 @@
     "benefitReachTitle": "Afrika & Europa",
     "benefitReachText": "Blader door advertenties uit tientallen landen, allemaal op één plek.",
     "benefitSafeTitle": "Veilig handelen",
-    "benefitSafeText": "Volg onze veiligheidstips voordat je afspreekt of betaalt."
+    "benefitSafeText": "Volg onze veiligheidstips voordat je afspreekt of betaalt.",
+    "errorGoogleNotConfigured": "Inloggen met Google is nu niet beschikbaar — gebruik in plaats daarvan je e-mailadres en wachtwoord.",
+    "errorFacebookNotConfigured": "Inloggen met Facebook is nu niet beschikbaar — gebruik in plaats daarvan je e-mailadres en wachtwoord.",
+    "errorAuthCallbackFailed": "Deze link werkte niet — hij is mogelijk verlopen of al gebruikt. Probeer het opnieuw."
   },
   "Categories": {
     "home": "Home",

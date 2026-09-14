@@ -6,7 +6,17 @@ import { LoginForm } from "@/components/auth/login-form";
 import { SignupForm } from "@/components/auth/signup-form";
 import { cn } from "@/lib/utils";
 
-export function AuthCard({ initialTab, next = "/", referralCode }: { initialTab: "login" | "signup"; next?: string; referralCode?: string }) {
+export function AuthCard({
+  initialTab,
+  next = "/",
+  referralCode,
+  errorMessage,
+}: {
+  initialTab: "login" | "signup";
+  next?: string;
+  referralCode?: string;
+  errorMessage?: string;
+}) {
   const t = useTranslations("Auth");
   const [tab, setTab] = useState(initialTab);
 
@@ -62,6 +72,11 @@ export function AuthCard({ initialTab, next = "/", referralCode }: { initialTab:
             </>
           )}
         </p>
+        {errorMessage && (
+          <p className="mb-4 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-center text-sm text-destructive">
+            {errorMessage}
+          </p>
+        )}
         {tab === "login" ? <LoginForm next={next} /> : <SignupForm next={next} referralCode={referralCode} />}
       </div>
     </div>

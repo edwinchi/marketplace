@@ -25,5 +25,7 @@ export async function GET(request: Request) {
     if (!error) return NextResponse.redirect(`${origin}${next}`);
   }
 
-  return NextResponse.redirect(`${origin}/login`);
+  // Missing/expired/already-used code, or the exchange itself failed — surface that on /login
+  // instead of silently bouncing there indistinguishably from a cold visit to the page.
+  return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`);
 }

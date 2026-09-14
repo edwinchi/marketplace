@@ -81,7 +81,10 @@
     "benefitReachTitle": "非洲与欧洲",
     "benefitReachText": "在一个平台浏览来自数十个国家的广告。",
     "benefitSafeTitle": "安全交易",
-    "benefitSafeText": "见面或付款前，请遵循我们的安全提示。"
+    "benefitSafeText": "见面或付款前，请遵循我们的安全提示。",
+    "errorGoogleNotConfigured": "Google 登录目前不可用，请改用您的邮箱和密码登录。",
+    "errorFacebookNotConfigured": "Facebook 登录目前不可用，请改用您的邮箱和密码登录。",
+    "errorAuthCallbackFailed": "该链接无法使用——可能已过期或已被使用过。请重试。"
   },
   "Categories": {
     "home": "首页",

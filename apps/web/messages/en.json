@@ -81,7 +81,10 @@
     "benefitReachTitle": "Africa & Europe",
     "benefitReachText": "Browse listings across dozens of countries in one place.",
     "benefitSafeTitle": "Trade safely",
-    "benefitSafeText": "Follow our safety tips before you meet or pay."
+    "benefitSafeText": "Follow our safety tips before you meet or pay.",
+    "errorGoogleNotConfigured": "Google sign-in isn't available right now — please use your email and password instead.",
+    "errorFacebookNotConfigured": "Facebook sign-in isn't available right now — please use your email and password instead.",
+    "errorAuthCallbackFailed": "That link didn't work — it may have expired or already been used. Please try again."
   },
   "Categories": {
     "home": "Home",

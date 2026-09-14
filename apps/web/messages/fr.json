@@ -81,7 +81,10 @@
     "benefitReachTitle": "Afrique & Europe",
     "benefitReachText": "Parcourez des annonces dans des dizaines de pays au même endroit.",
     "benefitSafeTitle": "Achetez en toute sécurité",
-    "benefitSafeText": "Suivez nos conseils de sécurité avant de rencontrer ou de payer."
+    "benefitSafeText": "Suivez nos conseils de sécurité avant de rencontrer ou de payer.",
+    "errorGoogleNotConfigured": "La connexion avec Google n'est pas disponible pour le moment — veuillez utiliser votre e-mail et votre mot de passe.",
+    "errorFacebookNotConfigured": "La connexion avec Facebook n'est pas disponible pour le moment — veuillez utiliser votre e-mail et votre mot de passe.",
+    "errorAuthCallbackFailed": "Ce lien n'a pas fonctionné — il a peut-être expiré ou déjà été utilisé. Veuillez réessayer."
   },
   "Categories": {
     "home": "Accueil",
