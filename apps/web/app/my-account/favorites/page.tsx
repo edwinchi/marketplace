@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
 import { Heart } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
@@ -30,10 +31,17 @@ export default async function FavoritesPage({
   const allListings = (favorites ?? []).map((f) => (Array.isArray(f.listings) ? f.listings[0] : f.listings)).filter((l) => !!l);
 
   const categoryIds = [...new Set(allListings.map((l) => l.category_id))];
-  const { data: categoryTranslations } = categoryIds.length
-    ? await supabase.from("category_translations").select("category_id, name").eq("language_code", "en").in("category_id", categoryIds)
-    : { data: [] };
-  const categoryNameById = new Map((categoryTranslations ?? []).map((t) => [t.category_id, t.name]));
+  const locale = await getLocale();
+  const [{ data: categoryTranslations }, { data: englishNames }] = categoryIds.length
+    ? await Promise.all([
+        supabase.from("category_translations").select("category_id, name").eq("language_code", locale).in("category_id", categoryIds),
+        locale === "en"
+          ? Promise.resolve({ data: [] })
+          : supabase.from("category_translations").select("category_id, name").eq("language_code", "en").in("category_id", categoryIds),
+      ])
+    : [{ data: [] }, { data: [] }];
+  const categoryNameById = new Map((englishNames ?? []).map((t) => [t.category_id, t.name]));
+  for (const t of categoryTranslations ?? []) categoryNameById.set(t.category_id, t.name);
   const categories = categoryIds
     .map((id) => ({ id, name: categoryNameById.get(id) ?? "Uncategorized" }))
     .sort((a, b) => a.name.localeCompare(b.name));
