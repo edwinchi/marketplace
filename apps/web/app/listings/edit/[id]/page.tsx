@@ -7,6 +7,7 @@ import { getAiUsageStatus } from "@/app/listings/new/analyze-photo-action";
 import { isSellerProSubscriber } from "@/lib/seller-pro";
 import { resolveMediaUrl } from "@/lib/media";
 import { ListingForm } from "@/components/listing-form";
+import { LISTING_TRANSLATION_TARGETS } from "@/app/listings/translate-action";
 import { slugPath } from "@/lib/slug";
 
 // Not part of the /listings/[...slug] catch-all -- a catch-all must be the last segment of a
@@ -27,12 +28,12 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
   if (!listing) notFound();
   if (listing.seller_id !== profile.id) redirect(`/listings/${slugPath(listing.title, id)}`);
 
-  const [{ categoryOptions, attributesByCategory }, { data: media }, aiUsage, isSellerPro, { data: frenchTranslation }] = await Promise.all([
+  const [{ categoryOptions, attributesByCategory }, { data: media }, aiUsage, isSellerPro, { data: translations }] = await Promise.all([
     getCategoriesAndAttributes(),
     supabase.from("listing_media").select("id, storage_key").eq("listing_id", id).eq("media_type", "image").order("sort_order"),
     getAiUsageStatus(),
     isSellerProSubscriber(),
-    supabase.from("listing_translations").select("updated_at").eq("listing_id", id).eq("language_code", "fr").maybeSingle(),
+    supabase.from("listing_translations").select("language_code").eq("listing_id", id).in("language_code", [...LISTING_TRANSLATION_TARGETS]),
   ]);
   const initialPhotos = (media ?? []).map((m) => ({ id: m.id, url: resolveMediaUrl(m.storage_key, process.env.NEXT_PUBLIC_SUPABASE_URL!) }));
 
@@ -50,7 +51,7 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
         aiUsage={aiUsage}
         isSellerPro={isSellerPro}
         listingId={id}
-        hasFrenchTranslation={!!frenchTranslation}
+        hasTranslations={(translations?.length ?? 0) > 0}
         initial={{
           title: listing.title,
           description: listing.description,

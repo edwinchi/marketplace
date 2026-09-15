@@ -35,6 +35,7 @@ import { getStripe } from "@/lib/stripe";
 import { calculateBuyerFeeMinor } from "@/lib/payments";
 import { startOrderPayment } from "@/app/listings/payment-actions";
 import { ShieldCheck } from "lucide-react";
+import { LISTING_TRANSLATION_TARGETS, type ListingTranslationTarget } from "@/app/listings/translate-action";
 
 // Drives the rich preview card WhatsApp/Facebook/X/iMessage/Slack generate when someone shares a
 // listing link (components/listings/save-share-bar.tsx) -- those platforms scrape these tags from
@@ -50,8 +51,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   ]);
   if (!listing) return {};
 
-  const { data: translation } =
-    locale === "fr" ? await supabase.from("listing_translations").select("title, description").eq("listing_id", id).eq("language_code", "fr").maybeSingle() : { data: null };
+  const { data: translation } = LISTING_TRANSLATION_TARGETS.includes(locale as ListingTranslationTarget)
+    ? await supabase.from("listing_translations").select("title, description").eq("listing_id", id).eq("language_code", locale).maybeSingle()
+    : { data: null };
   const displayTitle = translation?.title ?? listing.title;
   const displayDescription = translation?.description ?? listing.description;
 
@@ -151,11 +153,11 @@ export default async function ListingPage({
         ? supabase.from("favorite_sellers").select("seller_profile_id").eq("profile_id", profile.id).eq("seller_profile_id", listing.seller_id).maybeSingle()
         : Promise.resolve({ data: null }),
       supabase.from("reviews").select("rating").eq("reviewee_profile_id", listing.seller_id),
-      // Only fetched for French-locale visitors -- this is what actually delivers "for a wider
-      // audience": the translation appears automatically on the listing page itself, not just as
-      // a draft the seller has to paste in somewhere.
-      locale === "fr"
-        ? supabase.from("listing_translations").select("title, description").eq("listing_id", id).eq("language_code", "fr").maybeSingle()
+      // Only fetched for a locale we actually have a listing translation for -- this is what
+      // actually delivers "for a wider audience": the translation appears automatically on the
+      // listing page itself, not just as a draft the seller has to paste in somewhere.
+      LISTING_TRANSLATION_TARGETS.includes(locale as ListingTranslationTarget)
+        ? supabase.from("listing_translations").select("title, description").eq("listing_id", id).eq("language_code", locale).maybeSingle()
         : Promise.resolve({ data: null }),
     ]);
 

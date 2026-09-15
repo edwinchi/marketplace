@@ -48,7 +48,7 @@ type Props = {
   // Needed to exclude the listing's own price from its price-suggestion comparables when editing
   // -- otherwise an active listing always "confirms" its own current price is in-range.
   listingId?: string;
-  hasFrenchTranslation?: boolean;
+  hasTranslations?: boolean;
 };
 
 export function ListingForm({
@@ -62,7 +62,7 @@ export function ListingForm({
   aiUsage,
   isSellerPro,
   listingId,
-  hasFrenchTranslation,
+  hasTranslations,
 }: Props) {
   const [state, formAction, pending] = useActionState(action, { error: null } as ListingFormState);
   const [categoryId, setCategoryId] = useState(initial?.categoryId ?? "");
@@ -116,14 +116,14 @@ export function ListingForm({
   }
 
   const [translating, startTranslating] = useTransition();
-  const [translated, setTranslated] = useState(hasFrenchTranslation ?? false);
+  const [translated, setTranslated] = useState(hasTranslations ?? false);
   const [translateError, setTranslateError] = useState<string | null>(null);
 
   function translate() {
     if (!listingId) return;
     setTranslateError(null);
     startTranslating(async () => {
-      const { error } = await translateListing(listingId, "fr");
+      const { error } = await translateListing(listingId);
       if (error) {
         setTranslateError(error);
         return;
@@ -395,11 +395,11 @@ export function ListingForm({
           <div>
             <Button type="button" variant="outline" size="sm" disabled={translating} onClick={translate} className="gap-1.5 w-fit">
               {isSellerPro ? <Sparkles className="size-3.5 text-primary" /> : <Lock className="size-3.5" />}
-              {translating ? "Translating…" : translated ? "Update French translation" : "Translate to French"}
+              {translating ? "Translating…" : translated ? "Update translations" : "Translate to French & Dutch"}
             </Button>
             {translated && !translateError && (
               <p className="mt-1.5 text-xs text-muted-foreground">
-                A French-speaking visitor will now see the translated title and description on this listing&apos;s page automatically.
+                A French- or Dutch-speaking visitor will now see the translated title and description on this listing&apos;s page automatically.
               </p>
             )}
             {translateError && (

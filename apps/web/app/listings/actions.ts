@@ -14,7 +14,7 @@ import { getTextEmbedding } from "@/lib/embeddings";
 import { isSellerProSubscriber } from "@/lib/seller-pro";
 import { getNewListingNotificationsGlobalUnlockSetting } from "@/lib/app-settings";
 import { pingIndexNow } from "@/lib/indexnow";
-import { translateListing } from "./translate-action";
+import { translateListingForAllVisitors } from "./translate-action";
 
 type AttributeValueInsert = Database["public"]["Tables"]["listing_attribute_values"]["Insert"];
 
@@ -35,16 +35,16 @@ function enqueueEmbedding(supabase: Awaited<ReturnType<typeof createClient>>, li
   });
 }
 
-// Same after()-scheduled, best-effort pattern as enqueueEmbedding above. Checks eligibility first
-// (rather than just calling translateListing and swallowing its error) so a seller without Seller
-// Pro access -- by far the common case whenever the admin's global unlock (app_settings.
-// seller_pro_global_unlock, see lib/seller-pro.ts) is off -- doesn't log a spurious "not eligible"
-// error on every single listing save site-wide; a real translation failure once someone IS
-// eligible still gets logged.
-function enqueueTranslation(listingId: string) {
+// Same after()-scheduled, best-effort pattern as enqueueEmbedding above. Permanent, unconditional
+// behavior (not a Seller Pro perk, and not gated behind any admin toggle) -- every real listing
+// gets translated for every supported non-English visitor, by explicit, repeated request: this is
+// a site-wide reach/SEO feature (a French- or Dutch-locale visitor can read any real listing, not
+// just ones from paying sellers), not a per-seller productivity perk. The manual "Translate" button
+// on the edit-listing page (translateListing in translate-action.ts) stays Seller Pro-exclusive --
+// this is only about the automatic background pass every create/update already triggers.
+function enqueueTranslation(listingId: string, title: string, description: string) {
   after(async () => {
-    if (!(await isSellerProSubscriber())) return;
-    const { error } = await translateListing(listingId, "fr");
+    const { error } = await translateListingForAllVisitors(listingId, title, description);
     if (error) console.error(`Failed to auto-translate listing ${listingId}:`, error);
   });
 }
@@ -289,7 +289,7 @@ export async function createListing(_prevState: ListingFormState, formData: Form
   }
 
   enqueueEmbedding(supabase, listing.id, title, description);
-  enqueueTranslation(listing.id);
+  enqueueTranslation(listing.id, title, description);
   enqueueNewListingNotifications(supabase, listing.id, profile.id, title, countryCode || null);
   after(() => pingIndexNow([`https://marketitnow.net/listings/${slugPath(title, listing.id)}`]));
 
@@ -344,7 +344,7 @@ export async function updateListing(
   }
 
   enqueueEmbedding(supabase, listingId, title, description);
-  enqueueTranslation(listingId);
+  enqueueTranslation(listingId, title, description);
   after(() => pingIndexNow([`https://marketitnow.net/listings/${slugPath(title, listingId)}`]));
 
   // The real page lives at a slugged path (/listings/[...slug]) this function has no way to
