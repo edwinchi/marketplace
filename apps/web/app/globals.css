@@ -231,6 +231,23 @@
       0 0 7px var(--background),
       0 0 14px var(--background);
   }
+
+  /* Lets the Cars page's filter sidebar (components/cars-search-results.tsx) be a native, no-JS
+     <details>/<summary> on phone/tablet -- collapsed by default so someone doesn't have to scroll
+     past Brand/Price/Year/Fuel type/etc. before reaching a single car listing -- while staying
+     permanently expanded on desktop exactly as before. The filter <input>s live inside this block
+     either way (authored once, not duplicated -- duplicate radio/checkbox groups sharing the same
+     `name` inside one <form> would fight each other and corrupt what actually submits). The
+     <summary> toggle itself is just hidden at lg: via an ordinary lg:hidden class; this rule
+     handles the one thing a class can't -- overriding the browser's own UA-stylesheet rule that
+     hides a <details>'s content whenever it has no `open` attribute, at that same breakpoint.
+     revert (not e.g. flex) so each child's own display type -- block, flex, whatever its own
+     classes ask for -- still wins; this only cancels the browser's "none". */
+  @media (min-width: 1024px) {
+    .cars-filters-details > :not(summary) {
+      display: revert !important;
+    }
+  }
 }
 
 @layer base {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Car, Calendar, Fuel, Cog, Gauge as GaugeIcon, MapPin, Globe, ChevronLeft, ChevronRight } from "lucide-react";
+import { Car, Calendar, Fuel, Cog, Gauge as GaugeIcon, MapPin, Globe, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import type { CarsListing, CarsFilters } from "@/lib/cars-landing";
 import { getDisplayCurrency } from "@/lib/display-currency";
 import { getExchangeRates } from "@/lib/exchange-rates";
@@ -195,7 +195,21 @@ export function CarsSearchResults({
         {filters.type && <input type="hidden" name="type" value={filters.type} />}
         {filters.city && <input type="hidden" name="city" value={filters.city} />}
 
-        <aside className="flex flex-col gap-5 lg:sticky lg:top-4 lg:self-start">
+        <aside className="lg:sticky lg:top-4 lg:self-start">
+          {/* Collapsed by default on phone/tablet (native <details>, no JS) so someone lands on
+              actual car listings without first scrolling past every filter card -- always expanded
+              on desktop via the .cars-filters-details rule in globals.css, same as before this
+              existed. open={filtered} starts it expanded if the visitor arrived with filters
+              already applied (from a bookmark/shared link), since those are exactly the visitors
+              most likely to want to see or adjust them immediately. */}
+          <details className="cars-filters-details group flex flex-col gap-5" open={filtered}>
+            <summary className="mb-1 flex cursor-pointer list-none items-center justify-between gap-2 rounded-xl border bg-card p-4 font-semibold text-[#082040] lg:hidden">
+              <span className="flex items-center gap-2">
+                Filters
+                {filtered && <span className="rounded-full bg-[#e89818]/15 px-2 py-0.5 text-xs font-medium text-[#e89818]">Active</span>}
+              </span>
+              <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+            </summary>
           {sortedBrands.length > 0 && (
             <div className="rounded-xl border bg-card p-4">
               <h3 className="mb-2 text-sm font-semibold text-[#082040]">Brand</h3>
@@ -307,6 +321,7 @@ export function CarsSearchResults({
               Clear all filters
             </Link>
           )}
+          </details>
         </aside>
 
         <div>
