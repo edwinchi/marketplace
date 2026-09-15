@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Camera, X, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { compressImageFile } from "@/lib/image";
 
 const MAX_PHOTOS = 24;
 
@@ -66,10 +67,14 @@ export function EditPhotoManager({ initialPhotos, onCoverChange }: { initialPhot
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items]);
 
-  function addFiles(newFiles: FileList | null) {
+  async function addFiles(newFiles: FileList | null) {
     if (!newFiles) return;
-    const snapshot = Array.from(newFiles).map((file) => ({ key: `new-${newKeyCounter.current++}`, kind: "new" as const, file }));
-    setItems((prev) => [...prev, ...snapshot].slice(0, MAX_PHOTOS));
+    // Snapshot immediately (before the first await) — same reasoning as photo-upload.tsx's
+    // addFiles: the input's own FileList is live and gets cleared right after this call returns.
+    const snapshot = Array.from(newFiles);
+    const compressed = await Promise.all(snapshot.map((file) => compressImageFile(file)));
+    const items = compressed.map((file) => ({ key: `new-${newKeyCounter.current++}`, kind: "new" as const, file }));
+    setItems((prev) => [...prev, ...items].slice(0, MAX_PHOTOS));
   }
 
   function removeAt(index: number) {

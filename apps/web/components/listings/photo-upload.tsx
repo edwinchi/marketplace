@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Camera, X, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { compressImageFile } from "@/lib/image";
 
 const MAX_PHOTOS = 24;
 
@@ -47,16 +48,18 @@ export function PhotoUpload({ initialFiles, onFilesChange }: { initialFiles?: Fi
     };
   }, [previewUrls]);
 
-  function addFiles(newFiles: FileList | null) {
+  async function addFiles(newFiles: FileList | null) {
     if (!newFiles) return;
     // Snapshot into a plain array *now* — newFiles is a live reference to the input's own .files,
     // and the onChange handler resets that input's value right after calling this (so the same
     // control can be reused for the next selection). That reset mutates the live FileList to
     // empty; reading it lazily inside the setState updater (as this used to) could see that empty
     // list instead of the original selection once React re-invokes the updater, silently dropping
-    // every add after the first.
+    // every add after the first. The snapshot happens synchronously, before the first await below,
+    // so it's unaffected by that reset regardless of how long compression takes.
     const snapshot = Array.from(newFiles);
-    setFiles((prev) => [...prev, ...snapshot].slice(0, MAX_PHOTOS));
+    const compressed = await Promise.all(snapshot.map((f) => compressImageFile(f)));
+    setFiles((prev) => [...prev, ...compressed].slice(0, MAX_PHOTOS));
   }
 
   function removeAt(index: number) {
