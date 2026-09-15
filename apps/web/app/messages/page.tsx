@@ -151,8 +151,15 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
   // sizing, so the panel silently collapsed to its content's natural height instead of filling the
   // viewport. It was invisible before (no background to show where the panel "should" end); the
   // new card background made it obvious, so fixing it now.
+  // dvh, not vh -- 100vh is sized to the viewport with mobile browser chrome (address bar,
+  // toolbars) fully hidden, which is taller than what's actually visible most of the time. That
+  // gap pushed the message composer (the last flex child, meant to sit pinned at the bottom of
+  // this fixed-height panel) below the real visible fold on a phone, so it looked "missing" and
+  // needed a page-level scroll to reach -- confirmed live via a user screenshot. dvh tracks the
+  // browser's actual visible viewport as its chrome shows/hides, so the composer stays exactly at
+  // the bottom of what's really on screen.
   return (
-    <div className="mx-auto flex h-[calc(100vh-4.5rem)] w-full max-w-6xl px-0 sm:px-4 sm:py-4">
+    <div className="mx-auto flex h-[calc(100dvh-4.5rem)] w-full max-w-6xl px-0 sm:px-4 sm:py-4">
       <div className="grid w-full grid-cols-1 overflow-hidden rounded-none border-0 bg-card shadow-none sm:rounded-2xl sm:border sm:shadow-sm md:grid-cols-[340px_1fr]">
         <div className={`flex flex-col border-r ${thread ? "hidden md:flex" : "flex"}`}>
           <div className="border-b bg-linear-to-b from-muted/50 to-transparent p-4">

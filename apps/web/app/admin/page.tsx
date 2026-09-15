@@ -31,7 +31,7 @@ import { slugPath } from "@/lib/slug";
 
 function AdminLoginScreen() {
   return (
-    <div className="relative flex min-h-[calc(100vh-4rem)] items-center justify-center overflow-hidden bg-[linear-gradient(155deg,#082040_0%,#0a2c5c_55%,#063018_100%)] px-4 py-16">
+    <div className="relative flex min-h-[calc(100dvh-4rem)] items-center justify-center overflow-hidden bg-[linear-gradient(155deg,#082040_0%,#0a2c5c_55%,#063018_100%)] px-4 py-16">
       <div
         aria-hidden
         className="pointer-events-none absolute -top-32 -left-32 size-96 rounded-full bg-[#e89818]/20 blur-3xl"
