@@ -7,7 +7,7 @@ import { getAiUsageStatus } from "@/app/listings/new/analyze-photo-action";
 import { isSellerProSubscriber } from "@/lib/seller-pro";
 import { resolveMediaUrl } from "@/lib/media";
 import { ListingForm } from "@/components/listing-form";
-import { LISTING_TRANSLATION_TARGETS } from "@/app/listings/translate-action";
+import { LISTING_TRANSLATION_TARGETS } from "@/lib/listing-translations";
 import { slugPath } from "@/lib/slug";
 
 // Not part of the /listings/[...slug] catch-all -- a catch-all must be the last segment of a

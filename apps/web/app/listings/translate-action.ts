@@ -7,13 +7,9 @@ import { isSellerProSubscriber } from "@/lib/seller-pro";
 import { callFreeTextModel, parseJsonResponse } from "@/lib/ai-text";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { slugPath } from "@/lib/slug";
+import { LISTING_TRANSLATION_TARGETS } from "@/lib/listing-translations";
 
 const LANGUAGE_NAMES: Record<string, string> = { fr: "French", nl: "Dutch" };
-// Every listing is authored in English (createListing hardcodes source_language: "en"), so these
-// are the only real translation targets -- English itself is already what's stored on the listing
-// row directly, no listing_translations row needed for it.
-export const LISTING_TRANSLATION_TARGETS = ["fr", "nl"] as const;
-export type ListingTranslationTarget = (typeof LISTING_TRANSLATION_TARGETS)[number];
 
 async function fetchOwnListing(listingId: string, profileId: string) {
   const supabase = await createClient();

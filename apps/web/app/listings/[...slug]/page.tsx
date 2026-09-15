@@ -35,7 +35,7 @@ import { getStripe } from "@/lib/stripe";
 import { calculateBuyerFeeMinor } from "@/lib/payments";
 import { startOrderPayment } from "@/app/listings/payment-actions";
 import { ShieldCheck } from "lucide-react";
-import { LISTING_TRANSLATION_TARGETS, type ListingTranslationTarget } from "@/app/listings/translate-action";
+import { LISTING_TRANSLATION_TARGETS, type ListingTranslationTarget } from "@/lib/listing-translations";
 
 // Drives the rich preview card WhatsApp/Facebook/X/iMessage/Slack generate when someone shares a
 // listing link (components/listings/save-share-bar.tsx) -- those platforms scrape these tags from
