@@ -169,7 +169,11 @@ export default async function HomePage({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
       {/* Search hero */}
       <div
-        className="brand-lattice relative border-b bg-muted/30"
+        // No border-b -- the collage already fades to transparent via .brand-lattice::before's own
+        // mask-image (see globals.css), so a literal 1px border directly underneath it drew a
+        // crisp, visible cut line right where the fade was supposed to dissolve smoothly into the
+        // page's own background instead.
+        className="brand-lattice relative bg-muted/30"
         style={{ "--hero-bg-image": `url(${heroBanner})` } as React.CSSProperties}
       >
         <div className="hero-enter relative mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-7 sm:px-6 lg:px-8">
@@ -296,9 +300,11 @@ export default async function HomePage({
             <div>
               {/* h2, not h1 -- the hero above already carries the page's one h1 (t("heroHeadline")). */}
               <h2 className="text-xl font-bold tracking-tight">{selectedCategory ? selectedCategory.label : q ? t("resultsFor", { q }) : t("recentListings")}</h2>
-              {/* Previously a silent .limit(90) cutoff with no indication more listings existed at
-                  all -- a real count from the same query's exact-count, not a guess. */}
-              {totalCount != null && <p className="mt-0.5 text-xs text-muted-foreground">{totalCount.toLocaleString()} results</p>}
+              {/* Hidden per explicit request while the site's real inventory is still small -- a
+                  low count reads as "this marketplace is empty" rather than as a helpful stat.
+                  totalCount itself is untouched (still a real exact-count query, not a guess) so
+                  this is a one-line change to bring back once there's enough real inventory that
+                  showing it helps rather than hurts. */}
             </div>
             <div className="flex items-center gap-3">
               <SortSelect sort={sort} />

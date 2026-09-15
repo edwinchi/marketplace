@@ -334,7 +334,7 @@ export default async function CategoryPage({
       <>
         {breadcrumbJsonLdScript}
         {itemListJsonLdScript}
-        <div className="brand-lattice relative border-b bg-muted/30" style={heroBannerStyle}>
+        <div className="brand-lattice relative bg-muted/30" style={heroBannerStyle}>
           <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
             <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
               {t("heroHeadingPrefix")}
@@ -369,7 +369,7 @@ export default async function CategoryPage({
     <>
       {breadcrumbJsonLdScript}
       {itemListJsonLdScript}
-      <div className="brand-lattice relative border-b bg-muted/30" style={heroBannerStyle}>
+      <div className="brand-lattice relative bg-muted/30" style={heroBannerStyle}>
         <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
           <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
             {t("heroHeadingPrefix")}
