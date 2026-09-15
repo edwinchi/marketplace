@@ -1,8 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { cookies } from "next/headers";
 import { ImageOff, Camera, Truck, Handshake } from "lucide-react";
-import { DISPLAY_CURRENCY_COOKIE } from "@/lib/money";
+import { getDisplayCurrency } from "@/lib/display-currency";
 import { getExchangeRates } from "@/lib/exchange-rates";
 import { formatListingAge } from "@/lib/relative-time";
 import { FavoriteButton } from "@/components/favorite-button";
@@ -41,8 +40,7 @@ export async function ListingCard({
   publishedAt,
   photoCount,
 }: Props) {
-  const cookieStore = await cookies();
-  const displayCurrency = cookieStore.get(DISPLAY_CURRENCY_COOKIE)?.value ?? null;
+  const displayCurrency = await getDisplayCurrency();
   const rates = displayCurrency ? await getExchangeRates() : null;
 
   return (

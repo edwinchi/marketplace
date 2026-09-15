@@ -11,7 +11,7 @@ import { polishDescription } from "@/app/listings/polish-description-action";
 import { suggestPrice, type PriceSuggestion } from "@/app/listings/price-suggestion-action";
 import { translateListing } from "@/app/listings/translate-action";
 import { fileToResizedBase64 } from "@/lib/image";
-import { formatPrice } from "@/lib/money";
+import { formatPrice, SUPPORTED_CURRENCIES, type CurrencyCode } from "@/lib/money";
 import { EditPhotoManager, type ExistingPhoto, type CoverPhoto } from "@/components/listings/edit-photo-manager";
 import { RichDescription } from "@/components/listings/rich-description";
 import { AttributeField } from "@/components/listing-attribute-field";
@@ -66,12 +66,10 @@ export function ListingForm({
 }: Props) {
   const [state, formAction, pending] = useActionState(action, { error: null } as ListingFormState);
   const [categoryId, setCategoryId] = useState(initial?.categoryId ?? "");
-  // Currency is derived from the listing's country at creation and never independently editable
-  // (see new-listing-step2-form.tsx) -- country itself isn't editable here either (hideLocation is
-  // always passed for this edit-only form), so there's nothing to re-derive currency from on edit.
-  // This just carries the listing's existing currency through unchanged for price-suggestion calls
-  // and the read-only display below.
-  const currencyCode = initial?.currencyCode ?? "EUR";
+  // Currency is an explicit, independently editable choice (see createListing/updateListing in
+  // app/listings/actions.ts) -- defaults to the listing's current currency, but a seller can change
+  // it here same as on create.
+  const [currencyCode, setCurrencyCode] = useState<CurrencyCode>((initial?.currencyCode as CurrencyCode) ?? "EUR");
   const attributes = attributesByCategory[categoryId] ?? [];
 
   const titleRef = useRef<HTMLInputElement>(null);
@@ -316,10 +314,18 @@ export function ListingForm({
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="currency_code">Currency</Label>
-          <input type="hidden" name="currency_code" value={currencyCode} />
-          <div id="currency_code" className="flex h-9 items-center rounded-md border bg-muted/40 px-3 text-sm text-muted-foreground">
-            {currencyCode}
-          </div>
+          <Select name="currency_code" value={currencyCode} onValueChange={(v) => v && setCurrencyCode(v as CurrencyCode)}>
+            <SelectTrigger id="currency_code" className="w-full">
+              <SelectValue>{currencyCode}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {SUPPORTED_CURRENCIES.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

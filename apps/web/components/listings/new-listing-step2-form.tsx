@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import type { AttributeDef } from "@/lib/categories";
 import { ANCHOR_COUNTRIES, getCurrencyForCountry } from "@/lib/countries";
+import { SUPPORTED_CURRENCIES, type CurrencyCode } from "@/lib/money";
 import { takeListingDraft } from "@/lib/listing-draft";
 import { fileToResizedBase64 } from "@/lib/image";
 import { analyzeListingPhoto } from "@/app/listings/new/analyze-photo-action";
@@ -130,13 +131,13 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
     });
   }
 
-  // Currency is derived from country, not a separate manual choice -- confirmed live in
-  // production that an unlinked currency picker produces real mismatches (e.g. a Cameroon listing
-  // saved with NGN, a Nigeria listing saved with XAF). getCurrencyForCountry is the single source
-  // of truth the server action re-derives from too, so this client-side value is a preview for the
-  // seller, not something the server actually trusts.
+  // Currency is an independent, explicit choice under the price field -- per explicit request, not
+  // tied to country. Defaults to the initial country's currency as a sensible starting point (most
+  // sellers list in their own local currency), but changing country afterward does NOT change an
+  // already-selected currency; the server validates whatever is actually submitted against the real
+  // currency list rather than re-deriving it (see createListing in app/listings/actions.ts).
   const [countryCode, setCountryCode] = useState(ANCHOR_COUNTRIES[0].code);
-  const currencyCode = getCurrencyForCountry(countryCode);
+  const [currencyCode, setCurrencyCode] = useState<CurrencyCode>(() => getCurrencyForCountry(ANCHOR_COUNTRIES[0].code));
 
   const analyzeInFlight = useRef(false);
 
@@ -383,10 +384,18 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="currency_code">Currency</Label>
-            <input type="hidden" name="currency_code" value={currencyCode} />
-            <div id="currency_code" className="flex h-9 items-center rounded-md border bg-muted/40 px-3 text-sm text-muted-foreground">
-              {currencyCode} <span className="ml-1.5 text-xs">— set by your country below</span>
-            </div>
+            <Select name="currency_code" value={currencyCode} onValueChange={(v) => v && setCurrencyCode(v as CurrencyCode)}>
+              <SelectTrigger id="currency_code" className="w-full">
+                <SelectValue>{currencyCode}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {SUPPORTED_CURRENCIES.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
         <label className="mt-3 flex items-center gap-2 text-sm">
@@ -429,7 +438,6 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">Price above will be in {currencyCode}.</p>
           </div>
         </div>
         <div className="mt-4 flex flex-col gap-1.5 sm:w-1/2 sm:pr-2">

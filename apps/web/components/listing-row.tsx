@@ -1,8 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { cookies } from "next/headers";
 import { ImageOff } from "lucide-react";
-import { DISPLAY_CURRENCY_COOKIE } from "@/lib/money";
+import { getDisplayCurrency } from "@/lib/display-currency";
 import { getExchangeRates } from "@/lib/exchange-rates";
 import { FavoriteButton } from "@/components/favorite-button";
 import { Price } from "@/components/price";
@@ -38,8 +37,7 @@ export async function ListingRow({
   signedIn,
 }: Props) {
   const delivery = [pickupAvailable && "Pickup", deliveryAvailable && "Shipping"].filter(Boolean).join(" or ");
-  const cookieStore = await cookies();
-  const displayCurrency = cookieStore.get(DISPLAY_CURRENCY_COOKIE)?.value ?? null;
+  const displayCurrency = await getDisplayCurrency();
   const rates = displayCurrency ? await getExchangeRates() : null;
 
   return (

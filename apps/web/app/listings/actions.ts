@@ -6,7 +6,7 @@ import { after } from "next/server";
 import { randomUUID } from "crypto";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
-import { toMinorUnits } from "@/lib/money";
+import { toMinorUnits, SUPPORTED_CURRENCIES } from "@/lib/money";
 import { getCurrencyForCountry, ANCHOR_COUNTRIES } from "@/lib/countries";
 import type { Database } from "@/lib/supabase/database.types";
 import { slugPath } from "@/lib/slug";
@@ -233,11 +233,16 @@ export async function createListing(_prevState: ListingFormState, formData: Form
   if (!ANCHOR_COUNTRIES.some((c) => c.code === countryCode)) {
     return { error: "Please choose a valid country." };
   }
-  // Currency is derived from country server-side, not trusted from the client -- a stale form,
-  // browser extension, or a client bug could otherwise submit a currency_code that doesn't match
-  // the country actually being saved (confirmed live in production before this fix: real listings
-  // existed with mismatched country/currency pairs, e.g. a Cameroon listing stored as NGN).
-  const currencyCode = getCurrencyForCountry(countryCode);
+  // Currency is an explicit seller choice (a dedicated picker under the price field), not derived
+  // from country -- per explicit request, reversing an earlier fix that removed a manual picker
+  // over a real country/currency mismatch bug (a Cameroon listing stored as NGN). Still validated
+  // against the real currency list server-side (never trust an arbitrary client string into a
+  // column exchange-rate conversion later reads), falling back to the country-derived default only
+  // if the submitted value is missing or not a real supported code.
+  const submittedCurrency = String(formData.get("currency_code") ?? "");
+  const currencyCode = (SUPPORTED_CURRENCIES as readonly string[]).includes(submittedCurrency)
+    ? (submittedCurrency as (typeof SUPPORTED_CURRENCIES)[number])
+    : getCurrencyForCountry(countryCode);
   if (websiteUrlRaw.trim() && !normalizeWebsiteUrl(websiteUrlRaw)) {
     return { error: "That website address doesn't look right." };
   }
@@ -324,14 +329,19 @@ export async function updateListing(
   // intentionally clears it, unlike create, since this is the one place a seller can remove it.
   await supabase.from("profiles").update({ website_url: normalizeWebsiteUrl(websiteUrlRaw) }).eq("id", profile.id);
 
-  // currency_code is deliberately not updated here -- it's derived from the listing's country at
-  // creation (see createListing), and country isn't editable post-creation (v1 limitation), so
-  // there's nothing for currency to legitimately change to. Not accepting it from the client at
-  // all avoids the edit-time half of the country/currency mismatch bug this whole change fixes.
+  // Currency is now an explicit, independently editable seller choice (see createListing) --
+  // validated against the real currency list, falling back to the listing's current currency
+  // (fetched below) rather than guessing from country if the submitted value is missing/invalid.
+  const { data: currentListing } = await supabase.from("listings").select("currency_code").eq("id", listingId).single();
+  const submittedCurrency = String(formData.get("currency_code") ?? "");
+  const currencyCode = (SUPPORTED_CURRENCIES as readonly string[]).includes(submittedCurrency)
+    ? (submittedCurrency as (typeof SUPPORTED_CURRENCIES)[number])
+    : (currentListing?.currency_code ?? "EUR");
+
   // RLS's listing_write policy already scopes this update to seller_id = current_profile_id().
   const { error: updateError } = await supabase
     .from("listings")
-    .update({ title, description, category_id: categoryId, price_minor: toMinorUnits(price) })
+    .update({ title, description, category_id: categoryId, price_minor: toMinorUnits(price), currency_code: currencyCode })
     .eq("id", listingId);
   if (updateError) return { error: updateError.message };
 

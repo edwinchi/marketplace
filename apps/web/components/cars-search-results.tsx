@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { cookies } from "next/headers";
 import { Car, Calendar, Fuel, Cog, Gauge as GaugeIcon, MapPin, Globe, ChevronLeft, ChevronRight } from "lucide-react";
 import type { CarsListing, CarsFilters } from "@/lib/cars-landing";
-import { DISPLAY_CURRENCY_COOKIE } from "@/lib/money";
+import { getDisplayCurrency } from "@/lib/display-currency";
 import { getExchangeRates } from "@/lib/exchange-rates";
 import { resolveMediaUrl } from "@/lib/media";
 import { Price } from "@/components/price";
@@ -89,8 +88,7 @@ function RadioRow({ name, value, label, count, checked }: { name: string; value:
 }
 
 async function CarResultCard({ listing, favorited, signedIn }: { listing: CarsListing; favorited: boolean; signedIn: boolean }) {
-  const cookieStore = await cookies();
-  const displayCurrency = cookieStore.get(DISPLAY_CURRENCY_COOKIE)?.value ?? null;
+  const displayCurrency = await getDisplayCurrency();
   const rates = displayCurrency ? await getExchangeRates() : null;
   const imageUrl = listing.photoStorageKey ? resolveMediaUrl(listing.photoStorageKey, process.env.NEXT_PUBLIC_SUPABASE_URL!) : null;
 

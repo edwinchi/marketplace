@@ -6,11 +6,11 @@ import { MessageCircle, Globe, Calendar, Fuel, Cog, Gauge, Tag, Phone } from "lu
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getCategoryPath } from "@/lib/categories";
-import { cookies } from "next/headers";
-import { formatPrice, DISPLAY_CURRENCY_COOKIE } from "@/lib/money";
+import { formatPrice } from "@/lib/money";
 import { getExchangeRates } from "@/lib/exchange-rates";
 import { resolveMediaUrl } from "@/lib/media";
 import { getCountryName } from "@/lib/countries";
+import { getDisplayCurrency } from "@/lib/display-currency";
 import { Price } from "@/components/price";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -87,8 +87,7 @@ export default async function ListingPage({
   const id = idFromSlugSegments(slug);
   const supabase = await createClient();
   const { profile } = await getCurrentUserAndProfile();
-  const [t, locale, cookieStore] = await Promise.all([getTranslations("Listing"), getLocale(), cookies()]);
-  const displayCurrency = cookieStore.get(DISPLAY_CURRENCY_COOKIE)?.value ?? null;
+  const [t, locale, displayCurrency] = await Promise.all([getTranslations("Listing"), getLocale(), getDisplayCurrency()]);
   const rates = displayCurrency ? await getExchangeRates() : null;
 
   const { data: listing } = await supabase
