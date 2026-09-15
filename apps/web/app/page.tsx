@@ -187,11 +187,12 @@ export default async function HomePage({
               </h1>
               <p className="hero-text-halo mt-1.5 text-base font-medium text-[#046637] sm:text-lg">{t("heroSubtext")}</p>
             </div>
-            <Link
-              href="/listings/new"
-              className={buttonVariants({ size: "lg", className: "shrink-0 gap-1.5 whitespace-nowrap" })}
-            >
-              <PackagePlus className="size-4" />
+            {/* No whitespace-nowrap/shrink-0 safety valve previously -- a long translated CTA
+                (French "Publier une annonce gratuite") on a narrow phone had nowhere to go but
+                past the container edge, causing horizontal page scroll. max-w-full plus letting
+                the text wrap if it truly has to is a much smaller cosmetic cost than that. */}
+            <Link href="/listings/new" className={buttonVariants({ size: "lg", className: "max-w-full gap-1.5" })}>
+              <PackagePlus className="size-4 shrink-0" />
               {t("heroCta")}
             </Link>
           </div>

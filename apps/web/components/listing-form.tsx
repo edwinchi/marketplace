@@ -307,7 +307,7 @@ export function ListingForm({
         </Select>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="price">Price</Label>
           <Input id="price" name="price" type="number" min="0" step="0.01" required defaultValue={initial?.price} />
@@ -363,7 +363,7 @@ export function ListingForm({
       </div>
 
       {!hideLocation && (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="city">City</Label>
             <Input id="city" name="city" required />
