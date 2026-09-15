@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Camera, X, GripVertical } from "lucide-react";
+import { Camera, ImagePlus, X, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { compressImageFile } from "@/lib/image";
 
@@ -132,20 +132,40 @@ export function EditPhotoManager({ initialPhotos, onCoverChange }: { initialPhot
           </div>
         ))}
         {items.length < MAX_PHOTOS && (
-          <label className="flex size-24 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed text-muted-foreground hover:border-foreground/40 hover:text-foreground">
-            <Camera className="size-5" />
-            <span className="text-xs">Add photos</span>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={(e) => {
-                addFiles(e.target.files);
-                e.target.value = "";
-              }}
-            />
-          </label>
+          <>
+            {/* Two distinct controls rather than one combined picker -- on a phone, an <input>
+                with capture="environment" opens the camera app directly instead of showing the
+                OS's "camera or library?" chooser, so someone who wants to snap a fresh photo of
+                the item doesn't have to find the camera option inside a picker first. */}
+            <label className="flex size-24 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed text-muted-foreground hover:border-foreground/40 hover:text-foreground">
+              <Camera className="size-5" />
+              <span className="text-xs">Take photo</span>
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={(e) => {
+                  addFiles(e.target.files);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+            <label className="flex size-24 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed text-muted-foreground hover:border-foreground/40 hover:text-foreground">
+              <ImagePlus className="size-5" />
+              <span className="text-xs">Choose photos</span>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                  addFiles(e.target.files);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          </>
         )}
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
