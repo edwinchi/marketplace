@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Camera, ImagePlus, X, GripVertical } from "lucide-react";
+import { Camera, ImagePlus, X, GripVertical, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { compressImageFile } from "@/lib/image";
 
@@ -118,6 +118,11 @@ export function EditPhotoManager({ initialPhotos, onCoverChange }: { initialPhot
                 Cover
               </span>
             )}
+            {/* Decorative on touch devices -- native HTML5 drag-and-drop (the draggable/onDrag*
+                handlers on this tile) doesn't work on iOS/Android without a polyfill this
+                component doesn't use, so the chevron buttons below are the actual, universally
+                working way to reorder on a phone; this stays as the familiar cue for desktop
+                mouse users, for whom dragging does work. */}
             <span className="absolute top-1 left-1 flex size-5 items-center justify-center rounded-full bg-background/80 text-muted-foreground">
               <GripVertical className="size-3" />
             </span>
@@ -125,10 +130,30 @@ export function EditPhotoManager({ initialPhotos, onCoverChange }: { initialPhot
               type="button"
               onClick={() => removeAt(i)}
               aria-label="Remove photo"
-              className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-background/90"
+              className="absolute top-1 right-1 flex size-7 items-center justify-center rounded-full bg-background/90"
             >
-              <X className="size-3" />
+              <X className="size-4" />
             </button>
+            <div className="absolute right-1 bottom-1 flex gap-0.5">
+              <button
+                type="button"
+                onClick={() => moveTo(i, i - 1)}
+                disabled={i === 0}
+                aria-label="Move photo earlier"
+                className="flex size-7 items-center justify-center rounded-full bg-background/90 disabled:opacity-30"
+              >
+                <ChevronLeft className="size-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => moveTo(i, i + 1)}
+                disabled={i === items.length - 1}
+                aria-label="Move photo later"
+                className="flex size-7 items-center justify-center rounded-full bg-background/90 disabled:opacity-30"
+              >
+                <ChevronRight className="size-4" />
+              </button>
+            </div>
           </div>
         ))}
         {items.length < MAX_PHOTOS && (
@@ -169,7 +194,7 @@ export function EditPhotoManager({ initialPhotos, onCoverChange }: { initialPhot
         )}
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
-        {items.length}/{MAX_PHOTOS} photos used. Drag a photo to reorder — the first one becomes the cover.
+        {items.length}/{MAX_PHOTOS} photos used. Drag a photo, or use the arrows on it, to reorder — the first one becomes the cover.
       </p>
       <input type="hidden" name="photo_manager_present" value="1" />
       {items.map((item) => (

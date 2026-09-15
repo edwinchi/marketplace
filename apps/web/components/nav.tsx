@@ -78,6 +78,13 @@ export async function Nav() {
             <img src="/logo-compact.png?v=2" alt="MarketitNow" className="h-11 w-auto" />
           </Link>
           <div className="flex items-center">
+            {/* No search bar fits in this bar's height, and there was previously no way at all to
+                start a new keyword search once away from the homepage on a phone -- this at least
+                gets a visitor one tap from the search box that's always visible in the homepage
+                hero, rather than requiring they first find their way back to "/" on their own. */}
+            <NavIconLink href="/" aria-label={t("search")} className="relative flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-brand-green/10 hover:text-foreground">
+              <Search className="size-5" />
+            </NavIconLink>
             <NavIconLink href="/messages" className="relative flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-brand-green/10 hover:text-foreground">
               <MessageCircle className="size-5" />
               {unreadCount > 0 && (
@@ -138,6 +145,13 @@ export async function Nav() {
                 </button>
               </div>
             </form>
+            {/* Tablet-width stand-in for the full search bar above (640-1279px, where this row has
+                no spare width for it but still needs some way to reach search without navigating
+                back to "/" manually) -- a single icon costs far less room than a full input, so it
+                doesn't reintroduce the overflow the xl: gate above was set for. */}
+            <NavIconLink href="/" aria-label={t("search")} className="flex size-9 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-brand-green/10 hover:text-foreground xl:hidden">
+              <Search className="size-5" />
+            </NavIconLink>
             <nav className="flex items-center gap-1 sm:gap-2">
               <LanguageSwitcher locale={locale} disabledLocales={[...disabledLocales]} />
               <CurrencySwitcher currency={displayCurrency} />
