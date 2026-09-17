@@ -7,18 +7,28 @@ decided architecture. Where this file and a document in `data/` disagree, **this
 
 ## 1. What we're building
 
-AfroDeals is a mobile-first, AI-first, pan-African classifieds and marketplace platform in the spirit
-of Marktplaats.nl, rebuilt for African market realities: multiple currencies, multiple languages,
-patchy addressing, mobile-dominant internet access, and low institutional trust in P2P payments —
-which trust/escrow infrastructure exists specifically to solve.
+AfroDeals is a mobile-first, AI-first global classifieds and marketplace platform in the spirit of
+Marktplaats.nl, with trust/escrow infrastructure to solve the low institutional trust in P2P payments
+that a purely local classifieds site doesn't need to address. The long-term vision remains pan-African
+(see the original anchor markets below) — but as of 2026-09, the go-to-market sequencing is **Europe
+first**: the live product ships EUR-denominated, Dutch-market-styled (Marktplaats' own feature set —
+*Kopersbescherming*-style buyer protection, "Omhoogbellen"-style bumping — is the deliberate reference
+model, not a coincidence), under the **marketitnow.net** brand (see §13). This is a deployment/currency/
+brand sequencing decision, not a scope change: Europe is the initial testing ground the business is
+building and proving the model in, with global (including the original pan-African) expansion the
+explicit next phase once that's validated. Don't hardcode assumptions — currency, language, and market
+must stay data-driven (§4) precisely because more markets are the plan, not a hypothetical.
 
-Working name: **AfroDeals** (from the repo name). Earlier reference docs in `data/` use "SokoCoin" and
-"LokoTrade" — those are the same product concept from an earlier naming pass; treat them as historical,
-not as the current brand.
+Working name / long-term brand: **AfroDeals** (from the repo name); current live/customer-facing brand:
+**marketitnow.net** (§13). Earlier reference docs in `data/` use "SokoCoin" and "LokoTrade" — those are
+the same product concept from an earlier naming pass; treat them as historical, not as the current
+brand.
 
-Initial anchor markets (from the existing mock data in [`data/marketplace-dashboard.tsx`](data/marketplace-dashboard.tsx)):
-Lagos (Nigeria, NGN), Nairobi (Kenya, KES), Abidjan (Côte d'Ivoire, XOF), Dakar (Senegal, XOF).
-Launch languages: English and French. The schema must not hardcode this list — see §4.
+Original (pan-African, still the long-term target) anchor markets, from the existing mock data in
+[`data/marketplace-dashboard.tsx`](data/marketplace-dashboard.tsx): Lagos (Nigeria, NGN), Nairobi
+(Kenya, KES), Abidjan (Côte d'Ivoire, XOF), Dakar (Senegal, XOF). Current launch market: Europe (EUR),
+Dutch/English/French primary, with Arabic and Chinese listing/category translations also shipped
+(§4) — the schema must not hardcode any of this; new markets are additive, not a rewrite.
 
 ### Product pillars
 1. **Zero-friction listing** — seller uploads a photo; AI suggests category, title, description,
