@@ -259,16 +259,18 @@ real Stripe error and show one generic "aren't fully turned on yet" message rega
 now `console.error`-logged (Vercel `vercel logs <deployment> --level error --expand`) so the next
 distinct failure is diagnosable instead of another guess.
 
-**Known cleanup needed:** the `claude-agent-test` profile's `stripe_connect_account_id` was set to a
-*test-mode* account id during local dev testing (local `.env.local` runs `sk_test_...`) before this
-was properly diagnosed — production's live-mode key can never use it
+**Cleaned up (2026-09-18):** the `claude-agent-test` profile's `stripe_connect_account_id` had been
+set to a *test-mode* account id during local dev testing (local `.env.local` runs `sk_test_...`)
+before this was properly diagnosed — production's live-mode key could never use it
 (`StripeInvalidRequestError: "You tried to create a live mode account link for an account that was
-created in test mode."`). Needs `update profiles set stripe_connect_account_id = null,
-stripe_connect_charges_enabled = false where id = '7d88ca90-95f1-4684-94ea-bcbaf61d0ffe'` (that
-profile's id, confirmed via the logged error above) before that account can complete onboarding —
-not yet applied as of this writing. A real lesson from this: local dev and production share the
-same Supabase database, so a Stripe Connect account created while testing locally against a `sk_test_`
-key still writes its id into the shared, real `profiles` row — worth using a key with no
+created in test mode."`). Cleared via that profile's own authenticated session (a plain
+`PATCH .../rest/v1/profiles` as the signed-in user, not a service-role/admin write) setting
+`stripe_connect_account_id = null, stripe_connect_charges_enabled = false` — RLS allows a user to
+clear their own connect fields to a safe/false state (not to set `charges_enabled = true`, which
+stays service-role/webhook-only). Confirmed live: `/my-account/payments/enable` now shows the fresh
+"Connect your bank account" state again. A real lesson from this: local dev and production share the
+same Supabase database, so a Stripe Connect account created while testing locally against a
+`sk_test_` key still writes its id into the shared, real `profiles` row — worth using a key with no
 real-account side effects, or cleaning up after, next time this needs testing.
 
 ## 7. Engineering standards
