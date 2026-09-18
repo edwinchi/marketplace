@@ -185,6 +185,10 @@ function parseVehicleResponse(xml: string, plate: string): VehicleLookupResult |
     co2GramsPerKm: Number.isFinite(co2) && co2 > 0 ? co2 : null,
     energyLabel: null,
     emissionStandard: null,
+    // No curb weight or towing capacity field found in any real vehicleJson response yet.
+    curbWeightKg: null,
+    towingCapacityBrakedKg: null,
+    towingCapacityUnbrakedKg: null,
   };
 }
 

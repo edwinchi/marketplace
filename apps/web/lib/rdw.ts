@@ -44,6 +44,12 @@ export type VehicleLookupResult = {
   co2GramsPerKm: number | null;
   energyLabel: string | null;
   emissionStandard: string | null;
+  // RDW-only (massa_ledig_voertuig, maximum_trekken_massa_geremd/maximum_massa_trekken_ongeremd) --
+  // no equivalent field found in any real RegCheck response yet, so always null for other countries
+  // (lib/regcheck.ts) rather than guessed.
+  curbWeightKg: number | null;
+  towingCapacityBrakedKg: number | null;
+  towingCapacityUnbrakedKg: number | null;
 };
 
 // RDW's brandstof_omschrijving values, mapped to this project's seeded fuel_type options. More
@@ -176,5 +182,8 @@ export async function lookupVehicleByPlate(rawPlate: string): Promise<VehicleLoo
     co2GramsPerKm: primaryFuel?.co2_uitstoot_gecombineerd ? Number(primaryFuel.co2_uitstoot_gecombineerd) : null,
     energyLabel: vehicle.zuinigheidsclassificatie || null,
     emissionStandard: primaryFuel?.uitlaatemissieniveau || null,
+    curbWeightKg: vehicle.massa_ledig_voertuig ? Number(vehicle.massa_ledig_voertuig) : null,
+    towingCapacityBrakedKg: vehicle.maximum_trekken_massa_geremd ? Number(vehicle.maximum_trekken_massa_geremd) : null,
+    towingCapacityUnbrakedKg: vehicle.maximum_massa_trekken_ongeremd ? Number(vehicle.maximum_massa_trekken_ongeremd) : null,
   };
 }

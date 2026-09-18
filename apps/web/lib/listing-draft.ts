@@ -1,14 +1,22 @@
-// Hand-off for AI-analyzed photo data between the step-1 and step-2 post-ad pages: a File can't
-// survive a route change, so the resized image (as a data URL) and the generated description ride
-// in sessionStorage under this key, keyed to the exact title+category the user continued with so a
-// stale draft from an abandoned earlier attempt never gets picked up by a different listing.
+import type { VehicleLookupResult } from "@/lib/rdw";
+
+// Hand-off for AI-analyzed photo data (and, separately, a step-1 plate lookup) between the step-1
+// and step-2 post-ad pages: neither a File nor a fully-typed lookup result can survive a route
+// change, so they ride in sessionStorage under this key, keyed to the exact title+category the
+// user continued with so a stale draft from an abandoned earlier attempt never gets picked up by a
+// different listing.
 export const LISTING_DRAFT_KEY = "afrodeals:listing-draft";
 
 export type ListingDraft = {
   title: string;
   categoryId: string;
-  description: string;
-  imageDataUrl: string;
+  description?: string;
+  imageDataUrl?: string;
+  // Set by the step-1 "Sell your car" plate modal (components/listings/sell-car-plate-modal.tsx)
+  // when the seller used a plate instead of skipping -- step 2 applies the same
+  // mapVehicleLookupToAttributeDefaults (lib/vehicle-listing-defaults.ts) its own inline plate
+  // search uses, so both paths fill in exactly the same fields.
+  vehicleLookup?: VehicleLookupResult;
 };
 
 export function saveListingDraft(draft: ListingDraft) {

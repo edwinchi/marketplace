@@ -9,7 +9,10 @@ import { findCategoryMatches, type CategoryMatch } from "@/app/listings/new/find
 import { analyzeListingPhoto } from "@/app/listings/new/analyze-photo-action";
 import { fileToResizedBase64 } from "@/lib/image";
 import { saveListingDraft } from "@/lib/listing-draft";
+import type { VehicleLookupResult } from "@/lib/rdw";
+import { vehicleLookupTitle } from "@/lib/vehicle-listing-defaults";
 import type { CategoryOption } from "@/lib/categories";
+import { SellCarPlateModal } from "@/components/listings/sell-car-plate-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,13 +45,37 @@ export function NewListingStep1({
   const chosenCategoryId = selected === "manual" ? manualCategoryId : selected;
   const carsCategory = categoryOptions.find((c) => c.stableKey === "cars");
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const [plateModalOpen, setPlateModalOpen] = useState(false);
 
   function handleSellCar() {
+    if (!carsCategory) return;
+    setPlateModalOpen(true);
+  }
+
+  function handlePlateSkip() {
     if (!carsCategory) return;
     setManualCategoryId(carsCategory.id);
     setSelected(carsCategory.id);
     setMatches(null);
+    setPlateModalOpen(false);
     titleInputRef.current?.focus();
+  }
+
+  // A successful plate lookup carries enough to go straight to step 2 -- the same instant payoff
+  // the reference "Sell your car" shortcut gives, rather than making the seller retype what the
+  // registry already told us. Navigating with state just set is a stale-closure risk (setState is
+  // async), so this passes the resolved values straight through instead of reading title/selected
+  // back out of state.
+  function handlePlateUsed(result: VehicleLookupResult) {
+    if (!carsCategory) return;
+    const finalTitle = vehicleLookupTitle(result) || title.trim() || "Car";
+    setTitle(finalTitle);
+    setManualCategoryId(carsCategory.id);
+    setSelected(carsCategory.id);
+    setMatches(null);
+    setPlateModalOpen(false);
+    saveListingDraft({ title: finalTitle, categoryId: carsCategory.id, vehicleLookup: result });
+    router.push(`/listings/new/details?title=${encodeURIComponent(finalTitle)}&category=${carsCategory.id}`);
   }
 
   function handleFindCategory() {
@@ -239,6 +266,12 @@ export function NewListingStep1({
             </span>
           </button>
         )}
+        <SellCarPlateModal
+          open={plateModalOpen}
+          onOpenChange={setPlateModalOpen}
+          onUsePlate={handlePlateUsed}
+          onSkip={handlePlateSkip}
+        />
         <div className="flex flex-col gap-2 sm:flex-row">
           <div className="flex-1">
             <Label htmlFor="title" className="sr-only">Title</Label>

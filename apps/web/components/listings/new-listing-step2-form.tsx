@@ -24,7 +24,7 @@ import { takeListingDraft } from "@/lib/listing-draft";
 import { fileToResizedBase64 } from "@/lib/image";
 import { analyzeListingPhoto } from "@/app/listings/new/analyze-photo-action";
 import { searchVehicleByPlate, searchVehicleByKba } from "@/app/categories/plate-lookup-action";
-import { translateDutchColor } from "@/lib/rdw";
+import { mapVehicleLookupToAttributeDefaults, vehicleLookupTitle } from "@/lib/vehicle-listing-defaults";
 import { VEHICLE_REGISTRY_COUNTRIES, DEFAULT_REGISTRY_COUNTRY } from "@/lib/vehicle-registries";
 import type { ListingFormState } from "@/app/listings/actions";
 import { PhotoUpload } from "@/components/listings/photo-upload";
@@ -71,16 +71,24 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
   const [draftPhotoFiles, setDraftPhotoFiles] = useState<File[] | undefined>(undefined);
   const [draftDescription, setDraftDescription] = useState<string | undefined>(undefined);
   const [aiAssisted, setAiAssisted] = useState(false);
+  const [attributeDefaults, setAttributeDefaults] = useState<Record<string, string> | undefined>(undefined);
 
   useEffect(() => {
     const draft = takeListingDraft(title, categoryId);
     if (!draft) return;
-    setAiAssisted(true);
-    if (draft.description) setDraftDescription(draft.description);
-    fetch(draft.imageDataUrl)
-      .then((r) => r.blob())
-      .then((blob) => setDraftPhotoFiles([new File([blob], "photo.jpg", { type: blob.type || "image/jpeg" })]))
-      .catch(() => {});
+    if (draft.description) {
+      setAiAssisted(true);
+      setDraftDescription(draft.description);
+    }
+    if (draft.imageDataUrl) {
+      fetch(draft.imageDataUrl)
+        .then((r) => r.blob())
+        .then((blob) => setDraftPhotoFiles([new File([blob], "photo.jpg", { type: blob.type || "image/jpeg" })]))
+        .catch(() => {});
+    }
+    // Carried over by the step-1 "Sell your car" plate modal -- same mapping step 2's own inline
+    // plate search uses, so a plate entered at either point fills in the same fields.
+    if (draft.vehicleLookup) setAttributeDefaults(mapVehicleLookupToAttributeDefaults(draft.vehicleLookup, attributes));
     // title/categoryId are the args this hand-off is keyed to, not reactive deps to re-run on.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -105,7 +113,6 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
   const [plateInput, setPlateInput] = useState("");
   const [plateError, setPlateError] = useState<string | null>(null);
   const [plateSearching, startPlateSearch] = useTransition();
-  const [attributeDefaults, setAttributeDefaults] = useState<Record<string, string> | undefined>(undefined);
   const isPlateCountryKbaBased = !!VEHICLE_REGISTRY_COUNTRIES.find((c) => c.code === plateCountry)?.kbaBased;
 
   function handlePlateSearch() {
@@ -119,17 +126,9 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
         return;
       }
       if (titleRef.current && !titleRef.current.value.trim()) {
-        titleRef.current.value = `${data.make} ${data.model}`.trim();
+        titleRef.current.value = vehicleLookupTitle(data);
       }
-      const defaults: Record<string, string> = {};
-      if (data.make) defaults.brand = data.make;
-      if (data.color) defaults.colour = translateDutchColor(data.color);
-      if (data.fuelTypeStableKey) {
-        const fuelAttr = attributes.find((a) => a.stableKey === "fuel_type");
-        const matchedOption = fuelAttr?.options.find((o) => o.stableKey === data.fuelTypeStableKey);
-        if (matchedOption) defaults.fuel_type = matchedOption.id;
-      }
-      setAttributeDefaults(defaults);
+      setAttributeDefaults(mapVehicleLookupToAttributeDefaults(data, attributes));
     });
   }
 
@@ -259,8 +258,9 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
         <section className={card}>
           <SectionHeading icon={Car}>Have the plate number?</SectionHeading>
           <p className="-mt-2 mb-3 text-sm text-muted-foreground">
-            Looks up the official vehicle registry and fills in the title, brand, colour, and fuel type —
-            coverage expands over time, real data only.
+            Looks up the official vehicle registry and fills in the title, make, model, colour, fuel type, body
+            type, emission class, and every technical spec it has on file — coverage expands over time, real
+            data only.
           </p>
           <div className="flex flex-wrap gap-2">
             <Select
