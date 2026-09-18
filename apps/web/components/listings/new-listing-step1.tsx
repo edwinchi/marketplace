@@ -4,7 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Sparkles, Camera, X } from "lucide-react";
+import { Sparkles, Camera, X, Car } from "lucide-react";
 import { findCategoryMatches, type CategoryMatch } from "@/app/listings/new/find-category-action";
 import { analyzeListingPhoto } from "@/app/listings/new/analyze-photo-action";
 import { fileToResizedBase64 } from "@/lib/image";
@@ -40,6 +40,16 @@ export function NewListingStep1({
   const [usesLeft, setUsesLeft] = useState(initialUsesLeft);
 
   const chosenCategoryId = selected === "manual" ? manualCategoryId : selected;
+  const carsCategory = categoryOptions.find((c) => c.stableKey === "cars");
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  function handleSellCar() {
+    if (!carsCategory) return;
+    setManualCategoryId(carsCategory.id);
+    setSelected(carsCategory.id);
+    setMatches(null);
+    titleInputRef.current?.focus();
+  }
 
   function handleFindCategory() {
     startSearch(async () => {
@@ -214,17 +224,33 @@ export function NewListingStep1({
 
       <div>
         <h2 className="mb-3 text-lg font-semibold">What do you want to sell?</h2>
+        {carsCategory && (
+          <button
+            type="button"
+            onClick={handleSellCar}
+            className="mb-4 flex w-full items-center gap-3 rounded-lg border border-[#008200]/30 bg-[#008200]/5 p-3 text-left transition-colors hover:bg-[#008200]/10 sm:w-auto"
+          >
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#008200] text-white">
+              <Car className="size-5" />
+            </span>
+            <span>
+              <span className="block text-sm font-semibold">Sell your car</span>
+              <span className="block text-xs text-muted-foreground">Jump straight into the Cars category</span>
+            </span>
+          </button>
+        )}
         <div className="flex flex-col gap-2 sm:flex-row">
           <div className="flex-1">
             <Label htmlFor="title" className="sr-only">Title</Label>
             <Input
               id="title"
+              ref={titleInputRef}
               value={title}
               onChange={(e) => {
                 setTitle(e.target.value);
                 setMatches(null);
               }}
-              placeholder="Enter a title"
+              placeholder={selected === carsCategory?.id ? "E.g. 2019 Volkswagen Golf 1.5 TSI" : "Enter a title"}
               maxLength={80}
             />
             <p className="mt-1 text-xs text-muted-foreground">E.g. color, brand, or size</p>

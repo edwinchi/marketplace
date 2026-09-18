@@ -8,8 +8,8 @@ type Listing = {
   currency_code: string;
   locations: { city: string | null } | { city: string | null }[] | null;
   listing_media: { storage_key: string; sort_order: number }[] | null;
-  // Optional -- older/lighter queries that don't select these just render the card without the
-  // corresponding badge or detail (see ListingCard's own optional props).
+  // Not rendered on the card (see ListingCard) -- kept optional so callers whose queries already
+  // select these columns for other purposes don't need to change their select().
   pickup_available?: boolean | null;
   delivery_available?: boolean | null;
   published_at?: string | null;
@@ -17,7 +17,7 @@ type Listing = {
 
 export function ListingGrid({ listings, favoritedIds, signedIn }: { listings: Listing[]; favoritedIds: Set<string>; signedIn: boolean }) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
       {listings.map((l) => {
         const sortedMedia = [...(l.listing_media ?? [])].sort((a, b) => a.sort_order - b.sort_order);
         const media = sortedMedia[0];
@@ -28,13 +28,9 @@ export function ListingGrid({ listings, favoritedIds, signedIn }: { listings: Li
             title={l.title}
             priceMinor={l.price_minor ?? 0}
             currencyCode={l.currency_code}
-            city={Array.isArray(l.locations) ? l.locations[0]?.city : l.locations?.city}
             imageUrl={media ? resolveMediaUrl(media.storage_key, process.env.NEXT_PUBLIC_SUPABASE_URL!) : null}
             isFavorited={favoritedIds.has(l.id)}
             signedIn={signedIn}
-            pickupAvailable={l.pickup_available ?? undefined}
-            deliveryAvailable={l.delivery_available ?? undefined}
-            publishedAt={l.published_at}
             photoCount={sortedMedia.length}
           />
         );
