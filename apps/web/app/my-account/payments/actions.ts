@@ -61,7 +61,11 @@ export async function startConnectOnboarding() {
       type: "account_onboarding",
     });
     accountLinkUrl = accountLink.url;
-  } catch {
+  } catch (err) {
+    // This one message covers several genuinely different Stripe failures (Connect not activated,
+    // a stale/invalid account id, a capability issue, ...) -- logging the real error is the only
+    // way to tell which one is actually happening in production without guessing.
+    console.error("startConnectOnboarding failed", { accountId, profileId: profile.id, country: row.country_code, error: err });
     redirect("/my-account/payments/enable?error=connect_not_ready");
   }
 
@@ -85,7 +89,8 @@ export async function openConnectDashboard() {
   try {
     const loginLink = await stripe.accounts.createLoginLink(row.stripe_connect_account_id);
     loginUrl = loginLink.url;
-  } catch {
+  } catch (err) {
+    console.error("openConnectDashboard failed", { accountId: row.stripe_connect_account_id, profileId: profile.id, error: err });
     redirect("/my-account/payments/enable?error=connect_not_ready");
   }
   redirect(loginUrl);
