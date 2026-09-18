@@ -103,6 +103,8 @@
   },
   "Listing": {
     "characteristics": "Characteristics",
+    "yes": "Yes",
+    "no": "No",
     "description": "Description",
     "edit": "Edit",
     "openToOffers": "Open to offers",

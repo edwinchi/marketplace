@@ -24,16 +24,48 @@ export function attributeFieldName(attr: AttributeDef) {
 // defaultValue lets a caller pre-fill a field (e.g. from a vehicle plate lookup) without turning
 // these into controlled inputs — same uncontrolled-with-defaultValue pattern as the title/description
 // fields elsewhere in the create-listing form. For a select, this must be the *option id*, not its
-// stable_key/label — matches what SelectItem's own value is set to below.
-export function AttributeField({ attr, defaultValue }: { attr: AttributeDef; defaultValue?: string }) {
+// stable_key/label — matches what SelectItem's own value is set to below. For a multi_select, pass
+// an array of already-selected option ids instead of a single string.
+export function AttributeField({ attr, defaultValue }: { attr: AttributeDef; defaultValue?: string | string[] }) {
   const name = attributeFieldName(attr);
   const label = `${attr.label}${attr.unitCode ? ` (${attr.unitCode})` : ""}`;
+
+  // A checkbox grid, one per option, all sharing this attribute's field name -- formData.getAll(name)
+  // on submit naturally collects every checked option id, no extra encoding needed. Same plain
+  // native-checkbox pattern the create wizard's own "Allow buyers to make offers" toggle already
+  // uses, just laid out as a responsive grid for what's often a long list (car options: ABS,
+  // airbags, Bluetooth, ...).
+  if (attr.dataType === "multi_select" && attr.options.length > 0) {
+    const selected = new Set(Array.isArray(defaultValue) ? defaultValue : []);
+    return (
+      <fieldset className="flex flex-col gap-2">
+        <legend className="mb-1 text-sm font-medium">{label}</legend>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
+          {attr.options.map((opt) => (
+            <label key={opt.id} className="flex items-center gap-2 text-sm">
+              <input type="checkbox" name={name} value={opt.id} defaultChecked={selected.has(opt.id)} className="size-4 accent-primary" />
+              {opt.label}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+    );
+  }
+
+  if (attr.dataType === "boolean") {
+    return (
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" name={name} value="true" defaultChecked={defaultValue === "true"} className="size-4 accent-primary" />
+        {label}
+      </label>
+    );
+  }
 
   if (attr.dataType === "single_select" && attr.options.length > 0) {
     return (
       <div className="flex flex-col gap-1.5">
         <Label htmlFor={name}>{label}</Label>
-        <Select name={name} defaultValue={defaultValue}>
+        <Select name={name} defaultValue={Array.isArray(defaultValue) ? undefined : defaultValue}>
           <SelectTrigger id={name} className="w-full">
             <SelectValue placeholder={`Select ${attr.label.toLowerCase()}`}>
               {(value: string | null) => attr.options.find((o) => o.id === value)?.label}
@@ -55,7 +87,13 @@ export function AttributeField({ attr, defaultValue }: { attr: AttributeDef; def
   return (
     <div className="flex flex-col gap-1.5">
       <Label htmlFor={name}>{label}</Label>
-      <Input id={name} name={name} type={inputType} step={attr.dataType === "decimal" ? "0.01" : undefined} defaultValue={defaultValue} />
+      <Input
+        id={name}
+        name={name}
+        type={inputType}
+        step={attr.dataType === "decimal" ? "0.01" : undefined}
+        defaultValue={Array.isArray(defaultValue) ? undefined : defaultValue}
+      />
     </div>
   );
 }

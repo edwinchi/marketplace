@@ -125,6 +125,17 @@ async function handleEvent(event: Stripe.Event, stripe: Stripe, supabase: Return
         break;
       }
 
+      // Plus/Premium listing tier (app/listings/actions.ts's createListing) -- platform revenue,
+      // same non-Connect shape as the bump above. Direct service-role update, not an RPC: unlike
+      // bump_listing there's no cooldown/re-validation needed, this only ever runs once per
+      // listing right after creation.
+      if (session.metadata?.type === "listing_tier_upgrade" && session.metadata?.listing_id && session.metadata?.tier) {
+        const boostRank = session.metadata.tier === "premium" ? 2 : 1;
+        const { error: tierError } = await supabase.from("listings").update({ boost_rank: boostRank }).eq("id", session.metadata.listing_id);
+        if (tierError) console.error(`Failed to apply boost_rank for listing ${session.metadata.listing_id}:`, tierError);
+        break;
+      }
+
       const profileId = session.metadata?.profile_id;
       if (!profileId) break;
 

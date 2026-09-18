@@ -3,6 +3,7 @@ import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getCategoriesAndAttributes, getCategoryPath } from "@/lib/categories";
 import { createListing } from "@/app/listings/actions";
 import { getAiUsageStatus } from "@/app/listings/new/analyze-photo-action";
+import { getNumericSetting } from "@/lib/numeric-settings";
 import { NewListingStep2Form } from "@/components/listings/new-listing-step2-form";
 
 export default async function NewListingDetailsPage({
@@ -21,10 +22,12 @@ export default async function NewListingDetailsPage({
   }
   if (!title || !category) redirect("/listings/new");
 
-  const [{ categoryOptions, attributesByCategory }, categoryPath, aiUsage] = await Promise.all([
+  const [{ categoryOptions, attributesByCategory }, categoryPath, aiUsage, plusPriceCents, premiumPriceCents] = await Promise.all([
     getCategoriesAndAttributes(),
     getCategoryPath(category),
     getAiUsageStatus(),
+    getNumericSetting("listing_tier_plus_price_cents"),
+    getNumericSetting("listing_tier_premium_price_cents"),
   ]);
   const chosen = categoryOptions.find((c) => c.id === category);
   if (!chosen) redirect("/listings/new");
@@ -41,6 +44,8 @@ export default async function NewListingDetailsPage({
         seller={{ name: profile.display_name || profile.username, email: user.email ?? "", websiteUrl: profile.website_url }}
         initialUsesLeft={aiUsage.usesLeft}
         unlimited={aiUsage.unlimited}
+        plusPriceCents={plusPriceCents}
+        premiumPriceCents={premiumPriceCents}
       />
     </div>
   );

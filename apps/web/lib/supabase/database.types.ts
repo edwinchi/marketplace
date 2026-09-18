@@ -1176,6 +1176,7 @@ export type Database = {
       }
       listings: {
         Row: {
+          boost_rank: number
           business_id: string | null
           category_id: string
           condition_code: string | null
@@ -1208,6 +1209,7 @@ export type Database = {
           view_count: number
         }
         Insert: {
+          boost_rank?: number
           business_id?: string | null
           category_id: string
           condition_code?: string | null
@@ -1240,6 +1242,7 @@ export type Database = {
           view_count?: number
         }
         Update: {
+          boost_rank?: number
           business_id?: string | null
           category_id?: string
           condition_code?: string | null

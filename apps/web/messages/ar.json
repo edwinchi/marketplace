@@ -103,6 +103,8 @@
   },
   "Listing": {
     "characteristics": "المواصفات",
+    "yes": "نعم",
+    "no": "لا",
     "description": "الوصف",
     "edit": "تعديل",
     "openToOffers": "مفتوح للعروض",

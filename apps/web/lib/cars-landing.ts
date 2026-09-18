@@ -78,7 +78,7 @@ export async function getCarsLandingData(carsRootId: string, filters: CarsFilter
   if (filters.priceMax != null) query = query.lte("price_minor", Math.round(filters.priceMax * 100));
   if (filters.priceType) query = query.eq("price_type", filters.priceType);
 
-  const { data: rawListings, error } = await query.order("published_at", { ascending: false }).limit(500);
+  const { data: rawListings, error } = await query.order("boost_rank", { ascending: false }).order("published_at", { ascending: false }).limit(500);
   if (error) console.error("Cars landing listings query failed:", error);
 
   const { idByKey, optionLabelById } = await getAttributeMeta(supabase);

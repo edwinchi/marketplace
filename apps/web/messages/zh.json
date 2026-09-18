@@ -103,6 +103,8 @@
   },
   "Listing": {
     "characteristics": "商品特性",
+    "yes": "是",
+    "no": "否",
     "description": "描述",
     "edit": "编辑",
     "openToOffers": "接受议价",

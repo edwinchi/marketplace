@@ -52,8 +52,11 @@ export type CategoryOption = { id: string; label: string; stableKey: string };
 
 // Only these data types get a form field rendered — matches what the seeded attributes actually
 // use (see data/06_attributes_mappings.sql). Extend when a category needs a new type; don't build
-// UI for the full data_type enum speculatively (agents.md §7).
-const SUPPORTED_DATA_TYPES = new Set(["single_select", "integer", "decimal", "date"]);
+// UI for the full data_type enum speculatively (agents.md §7). multi_select and boolean added for
+// the Cars options checklist ("Opties" -- ABS, Airbags, etc.) and maintenance/VAT checkboxes -- see
+// components/listing-attribute-field.tsx for how each renders and app/listings/actions.ts's
+// saveAttributeValues for how each is written.
+const SUPPORTED_DATA_TYPES = new Set(["single_select", "integer", "decimal", "date", "multi_select", "boolean"]);
 
 // Preloads the whole (small) taxonomy in a handful of flat queries rather than one fragile
 // deeply-nested PostgREST embed — simpler to read and to keep correct as the seed data grows.

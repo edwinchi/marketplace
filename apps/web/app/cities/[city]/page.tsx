@@ -45,6 +45,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
       .select(LISTING_SELECT)
       .eq("status", "active")
       .ilike("locations.city", target.name)
+      .order("boost_rank", { ascending: false })
       .order("published_at", { ascending: false })
       .limit(60),
     profile

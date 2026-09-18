@@ -1,64 +1,51 @@
 "use client";
 
-// Shows the intended pricing structure, but only "Free" actually works — Plus/Premium need
-// Stripe wired up plus a real pricing decision (agents.md §10 Phase 4). Disabling them rather
-// than omitting the cards entirely is deliberate: it's honest about what's not live yet instead
-// of hiding the roadmap, and nothing here charges anyone without payment infrastructure to back it.
-const TIERS = [
-  {
-    id: "free",
-    name: "Free",
-    price: "$0.00",
-    blurb: "Standard visibility",
-    features: ["Listed for 4 weeks"],
-    available: true,
-  },
-  {
-    id: "plus",
-    name: "Plus",
-    price: "$0.99",
-    blurb: "Higher visibility",
-    features: ["Listed for 4 weeks", "Shown more often"],
-    available: false,
-  },
-  {
-    id: "premium",
-    name: "Premium",
-    price: "$3.99",
-    blurb: "Maximum visibility",
-    features: ["Listed for 4 weeks", "Shown most often", "Boosted for 7 days"],
-    available: false,
-  },
-];
+import { useState } from "react";
 
-export function AdvertiseTierSelector() {
+// Plus/Premium are real now -- platform-charged (no Stripe Connect transfer, same non-transfer
+// pattern as the ad-bump/Business-subscription fees), applied via a Stripe Checkout redirect after
+// the listing itself is created (see createListing's tail in app/listings/actions.ts) rather than
+// blocking listing creation on payment. "Shown more/most often" is a real, structural effect, not
+// just copy: every buyer-facing browse/search query orders by listings.boost_rank first
+// (0=free/1=plus/2=premium), then recency -- see categories/[...slug]/page.tsx, cities/[city]/
+// page.tsx, lib/cars-landing.ts.
+function formatCents(cents: number) {
+  return `€${(cents / 100).toFixed(2)}`;
+}
+
+export function AdvertiseTierSelector({ plusPriceCents, premiumPriceCents }: { plusPriceCents: number; premiumPriceCents: number }) {
+  const [selected, setSelected] = useState<"free" | "plus" | "premium">("free");
+
+  const TIERS = [
+    { id: "free" as const, name: "Free", priceCents: 0, blurb: "Standard visibility", features: ["Listed for 4 weeks"] },
+    { id: "plus" as const, name: "Plus", priceCents: plusPriceCents, blurb: "Higher visibility", features: ["Listed for 4 weeks", "Shown more often"] },
+    {
+      id: "premium" as const,
+      name: "Premium",
+      priceCents: premiumPriceCents,
+      blurb: "Maximum visibility",
+      features: ["Listed for 4 weeks", "Shown most often"],
+    },
+  ];
+
   return (
     <div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {TIERS.map((tier) => (
           <label
             key={tier.id}
-            className={
-              tier.available
-                ? "flex cursor-pointer flex-col gap-1 rounded-lg border p-4 text-sm has-checked:border-primary has-checked:ring-1 has-checked:ring-primary"
-                : "relative flex flex-col gap-1 rounded-lg border p-4 text-sm opacity-60"
-            }
+            className="flex cursor-pointer flex-col gap-1 rounded-lg border p-4 text-sm transition-colors has-checked:border-primary has-checked:ring-1 has-checked:ring-primary hover:border-primary/50"
           >
-            {!tier.available && (
-              <span className="absolute top-2 right-2 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-                Coming soon
-              </span>
-            )}
             <input
               type="radio"
               name="advertise_tier"
               value={tier.id}
-              defaultChecked={tier.id === "free"}
-              disabled={!tier.available}
+              checked={selected === tier.id}
+              onChange={() => setSelected(tier.id)}
               className="sr-only"
             />
             <span className="font-semibold">
-              {tier.name} · {tier.price}
+              {tier.name} · {formatCents(tier.priceCents)}
             </span>
             <span className="text-muted-foreground">{tier.blurb}</span>
             <ul className="mt-1 flex flex-col gap-0.5 text-xs text-muted-foreground">
@@ -70,7 +57,7 @@ export function AdvertiseTierSelector() {
         ))}
       </div>
       <div className="mt-4 flex items-center justify-between border-t pt-4">
-        <span className="text-lg font-semibold">Total: $0.00</span>
+        <span className="text-lg font-semibold">Total: {formatCents(TIERS.find((t) => t.id === selected)?.priceCents ?? 0)}</span>
       </div>
     </div>
   );

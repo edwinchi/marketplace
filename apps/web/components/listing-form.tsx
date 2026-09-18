@@ -48,6 +48,11 @@ type Props = {
   // Needed to exclude the listing's own price from its price-suggestion comparables when editing
   // -- otherwise an active listing always "confirms" its own current price is in-range.
   listingId?: string;
+  // Present only on the edit form -- the listing's current attribute values, keyed by stableKey
+  // (option id for single_select, an array of option ids for multi_select, matching
+  // AttributeField's own defaultValue contract). Without this every attribute field on the edit
+  // form renders blank regardless of what was actually saved.
+  attributeDefaultValues?: Record<string, string | string[]>;
   hasTranslations?: boolean;
 };
 
@@ -63,6 +68,7 @@ export function ListingForm({
   isSellerPro,
   listingId,
   hasTranslations,
+  attributeDefaultValues,
 }: Props) {
   const [state, formAction, pending] = useActionState(action, { error: null } as ListingFormState);
   const [categoryId, setCategoryId] = useState(initial?.categoryId ?? "");
@@ -390,7 +396,7 @@ export function ListingForm({
         <fieldset className="flex flex-col gap-4 rounded-md border p-4">
           <legend className="px-1 text-sm font-medium">Category details</legend>
           {attributes.map((attr) => (
-            <AttributeField key={attr.id} attr={attr} />
+            <AttributeField key={attr.id} attr={attr} defaultValue={attributeDefaultValues?.[attr.stableKey]} />
           ))}
         </fieldset>
       )}

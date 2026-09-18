@@ -14,6 +14,8 @@ const DEFAULTS: Record<string, number> = {
   buyer_fee_max_cents: 2000,
   referral_bonus_ai_uses: 10,
   ad_bump_price_cents: 199,
+  listing_tier_plus_price_cents: 99,
+  listing_tier_premium_price_cents: 399,
 };
 
 // Fails open to the code-shipped default on any error, including "table doesn't exist yet" -- same

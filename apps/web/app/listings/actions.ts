@@ -17,8 +17,12 @@ import { getNewListingNotificationsGlobalUnlockSetting } from "@/lib/app-setting
 import { pingIndexNow } from "@/lib/indexnow";
 import { translateListingForAllVisitors } from "./translate-action";
 import { checkListingContentPolicy } from "@/lib/content-moderation";
+import { getNumericSetting } from "@/lib/numeric-settings";
+import { getStripe } from "@/lib/stripe";
+import { getSiteOrigin } from "@/lib/site-url";
 
 type AttributeValueInsert = Database["public"]["Tables"]["listing_attribute_values"]["Insert"];
+type AttributeMultiOptionInsert = Database["public"]["Tables"]["listing_attribute_multi_options"]["Insert"];
 
 export type ListingFormState = { error: string | null };
 
@@ -119,17 +123,36 @@ async function saveAttributeValues(
 ) {
   let conditionStableKey: string | null = null;
 
+  // Grouped by attribute id first, not inserted per form-data entry directly: a multi_select
+  // renders as several checkboxes sharing one field name (components/listing-attribute-field.tsx),
+  // so formData has one entry per checked option, all needing to land in the SAME
+  // listing_attribute_multi_options rows for one attribute, not one listing_attribute_values row
+  // each (that would violate its (listing_id, attribute_id) primary key on the second checked box).
+  const byAttribute = new Map<string, { stableKey: string; dataType: string; values: string[] }>();
   for (const [key, rawValue] of formData.entries()) {
     const match = key.match(ATTR_FIELD_RE);
     if (!match) continue;
     const [, attributeId, stableKey, dataType] = match;
     const value = String(rawValue).trim();
     if (!value) continue;
+    const entry = byAttribute.get(attributeId) ?? { stableKey, dataType, values: [] };
+    entry.values.push(value);
+    byAttribute.set(attributeId, entry);
+  }
 
+  const multiOptionRows: AttributeMultiOptionInsert[] = [];
+  for (const [attributeId, { stableKey, dataType, values }] of byAttribute) {
+    if (dataType === "multi_select") {
+      for (const optionId of values) multiOptionRows.push({ listing_id: listingId, attribute_id: attributeId, option_id: optionId });
+      continue;
+    }
+
+    const value = values[0];
     const row: AttributeValueInsert = { listing_id: listingId, attribute_id: attributeId };
     if (dataType === "single_select") row.value_option_id = value;
     else if (dataType === "integer" || dataType === "decimal") row.value_number = Number(value);
     else if (dataType === "date") row.value_date = value;
+    else if (dataType === "boolean") row.value_boolean = value === "true";
     else row.value_text = value;
 
     const { error } = await supabase.from("listing_attribute_values").insert(row);
@@ -143,6 +166,11 @@ async function saveAttributeValues(
         .single();
       conditionStableKey = option?.stable_key ?? null;
     }
+  }
+
+  if (multiOptionRows.length > 0) {
+    const { error } = await supabase.from("listing_attribute_multi_options").insert(multiOptionRows);
+    if (error) throw new Error(error.message);
   }
 
   if (conditionStableKey) {
@@ -327,7 +355,55 @@ export async function createListing(_prevState: ListingFormState, formData: Form
   after(() => pingIndexNow([`https://marketitnow.net/listings/${slugPath(title, listing.id)}`]));
 
   revalidatePath("/");
-  redirect(`/listings/${slugPath(title, listing.id)}`);
+  const listingPath = `/listings/${slugPath(title, listing.id)}`;
+
+  // Plus/Premium (components/listings/advertise-tier-selector.tsx): the listing itself is never
+  // blocked on payment -- it's already created and live at the free tier. A paid tier redirects to
+  // Stripe instead of the listing page; the webhook (app/api/stripe/webhook/route.ts) applies
+  // boost_rank once payment actually succeeds, same "create first, upgrade after" shape as the
+  // ad-bump and Business-subscription flows.
+  const advertiseTier = String(formData.get("advertise_tier") ?? "free");
+  if (advertiseTier === "plus" || advertiseTier === "premium") {
+    const stripe = getStripe();
+    if (stripe) {
+      const priceCents = await getNumericSetting(advertiseTier === "plus" ? "listing_tier_plus_price_cents" : "listing_tier_premium_price_cents");
+      const origin = await getSiteOrigin();
+      const { data: buyerRow } = await supabase.from("profiles").select("stripe_customer_id").eq("id", profile.id).single();
+      let customerId = buyerRow?.stripe_customer_id ?? undefined;
+      if (customerId) {
+        try {
+          await stripe.customers.retrieve(customerId);
+        } catch {
+          customerId = undefined;
+        }
+      }
+      if (!customerId) {
+        const customer = await stripe.customers.create({ email: user.email ?? undefined, metadata: { profile_id: profile.id } });
+        customerId = customer.id;
+        await supabase.from("profiles").update({ stripe_customer_id: customerId }).eq("id", profile.id);
+      }
+      const session = await stripe.checkout.sessions.create({
+        customer: customerId,
+        mode: "payment",
+        line_items: [
+          {
+            price_data: {
+              currency: currencyCode.toLowerCase(),
+              unit_amount: priceCents,
+              product_data: { name: `${advertiseTier === "plus" ? "Plus" : "Premium"} listing: ${title}` },
+            },
+            quantity: 1,
+          },
+        ],
+        success_url: `${origin}${listingPath}?tier=success`,
+        cancel_url: `${origin}${listingPath}?tier=canceled`,
+        metadata: { type: "listing_tier_upgrade", listing_id: listing.id, tier: advertiseTier },
+      });
+      if (session.url) redirect(session.url);
+    }
+  }
+
+  redirect(listingPath);
 }
 
 export async function updateListing(
@@ -374,6 +450,7 @@ export async function updateListing(
   if (updateError) return { error: updateError.message };
 
   await supabase.from("listing_attribute_values").delete().eq("listing_id", listingId);
+  await supabase.from("listing_attribute_multi_options").delete().eq("listing_id", listingId);
   try {
     await saveAttributeValues(supabase, listingId, formData);
     await updatePhotos(supabase, user.id, listingId, formData);

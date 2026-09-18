@@ -12,7 +12,7 @@ import { Sparkles } from "lucide-react";
 // defaultValues is keyed by attribute stableKey (e.g. "brand", "fuel_type") -- for a select
 // attribute the value must be that option's id (see AttributeField); the caller is responsible
 // for that lookup since only it knows which raw value maps to which seeded option.
-export function CharacteristicsSection({ attributes, defaultValues }: { attributes: AttributeDef[]; defaultValues?: Record<string, string> }) {
+export function CharacteristicsSection({ attributes, defaultValues }: { attributes: AttributeDef[]; defaultValues?: Record<string, string | string[]> }) {
   const [filled, setFilled] = useState<Set<string>>(new Set());
 
   function handleChange(e: React.ChangeEvent<HTMLFieldSetElement>) {
@@ -20,9 +20,16 @@ export function CharacteristicsSection({ attributes, defaultValues }: { attribut
     // ChangeEvent by the listener's element, hence the cast through unknown.
     const target = e.target as unknown as HTMLInputElement | HTMLSelectElement;
     if (!target.name?.startsWith("attr__")) return;
+    // A checkbox's .value never changes with its checked state -- .value.trim() would stay truthy
+    // even while unchecking it. For a multi_select checkbox group (several inputs sharing one
+    // name), "filled" means at least one of them is checked, not just the one that just fired.
+    const isFilled =
+      target.type === "checkbox"
+        ? Array.from(e.currentTarget.querySelectorAll<HTMLInputElement>(`input[name="${target.name}"]`)).some((el) => el.checked)
+        : !!target.value.trim();
     setFilled((prev) => {
       const next = new Set(prev);
-      if (target.value.trim()) next.add(target.name);
+      if (isFilled) next.add(target.name);
       else next.delete(target.name);
       return next;
     });

@@ -122,7 +122,7 @@ export default async function ListingPage({
           data: [] as { id: string; amount_minor: number; currency_code: string; status: string; created_at: string; profiles_public: { display_name: string | null; username: string } }[],
         });
 
-  const [categoryPath, { data: location }, { data: seller }, { data: attributeValues }, { data: media }, { data: favoriteRow }, { count: otherListingsCount }, { count: favoriteCount }, { data: offers }, { data: followRow }, { data: sellerReviews }, { data: translation }] =
+  const [categoryPath, { data: location }, { data: seller }, { data: attributeValues }, { data: multiOptionValues }, { data: media }, { data: favoriteRow }, { count: otherListingsCount }, { count: favoriteCount }, { data: offers }, { data: followRow }, { data: sellerReviews }, { data: translation }] =
     await Promise.all([
       getCategoryPath(listing.category_id),
       listing.location_id
@@ -136,7 +136,15 @@ export default async function ListingPage({
       supabase
         .from("listing_attribute_values")
         .select(
-          "value_text, value_number, value_date, value_option_id, attributes(stable_key, unit_code, attribute_translations(name, language_code)), attribute_options(attribute_option_translations(label, language_code))",
+          "value_text, value_number, value_date, value_boolean, value_option_id, attributes(stable_key, unit_code, attribute_translations(name, language_code)), attribute_options(attribute_option_translations(label, language_code))",
+        )
+        .eq("listing_id", id),
+      // Multi_select values (e.g. car "Opties") live in a separate junction table -- one row per
+      // selected option, unlike every other data type's single row in listing_attribute_values.
+      supabase
+        .from("listing_attribute_multi_options")
+        .select(
+          "attribute_id, attributes(stable_key, attribute_translations(name, language_code)), attribute_options(id, attribute_option_translations(label, language_code))",
         )
         .eq("listing_id", id),
       supabase.from("listing_media").select("storage_key").eq("listing_id", id).order("sort_order"),
@@ -289,13 +297,13 @@ export default async function ListingPage({
             favoriteCount={favoriteCount ?? 0}
           />
 
-          {attributeValues && attributeValues.length > 0 && (
+          {((attributeValues && attributeValues.length > 0) || (multiOptionValues && multiOptionValues.length > 0)) && (
             <>
               <Separator className="my-6" />
               <section>
                 <h2 className="mb-3 text-lg font-semibold">{t("characteristics")}</h2>
                 <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                  {attributeValues.map((av, i) => {
+                  {attributeValues?.map((av, i) => {
                     const attr = Array.isArray(av.attributes) ? av.attributes[0] : av.attributes;
                     const attrTranslations = attr?.attribute_translations ?? [];
                     const translation =
@@ -307,18 +315,55 @@ export default async function ListingPage({
                       optionTrList.find((tr: { language_code: string; label: string }) => tr.language_code === locale) ??
                       optionTrList.find((tr: { language_code: string; label: string }) => tr.language_code === "en")
                     )?.label;
-                    const value = optionLabel ?? av.value_text ?? av.value_number ?? av.value_date;
-                    if (!translation || value == null) return null;
+                    const rawValue = optionLabel ?? av.value_text ?? av.value_number ?? av.value_date ?? av.value_boolean;
+                    if (!translation || rawValue == null) return null;
+                    const value = typeof rawValue === "boolean" ? (rawValue ? t("yes") : t("no")) : rawValue;
                     return (
                       <div key={i} className="contents">
                         <dt className="text-muted-foreground">{translation.name}</dt>
                         <dd>
                           {value}
-                          {attr?.unit_code ? ` ${attr.unit_code}` : ""}
+                          {attr?.unit_code && typeof rawValue !== "boolean" ? ` ${attr.unit_code}` : ""}
                         </dd>
                       </div>
                     );
                   })}
+                  {/* Multi_select (e.g. car "Opties") -- one row per selected option, grouped by
+                      attribute into a single dt/dd pair with every selected option as a chip,
+                      rather than repeating the attribute name once per option. */}
+                  {(() => {
+                    const groups = new Map<string, { name: string; labels: string[] }>();
+                    for (const mo of multiOptionValues ?? []) {
+                      const attr = Array.isArray(mo.attributes) ? mo.attributes[0] : mo.attributes;
+                      if (!attr?.stable_key) continue;
+                      const attrTranslations = attr.attribute_translations ?? [];
+                      const name =
+                        (attrTranslations.find((tr: { language_code: string; name: string }) => tr.language_code === locale) ??
+                          attrTranslations.find((tr: { language_code: string; name: string }) => tr.language_code === "en"))?.name ?? attr.stable_key;
+                      const opt = Array.isArray(mo.attribute_options) ? mo.attribute_options[0] : mo.attribute_options;
+                      const optTrList = opt?.attribute_option_translations ?? [];
+                      const label = (
+                        optTrList.find((tr: { language_code: string; label: string }) => tr.language_code === locale) ??
+                        optTrList.find((tr: { language_code: string; label: string }) => tr.language_code === "en")
+                      )?.label;
+                      if (!label) continue;
+                      const group = groups.get(attr.stable_key) ?? { name, labels: [] as string[] };
+                      group.labels.push(label);
+                      groups.set(attr.stable_key, group);
+                    }
+                    return Array.from(groups.entries()).map(([key, group]) => (
+                      <div key={key} className="contents">
+                        <dt className="text-muted-foreground">{group.name}</dt>
+                        <dd className="flex flex-wrap gap-1">
+                          {group.labels.map((label) => (
+                            <span key={label} className="rounded-full bg-muted px-2 py-0.5 text-xs">
+                              {label}
+                            </span>
+                          ))}
+                        </dd>
+                      </div>
+                    ));
+                  })()}
                 </dl>
               </section>
             </>

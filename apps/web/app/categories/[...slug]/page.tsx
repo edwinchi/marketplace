@@ -238,7 +238,7 @@ export default async function CategoryPage({
   // shows the same feed as "For You" plus an honest hint, rather than a fake "near you" result.
   const [{ data: myCityRow }, { data: forYouListings, error: forYouError }, { data: favorites }] = await Promise.all([
     profile ? supabase.from("profiles").select("preferred_city").eq("id", profile.id).single() : Promise.resolve({ data: null }),
-    supabase.from("listings").select(LISTING_SELECT).eq("status", "active").in("category_id", descendantIds).order("published_at", { ascending: false }).limit(24),
+    supabase.from("listings").select(LISTING_SELECT).eq("status", "active").in("category_id", descendantIds).order("boost_rank", { ascending: false }).order("published_at", { ascending: false }).limit(24),
     profile
       ? supabase.from("favorites").select("listing_id").eq("profile_id", profile.id)
       : Promise.resolve({ data: [] as { listing_id: string }[] | null }),
@@ -278,6 +278,7 @@ export default async function CategoryPage({
         .eq("status", "active")
         .in("category_id", descendantIds)
         .ilike("locations.city", myCity)
+        .order("boost_rank", { ascending: false })
         .order("published_at", { ascending: false })
         .limit(24)
     : { data: forYouListings };

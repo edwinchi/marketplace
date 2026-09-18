@@ -103,6 +103,8 @@
   },
   "Listing": {
     "characteristics": "Kenmerken",
+    "yes": "Ja",
+    "no": "Nee",
     "description": "Beschrijving",
     "edit": "Bewerken",
     "openToOffers": "Open voor bod",

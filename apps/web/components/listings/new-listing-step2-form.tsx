@@ -46,6 +46,8 @@ type Props = {
   seller: { name: string; email: string; websiteUrl: string | null };
   initialUsesLeft: number;
   unlimited: boolean;
+  plusPriceCents: number;
+  premiumPriceCents: number;
 };
 
 function SectionHeading({ icon: Icon, children }: { icon: React.ComponentType<{ className?: string }>; children: React.ReactNode }) {
@@ -59,7 +61,7 @@ function SectionHeading({ icon: Icon, children }: { icon: React.ComponentType<{ 
   );
 }
 
-export function NewListingStep2Form({ categoryId, categoryPath, title, attributes, action, seller, initialUsesLeft, unlimited }: Props) {
+export function NewListingStep2Form({ categoryId, categoryPath, title, attributes, action, seller, initialUsesLeft, unlimited, plusPriceCents, premiumPriceCents }: Props) {
   const [state, formAction, pending] = useActionState(action, { error: null } as ListingFormState);
   const titleRef = useRef<HTMLInputElement>(null);
 
@@ -452,7 +454,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
       <section className={card}>
         <SectionHeading icon={Megaphone}>How do you want to advertise?</SectionHeading>
         <p className="mb-3 -mt-2 text-sm text-muted-foreground">Choose a plan that fits your selling needs.</p>
-        <AdvertiseTierSelector />
+        <AdvertiseTierSelector plusPriceCents={plusPriceCents} premiumPriceCents={premiumPriceCents} />
       </section>
 
       {/* Extra paid promotion add-ons (homepage feature, urgent bump) are the same Stripe-dependent
