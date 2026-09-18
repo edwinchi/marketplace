@@ -80,10 +80,10 @@ export default async function ListingPage({
   searchParams,
 }: {
   params: Promise<{ slug: string[] }>;
-  searchParams: Promise<{ order?: string; error?: string }>;
+  searchParams: Promise<{ order?: string; error?: string; bump?: string }>;
 }) {
   const { slug } = await params;
-  const { order: orderResult, error: paymentError } = await searchParams;
+  const { order: orderResult, error: paymentError, bump: bumpResult } = await searchParams;
   const id = idFromSlugSegments(slug);
   const supabase = await createClient();
   const { profile } = await getCurrentUserAndProfile();
@@ -387,8 +387,21 @@ export default async function ListingPage({
               This seller hasn&apos;t set up payments yet — message them to arrange payment another way.
             </p>
           )}
-          {paymentError && paymentError !== "seller_not_ready" && (
+          {paymentError === "bump_cooldown" && (
+            <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
+              This listing was already bumped in the last 24 hours — try again later.
+            </p>
+          )}
+          {paymentError && paymentError !== "seller_not_ready" && paymentError !== "bump_cooldown" && (
             <p className="rounded-md border border-dashed p-3 text-sm text-destructive">Something went wrong starting that payment — try again.</p>
+          )}
+          {bumpResult === "success" && (
+            <p className="rounded-md border border-[#008200]/30 bg-[#008200]/5 p-3 text-sm text-[#008200]">
+              Bumped! This listing is back at the top of the results.
+            </p>
+          )}
+          {bumpResult === "canceled" && (
+            <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">Bump canceled — nothing was charged.</p>
           )}
 
           {canDirectBuy && (

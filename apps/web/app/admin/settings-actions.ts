@@ -92,3 +92,14 @@ export async function updateBuyerFeeSettings(percentX100: number, minCents: numb
   // value itself.
   revalidatePath("/admin");
 }
+
+export async function updateAdBumpPrice(priceCents: number) {
+  const { user } = await getCurrentUserAndProfile();
+  if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
+  if (!Number.isInteger(priceCents) || priceCents < 0) throw new Error("Price must be a positive amount.");
+
+  await setNumericSetting("ad_bump_price_cents", priceCents);
+  // bumpListingCheckout (app/listings/bump-actions.ts) reads this fresh on each request, so this
+  // takes effect immediately for the next bump purchase -- /admin is the only route rendering it.
+  revalidatePath("/admin");
+}

@@ -16,6 +16,7 @@ import { ListenFreeAccessToggle } from "@/components/admin/listen-free-access-to
 import { SellerProGlobalUnlockToggle } from "@/components/admin/seller-pro-global-unlock-toggle";
 import { NewListingNotificationsToggle } from "@/components/admin/new-listing-notifications-toggle";
 import { BuyerFeeSettings } from "@/components/admin/buyer-fee-settings";
+import { AdBumpPriceSetting } from "@/components/admin/ad-bump-price-setting";
 import { BackfillEmbeddingsButton } from "@/components/admin/backfill-embeddings-button";
 import { GrantAiUsesForm } from "@/components/admin/grant-ai-uses-form";
 import { OpenRouterStatusCard } from "@/components/admin/openrouter-status-card";
@@ -116,7 +117,7 @@ export default async function AdminDashboardPage() {
   const { user } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) return <AdminLoginScreen />;
 
-  const [stats, requireLogin, disabledLocales, collapsedLimit, listenFreeAccess, sellerProGlobalUnlock, newListingNotificationsUnlock, buyerFeePercent, buyerFeeMin, buyerFeeMax, { count: embeddingsRemaining }, openRouterStatus, healthCheck] = await Promise.all([
+  const [stats, requireLogin, disabledLocales, collapsedLimit, listenFreeAccess, sellerProGlobalUnlock, newListingNotificationsUnlock, buyerFeePercent, buyerFeeMin, buyerFeeMax, adBumpPriceCents, { count: embeddingsRemaining }, openRouterStatus, healthCheck] = await Promise.all([
     getAdminStats(),
     getRequireLoginSetting(),
     getDisabledLocales(),
@@ -127,6 +128,7 @@ export default async function AdminDashboardPage() {
     getNumericSetting("buyer_fee_percent_x100"),
     getNumericSetting("buyer_fee_min_cents"),
     getNumericSetting("buyer_fee_max_cents"),
+    getNumericSetting("ad_bump_price_cents"),
     // Service-role client, not the normal RLS-bound one -- this needs a true count across every
     // seller's listings (RLS's listing_read policy would otherwise only count active listings plus
     // this admin's own).
@@ -163,6 +165,9 @@ export default async function AdminDashboardPage() {
         </div>
         <div className="rounded-xl border bg-card p-5 shadow-sm">
           <BuyerFeeSettings initial={{ percentX100: buyerFeePercent, minCents: buyerFeeMin, maxCents: buyerFeeMax }} />
+        </div>
+        <div className="rounded-xl border bg-card p-5 shadow-sm">
+          <AdBumpPriceSetting initial={{ priceCents: adBumpPriceCents }} />
         </div>
         <div className="rounded-xl border bg-card p-5 shadow-sm">
           <BackfillEmbeddingsButton initialRemaining={embeddingsRemaining ?? 0} />

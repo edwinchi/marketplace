@@ -2445,6 +2445,7 @@ export type Database = {
       increment_listing_view_count: { Args: { p_listing_id: string }; Returns: undefined }
       notify_new_listing: { Args: { p_country_code: string | null; p_listing_id: string; p_seller_id: string; p_title: string }; Returns: undefined }
       mark_order_shipped: { Args: { p_order_id: string; p_carrier?: string | null; p_tracking_number?: string | null }; Returns: undefined }
+      bump_listing: { Args: { p_listing_id: string }; Returns: undefined }
       match_listings_by_embedding: {
         Args: { filter_category_ids?: string[] | null; filter_city?: string | null; match_count?: number; query_embedding: string }
         Returns: { id: string; similarity: number }[]

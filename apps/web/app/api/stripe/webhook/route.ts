@@ -92,6 +92,20 @@ async function handleEvent(event: Stripe.Event, stripe: Stripe, supabase: Return
         break;
       }
 
+      // Listing bump -- platform revenue, no orders/payments row (there's no counterparty, this
+      // isn't a trade). The RPC (service-role-only, see 20260101007500_listing_bump.sql)
+      // re-validates status/cooldown itself rather than trusting this webhook alone, so a race
+      // between two near-simultaneous checkout sessions for the same listing can't double-apply.
+      if (session.metadata?.type === "listing_bump" && session.metadata?.listing_id) {
+        const { error: bumpError } = await supabase.rpc("bump_listing", { p_listing_id: session.metadata.listing_id });
+        // Already validated once before checkout was created (bump-actions.ts) -- a failure here
+        // means state changed in between (e.g. the seller removed the listing mid-payment), not a
+        // bug. Logging beats throwing: Stripe retries a non-200 response, and retrying can't fix a
+        // listing that's gone.
+        if (bumpError) console.error(`bump_listing failed for listing ${session.metadata.listing_id}:`, bumpError);
+        break;
+      }
+
       const profileId = session.metadata?.profile_id;
       if (!profileId) break;
 

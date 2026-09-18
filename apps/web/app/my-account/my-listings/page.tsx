@@ -16,7 +16,7 @@ export default async function MyListingsPage() {
   const supabase = await createClient();
   const { data: listings } = await supabase
     .from("listings")
-    .select("id, title, price_minor, currency_code, status")
+    .select("id, title, price_minor, currency_code, status, published_at")
     .eq("seller_id", profile.id)
     .order("created_at", { ascending: false });
 
@@ -36,7 +36,7 @@ export default async function MyListingsPage() {
                   <span className="text-sm text-muted-foreground">{formatPrice(l.price_minor ?? 0, l.currency_code)}</span>
                 </div>
               </div>
-              <ListingRowActions listingId={l.id} status={l.status} />
+              <ListingRowActions listingId={l.id} status={l.status} publishedAt={l.published_at} />
             </li>
           ))}
         </ul>

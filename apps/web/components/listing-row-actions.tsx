@@ -1,22 +1,47 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, ArrowUpCircle } from "lucide-react";
 import { deleteListing, deleteListingPermanently, markListingSold, relistListing } from "@/app/listings/actions";
+import { bumpListingCheckout } from "@/app/listings/bump-actions";
+import { BUMP_COOLDOWN_MS } from "@/lib/listing-bump";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import Link from "next/link";
 
-export function ListingRowActions({ listingId, status }: { listingId: string; status: string }) {
+export function ListingRowActions({ listingId, status, publishedAt }: { listingId: string; status: string; publishedAt: string | null }) {
   const [pending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Lazy initializer runs once at mount, not on every render -- reading Date.now() directly in the
+  // component body would violate React's render-purity rule (a static "Xh left" label is fine here,
+  // doesn't need to live-tick every second).
+  const [now] = useState(() => Date.now());
+
+  const cooldownRemainingMs = publishedAt ? BUMP_COOLDOWN_MS - (now - new Date(publishedAt).getTime()) : 0;
+  const canBump = status === "active" && cooldownRemainingMs <= 0;
 
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Link href={`/listings/edit/${listingId}`} className={buttonVariants({ variant: "outline", size: "sm" })}>
         Edit
       </Link>
+
+      {status === "active" && (
+        canBump ? (
+          <form action={bumpListingCheckout.bind(null, listingId)}>
+            <Button type="submit" variant="outline" size="sm" className="gap-1.5">
+              <ArrowUpCircle className="size-3.5" />
+              Bump to top
+            </Button>
+          </form>
+        ) : (
+          <Button variant="outline" size="sm" disabled className="gap-1.5" title="A listing can only be bumped once every 24 hours">
+            <ArrowUpCircle className="size-3.5" />
+            Bumped — {Math.ceil(cooldownRemainingMs / (60 * 60 * 1000))}h left
+          </Button>
+        )
+      )}
 
       {(status === "sold" || status === "expired") ? (
         <Button
