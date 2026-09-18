@@ -233,6 +233,44 @@ allowed to write `orders`/`payments`/`shipments` directly with the service role 
 (`Stripe-Signature`) before trusting any payload, and always return `200` promptly to avoid provider
 retry storms.
 
+**Stripe Connect platform configuration (confirmed live, 2026-09-18):** destination charges, not
+direct charges — in Stripe's own framing (the "How do payments flow through your business?"
+platform-profile questionnaire), this platform is "You collect payments and pay recipients" (the
+Lyft/DoorDash shape), not "Your merchants collect payments directly" (the Shopify/Mindbody shape).
+Matches the code exactly: the Checkout session is created on the platform's own account with
+`transfer_data.destination` + `application_fee_amount` (never `stripeAccount`/`on_behalf_of`), so
+the platform — not the connected seller account — is the charge's owner and is liable for refunds/
+chargebacks by default. Sellers onboard via Stripe-hosted Express onboarding
+(`stripe.accountLinks.create`) and manage their account via the Stripe-hosted Express Dashboard
+(`openConnectDashboard`, `stripe.accounts.createLoginLink`) — no custom onboarding UI or dashboard
+was or should be built for this.
+
+Getting a real seller through `/my-account/payments/enable` needs, in order: (1) their profile's
+`country_code` set to a Stripe-eligible country (`lib/payment-coverage.ts`'s
+`isStripeEligibleCountry` gates the button itself); (2) Connect activated for **live mode**
+specifically on the platform's Stripe account — confirmed live that this is a separate step from
+whatever test-mode Connect setup shows as already done, surfaced as
+`StripeInvalidRequestError: "You must complete your platform profile to use Connect and create live
+connected accounts. Visit your dashboard at https://dashboard.stripe.com/connect/accounts/overview
+to answer the questionnaire."`; that overview page's platform-profile questionnaire is the actual
+gate — Settings → Connect → Platform setup only *displays* what's already configured, it isn't the
+questionnaire itself. Both catch blocks in `app/my-account/payments/actions.ts` used to swallow the
+real Stripe error and show one generic "aren't fully turned on yet" message regardless of cause —
+now `console.error`-logged (Vercel `vercel logs <deployment> --level error --expand`) so the next
+distinct failure is diagnosable instead of another guess.
+
+**Known cleanup needed:** the `claude-agent-test` profile's `stripe_connect_account_id` was set to a
+*test-mode* account id during local dev testing (local `.env.local` runs `sk_test_...`) before this
+was properly diagnosed — production's live-mode key can never use it
+(`StripeInvalidRequestError: "You tried to create a live mode account link for an account that was
+created in test mode."`). Needs `update profiles set stripe_connect_account_id = null,
+stripe_connect_charges_enabled = false where id = '7d88ca90-95f1-4684-94ea-bcbaf61d0ffe'` (that
+profile's id, confirmed via the logged error above) before that account can complete onboarding —
+not yet applied as of this writing. A real lesson from this: local dev and production share the
+same Supabase database, so a Stripe Connect account created while testing locally against a `sk_test_`
+key still writes its id into the shared, real `profiles` row — worth using a key with no
+real-account side effects, or cleaning up after, next time this needs testing.
+
 ## 7. Engineering standards
 
 - **Production-grade TypeScript everywhere** — strict mode, no `any` escape hatches without a comment
@@ -300,7 +338,10 @@ it via the Supabase dashboard rather than hunting for that file.
   feature genuinely needs geocoding (address autocomplete, distance/proximity search).
 
 **Needed before Phase 3 (payments/escrow):**
-- A Stripe account with Connect enabled (platform account + connected seller accounts).
+- ~~A Stripe account with Connect enabled (platform account + connected seller accounts).~~ Done —
+  confirmed live 2026-09-18, live-mode Connect activated via the platform-profile questionnaire at
+  dashboard.stripe.com/connect/accounts/overview. See §6's "Stripe Connect platform configuration"
+  note for the confirmed setup and the one known cleanup item still outstanding.
 - A locker-logistics partner API — likely not available yet in most launch markets. Don't block Phase
   3 on this: carrier-tracking fulfillment is the default, smart-locker escrow is an opt-in upgrade
   wherever a partner exists.
@@ -694,6 +735,52 @@ see the dedicated notes below this list.
   correctly (no regression) and the tier selector computes live pricing/totals correctly before the
   new-attribute migrations had even been applied; full new-field verification pending those two
   migrations actually landing on the live DB (data-only, no further code changes needed once they do).
+- **Two real Stripe checkout bugs, found only by testing end-to-end, not by typecheck/lint.**
+  (1) "Managed Payments" (on by default for this Stripe account) requires a product `tax_code` on
+  every `price_data` line item unless explicitly disabled per-session -- broke Direct Buy
+  (`payment-actions.ts`, pre-existing and live), ad-bump (`bump-actions.ts`), and the Plus/Premium
+  tier-upgrade checkout (`actions.ts`) identically; fixed by passing `managed_payments: {enabled:
+  false}` (a real field the `stripe@22.6` SDK's own TypeScript types don't know about yet, hence the
+  cast) to all three `stripe.checkout.sessions.create` calls. (2) ad-bump/tier-upgrade are flat EUR
+  platform fees (`ad_bump_price_cents`, `listing_tier_plus/premium_price_cents`) but were charged in
+  the *listing's own* `currency_code` -- for a NGN-priced listing this turned "99 EUR cents" into
+  "99 NGN kobo," converting to a fraction of a euro cent and tripping Stripe's minimum-charge check;
+  fixed by always charging these two flat fees in EUR regardless of the listing's currency (Direct
+  Buy's own buyer-fee percentage-of-price calculation is unaffected -- it's proportional to the
+  listing's own already-correct-currency price, not a flat cross-currency figure, though its
+  `buyer_fee_min_cents`/`max_cents` *clamp* bounds share this same EUR-assumed-as-listing-currency
+  gap and haven't been fixed -- a pre-existing, separate issue, flagged not fixed).
+- **License-plate lookup brought forward to step 1, and populates far more of the Cars form.** The
+  RDW (Netherlands, free/no-key)/RegCheck (26 more countries, paid/credit-metered) lookup backend
+  (`lib/rdw.ts`, `lib/regcheck.ts`, `app/categories/plate-lookup-action.ts`) already existed on the
+  Cars category landing page (`components/plate-lookup.tsx`) and step 2's own "Have the plate
+  number?" section, but only ever filled in brand/colour/fuel_type. `components/listings/
+  sell-car-plate-modal.tsx` now opens immediately when "Sell your car" is clicked on step 1
+  (matching the reference site's own plate-first shortcut UX) instead of just pre-selecting the
+  category; using a plate carries the result to step 2 via `lib/listing-draft.ts`'s sessionStorage
+  hand-off. `lib/vehicle-listing-defaults.ts` (one shared mapper, used by both the step-1 modal and
+  step 2's own plate search) now also fills production_year, power, curb_weight, cylinder_count,
+  engine_displacement, both towing capacities, body_type, emission_class, doors, seats, mot_expiry,
+  fuel_consumption, co2_emissions, and energy_label (the last six needed a new migration,
+  `20260101008100`, since RDW was already fetching every one of them but they had no attribute to
+  land in) -- and fixed a real latent bug found while doing this: colour was being set to a plain
+  label string instead of the option id, so it silently never actually pre-selected anything.
+  `components/listings/characteristics-section.tsx` now takes an optional `groups` prop
+  (`lib/car-attribute-groups.ts`'s `CAR_ATTRIBUTE_GROUPS`) to tab Cars' ~26 attributes into
+  Basics/Technical/Environment/Options instead of one long scroll -- every other category keeps the
+  flat list. Verified end-to-end against a real, live plate (9-SFK-24 -> a real 2013 Ford Focus
+  estate): every mapped field matches the raw RDW response exactly, tab switching preserves every
+  field's value (base-ui's `Tabs.Panel` unmounts hidden panels by default -- `keepMounted` is
+  required or a seller loses whatever they typed the moment they switch tabs), and the "N/23 filled"
+  progress hint -- previously only counted fields the seller typed into by hand -- now also counts
+  fields a plate lookup filled via `defaultValue`, which fired no change event to be counted by.
+- **Fixed a live 500 on `/my-account/preferences/location`.** `SelectValue`'s render-prop-children
+  pattern (a closure deriving the display label from the raw value) only works inside a `"use
+  client"` component -- this page is an async Server Component, so the closure had to cross the RSC
+  serialization boundary to reach `SelectValue`, and plain functions can't be serialized there
+  ("Functions are not valid as a child of Client Components"). Fixed by computing the label as a
+  plain string server-side instead. Audited every other `SelectValue` render-prop usage in the app
+  (4 more) -- all inside `"use client"` components, none share this bug.
 
 ## 11. Deployment — Plesk (`marketplace.apps-pilot.nl`), via FTP
 
