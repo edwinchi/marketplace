@@ -102,6 +102,17 @@ export function mapVehicleLookupToAttributeDefaults(data: VehicleLookupResult, a
   if (data.engineDisplacementCc != null) defaults.engine_displacement = String(data.engineDisplacementCc);
   if (data.towingCapacityBrakedKg != null) defaults.towing_capacity_braked = String(data.towingCapacityBrakedKg);
   if (data.towingCapacityUnbrakedKg != null) defaults.towing_capacity_unbraked = String(data.towingCapacityUnbrakedKg);
+  if (data.doors != null) defaults.doors = String(data.doors);
+  if (data.seats != null) defaults.seats = String(data.seats);
+  if (data.fuelConsumptionL100km != null) defaults.fuel_consumption = String(data.fuelConsumptionL100km);
+  if (data.co2GramsPerKm != null) defaults.co2_emissions = String(data.co2GramsPerKm);
+  // motExpiresAt is already an ISO "YYYY-MM-DD" string (lib/rdw.ts's parseRdwDate) -- exactly the
+  // format a date input's defaultValue needs, no reformatting.
+  if (data.motExpiresAt) defaults.mot_expiry = data.motExpiresAt;
+  if (data.energyLabel) {
+    const id = optionId("energy_label", data.energyLabel.toLowerCase());
+    if (id) defaults.energy_label = id;
+  }
 
   return defaults;
 }

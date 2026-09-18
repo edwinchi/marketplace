@@ -29,6 +29,7 @@ import { VEHICLE_REGISTRY_COUNTRIES, DEFAULT_REGISTRY_COUNTRY } from "@/lib/vehi
 import type { ListingFormState } from "@/app/listings/actions";
 import { PhotoUpload } from "@/components/listings/photo-upload";
 import { CharacteristicsSection } from "@/components/listings/characteristics-section";
+import { CAR_ATTRIBUTE_GROUPS } from "@/lib/car-attribute-groups";
 import { DeliveryOptions } from "@/components/listings/delivery-options";
 import { AdvertiseTierSelector } from "@/components/listings/advertise-tier-selector";
 import { Button } from "@/components/ui/button";
@@ -347,7 +348,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
       </section>
 
       {attributes.length > 0 && <div className={card}>
-        <CharacteristicsSection attributes={attributes} defaultValues={attributeDefaults} />
+        <CharacteristicsSection attributes={attributes} defaultValues={attributeDefaults} groups={isCarCategory ? CAR_ATTRIBUTE_GROUPS : undefined} />
       </div>}
 
       <section className={card}>
