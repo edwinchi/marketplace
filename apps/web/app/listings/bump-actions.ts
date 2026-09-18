@@ -63,13 +63,20 @@ export async function bumpListingCheckout(listingId: string) {
     line_items: [
       {
         price_data: {
-          currency: listing.currency_code.toLowerCase(),
+          // Flat platform fee, not proportional to the listing's own price -- always charged in
+          // EUR regardless of what currency the seller priced the item in. Charging it in
+          // listing.currency_code instead was a real bug: ad_bump_price_cents is EUR cents, but
+          // e.g. NGN's minor unit (kobo) made the same integer convert to a fraction of a euro
+          // cent, tripping Stripe's 50-cent-equivalent minimum-charge check.
+          currency: "eur",
           unit_amount: priceCents,
           product_data: { name: `Bump listing: ${listing.title}` },
         },
         quantity: 1,
       },
     ],
+    // See payment-actions.ts's identical line for why -- confirmed live, not a guess.
+    ...({ managed_payments: { enabled: false } } as Record<string, unknown>),
     success_url: `${origin}${listingPath}?bump=success`,
     cancel_url: `${origin}${listingPath}?bump=canceled`,
     metadata: { type: "listing_bump", listing_id: listing.id },

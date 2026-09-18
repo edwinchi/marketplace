@@ -388,13 +388,21 @@ export async function createListing(_prevState: ListingFormState, formData: Form
         line_items: [
           {
             price_data: {
-              currency: currencyCode.toLowerCase(),
+              // Flat platform fee (listing_tier_plus/premium_price_cents is EUR cents), not
+              // proportional to the listing's own price -- always charged in EUR regardless of
+              // currencyCode, the same fix as bump-actions.ts's identical bug. Reusing
+              // currencyCode here was wrong: it's the *listing's* currency (e.g. NGN), and the
+              // same integer cents value means a wildly different real amount in another
+              // currency's minor unit, which tripped Stripe's minimum-charge check.
+              currency: "eur",
               unit_amount: priceCents,
               product_data: { name: `${advertiseTier === "plus" ? "Plus" : "Premium"} listing: ${title}` },
             },
             quantity: 1,
           },
         ],
+        // See app/listings/payment-actions.ts's identical line for why -- confirmed live, not a guess.
+        ...({ managed_payments: { enabled: false } } as Record<string, unknown>),
         success_url: `${origin}${listingPath}?tier=success`,
         cancel_url: `${origin}${listingPath}?tier=canceled`,
         metadata: { type: "listing_tier_upgrade", listing_id: listing.id, tier: advertiseTier },

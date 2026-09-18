@@ -102,6 +102,13 @@ export async function startOrderPayment(listingId: string) {
       application_fee_amount: feeMinor,
       transfer_data: { destination: seller.stripe_connect_account_id },
     },
+    // Confirmed live (a real 400 from Stripe, not a guess): "Managed Payments" -- enabled by
+    // default on this Stripe account, a newer feature this SDK's own TypeScript types (stripe@22.6)
+    // don't know about yet, hence the cast -- requires a product tax_code on every price_data line
+    // item unless explicitly disabled per-session. A tax code doesn't map cleanly onto a classifieds
+    // platform fee, so disabling it here (Stripe's own suggested workaround) is the honest fix,
+    // not picking an arbitrary category to satisfy the requirement.
+    ...({ managed_payments: { enabled: false } } as Record<string, unknown>),
     success_url: `${origin}${listingPath}?order=success`,
     cancel_url: `${origin}${listingPath}?order=canceled`,
     metadata: { type: "order_payment", order_id: order.id },
