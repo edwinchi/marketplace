@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { randomUUID } from "crypto";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { toMinorUnits, SUPPORTED_CURRENCIES } from "@/lib/money";
 import { getCurrencyForCountry, ANCHOR_COUNTRIES } from "@/lib/countries";
@@ -15,6 +16,7 @@ import { isSellerProSubscriber } from "@/lib/seller-pro";
 import { getNewListingNotificationsGlobalUnlockSetting } from "@/lib/app-settings";
 import { pingIndexNow } from "@/lib/indexnow";
 import { translateListingForAllVisitors } from "./translate-action";
+import { checkListingContentPolicy } from "@/lib/content-moderation";
 
 type AttributeValueInsert = Database["public"]["Tables"]["listing_attribute_values"]["Insert"];
 
@@ -32,6 +34,31 @@ function enqueueEmbedding(supabase: Awaited<ReturnType<typeof createClient>>, li
     if (!embedding) return;
     const { error } = await supabase.from("listings").update({ title_embedding: embedding as unknown as string }).eq("id", listingId);
     if (error) console.error(`Failed to store title_embedding for listing ${listingId}:`, error);
+  });
+}
+
+// Same after()-scheduled, best-effort pattern -- a content-policy pre-screen (lib/content-moderation.ts)
+// runs on every new listing, not just ones that used AI photo analysis. Only ever writes when
+// flagged: an unflagged result leaves moderation_status at its 'pending' default rather than
+// writing 'clear', so a listing this check never got to run for (a failed AI call) reads the same
+// as one that passed -- both are "not yet flagged", the honest state either way. Never touches
+// `status`/visibility -- flagged listings stay live, surfaced at /admin/moderation for a human to
+// actually decide, not auto-removed on an unproven model's say-so.
+//
+// Service-role client, not the seller's own request-scoped one: moderation_status is column-level
+// locked to service_role only (supabase/migrations/20260101007800_listing_moderation_lockdown.sql)
+// specifically so a flagged seller can't just PATCH their own listing back to 'clear' themselves --
+// the same self-service-bypass concern as listings.published_at and the ad-bump feature.
+function enqueueModerationCheck(listingId: string, title: string, description: string) {
+  after(async () => {
+    const { flagged, reason } = await checkListingContentPolicy(title, description);
+    if (!flagged) return;
+    const supabase = createServiceClient();
+    const { error } = await supabase
+      .from("listings")
+      .update({ moderation_status: "flagged", metadata: { moderation_reason: reason } })
+      .eq("id", listingId);
+    if (error) console.error(`Failed to record moderation flag for listing ${listingId}:`, error);
   });
 }
 
@@ -295,6 +322,7 @@ export async function createListing(_prevState: ListingFormState, formData: Form
 
   enqueueEmbedding(supabase, listing.id, title, description);
   enqueueTranslation(listing.id, title, description);
+  enqueueModerationCheck(listing.id, title, description);
   enqueueNewListingNotifications(supabase, listing.id, profile.id, title, countryCode || null);
   after(() => pingIndexNow([`https://marketitnow.net/listings/${slugPath(title, listing.id)}`]));
 
@@ -355,6 +383,7 @@ export async function updateListing(
 
   enqueueEmbedding(supabase, listingId, title, description);
   enqueueTranslation(listingId, title, description);
+  enqueueModerationCheck(listingId, title, description);
   after(() => pingIndexNow([`https://marketitnow.net/listings/${slugPath(title, listingId)}`]));
 
   // The real page lives at a slugged path (/listings/[...slug]) this function has no way to

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
   Users, Store, MessageSquare, Heart, Handshake, Star, Sparkles, DollarSign,
-  Building2, User as UserIcon, TrendingUp, MapPin, Tag, Clock, Eye,
+  Building2, User as UserIcon, TrendingUp, MapPin, Tag, Clock, Eye, ShieldAlert,
 } from "lucide-react";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createServiceClient } from "@/lib/supabase/service";
@@ -117,7 +117,7 @@ export default async function AdminDashboardPage() {
   const { user } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) return <AdminLoginScreen />;
 
-  const [stats, requireLogin, disabledLocales, collapsedLimit, listenFreeAccess, sellerProGlobalUnlock, newListingNotificationsUnlock, buyerFeePercent, buyerFeeMin, buyerFeeMax, adBumpPriceCents, { count: embeddingsRemaining }, openRouterStatus, healthCheck] = await Promise.all([
+  const [stats, requireLogin, disabledLocales, collapsedLimit, listenFreeAccess, sellerProGlobalUnlock, newListingNotificationsUnlock, buyerFeePercent, buyerFeeMin, buyerFeeMax, adBumpPriceCents, { count: embeddingsRemaining }, { count: flaggedCount }, openRouterStatus, healthCheck] = await Promise.all([
     getAdminStats(),
     getRequireLoginSetting(),
     getDisabledLocales(),
@@ -133,6 +133,7 @@ export default async function AdminDashboardPage() {
     // seller's listings (RLS's listing_read policy would otherwise only count active listings plus
     // this admin's own).
     createServiceClient().from("listings").select("id", { count: "exact", head: true }).is("title_embedding", null).neq("status", "deleted"),
+    createServiceClient().from("listings").select("id", { count: "exact", head: true }).eq("moderation_status", "flagged"),
     getOpenRouterStatus(),
     getLatestHealthCheck(),
   ]);
@@ -148,9 +149,19 @@ export default async function AdminDashboardPage() {
           <h1 className="text-2xl font-bold tracking-tight text-[#082040]">Executive Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">Real, live figures straight from the database — no sample or placeholder data.</p>
         </div>
-        <Link href="/" className="rounded-lg border px-3 py-1.5 text-sm font-medium transition-all duration-150 hover:-translate-y-0.5 hover:border-[#e89818]/50">
-          Back to site
-        </Link>
+        <div className="flex items-center gap-2">
+          {!!flaggedCount && (
+            <Link
+              href="/admin/moderation"
+              className="flex items-center gap-1.5 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-1.5 text-sm font-medium text-destructive transition-all duration-150 hover:-translate-y-0.5"
+            >
+              <ShieldAlert className="size-4" /> {flaggedCount} flagged for review
+            </Link>
+          )}
+          <Link href="/" className="rounded-lg border px-3 py-1.5 text-sm font-medium transition-all duration-150 hover:-translate-y-0.5 hover:border-[#e89818]/50">
+            Back to site
+          </Link>
+        </div>
       </div>
 
       <div className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-2">

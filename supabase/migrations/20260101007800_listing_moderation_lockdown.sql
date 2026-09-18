@@ -1,0 +1,11 @@
+-- Closes a self-service bypass: listings.moderation_status just became meaningful (see
+-- lib/content-moderation.ts + app/admin/moderation/page.tsx), but the existing listing_write RLS
+-- policy is row-level, not column-level -- a flagged seller could otherwise PATCH their own
+-- listing's moderation_status back to 'clear' themselves via a raw REST call, defeating the whole
+-- point of human review. Same class of gap as listings.published_at before the ad-bump feature
+-- locked it down (20260101007500_listing_bump.sql) -- same fix.
+--
+-- app/listings/actions.ts's enqueueModerationCheck (the only legitimate writer of 'flagged') and
+-- app/admin/moderation-actions.ts (the only legitimate writer of 'clear') both already use the
+-- service-role client, so neither is affected by this revoke.
+revoke update (moderation_status) on listings from authenticated, anon;
