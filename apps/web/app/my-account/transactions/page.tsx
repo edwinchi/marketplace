@@ -9,9 +9,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { slugPath } from "@/lib/slug";
 import { MarkShippedForm } from "@/components/mark-shipped-form";
 
-// A seller has this many days from payment (order status funds_escrowed) to mark an order
-// shipped -- see mark_order_shipped in 20260101006900_shipping_sla_and_price_drop_alerts.sql,
-// which is the actual enforcement; this is just the same number for the UI's deadline display.
+// A seller has this many days from payment (order status "paid") to mark an order shipped -- see
+// mark_order_shipped in 20260101006900_shipping_sla_and_price_drop_alerts.sql, which is the
+// actual enforcement; this is just the same number for the UI's deadline display.
 const SHIP_BY_DAYS = 5;
 
 // Real schema (orders/payments, RLS already in place from 02_marketplace.sql) — rows now come
@@ -94,7 +94,7 @@ export default async function TransactionsPage({
             const payment = Array.isArray(o.payments) ? o.payments[0] : o.payments;
             const shipment = Array.isArray(o.shipments) ? o.shipments[0] : o.shipments;
             const shipByDate = new Date(new Date(o.created_at).getTime() + SHIP_BY_DAYS * 24 * 60 * 60 * 1000);
-            const isOverdue = o.status === "funds_escrowed" && shipByDate < now;
+            const isOverdue = o.status === "paid" && shipByDate < now;
 
             return (
               <Card key={o.id}>
@@ -117,13 +117,13 @@ export default async function TransactionsPage({
                         ? "Refunded"
                         : o.status === "item_shipped"
                           ? "Shipped"
-                          : o.status === "funds_escrowed"
+                          : o.status === "paid"
                             ? "Paid"
                             : "Awaiting payment"}
                     </Badge>
                   </div>
 
-                  {o.status === "funds_escrowed" && (
+                  {o.status === "paid" && (
                     <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-dashed px-3 py-2">
                       <p className={`text-xs ${isOverdue ? "font-medium text-destructive" : "text-muted-foreground"}`}>
                         {tab === "sold"

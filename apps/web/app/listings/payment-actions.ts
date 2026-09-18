@@ -8,9 +8,11 @@ import { getStripe } from "@/lib/stripe";
 import { calculateBuyerFeeMinor } from "@/lib/payments";
 import { slugPath } from "@/lib/slug";
 
-// Direct Buy -- a protected, in-platform payment (the buyer-fee-funded escrow model from
-// supabase/migrations/20260101005100_stripe_connect.sql), not a generic wallet transfer between
-// any two users. Amounts are computed here from the listing's own stored price, never trusted from
+// Direct Buy -- a protected, in-platform payment (the buyer-fee-funded model from
+// supabase/migrations/20260101005100_stripe_connect.sql; the seller is paid directly via
+// transfer_data.destination below as part of the same charge, no fund hold -- Terms of Service
+// §6), not a generic wallet transfer between any two users. Amounts are computed here from the
+// listing's own stored price, never trusted from
 // the client -- a form field carrying a price would let a buyer pay whatever they typed.
 //
 // Uses the service-role client, not the request-scoped one: there's no RLS insert policy for

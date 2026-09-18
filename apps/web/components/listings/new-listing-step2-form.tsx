@@ -351,15 +351,18 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
       <section className={card}>
         <SectionHeading icon={Truck}>Delivery</SectionHeading>
         <DeliveryOptions />
-        {/* Buyer-protection escrow and named carrier integration (Budbee/PostNL/DHL-style)
-            aren't real yet — both need Stripe Connect + a logistics partner (agents.md §6/§10
-            Phase 3). Showing a safety-tips link instead of an escrow claim we can't back is the
-            honest version of this section for now. */}
+        {/* Direct Buy (app/listings/payment-actions.ts) is real and live -- a buyer-paid
+            protection fee via Stripe Connect, Terms of Service §6 -- but it's not a fund hold, and
+            named carrier integration (Budbee/PostNL/DHL-style) still isn't real (agents.md §6/§10
+            Phase 3). This form doesn't know this seller's own Stripe Connect onboarding status, so
+            the copy stays platform-level rather than promising Direct Buy is active on this
+            specific listing. */}
         <p className="mt-3 flex items-start gap-2 rounded-md border bg-muted/40 p-3 text-xs text-muted-foreground">
           <ShieldCheck className="mt-0.5 size-4 shrink-0" />
-          Buyer protection isn&apos;t available yet — see our{" "}
-          <Link href="/safety" className="underline">Safety Center</Link> for tips on trading safely
-          in the meantime.
+          Buyers can pay securely in-app with Direct Buy (once you&apos;ve set up payouts via{" "}
+          <Link href="/my-account/payments/enable" className="underline">Enable payments</Link>).
+          See our <Link href="/safety" className="underline">Safety Center</Link> for tips on
+          trading safely either way.
         </p>
       </section>
 

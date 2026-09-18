@@ -71,14 +71,14 @@ async function handleEvent(event: Stripe.Event, stripe: Stripe, supabase: Return
       const session = event.data.object as Stripe.Checkout.Session;
 
       // Direct Buy order payment -- distinguished by metadata.type rather than by mode alone,
-      // since it shares mode: "payment" with the AI top-up below. Escrows the funds (status
-      // 'funds_escrowed', matching the lifecycle in supabase/migrations/20260101001400_
-      // fulfillment_escrow.sql) rather than marking the order complete outright -- release happens
-      // on delivery confirmation, not on payment.
+      // since it shares mode: "payment" with the AI top-up below. Stripe Connect already paid the
+      // seller directly as part of this same charge (transfer_data.destination in
+      // app/listings/payment-actions.ts) -- no fund hold exists (Terms of Service §6, and see
+      // supabase/migrations/20260101006900's own comment). This just marks the order paid.
       if (session.metadata?.type === "order_payment" && session.metadata?.order_id) {
         const orderId = session.metadata.order_id;
         const paymentIntentId = typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id;
-        await supabase.from("orders").update({ status: "funds_escrowed" }).eq("id", orderId);
+        await supabase.from("orders").update({ status: "paid" }).eq("id", orderId);
         await supabase.from("payments").insert({
           order_id: orderId,
           provider: "stripe",

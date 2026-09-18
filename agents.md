@@ -202,25 +202,36 @@ Reporting (`reports`), moderation status on both listings and media, blocked use
 are not optional add-ons — every table that accepts user-generated content needs a moderation path
 before it ships.
 
-## 6. Escrow + smart-locker state machine
+## 6. Direct Buy — actual payment/fulfillment model (supersedes the original escrow design below)
 
-From `data/smart-locker-integration.md`, adapted to run on Stripe Connect + Supabase:
+`data/smart-locker-integration.md`'s held-fund escrow design (buyer pays → platform holds funds →
+release on delivery confirmation) was the original plan, but was **deliberately not built that
+way** — see `supabase/migrations/20260101006900_shipping_sla_and_price_drop_alerts.sql`'s own
+comment and the live Terms of Service (`messages/en.json` `section6Body`): *"your payment is
+processed by our payment provider, Stripe, which pays the seller directly (minus MarketitNow's
+fee) once payment succeeds — we do not currently hold funds back pending delivery confirmation."*
+Revisiting that decision (real fund-holding, a release trigger, a dispute path, and updating the
+Terms with notice to existing sellers) is a deliberate product call to make explicitly, not
+something to reintroduce by building toward this section's original design.
 
-| Current state | Trigger | Next state | Action |
-|---|---|---|---|
-| `payment_requested` | Buyer pays (Stripe `payment_intent.succeeded`) | `funds_escrowed` | Funds held on platform; locker slots reserved; drop-off PIN sent to seller. |
-| `funds_escrowed` | Locker webhook `locker.dropped_off` | `item_shipped` | Buyer notified; pickup PIN sent. |
-| `item_shipped` | Locker webhook `locker.picked_up` | `funds_released` | Payout executed to seller's connected Stripe account. |
-| `funds_escrowed` | Drop-off window expires | `refunded` | Reservation cancelled; funds returned to buyer. |
-| `item_shipped` | Buyer disputes | `disputed` | Locked for human review; chat/tracking logs attached to the dispute. |
+What's actually implemented (`app/listings/payment-actions.ts` + `app/api/stripe/webhook/route.ts`):
 
-Non-locker fulfillment (regional courier, local pickup) follows the same `orders`/escrow status model
-but substitutes carrier tracking webhooks for locker webhooks as the release trigger — don't build two
-separate transaction ledgers for the two fulfillment types.
+| `orders.status` | Trigger | Action |
+|---|---|---|
+| `pending_payment` | Order row created (buyer initiates Direct Buy checkout) | Stripe Checkout session created, `transfer_data.destination` set to the seller's connected account. |
+| `paid` | Stripe webhook `checkout.session.completed` | Seller already paid in the same charge (Stripe Connect destination transfer) — this just records it. A `payments` row is inserted. |
+| `item_shipped` | Seller calls `mark_order_shipped` RPC (5-day SLA, `20260101006900`) | `shipments` row created/updated; buyer notified. |
 
-Webhook handlers (Stripe, locker partner) are the one place allowed to write `escrow_status`/`orders`
-directly with the service role — verify signatures (`Stripe-Signature`, locker partner's HMAC header)
-before trusting any payload, and always return `200` promptly to avoid provider retry storms.
+No `funds_released`, `refunded`, or `disputed` states exist yet — a buyer's recourse today is the
+`reports` table (flag the listing/seller) and the Safety Center, not an in-platform refund/dispute
+flow. Non-Direct-Buy trades (the seller hasn't enabled it, or the buyer/seller arrange payment
+outside the app) aren't tracked in `orders` at all — arranged directly between the two users per
+the same Terms section.
+
+Webhook handlers (Stripe; a locker/carrier partner webhook if one is ever added) are the one place
+allowed to write `orders`/`payments`/`shipments` directly with the service role — verify signatures
+(`Stripe-Signature`) before trusting any payload, and always return `200` promptly to avoid provider
+retry storms.
 
 ## 7. Engineering standards
 
