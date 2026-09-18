@@ -629,12 +629,71 @@ worth reading before extending this code, since some are gotchas that will resur
 (§5 scenario A); semantic search via the pgvector embeddings already migrated in
 (`20260101001200_vector_search.sql`). Needs: AI vision provider account, Mapbox/Google Maps key (§8).
 
-**Phase 3 — Transactions.** Stripe Connect payments with escrow hold (§6 state machine); carrier
-fulfillment by default; smart-locker fulfillment where a partner exists. Needs: Stripe Connect account,
-optionally a locker partner (§8).
+**Phase 3 — Transactions: done, not as originally planned.** Stripe Connect Direct Buy payments are
+live (`app/listings/payment-actions.ts`) -- but see §6: the held-fund escrow this phase originally
+specced was a deliberate, documented decision *not* to build (Terms of Service §6 says so to users
+directly). Carrier/smart-locker fulfillment is still schema-only (`locker_shipments`, a generic
+`LOCKER_PARTNER_API_KEY` placeholder) -- no named carrier (InPost/DHL/PostNL) is wired up; that
+needs a real signed-up account with that carrier first, not just code.
 
-**Phase 4 — Growth.** Promotions/boosts, business/merchant subscription tiers, moderation tooling,
-notifications. Needs: Resend/Sentry/PostHog wired up (§8) if not already done earlier.
+**Phase 4 — Growth: done, 2026-09-18 build pass.** Promotions/boosts, business/merchant subscription
+tiers, and moderation tooling all shipped in one pass, alongside a from-scratch security review --
+see the dedicated notes below this list.
+
+**Notes from the 2026-09-18 build pass.**
+
+- **RLS security review, prompted by a real finding.** A full audit of every table's RLS policy
+  turned up one genuine exposure: `listing_translations_public_read` used `for select using (true)`
+  with no status/ownership gate (unlike every sibling child table -- `listing_media_read`,
+  `listing_attribute_values_read` -- which correctly check `status='active' OR seller_id=
+  current_profile_id()`). Anyone with the anon key could read the title/description of draft,
+  rejected, or deleted listings. Fixed (`20260101007200`), plus `run_security_audit()`
+  (`20260101007300`) -- a locked-down, service-role-only function flagging the two failure shapes
+  that have actually recurred here (RLS enabled with zero policies; a `using(true)` select policy)
+  -- backing `ops/security-audit.mjs`, run every 12h via Windows Task Scheduler, alerting only on
+  *new* findings (not the same ~27 pre-existing, already-reviewed ones every run).
+- **`orders.status = 'funds_escrowed'` renamed to `'paid'`** (`20260101007400`) -- matches what the
+  UI already called it and what actually happens (§6).
+- **Ad-bump** (`20260101007500`) -- a seller can pay a small admin-configurable fee (`/my-account/
+  my-listings`, "Bump to top") to reset their listing's `published_at`, once per 24h. No new sort
+  column: every browse query already orders by `published_at`, so a bump is just "republish."
+  `published_at` is column-level locked to `service_role` (`revoke update ... from authenticated,
+  anon`) so a seller can't just PATCH it themselves for free -- the first of three times this exact
+  self-service-bypass shape came up in this pass.
+- **Business subscription, "MarketitNow Zakelijk"** (`20260101007600`-`20260101007700`) -- a paid,
+  visible "Business" badge for sellers with `account_type='business'` (free, self-declared, already
+  existed). Deliberately not built: bulk/ERP listing-feed ingestion, or a `businesses`-table
+  management UI -- that table has real columns (legal_name, VAT, KVK) but zero app code reads or
+  writes it, confirmed by grep; a separate, larger piece of work.
+- **AI content-policy pre-screen** (`20260101007800`) -- gives `listings.moderation_status` its
+  first real purpose (confirmed vestigial before this: never read or written by any app code).
+  Text-only (title + description, via `lib/content-moderation.ts`'s free-tier model chain), flags
+  prohibited items and scam-pattern language for human review at `/admin/moderation` -- never blocks
+  publishing. Deliberately does NOT claim counterfeit-brand detection; a general LLM prompt can't do
+  that reliably, and claiming it would be exactly the fabricated-capability failure this project's
+  conventions already rule out elsewhere (`analyze-photo-action.ts`'s "never invent... you can't
+  actually see"). Same column-lockdown pattern as ad-bump: `moderation_status` is service-role-only.
+- **Cars listing form, Marktplaats-parity pass** (`20260101007900`-`20260101008000`) -- prompted by
+  a direct comparison against Marktplaats' real car-listing flow. Two real, general gaps found and
+  fixed first: `AttributeField`/`saveAttributeValues` silently had no handling for `multi_select` or
+  `boolean` attribute types at all (fell through to a plain text input, and would have violated
+  `listing_attribute_values`' primary key on a second checked box) -- `lib/categories.ts`'s
+  `SUPPORTED_DATA_TYPES` had never included either. Fixed for every category, not just Cars, then
+  used to seed Cars' missing fields: body type, emission class, interior, upholstery, curb weight,
+  cylinder count, engine displacement, braked/unbraked towing capacity, dealer-maintained/
+  maintenance-booklet/VAT-deductible booleans, and a 24-option "Opties" checklist (ABS, Bluetooth,
+  parking sensors, etc.) -- a real, representative subset of Marktplaats' own list, not the full 60+.
+  Also activated the Plus/Premium listing tiers (`components/listings/advertise-tier-selector.tsx`
+  already had this UI, explicitly marked "Coming soon"): `listings.boost_rank` (0/1/2) is a plain
+  sortable integer every buyer-facing browse/search query now orders by first, so "shown more/most
+  often" is a structural effect, not just copy. Same platform-charged-fee shape as ad-bump/Business
+  (no Stripe Connect transfer), same service-role-only column lockdown on `boost_rank`.
+  Verified end-to-end with Playwright (`playwright-core` + a local Chrome install, no `chromium-cli`
+  in this environment) against the real dev server, signed in as the dedicated Claude test account
+  (`claude-agent-test@marketitnow.net`) -- confirmed the existing 10 Cars attributes still render
+  correctly (no regression) and the tier selector computes live pricing/totals correctly before the
+  new-attribute migrations had even been applied; full new-field verification pending those two
+  migrations actually landing on the live DB (data-only, no further code changes needed once they do).
 
 ## 11. Deployment — Plesk (`marketplace.apps-pilot.nl`), via FTP
 
