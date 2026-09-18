@@ -198,6 +198,8 @@
     "digitalInvoiceBody": "Factures pour toute fonctionnalité payante que vous utilisez.",
     "aiFeatures": "Fonctions IA",
     "aiFeaturesBody": "Remplissage automatique par IA gratuit, plus la retouche de description, les suggestions de prix, la traduction et les statistiques vendeur avec Seller Pro.",
+    "business": "Professionnel",
+    "businessBody": "Un badge Professionnel visible sur vos annonces, pour les vendeurs professionnels et les concessionnaires.",
     "adLocationPreferences": "Préférences d'annonces et de localisation",
     "adLocationPreferencesBody": "Contrôlez comment votre ville est utilisée pour les annonces à proximité.",
     "notificationSettings": "Paramètres de notification",

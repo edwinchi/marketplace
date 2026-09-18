@@ -1,7 +1,26 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { getStripe, AI_TOPUP_USES } from "@/lib/stripe";
+import { getStripe, AI_TOPUP_USES, SELLER_PRO_PRICE_ID, BUSINESS_PRICE_ID } from "@/lib/stripe";
 import { createServiceClient } from "@/lib/supabase/service";
+
+// Two independent subscription products share this one webhook endpoint -- disambiguated by the
+// subscription's own price id (checkout.session.completed's metadata.profile_id tells us WHO, not
+// WHICH plan; customer.subscription.updated/deleted carry no metadata at all). Returns null for a
+// subscription on neither known price (shouldn't happen outside test-mode noise) rather than
+// guessing. A discriminated result (not a computed column-name pair) so each call site builds a
+// properly-typed update object instead of an untyped `{ [key]: value }`.
+function subscriptionPlanFor(subscription: Stripe.Subscription): "business" | "seller_pro" | null {
+  const priceId = subscription.items.data[0]?.price.id;
+  if (priceId && priceId === BUSINESS_PRICE_ID) return "business";
+  if (priceId && priceId === SELLER_PRO_PRICE_ID) return "seller_pro";
+  return null;
+}
+
+function subscriptionUpdateFor(plan: "business" | "seller_pro", status: string, periodEnd: string | null) {
+  return plan === "business"
+    ? { business_subscription_status: status, business_subscription_current_period_end: periodEnd }
+    : { ai_subscription_status: status, ai_subscription_current_period_end: periodEnd };
+}
 
 // Service-role client, not the cookie-based one -- there's no logged-in request here, Stripe is
 // calling this server-to-server, authenticated only by the webhook signature below.
@@ -123,13 +142,13 @@ async function handleEvent(event: Stripe.Event, stripe: Stripe, supabase: Return
           typeof session.subscription === "string" ? session.subscription : session.subscription.id,
         );
         const periodEnd = subscription.items.data[0]?.current_period_end;
-        await supabase
-          .from("profiles")
-          .update({
-            ai_subscription_status: subscription.status,
-            ai_subscription_current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
-          })
-          .eq("id", profileId);
+        const plan = subscriptionPlanFor(subscription);
+        if (plan) {
+          await supabase
+            .from("profiles")
+            .update(subscriptionUpdateFor(plan, subscription.status, periodEnd ? new Date(periodEnd * 1000).toISOString() : null))
+            .eq("id", profileId);
+        }
       }
       break;
     }
@@ -137,18 +156,20 @@ async function handleEvent(event: Stripe.Event, stripe: Stripe, supabase: Return
     case "customer.subscription.updated":
     case "customer.subscription.deleted": {
       // Renewals, cancellations, and payment failures all land here as a status change on the
-      // same subscription object -- one handler covers all of them rather than three.
+      // same subscription object -- one handler covers all of them rather than three. These events
+      // carry no checkout metadata (unlike checkout.session.completed above), so which profile
+      // column pair to update is determined by the subscription's own price id instead.
       const subscription = event.data.object as Stripe.Subscription;
       const customerId = typeof subscription.customer === "string" ? subscription.customer : subscription.customer.id;
       const status = event.type === "customer.subscription.deleted" ? "canceled" : subscription.status;
       const periodEnd = subscription.items.data[0]?.current_period_end;
-      await supabase
-        .from("profiles")
-        .update({
-          ai_subscription_status: status,
-          ai_subscription_current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
-        })
-        .eq("stripe_customer_id", customerId);
+      const plan = subscriptionPlanFor(subscription);
+      if (plan) {
+        await supabase
+          .from("profiles")
+          .update(subscriptionUpdateFor(plan, status, periodEnd ? new Date(periodEnd * 1000).toISOString() : null))
+          .eq("stripe_customer_id", customerId);
+      }
       break;
     }
 

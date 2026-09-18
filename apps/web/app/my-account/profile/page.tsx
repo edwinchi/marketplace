@@ -202,6 +202,18 @@ export default async function MyAccountPage() {
 
         <Card className={cardHover}>
           <CardHeader>
+            <CardTitle className="text-base">{t("business")}</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
+            <p>{t("businessBody")}</p>
+            <Link href="/my-account/business" className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit transition-transform duration-150 hover:-translate-y-0.5" })}>
+              {t("view")}
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className={cardHover}>
+          <CardHeader>
             <CardTitle className="text-base">{t("adLocationPreferences")}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">

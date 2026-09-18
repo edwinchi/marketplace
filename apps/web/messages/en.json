@@ -198,6 +198,8 @@
     "digitalInvoiceBody": "Invoices for any paid features you use.",
     "aiFeatures": "AI features",
     "aiFeaturesBody": "Free AI photo autofill, plus description polish, price suggestions, translation, and seller insights with Seller Pro.",
+    "business": "Business",
+    "businessBody": "A visible Business badge on your listings for professional sellers and dealerships.",
     "adLocationPreferences": "Ad & location preferences",
     "adLocationPreferencesBody": "Control how your city is used for nearby listings.",
     "notificationSettings": "Notification settings",

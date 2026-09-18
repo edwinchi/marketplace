@@ -1741,6 +1741,8 @@ export type Database = {
           ai_subscription_current_period_end: string | null
           ai_subscription_status: string
           allow_seller_contact_on_favorite: boolean
+          business_subscription_current_period_end: string | null
+          business_subscription_status: string
           auth_user_id: string
           country_code: string | null
           created_at: string
@@ -1783,6 +1785,8 @@ export type Database = {
           ai_subscription_current_period_end?: string | null
           ai_subscription_status?: string
           allow_seller_contact_on_favorite?: boolean
+          business_subscription_current_period_end?: string | null
+          business_subscription_status?: string
           country_code?: string | null
           auth_user_id: string
           created_at?: string
@@ -1825,6 +1829,8 @@ export type Database = {
           ai_subscription_current_period_end?: string | null
           ai_subscription_status?: string
           allow_seller_contact_on_favorite?: boolean
+          business_subscription_current_period_end?: string | null
+          business_subscription_status?: string
           country_code?: string | null
           auth_user_id?: string
           created_at?: string
@@ -2257,6 +2263,7 @@ export type Database = {
           created_at: string
           website_url: string | null
           stripe_connect_charges_enabled: boolean
+          business_subscription_status: string
           phone_number: string | null
         }
         Relationships: []

@@ -34,7 +34,7 @@ import { getSiteOrigin } from "@/lib/site-url";
 import { getStripe } from "@/lib/stripe";
 import { calculateBuyerFeeMinor } from "@/lib/payments";
 import { startOrderPayment } from "@/app/listings/payment-actions";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, Building2 } from "lucide-react";
 import { LISTING_TRANSLATION_TARGETS, type ListingTranslationTarget } from "@/lib/listing-translations";
 
 // Drives the rich preview card WhatsApp/Facebook/X/iMessage/Slack generate when someone shares a
@@ -130,7 +130,7 @@ export default async function ListingPage({
         : Promise.resolve({ data: null }),
       supabase
         .from("profiles_public")
-        .select("username, display_name, created_at, website_url, account_type, phone_number, stripe_connect_charges_enabled")
+        .select("username, display_name, created_at, website_url, account_type, phone_number, stripe_connect_charges_enabled, business_subscription_status")
         .eq("id", listing.seller_id)
         .single(),
       supabase
@@ -542,7 +542,14 @@ export default async function ListingPage({
                     {sellerInitial}
                   </div>
                   <div>
-                    <p className="font-medium">{sellerName}</p>
+                    <p className="flex items-center gap-1.5 font-medium">
+                      {sellerName}
+                      {seller?.business_subscription_status === "active" && (
+                        <span className="flex items-center gap-1 rounded-full bg-[#008848]/10 px-2 py-0.5 text-[10px] font-semibold text-[#046637]">
+                          <Building2 className="size-3" /> Business
+                        </span>
+                      )}
+                    </p>
                     <p className="text-xs text-muted-foreground">{tenureLabel}</p>
                   </div>
                 </div>

@@ -16,6 +16,7 @@ export function getStripe(): Stripe | null {
 export const SELLER_PRO_PRICE_ID = process.env.STRIPE_SELLER_PRO_PRICE_ID;
 export const AI_TOPUP_PRICE_ID = process.env.STRIPE_TOPUP_PRICE_ID;
 export const AI_TOPUP_USES = 10;
+export const BUSINESS_PRICE_ID = process.env.STRIPE_BUSINESS_PRICE_ID;
 
 // Reads the real, current price from Stripe rather than hardcoding an amount a second time --
 // the whole reason this needed fixing once already (the page showed "$7.99"/"$1.99" placeholders
