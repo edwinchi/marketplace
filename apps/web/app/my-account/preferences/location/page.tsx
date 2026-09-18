@@ -20,6 +20,7 @@ export default async function LocationPreferencesPage() {
 
   const supabase = await createClient();
   const { data } = await supabase.from("profiles").select("location_sharing_opt_in, preferred_city, country_code").eq("id", profile.id).single();
+  const countryName = data?.country_code ? ANCHOR_COUNTRIES.find((c) => c.code === data.country_code)?.name : undefined;
 
   return (
     <div className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 py-16">
@@ -52,9 +53,7 @@ export default async function LocationPreferencesPage() {
             <div className="flex gap-2">
               <Select name="country_code" defaultValue={data?.country_code ?? undefined}>
                 <SelectTrigger id="country_code" className="w-full">
-                  <SelectValue placeholder="Not set">
-                    {(value: string | null) => ANCHOR_COUNTRIES.find((c) => c.code === value)?.name}
-                  </SelectValue>
+                  <SelectValue placeholder="Not set">{countryName}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {ANCHOR_COUNTRIES.map((c) => (
