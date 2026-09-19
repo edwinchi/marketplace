@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createServiceClient } from "@/lib/supabase/service";
 import { getSiteOrigin } from "@/lib/site-url";
-import { getStripe } from "@/lib/stripe";
+import { getStripe, EUR_CHECKOUT_PAYMENT_METHOD_TYPES } from "@/lib/stripe";
 import { calculateBuyerFeeMinor } from "@/lib/payments";
 import { slugPath } from "@/lib/slug";
 
@@ -88,6 +88,12 @@ export async function startOrderPayment(listingId: string) {
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     mode: "payment",
+    // EUR_CHECKOUT_PAYMENT_METHOD_TYPES's methods (iDEAL, Bancontact, ...) only support EUR --
+    // applying it to a non-EUR listing would throw at session-creation time, not just omit those
+    // methods, so this only overrides Stripe's default dynamic mode for EUR listings. Every other
+    // currency keeps dynamic mode (card plus whatever's regionally appropriate), which was never
+    // the problem -- the small-amount iDEAL exclusion (see lib/stripe.ts) is EUR-specific.
+    ...(listing.currency_code === "EUR" ? { payment_method_types: EUR_CHECKOUT_PAYMENT_METHOD_TYPES } : {}),
     line_items: [
       {
         price_data: {

@@ -18,7 +18,7 @@ import { pingIndexNow } from "@/lib/indexnow";
 import { translateListingForAllVisitors } from "./translate-action";
 import { checkListingContentPolicy } from "@/lib/content-moderation";
 import { getNumericSetting } from "@/lib/numeric-settings";
-import { getStripe } from "@/lib/stripe";
+import { getStripe, EUR_CHECKOUT_PAYMENT_METHOD_TYPES } from "@/lib/stripe";
 import { getSiteOrigin } from "@/lib/site-url";
 import { tierFromBoostRank } from "@/lib/listing-tiers";
 
@@ -307,10 +307,9 @@ async function maybeStartTierUpgradeCheckout({
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     mode: "payment",
-    // TEMPORARY diagnostic: explicit list bypasses Stripe's dynamic/AI-driven payment method
-    // eligibility (which was silently excluding iDEAL for these small flat-fee amounts even
-    // though it's enabled in the Dashboard) -- confirming live whether this actually unlocks it.
-    payment_method_types: ["card", "ideal"],
+    // See lib/stripe.ts's EUR_CHECKOUT_PAYMENT_METHOD_TYPES -- confirmed live this is required for
+    // iDEAL to actually show on these small flat fees, not just Stripe's default dynamic mode.
+    payment_method_types: EUR_CHECKOUT_PAYMENT_METHOD_TYPES,
     line_items: [
       {
         price_data: {

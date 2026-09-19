@@ -1,5 +1,30 @@
 import Stripe from "stripe";
 
+// Explicit list, not Stripe's default "dynamic payment methods" (omitting this field entirely) --
+// confirmed live that dynamic mode was silently excluding iDEAL from small EUR checkouts (the
+// ad-bump/tier-upgrade flat fees) even though it's enabled in the Dashboard and every documented
+// requirement (EUR currency, NL/EU business location) is met. Stripe's own dynamic-payment-methods
+// docs attribute this to its AI-driven eligibility model, not a hard per-method minimum (none is
+// documented for iDEAL) -- an explicit list bypasses that model entirely. Every string here is
+// Stripe's own literal API value, verified against docs.stripe.com/payments/payment-methods/
+// payment-method-support (the "API support" table's backtick-quoted column), not guessed --
+// getting one wrong throws at session-creation time instead of just omitting that one method, so
+// this list is deliberately only what's both enabled in the Dashboard's Payment methods page and
+// individually confirmed here.
+export const EUR_CHECKOUT_PAYMENT_METHOD_TYPES: Stripe.Checkout.SessionCreateParams.PaymentMethodType[] = [
+  "card",
+  "ideal",
+  "klarna",
+  "bancontact",
+  "revolut_pay",
+  "eps",
+  "p24",
+  "blik",
+  "multibanco",
+  "mb_way",
+  "satispay",
+];
+
 // Returns null rather than throwing when unconfigured -- same "not set up yet" pattern as
 // OPENROUTER_API_KEY (app/listings/new/analyze-photo-action.ts): callers show an honest message
 // instead of a crash until a real Stripe account exists and STRIPE_SECRET_KEY is set.

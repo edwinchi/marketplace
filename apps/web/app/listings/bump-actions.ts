@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteOrigin } from "@/lib/site-url";
-import { getStripe } from "@/lib/stripe";
+import { getStripe, EUR_CHECKOUT_PAYMENT_METHOD_TYPES } from "@/lib/stripe";
 import { getNumericSetting } from "@/lib/numeric-settings";
 import { slugPath } from "@/lib/slug";
 import { BUMP_COOLDOWN_MS } from "@/lib/listing-bump";
@@ -60,6 +60,10 @@ export async function bumpListingCheckout(listingId: string) {
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     mode: "payment",
+    // See lib/stripe.ts's EUR_CHECKOUT_PAYMENT_METHOD_TYPES -- required for iDEAL and several
+    // other EU methods to actually show on a small flat fee like this one; Stripe's default
+    // dynamic mode was silently excluding them.
+    payment_method_types: EUR_CHECKOUT_PAYMENT_METHOD_TYPES,
     line_items: [
       {
         price_data: {
