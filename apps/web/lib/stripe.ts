@@ -11,6 +11,14 @@ import Stripe from "stripe";
 // getting one wrong throws at session-creation time instead of just omitting that one method, so
 // this list is deliberately only what's both enabled in the Dashboard's Payment methods page and
 // individually confirmed here.
+// p24 removed: confirmed live it throws "payment method type provided: p24 is invalid... ensure
+// the provided type is activated in your dashboard" despite the Dashboard's Payment methods page
+// showing it enabled -- crashed every checkout using this list until caught (2026-09-19). blik was
+// enabled in the exact same Dashboard action as p24 and has NOT been independently confirmed
+// working, so it's left out too until verified in isolation rather than risking the same crash
+// class twice. Every string still in this list has been directly confirmed live: card/klarna/
+// bancontact/revolut_pay/multibanco/mb_way/satispay/eps all rendered successfully under Stripe's
+// default dynamic mode before this list existed; ideal was confirmed by this list itself.
 export const EUR_CHECKOUT_PAYMENT_METHOD_TYPES: Stripe.Checkout.SessionCreateParams.PaymentMethodType[] = [
   "card",
   "ideal",
@@ -18,8 +26,6 @@ export const EUR_CHECKOUT_PAYMENT_METHOD_TYPES: Stripe.Checkout.SessionCreatePar
   "bancontact",
   "revolut_pay",
   "eps",
-  "p24",
-  "blik",
   "multibanco",
   "mb_way",
   "satispay",
