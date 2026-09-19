@@ -20,6 +20,7 @@ import { checkListingContentPolicy } from "@/lib/content-moderation";
 import { getNumericSetting } from "@/lib/numeric-settings";
 import { getStripe } from "@/lib/stripe";
 import { getSiteOrigin } from "@/lib/site-url";
+import { tierFromBoostRank } from "@/lib/listing-tiers";
 
 type AttributeValueInsert = Database["public"]["Tables"]["listing_attribute_values"]["Insert"];
 type AttributeMultiOptionInsert = Database["public"]["Tables"]["listing_attribute_multi_options"]["Insert"];
@@ -260,6 +261,77 @@ function normalizeWebsiteUrl(raw: string): string | null {
   }
 }
 
+// Shared by createListing's tail and updateListing -- starts a Stripe Checkout session for a
+// Plus/Premium tier upgrade and redirects there. A no-op (returns, never redirects) for "free" or
+// an unrecognized tier value, so callers can invoke this unconditionally with whatever the form
+// submitted rather than guarding it themselves.
+async function maybeStartTierUpgradeCheckout({
+  supabase,
+  user,
+  profile,
+  listingId,
+  title,
+  listingPath,
+  advertiseTier,
+}: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  user: { email?: string | null };
+  profile: { id: string };
+  listingId: string;
+  title: string;
+  listingPath: string;
+  advertiseTier: string;
+}): Promise<void> {
+  if (advertiseTier !== "plus" && advertiseTier !== "premium") return;
+  const stripe = getStripe();
+  if (!stripe) return;
+
+  const priceCents = await getNumericSetting(advertiseTier === "plus" ? "listing_tier_plus_price_cents" : "listing_tier_premium_price_cents");
+  const origin = await getSiteOrigin();
+  const { data: buyerRow } = await supabase.from("profiles").select("stripe_customer_id").eq("id", profile.id).single();
+  let customerId = buyerRow?.stripe_customer_id ?? undefined;
+  // A stored id only resolves under the mode (test/live) it was created in -- same guard as every
+  // other Stripe customer lookup in this codebase.
+  if (customerId) {
+    try {
+      await stripe.customers.retrieve(customerId);
+    } catch {
+      customerId = undefined;
+    }
+  }
+  if (!customerId) {
+    const customer = await stripe.customers.create({ email: user.email ?? undefined, metadata: { profile_id: profile.id } });
+    customerId = customer.id;
+    await supabase.from("profiles").update({ stripe_customer_id: customerId }).eq("id", profile.id);
+  }
+  const session = await stripe.checkout.sessions.create({
+    customer: customerId,
+    mode: "payment",
+    // TEMPORARY diagnostic: explicit list bypasses Stripe's dynamic/AI-driven payment method
+    // eligibility (which was silently excluding iDEAL for these small flat-fee amounts even
+    // though it's enabled in the Dashboard) -- confirming live whether this actually unlocks it.
+    payment_method_types: ["card", "ideal"],
+    line_items: [
+      {
+        price_data: {
+          // Flat platform fee, not proportional to the listing's own price -- always EUR
+          // regardless of the listing's own currency_code (see bump-actions.ts's identical fix).
+          currency: "eur",
+          unit_amount: priceCents,
+          product_data: { name: `${advertiseTier === "plus" ? "Plus" : "Premium"} listing: ${title}` },
+        },
+        quantity: 1,
+      },
+    ],
+    // See app/listings/payment-actions.ts's identical line for why -- confirmed live, not a guess.
+    ...({ managed_payments: { enabled: false } } as Record<string, unknown>),
+    success_url: `${origin}${listingPath}?tier=success`,
+    cancel_url: `${origin}${listingPath}?tier=canceled`,
+    metadata: { type: "listing_tier_upgrade", listing_id: listingId, tier: advertiseTier },
+  });
+  if (session.url) redirect(session.url);
+}
+
 export async function createListing(_prevState: ListingFormState, formData: FormData): Promise<ListingFormState> {
   const { user, profile } = await getCurrentUserAndProfile();
   if (!user || !profile) return { error: "You must be signed in to post a listing." };
@@ -363,53 +435,7 @@ export async function createListing(_prevState: ListingFormState, formData: Form
   // boost_rank once payment actually succeeds, same "create first, upgrade after" shape as the
   // ad-bump and Business-subscription flows.
   const advertiseTier = String(formData.get("advertise_tier") ?? "free");
-  if (advertiseTier === "plus" || advertiseTier === "premium") {
-    const stripe = getStripe();
-    if (stripe) {
-      const priceCents = await getNumericSetting(advertiseTier === "plus" ? "listing_tier_plus_price_cents" : "listing_tier_premium_price_cents");
-      const origin = await getSiteOrigin();
-      const { data: buyerRow } = await supabase.from("profiles").select("stripe_customer_id").eq("id", profile.id).single();
-      let customerId = buyerRow?.stripe_customer_id ?? undefined;
-      if (customerId) {
-        try {
-          await stripe.customers.retrieve(customerId);
-        } catch {
-          customerId = undefined;
-        }
-      }
-      if (!customerId) {
-        const customer = await stripe.customers.create({ email: user.email ?? undefined, metadata: { profile_id: profile.id } });
-        customerId = customer.id;
-        await supabase.from("profiles").update({ stripe_customer_id: customerId }).eq("id", profile.id);
-      }
-      const session = await stripe.checkout.sessions.create({
-        customer: customerId,
-        mode: "payment",
-        line_items: [
-          {
-            price_data: {
-              // Flat platform fee (listing_tier_plus/premium_price_cents is EUR cents), not
-              // proportional to the listing's own price -- always charged in EUR regardless of
-              // currencyCode, the same fix as bump-actions.ts's identical bug. Reusing
-              // currencyCode here was wrong: it's the *listing's* currency (e.g. NGN), and the
-              // same integer cents value means a wildly different real amount in another
-              // currency's minor unit, which tripped Stripe's minimum-charge check.
-              currency: "eur",
-              unit_amount: priceCents,
-              product_data: { name: `${advertiseTier === "plus" ? "Plus" : "Premium"} listing: ${title}` },
-            },
-            quantity: 1,
-          },
-        ],
-        // See app/listings/payment-actions.ts's identical line for why -- confirmed live, not a guess.
-        ...({ managed_payments: { enabled: false } } as Record<string, unknown>),
-        success_url: `${origin}${listingPath}?tier=success`,
-        cancel_url: `${origin}${listingPath}?tier=canceled`,
-        metadata: { type: "listing_tier_upgrade", listing_id: listing.id, tier: advertiseTier },
-      });
-      if (session.url) redirect(session.url);
-    }
-  }
+  await maybeStartTierUpgradeCheckout({ supabase, user, profile, listingId: listing.id, title, listingPath, advertiseTier });
 
   redirect(listingPath);
 }
@@ -444,7 +470,7 @@ export async function updateListing(
   // Currency is now an explicit, independently editable seller choice (see createListing) --
   // validated against the real currency list, falling back to the listing's current currency
   // (fetched below) rather than guessing from country if the submitted value is missing/invalid.
-  const { data: currentListing } = await supabase.from("listings").select("currency_code").eq("id", listingId).single();
+  const { data: currentListing } = await supabase.from("listings").select("currency_code, boost_rank").eq("id", listingId).single();
   const submittedCurrency = String(formData.get("currency_code") ?? "");
   const currencyCode = (SUPPORTED_CURRENCIES as readonly string[]).includes(submittedCurrency)
     ? (submittedCurrency as (typeof SUPPORTED_CURRENCIES)[number])
@@ -475,7 +501,20 @@ export async function updateListing(
   // reconstruct without a DB round-trip -- revalidating the literal route pattern instead of a
   // guessed resolved URL is the documented way to invalidate every path under a dynamic segment.
   revalidatePath("/listings/[...slug]", "page");
-  redirect(`/listings/${slugPath(title, listingId)}`);
+  const listingPath = `/listings/${slugPath(title, listingId)}`;
+
+  // Only starts a checkout when the submitted tier is actually a change from what's already on
+  // the listing -- otherwise re-saving an edit on an already-Plus/Premium listing would silently
+  // re-charge the seller every time they touch the form. Picking "Free" while already on a paid
+  // tier is a deliberate no-op, not a downgrade/cancellation -- there's no refund flow to pair it
+  // with, so boost_rank is simply left as-is rather than taking away something already paid for.
+  const advertiseTier = String(formData.get("advertise_tier") ?? "free");
+  const currentTier = tierFromBoostRank(currentListing?.boost_rank);
+  if (advertiseTier !== currentTier) {
+    await maybeStartTierUpgradeCheckout({ supabase, user, profile, listingId, title, listingPath, advertiseTier });
+  }
+
+  redirect(listingPath);
 }
 
 export async function deleteListing(listingId: string) {
