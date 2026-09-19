@@ -15,6 +15,7 @@ import { formatPrice, SUPPORTED_CURRENCIES, type CurrencyCode } from "@/lib/mone
 import { EditPhotoManager, type ExistingPhoto, type CoverPhoto } from "@/components/listings/edit-photo-manager";
 import { RichDescription } from "@/components/listings/rich-description";
 import { AttributeField } from "@/components/listing-attribute-field";
+import { AdvertiseTierSelector } from "@/components/listings/advertise-tier-selector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -54,6 +55,12 @@ type Props = {
   // form renders blank regardless of what was actually saved.
   attributeDefaultValues?: Record<string, string | string[]>;
   hasTranslations?: boolean;
+  // Present only on the edit form -- lets a seller upgrade to Plus/Premium after the fact if they
+  // skipped it (or change tier again) on create. initialTier pre-selects whatever the listing is
+  // already on (derived from boost_rank) so re-editing a paid listing doesn't visually reset to Free.
+  plusPriceCents?: number;
+  premiumPriceCents?: number;
+  initialTier?: "free" | "plus" | "premium";
 };
 
 export function ListingForm({
@@ -69,6 +76,9 @@ export function ListingForm({
   listingId,
   hasTranslations,
   attributeDefaultValues,
+  plusPriceCents,
+  premiumPriceCents,
+  initialTier,
 }: Props) {
   const [state, formAction, pending] = useActionState(action, { error: null } as ListingFormState);
   const [categoryId, setCategoryId] = useState(initial?.categoryId ?? "");
@@ -359,6 +369,13 @@ export function ListingForm({
               )}
             </p>
           )}
+        </div>
+      )}
+
+      {plusPriceCents != null && premiumPriceCents != null && (
+        <div className="flex flex-col gap-1.5">
+          <Label>How do you want to advertise?</Label>
+          <AdvertiseTierSelector plusPriceCents={plusPriceCents} premiumPriceCents={premiumPriceCents} initialTier={initialTier} />
         </div>
       )}
 

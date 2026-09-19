@@ -13,8 +13,19 @@ function formatCents(cents: number) {
   return `€${(cents / 100).toFixed(2)}`;
 }
 
-export function AdvertiseTierSelector({ plusPriceCents, premiumPriceCents }: { plusPriceCents: number; premiumPriceCents: number }) {
-  const [selected, setSelected] = useState<"free" | "plus" | "premium">("free");
+export function AdvertiseTierSelector({
+  plusPriceCents,
+  premiumPriceCents,
+  initialTier = "free",
+}: {
+  plusPriceCents: number;
+  premiumPriceCents: number;
+  // Lets the edit form pre-select whatever tier the listing is already on (derived from
+  // boost_rank), instead of every re-edit visually resetting to Free even though the seller
+  // already paid for Plus/Premium.
+  initialTier?: "free" | "plus" | "premium";
+}) {
+  const [selected, setSelected] = useState<"free" | "plus" | "premium">(initialTier);
 
   const TIERS = [
     { id: "free" as const, name: "Free", priceCents: 0, blurb: "Standard visibility", features: ["Listed for 4 weeks"] },

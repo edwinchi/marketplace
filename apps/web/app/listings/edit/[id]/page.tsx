@@ -9,6 +9,8 @@ import { resolveMediaUrl } from "@/lib/media";
 import { ListingForm } from "@/components/listing-form";
 import { LISTING_TRANSLATION_TARGETS } from "@/lib/listing-translations";
 import { slugPath } from "@/lib/slug";
+import { getNumericSetting } from "@/lib/numeric-settings";
+import { tierFromBoostRank } from "@/lib/listing-tiers";
 
 // Not part of the /listings/[...slug] catch-all -- a catch-all must be the last segment of a
 // route, so "edit" can't nest inside it. This lives as a sibling static route instead (Next.js
@@ -22,7 +24,7 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
   const supabase = await createClient();
   const { data: listing } = await supabase
     .from("listings")
-    .select("id, title, description, category_id, price_minor, currency_code, seller_id")
+    .select("id, title, description, category_id, price_minor, currency_code, seller_id, boost_rank")
     .eq("id", id)
     .single();
   if (!listing) notFound();
@@ -36,6 +38,8 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
     { data: translations },
     { data: attributeValues },
     { data: multiOptions },
+    plusPriceCents,
+    premiumPriceCents,
   ] = await Promise.all([
     getCategoriesAndAttributes(),
     supabase.from("listing_media").select("id, storage_key").eq("listing_id", id).eq("media_type", "image").order("sort_order"),
@@ -47,6 +51,8 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
       .select("value_text, value_number, value_date, value_boolean, value_option_id, attributes(stable_key)")
       .eq("listing_id", id),
     supabase.from("listing_attribute_multi_options").select("option_id, attributes(stable_key)").eq("listing_id", id),
+    getNumericSetting("listing_tier_plus_price_cents"),
+    getNumericSetting("listing_tier_premium_price_cents"),
   ]);
   const initialPhotos = (media ?? []).map((m) => ({ id: m.id, url: resolveMediaUrl(m.storage_key, process.env.NEXT_PUBLIC_SUPABASE_URL!) }));
 
@@ -83,6 +89,9 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
         listingId={id}
         hasTranslations={(translations?.length ?? 0) > 0}
         attributeDefaultValues={attributeDefaultValues}
+        plusPriceCents={plusPriceCents}
+        premiumPriceCents={premiumPriceCents}
+        initialTier={tierFromBoostRank(listing.boost_rank)}
         initial={{
           title: listing.title,
           description: listing.description,
