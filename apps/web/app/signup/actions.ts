@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isPasswordValid } from "@/lib/password-rules";
 import { getSiteOrigin } from "@/lib/site-url";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 export type SignupFormState = { error: string | null; checkEmail: boolean };
 
@@ -32,6 +33,9 @@ export async function signup(_prevState: SignupFormState, formData: FormData): P
   const ip = clientIpFromHeaders(await headers());
   const allowed = await checkRateLimit(`signup:${ip}`, 5, 3600);
   if (!allowed) return { error: "Too many signup attempts from this connection — try again in a bit.", checkEmail: false };
+
+  const turnstileOk = await verifyTurnstileToken(String(formData.get("cf-turnstile-response") ?? "") || null, ip);
+  if (!turnstileOk) return { error: "Verification failed — please try again.", checkEmail: false };
 
   const supabase = await createClient();
   const baseUsername = slugify(displayName);

@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
+import { headers } from "next/headers";
 import { randomUUID } from "crypto";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
@@ -21,6 +22,8 @@ import { getNumericSetting } from "@/lib/numeric-settings";
 import { getStripe, EUR_CHECKOUT_PAYMENT_METHOD_TYPES } from "@/lib/stripe";
 import { getSiteOrigin } from "@/lib/site-url";
 import { tierFromBoostRank } from "@/lib/listing-tiers";
+import { checkRateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 type AttributeValueInsert = Database["public"]["Tables"]["listing_attribute_values"]["Insert"];
 type AttributeMultiOptionInsert = Database["public"]["Tables"]["listing_attribute_multi_options"]["Insert"];
@@ -334,6 +337,17 @@ async function maybeStartTierUpgradeCheckout({
 export async function createListing(_prevState: ListingFormState, formData: FormData): Promise<ListingFormState> {
   const { user, profile } = await getCurrentUserAndProfile();
   if (!user || !profile) return { error: "You must be signed in to post a listing." };
+
+  // Per-account, not per-IP -- a genuine seller bulk-posting from their own account is the normal
+  // case this shouldn't punish; a scripted spam bot cycling through many accounts is what this
+  // (combined with Turnstile below) is actually for. No rate limiting existed on this action at
+  // all before this -- signup already had it (app/signup/actions.ts), posting didn't.
+  const ip = clientIpFromHeaders(await headers());
+  const allowedToPost = await checkRateLimit(`create-listing:${profile.id}`, 10, 3600);
+  if (!allowedToPost) return { error: "You're posting too quickly — try again in a bit." };
+
+  const turnstileOk = await verifyTurnstileToken(String(formData.get("cf-turnstile-response") ?? "") || null, ip);
+  if (!turnstileOk) return { error: "Verification failed — please try again." };
 
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();

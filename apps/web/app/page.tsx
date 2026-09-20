@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PackagePlus, Home } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { unstable_cache } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getCategoriesAndAttributes, getCategoryDescendantIds } from "@/lib/categories";
 import { getTextEmbedding } from "@/lib/embeddings";
@@ -32,6 +34,48 @@ const CONDITIONS = [
   { value: "fair", label: "Fair" },
   { value: "for_parts", label: "For parts" },
 ];
+
+const DEFAULT_VIEW_LISTING_SELECT =
+  "id, title, price_minor, currency_code, pickup_available, delivery_available, published_at, locations(city), listing_media(storage_key, sort_order)";
+
+// The exact, most-hit query on the site -- a fresh/logged-out visitor and every crawler land on
+// this precise no-filter, page-1, newest-sort view. Caching it here is a real, live fix for the
+// "homepage isn't cached, which will cost you at scale" finding, but a scoped, non-experimental
+// one: it cuts the actual repeated database work (the count-exact listings query, plus the
+// separately-run homepage-placement query) to once per revalidate window rather than once per
+// request, which is where the real cost at scale actually lives. It does NOT achieve full
+// HTTP/CDN-level page caching -- this page also reads searchParams and a per-request cookie-based
+// profile for favorites/Save Search, both of which force Next's App Router to render the page
+// itself dynamically regardless. The tool that closes that last gap is Partial Prerendering
+// (a static shell + streamed dynamic "holes"), still an experimental Next.js flag as of this
+// version -- deliberately not enabled site-wide for a real, already-working production app over an
+// unproven feature; worth revisiting once it's stable. service-role client, not the per-request
+// one, and no cookies/headers touched inside -- unstable_cache's own requirement (see
+// lib/categories.ts's identical reasoning); this data (active listings) is public regardless of
+// who's asking, the same trust boundary INSERT/UPDATE grants already rely on elsewhere.
+const getDefaultHomeViewListings = unstable_cache(
+  async () => {
+    const supabase = createServiceClient();
+    const [{ data: listings, count: totalCount }, { data: featuredListings }] = await Promise.all([
+      supabase
+        .from("listings")
+        .select(DEFAULT_VIEW_LISTING_SELECT, { count: "exact" })
+        .eq("status", "active")
+        .order("published_at", { ascending: false })
+        .range(0, PAGE_SIZE - 1),
+      supabase
+        .from("listings")
+        .select(DEFAULT_VIEW_LISTING_SELECT)
+        .eq("status", "active")
+        .gt("homepage_featured_until", new Date().toISOString())
+        .order("homepage_featured_until", { ascending: false })
+        .limit(8),
+    ]);
+    return { listings: listings ?? [], totalCount: totalCount ?? 0, featuredListings: featuredListings ?? [] };
+  },
+  ["home-default-view"],
+  { revalidate: 60 },
+);
 
 // Deliberately no `alternates.languages` (hreflang) here -- this app switches locale via a cookie
 // (i18n/request.ts), not a URL prefix, so every language renders at this exact same URL. hreflang
@@ -89,41 +133,65 @@ export default async function HomePage({
   const { profile } = await getCurrentUserAndProfile();
   const t = await getTranslations("Home");
 
+  // The exact no-filter, page-1, newest-sort view a fresh/logged-out visitor and every crawler
+  // land on -- see getDefaultHomeViewListings's own comment for what this trades off.
+  const isDefaultHomeView = !q && (!category || category === "all") && !city && !sortParam && page === 1;
+
   // Filtering by an embedded resource's column (locations.city) requires an inner join in
   // PostgREST's embed syntax — a plain left-embed silently ignores that filter.
   const listingSelect = city
     ? "id, title, price_minor, currency_code, pickup_available, delivery_available, published_at, locations!inner(city), listing_media(storage_key, sort_order)"
     : "id, title, price_minor, currency_code, pickup_available, delivery_available, published_at, locations(city), listing_media(storage_key, sort_order)";
-  // "exact" count with head:false still returns the full row payload -- this is the one query
-  // whose real total the results heading (and pagination) needs, so it's worth the (small,
-  // already-filtered) extra cost rather than leaving a silent cutoff with no indication more exist.
-  let query = supabase
-    .from("listings")
-    .select(listingSelect, { count: "exact" })
-    .eq("status", "active")
-    .order(sort === "price_asc" || sort === "price_desc" ? "price_minor" : "published_at", { ascending: sort === "price_asc" })
-    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 
+  // Needed by the non-default query branch below AND the semantic-search block further down --
+  // hoisted above both so it's computed exactly once regardless of which path runs. A no-op
+  // (null, no DB call) on the default view, where category is always empty anyway.
   const categoryIds = category && category !== "all" ? await getCategoryDescendantIds(category) : null;
-  if (categoryIds) {
-    // Match the category itself and every descendant — a listing tagged under a leaf like "Cars >
-    // Passenger cars" should still show up when filtering by the top-level "Cars".
-    query = query.in("category_id", categoryIds);
-  }
-  if (city) query = query.ilike("locations.city", city);
-  if (q) {
-    // Commas would otherwise break PostgREST's .or() filter syntax.
-    const term = q.replaceAll(",", " ").replaceAll("%", "");
-    query = query.or(`title.ilike.%${term}%,description.ilike.%${term}%`);
-  }
-  const priceMinMinor = priceMin ? Math.round(Number(priceMin) * 100) : null;
-  const priceMaxMinor = priceMax ? Math.round(Number(priceMax) * 100) : null;
-  if (priceMinMinor != null && Number.isFinite(priceMinMinor)) query = query.gte("price_minor", priceMinMinor);
-  if (priceMaxMinor != null && Number.isFinite(priceMaxMinor)) query = query.lte("price_minor", priceMaxMinor);
-  if (condition) query = query.eq("condition_code", condition);
 
-  const [{ data: listings, count: totalCount }, { categoryOptions, topLevelCategories }, { data: favorites }] = await Promise.all([
-    query,
+  let listings: NonNullable<Awaited<ReturnType<typeof getDefaultHomeViewListings>>["listings"]>;
+  let totalCount: number;
+  let featuredListings: typeof listings;
+
+  if (isDefaultHomeView) {
+    const cached = await getDefaultHomeViewListings();
+    listings = cached.listings;
+    totalCount = cached.totalCount;
+    featuredListings = cached.featuredListings;
+  } else {
+    // "exact" count with head:false still returns the full row payload -- this is the one query
+    // whose real total the results heading (and pagination) needs, so it's worth the (small,
+    // already-filtered) extra cost rather than leaving a silent cutoff with no indication more exist.
+    let query = supabase
+      .from("listings")
+      .select(listingSelect, { count: "exact" })
+      .eq("status", "active")
+      .order(sort === "price_asc" || sort === "price_desc" ? "price_minor" : "published_at", { ascending: sort === "price_asc" })
+      .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
+
+    if (categoryIds) {
+      // Match the category itself and every descendant — a listing tagged under a leaf like "Cars >
+      // Passenger cars" should still show up when filtering by the top-level "Cars".
+      query = query.in("category_id", categoryIds);
+    }
+    if (city) query = query.ilike("locations.city", city);
+    if (q) {
+      // Commas would otherwise break PostgREST's .or() filter syntax.
+      const term = q.replaceAll(",", " ").replaceAll("%", "");
+      query = query.or(`title.ilike.%${term}%,description.ilike.%${term}%`);
+    }
+    const priceMinMinor = priceMin ? Math.round(Number(priceMin) * 100) : null;
+    const priceMaxMinor = priceMax ? Math.round(Number(priceMax) * 100) : null;
+    if (priceMinMinor != null && Number.isFinite(priceMinMinor)) query = query.gte("price_minor", priceMinMinor);
+    if (priceMaxMinor != null && Number.isFinite(priceMaxMinor)) query = query.lte("price_minor", priceMaxMinor);
+    if (condition) query = query.eq("condition_code", condition);
+
+    const { data, count } = await query;
+    listings = data ?? [];
+    totalCount = count ?? 0;
+    featuredListings = [];
+  }
+
+  const [{ categoryOptions, topLevelCategories }, { data: favorites }] = await Promise.all([
     getCategoriesAndAttributes(),
     profile
       ? supabase.from("favorites").select("listing_id").eq("profile_id", profile.id)
@@ -135,22 +203,6 @@ export default async function HomePage({
   const toysCategory = topLevelCategories.find((c) => c.stableKey === "children-babies");
   const servicesHref = servicesCategory ? `/categories/${slugPath(servicesCategory.label, servicesCategory.id)}` : null;
   const toysHref = toysCategory ? `/categories/${slugPath(toysCategory.label, toysCategory.id)}` : null;
-
-  // Homepage placement add-on (app/listings/homepage-placement-actions.ts) -- only on the actual
-  // default homepage view, not a filtered/searched one, matching what a seller is paying for: a
-  // spot on the homepage itself, not a permanent boost to every search result.
-  const isDefaultHomeView = !q && (!category || category === "all") && !city && page === 1;
-  const featuredListings: NonNullable<typeof listings> = isDefaultHomeView
-    ? ((
-        await supabase
-          .from("listings")
-          .select(listingSelect)
-          .eq("status", "active")
-          .gt("homepage_featured_until", new Date().toISOString())
-          .order("homepage_featured_until", { ascending: false })
-          .limit(8)
-      ).data ?? [])
-    : [];
 
   // Semantic search: surfaces listings that mean the same thing as the query without sharing its
   // exact words (e.g. "phone" -> "smartphone"/"iPhone" listings) as a "related" tier below the

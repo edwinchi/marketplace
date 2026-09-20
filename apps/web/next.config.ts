@@ -72,16 +72,17 @@ const nextConfig: NextConfig = {
           value: [
             "default-src 'self'",
             // 'unsafe-inline'/'unsafe-eval' on scripts is broader than ideal, but Next.js's own
-            // inline hydration scripts and Mapbox GL's runtime both need it -- a nonce-based CSP
-            // is the tighter fix, and a real enough restructuring (every inline script in the app
-            // would need it threaded through) that it belongs in its own follow-up, not bundled
-            // into this first pass of "no headers at all" -> "a real, working CSP".
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
+            // inline hydration scripts need it -- a nonce-based CSP is the tighter fix, and a real
+            // enough restructuring (every inline script in the app would need it threaded through)
+            // that it belongs in its own follow-up, not bundled into this first pass of "no
+            // headers at all" -> "a real, working CSP". challenges.cloudflare.com is Turnstile
+            // (components/turnstile-widget.tsx) -- bot protection on signup and posting a listing.
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://challenges.cloudflare.com",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "font-src 'self' https://fonts.gstatic.com",
             "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com",
-            "connect-src 'self' https://*.supabase.co https://api.stripe.com",
-            "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://connect.stripe.com https://www.google.com",
+            "connect-src 'self' https://*.supabase.co https://api.stripe.com https://challenges.cloudflare.com",
+            "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://connect.stripe.com https://www.google.com https://challenges.cloudflare.com",
             "object-src 'none'",
             "base-uri 'self'",
           ].join("; "),

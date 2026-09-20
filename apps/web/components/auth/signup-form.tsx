@@ -8,6 +8,7 @@ import { GoogleButton } from "@/components/auth/google-button";
 // import { FacebookButton } from "@/components/auth/facebook-button"; -- see the note below, disabled for now
 import { AuthField } from "@/components/auth/auth-field";
 import { PasswordRequirements } from "@/components/auth/password-requirements";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -94,6 +95,8 @@ export function SignupForm({ next = "/", referralCode }: { next?: string; referr
           </a>
           .
         </p>
+
+        <TurnstileWidget />
 
         {state.error && (
           <p className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive">

@@ -36,6 +36,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DescriptionEditor } from "@/components/listings/description-editor";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Props = {
@@ -482,6 +483,8 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
           cards there's no honest "coming soon" framing that fits a per-item checkbox-with-a-price.
           (A seller's website link — a paid extra on Marktplaats — is offered free here instead,
           since there's no payment infrastructure to gate it behind; see Contact details above.) */}
+
+      <TurnstileWidget />
 
       {state.error && <p className="text-sm text-destructive">{state.error}</p>}
       <Button type="submit" disabled={pending} size="lg">
