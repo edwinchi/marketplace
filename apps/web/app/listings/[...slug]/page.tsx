@@ -58,16 +58,33 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const displayDescription = translation?.description ?? listing.description;
 
   const origin = await getSiteOrigin();
-  const url = `${origin}/listings/${slug.join("/")}`;
-  const description = displayDescription ? displayDescription.slice(0, 200) : "Buy and sell from anywhere in the world.";
-  const title = `${displayTitle} | MarketitNow`;
+  const path = `/listings/${slug.join("/")}`;
+  const url = `${origin}${path}`;
+  // Strip this app's own inline markdown markers (##, **, *, ++, leading "- ") before truncating --
+  // descriptions can contain them since components/listings/rich-description.tsx started rendering
+  // them (this session), and a raw "## " or "**" leaking into a meta description/OG tag reads as
+  // broken, not formatted, outside the page itself.
+  const plainDescription = (displayDescription ?? "")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/\+\+(.+?)\+\+/g, "$1")
+    .replace(/\*(.+?)\*/g, "$1")
+    .replace(/^[-*]\s+/gm, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  const description = plainDescription ? plainDescription.slice(0, 200) : "Buy and sell from anywhere in the world.";
+  // No "| MarketitNow" here -- the root layout's title.template ("%s | MarketitNow") already wraps
+  // every nested route's title exactly once. Appending it again here (as this used to) doubled up
+  // into "X | MarketitNow | MarketitNow" -- confirmed live on a real listing page.
+  const title = displayTitle;
   const logo = { url: `${origin}/logo.png`, width: 1167, height: 500, alt: "MarketitNow" };
 
   return {
     title,
     description,
-    openGraph: { title, description, url, siteName: "MarketitNow", images: [logo], type: "website" },
-    twitter: { card: "summary_large_image", title, description, images: [logo.url] },
+    alternates: { canonical: path },
+    openGraph: { title: `${title} | MarketitNow`, description, url, siteName: "MarketitNow", images: [logo], type: "website" },
+    twitter: { card: "summary_large_image", title: `${title} | MarketitNow`, description, images: [logo.url] },
   };
 }
 

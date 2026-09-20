@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Fraunces, Roboto } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
@@ -43,6 +43,14 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://marketitnow.net"),
   title: { default: "MarketitNow", template: "%s | MarketitNow" },
   description: "Buy and sell from anywhere in the world.",
+};
+
+// theme-color is a separate metadata export from Next 14+ onward -- this is what tints a mobile
+// browser's own address-bar/status-bar chrome while browsing (distinct from app/manifest.ts's own
+// theme_color, which only applies once installed to a home screen). Matches --primary in
+// app/globals.css.
+export const viewport: Viewport = {
+  themeColor: "#e89818",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
