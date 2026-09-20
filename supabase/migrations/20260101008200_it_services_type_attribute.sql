@@ -1,0 +1,21 @@
+-- Adds a "Service Type" checkbox list to IT services (services-trades-it-services), the closest
+-- existing category to a web-design/hosting business listing. Same multi_select pattern as Cars'
+-- vehicle_options (20260101007900) -- pure data, no app code changes needed to render/save it.
+-- Options are this app's own list, not a copy of any other marketplace's wording.
+BEGIN;
+
+INSERT INTO attributes(stable_key,data_type,unit_code) VALUES('it_service_type','multi_select',NULL) ON CONFLICT(stable_key) DO NOTHING;
+INSERT INTO attribute_translations(attribute_id,language_code,name) SELECT id,'en','Service Type' FROM attributes WHERE stable_key='it_service_type' ON CONFLICT DO NOTHING;
+
+INSERT INTO category_attributes(category_id,attribute_id,is_required,is_search_filter) SELECT c.id,a.id,false,true FROM categories c,attributes a WHERE c.stable_key='services-trades-it-services' AND a.stable_key='it_service_type' ON CONFLICT DO NOTHING;
+
+WITH x AS (SELECT id FROM attributes WHERE stable_key='it_service_type'), o AS (INSERT INTO attribute_options(attribute_id,stable_key,sort_order) SELECT id,'domain_registration',0 FROM x ON CONFLICT(attribute_id,stable_key) DO UPDATE SET sort_order=EXCLUDED.sort_order RETURNING id) INSERT INTO attribute_option_translations(option_id,language_code,label) SELECT id,'en','Domain Registration' FROM o ON CONFLICT DO NOTHING;
+WITH x AS (SELECT id FROM attributes WHERE stable_key='it_service_type'), o AS (INSERT INTO attribute_options(attribute_id,stable_key,sort_order) SELECT id,'web_design',10 FROM x ON CONFLICT(attribute_id,stable_key) DO UPDATE SET sort_order=EXCLUDED.sort_order RETURNING id) INSERT INTO attribute_option_translations(option_id,language_code,label) SELECT id,'en','Web Design' FROM o ON CONFLICT DO NOTHING;
+WITH x AS (SELECT id FROM attributes WHERE stable_key='it_service_type'), o AS (INSERT INTO attribute_options(attribute_id,stable_key,sort_order) SELECT id,'web_hosting',20 FROM x ON CONFLICT(attribute_id,stable_key) DO UPDATE SET sort_order=EXCLUDED.sort_order RETURNING id) INSERT INTO attribute_option_translations(option_id,language_code,label) SELECT id,'en','Web Hosting' FROM o ON CONFLICT DO NOTHING;
+WITH x AS (SELECT id FROM attributes WHERE stable_key='it_service_type'), o AS (INSERT INTO attribute_options(attribute_id,stable_key,sort_order) SELECT id,'website_building',30 FROM x ON CONFLICT(attribute_id,stable_key) DO UPDATE SET sort_order=EXCLUDED.sort_order RETURNING id) INSERT INTO attribute_option_translations(option_id,language_code,label) SELECT id,'en','Website Building' FROM o ON CONFLICT DO NOTHING;
+WITH x AS (SELECT id FROM attributes WHERE stable_key='it_service_type'), o AS (INSERT INTO attribute_options(attribute_id,stable_key,sort_order) SELECT id,'ecommerce_setup',40 FROM x ON CONFLICT(attribute_id,stable_key) DO UPDATE SET sort_order=EXCLUDED.sort_order RETURNING id) INSERT INTO attribute_option_translations(option_id,language_code,label) SELECT id,'en','E-commerce Setup' FROM o ON CONFLICT DO NOTHING;
+WITH x AS (SELECT id FROM attributes WHERE stable_key='it_service_type'), o AS (INSERT INTO attribute_options(attribute_id,stable_key,sort_order) SELECT id,'seo',50 FROM x ON CONFLICT(attribute_id,stable_key) DO UPDATE SET sort_order=EXCLUDED.sort_order RETURNING id) INSERT INTO attribute_option_translations(option_id,language_code,label) SELECT id,'en','SEO' FROM o ON CONFLICT DO NOTHING;
+WITH x AS (SELECT id FROM attributes WHERE stable_key='it_service_type'), o AS (INSERT INTO attribute_options(attribute_id,stable_key,sort_order) SELECT id,'maintenance_support',60 FROM x ON CONFLICT(attribute_id,stable_key) DO UPDATE SET sort_order=EXCLUDED.sort_order RETURNING id) INSERT INTO attribute_option_translations(option_id,language_code,label) SELECT id,'en','Maintenance & Support' FROM o ON CONFLICT DO NOTHING;
+WITH x AS (SELECT id FROM attributes WHERE stable_key='it_service_type'), o AS (INSERT INTO attribute_options(attribute_id,stable_key,sort_order) SELECT id,'app_development',70 FROM x ON CONFLICT(attribute_id,stable_key) DO UPDATE SET sort_order=EXCLUDED.sort_order RETURNING id) INSERT INTO attribute_option_translations(option_id,language_code,label) SELECT id,'en','App Development' FROM o ON CONFLICT DO NOTHING;
+
+COMMIT;

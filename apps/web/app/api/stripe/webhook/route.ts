@@ -136,6 +136,16 @@ async function handleEvent(event: Stripe.Event, stripe: Stripe, supabase: Return
         break;
       }
 
+      // Homepage placement add-on (app/listings/homepage-placement-actions.ts) -- platform revenue,
+      // same non-Connect shape as the bump above. RPC, not a direct update, since it needs to extend
+      // from any still-active placement rather than blindly overwrite it (see
+      // 20260101008300_homepage_placement.sql).
+      if (session.metadata?.type === "homepage_placement" && session.metadata?.listing_id) {
+        const { error: placementError } = await supabase.rpc("extend_homepage_placement", { p_listing_id: session.metadata.listing_id });
+        if (placementError) console.error(`extend_homepage_placement failed for listing ${session.metadata.listing_id}:`, placementError);
+        break;
+      }
+
       const profileId = session.metadata?.profile_id;
       if (!profileId) break;
 

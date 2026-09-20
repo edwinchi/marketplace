@@ -1,15 +1,26 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Trash2, ArrowUpCircle } from "lucide-react";
+import { Trash2, ArrowUpCircle, Home } from "lucide-react";
 import { deleteListing, deleteListingPermanently, markListingSold, relistListing } from "@/app/listings/actions";
 import { bumpListingCheckout } from "@/app/listings/bump-actions";
+import { homepagePlacementCheckout } from "@/app/listings/homepage-placement-actions";
 import { BUMP_COOLDOWN_MS } from "@/lib/listing-bump";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import Link from "next/link";
 
-export function ListingRowActions({ listingId, status, publishedAt }: { listingId: string; status: string; publishedAt: string | null }) {
+export function ListingRowActions({
+  listingId,
+  status,
+  publishedAt,
+  homepageFeaturedUntil,
+}: {
+  listingId: string;
+  status: string;
+  publishedAt: string | null;
+  homepageFeaturedUntil?: string | null;
+}) {
   const [pending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +31,7 @@ export function ListingRowActions({ listingId, status, publishedAt }: { listingI
 
   const cooldownRemainingMs = publishedAt ? BUMP_COOLDOWN_MS - (now - new Date(publishedAt).getTime()) : 0;
   const canBump = status === "active" && cooldownRemainingMs <= 0;
+  const isFeatured = !!homepageFeaturedUntil && new Date(homepageFeaturedUntil).getTime() > now;
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -40,6 +52,22 @@ export function ListingRowActions({ listingId, status, publishedAt }: { listingI
             <ArrowUpCircle className="size-3.5" />
             Bumped — {Math.ceil(cooldownRemainingMs / (60 * 60 * 1000))}h left
           </Button>
+        )
+      )}
+
+      {status === "active" && (
+        isFeatured ? (
+          <Button variant="outline" size="sm" disabled className="gap-1.5" title="Already featured on the homepage">
+            <Home className="size-3.5" />
+            Featured — {Math.max(1, Math.ceil((new Date(homepageFeaturedUntil!).getTime() - now) / (24 * 60 * 60 * 1000)))}d left
+          </Button>
+        ) : (
+          <form action={homepagePlacementCheckout.bind(null, listingId)}>
+            <Button type="submit" variant="outline" size="sm" className="gap-1.5">
+              <Home className="size-3.5" />
+              Feature on homepage
+            </Button>
+          </form>
         )
       )}
 

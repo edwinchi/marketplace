@@ -232,7 +232,7 @@ export function ListingForm({
               {!aiUsage.unlimited && usesLeft !== null && usesLeft > 0 && usesLeft <= 2 && (
                 <p className="mt-1 text-xs text-amber-600">
                   {usesLeft} free AI {usesLeft === 1 ? "use" : "uses"} left —{" "}
-                  <Link href="/my-account/ai-features" className="underline underline-offset-2">see what's next</Link>.
+                  <Link href="/my-account/ai-features" className="underline underline-offset-2">see what&apos;s next</Link>.
                 </p>
               )}
               {!aiUsage.unlimited && usesLeft === 0 && (

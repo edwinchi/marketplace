@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PackagePlus } from "lucide-react";
+import { PackagePlus, Home } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
@@ -136,6 +136,22 @@ export default async function HomePage({
   const servicesHref = servicesCategory ? `/categories/${slugPath(servicesCategory.label, servicesCategory.id)}` : null;
   const toysHref = toysCategory ? `/categories/${slugPath(toysCategory.label, toysCategory.id)}` : null;
 
+  // Homepage placement add-on (app/listings/homepage-placement-actions.ts) -- only on the actual
+  // default homepage view, not a filtered/searched one, matching what a seller is paying for: a
+  // spot on the homepage itself, not a permanent boost to every search result.
+  const isDefaultHomeView = !q && (!category || category === "all") && !city && page === 1;
+  const featuredListings: NonNullable<typeof listings> = isDefaultHomeView
+    ? ((
+        await supabase
+          .from("listings")
+          .select(listingSelect)
+          .eq("status", "active")
+          .gt("homepage_featured_until", new Date().toISOString())
+          .order("homepage_featured_until", { ascending: false })
+          .limit(8)
+      ).data ?? [])
+    : [];
+
   // Semantic search: surfaces listings that mean the same thing as the query without sharing its
   // exact words (e.g. "phone" -> "smartphone"/"iPhone" listings) as a "related" tier below the
   // keyword matches above, rather than replacing them — a plain substring match on an exact brand
@@ -229,6 +245,16 @@ export default async function HomePage({
           <CategoryQuickNav categories={topLevelCategories} />
         </div>
       </div>
+
+      {featuredListings.length > 0 && (
+        <div className="mx-auto w-full max-w-[1600px] px-4 pt-6 sm:px-6 lg:px-8">
+          <h2 className="mb-4 flex items-center gap-2 border-b pb-4 text-sm font-semibold text-muted-foreground">
+            <Home className="size-4" />
+            {t("featuredListings")}
+          </h2>
+          <ListingGrid listings={featuredListings} favoritedIds={favoritedIds} signedIn={!!profile} />
+        </div>
+      )}
 
       <div className="mx-auto flex w-full max-w-[1600px] flex-1 gap-6 px-4 py-6 sm:px-6 lg:px-8">
         {/* Sidebar */}

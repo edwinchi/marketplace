@@ -1187,6 +1187,7 @@ export type Database = {
           description: string
           expires_at: string | null
           favorite_count: number
+          homepage_featured_until: string | null
           id: string
           image_embedding: string | null
           listing_type: string
@@ -1220,6 +1221,7 @@ export type Database = {
           description: string
           expires_at?: string | null
           favorite_count?: number
+          homepage_featured_until?: string | null
           id?: string
           image_embedding?: string | null
           listing_type?: string
@@ -1253,6 +1255,7 @@ export type Database = {
           description?: string
           expires_at?: string | null
           favorite_count?: number
+          homepage_featured_until?: string | null
           id?: string
           image_embedding?: string | null
           listing_type?: string
@@ -2456,6 +2459,7 @@ export type Database = {
       notify_new_listing: { Args: { p_country_code: string | null; p_listing_id: string; p_seller_id: string; p_title: string }; Returns: undefined }
       mark_order_shipped: { Args: { p_order_id: string; p_carrier?: string | null; p_tracking_number?: string | null }; Returns: undefined }
       bump_listing: { Args: { p_listing_id: string }; Returns: undefined }
+      extend_homepage_placement: { Args: { p_listing_id: string; p_days?: number }; Returns: undefined }
       match_listings_by_embedding: {
         Args: { filter_category_ids?: string[] | null; filter_city?: string | null; match_count?: number; query_embedding: string }
         Returns: { id: string; similarity: number }[]

@@ -78,6 +78,10 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
     const draft = takeListingDraft(title, categoryId);
     if (!draft) return;
     if (draft.description) {
+      // One-time hydration from sessionStorage (an external system) right after mount -- the
+      // textbook effect use case. Can't move to a lazy useState initializer: takeListingDraft
+      // deletes the draft as a side effect, so it must run exactly once, not during render.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAiAssisted(true);
       setDraftDescription(draft.description);
     }
@@ -300,7 +304,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
           </div>
           {isPlateCountryKbaBased && (
             <p className="mt-2 text-xs text-muted-foreground">
-              Germany doesn't allow plate lookups — enter the HSN/TSN vehicle-type key number from your
+              Germany doesn&apos;t allow plate lookups — enter the HSN/TSN vehicle-type key number from your
               Fahrzeugschein instead.
             </p>
           )}

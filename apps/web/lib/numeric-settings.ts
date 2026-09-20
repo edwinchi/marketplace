@@ -14,8 +14,14 @@ const DEFAULTS: Record<string, number> = {
   buyer_fee_max_cents: 2000,
   referral_bonus_ai_uses: 10,
   ad_bump_price_cents: 199,
-  listing_tier_plus_price_cents: 99,
-  listing_tier_premium_price_cents: 399,
+  // Priced against Marktplaats' own real "Plaats advertentie" tiers for the equivalent category
+  // (Plus EUR 16.40, Premium EUR 40.40, captured live 2026-09-20), undercut 40% -- a deliberate
+  // competitive-pricing call, not arbitrary numbers.
+  listing_tier_plus_price_cents: 984,
+  listing_tier_premium_price_cents: 2424,
+  // Same reference/discount logic (Marktplaats' 3-day homepage placement add-on, EUR 22.99, minus
+  // 40%) -- see listing-boost-actions.ts for what this actually buys.
+  homepage_placement_price_cents: 1379,
 };
 
 // Fails open to the code-shipped default on any error, including "table doesn't exist yet" -- same
