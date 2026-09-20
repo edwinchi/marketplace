@@ -161,8 +161,8 @@ export function ListingForm({
             : await fetch(cover.url)
                 .then((r) => r.blob())
                 .then((blob) => new File([blob], "cover.jpg", { type: blob.type || "image/jpeg" }));
-        const { base64, mediaType } = await fileToResizedBase64(file);
-        const { data, error, usesLeft: left } = await analyzeListingPhoto(base64, mediaType);
+        const image = await fileToResizedBase64(file);
+        const { data, error, usesLeft: left } = await analyzeListingPhoto([image]);
         setUsesLeft(left);
         if (error || !data) {
           setAnalyzeError(error ?? "Couldn't analyze that photo.");

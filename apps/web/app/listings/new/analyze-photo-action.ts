@@ -5,8 +5,10 @@ import { createClient } from "@/lib/supabase/server";
 import { getCategoriesAndAttributes } from "@/lib/categories";
 import { isAdminEmail } from "@/lib/admin";
 import { parseJsonResponse } from "@/lib/ai-text";
-import { buildProviderAttempts } from "@/lib/ai-providers";
+import { buildProviderAttempts, type ProviderAttempt } from "@/lib/ai-providers";
 import { getTextEmbedding } from "@/lib/embeddings";
+import { buildAttributeGuessPrompt, resolveAttributeGuesses } from "@/lib/ai-attribute-guess";
+import { MAX_ANALYSIS_PHOTOS } from "@/lib/ai-photo-analysis";
 
 // Free tier: 5 uses per registered account, then an honest "upgrade" prompt — there's no payment
 // processor wired up yet to actually charge for more (see /my-account/ai-features), so this just
@@ -18,6 +20,9 @@ export type PhotoAnalysis = {
   description: string;
   categoryId: string;
   categoryLabel: string;
+  // Only present when the matched category has attributes a photo could plausibly inform, and the
+  // model was confident enough about at least one of them -- see lib/ai-attribute-guess.ts.
+  attributes?: Record<string, string | string[]>;
 };
 
 export type AnalyzePhotoResult = {
@@ -92,11 +97,64 @@ export async function getAiUsageStatus(): Promise<{ usesLeft: number; freeLimit:
 const OPENROUTER_FREE_MODELS = ["openrouter/free", "google/gemma-4-31b-it:free", "google/gemma-4-26b-a4b-it:free", "nex-agi/nex-n2.5-pro:free"];
 const OPENROUTER_PAID_MODEL = "anthropic/claude-sonnet-4.5";
 
+// Shared retry loop, used for both the title/description call and the (optional) follow-up
+// attributes call below -- same provider fallback chain either way, just a different prompt/
+// max_tokens per call. Returns the raw response text on success, or null with the failure reason
+// a caller can turn into a user-facing message.
+async function callVisionModel(
+  attempts: ProviderAttempt[],
+  promptText: string,
+  images: { base64: string; mediaType: string }[],
+  maxTokens: number,
+): Promise<{ text: string } | { text: null; lastStatus: number; networkError: boolean }> {
+  let res: Response | null = null;
+  let lastStatus = 0;
+  let networkError = false;
+  for (const attempt of attempts) {
+    const body: Record<string, unknown> = {
+      model: attempt.model,
+      max_tokens: maxTokens,
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: promptText },
+            ...images.map((img) => ({ type: "image_url", image_url: { url: `data:${img.mediaType};base64,${img.base64}` } })),
+          ],
+        },
+      ],
+    };
+    if (attempt.baseUrl.includes("openrouter.ai")) body.reasoning = { exclude: true };
+    try {
+      res = await fetch(attempt.baseUrl, {
+        method: "POST",
+        headers: { "content-type": "application/json", authorization: `Bearer ${attempt.apiKey}`, ...attempt.extraHeaders },
+        body: JSON.stringify(body),
+      });
+      networkError = false;
+    } catch {
+      res = null;
+      networkError = true;
+      continue;
+    }
+    if (res.ok) break;
+    lastStatus = res.status;
+  }
+
+  if (!res || !res.ok) return { text: null, lastStatus, networkError: !res && networkError };
+
+  const json = await res.json();
+  const content = json?.choices?.[0]?.message?.content;
+  const text: string =
+    typeof content === "string" ? content : Array.isArray(content) ? content.map((p: { text?: string }) => p?.text ?? "").join("") : "";
+  return { text };
+}
+
 // Grounds the model to categories that actually exist and can be posted to (getCategoriesAndAttributes
 // already filters to is_active + allows_listings leaf categories) — it picks a label verbatim from
 // this real list rather than free-generating a category name, so there's no risk of it inventing a
 // category that doesn't exist in the taxonomy.
-export async function analyzeListingPhoto(imageBase64: string, mediaType: string): Promise<AnalyzePhotoResult> {
+export async function analyzeListingPhoto(images: { base64: string; mediaType: string }[], extraText?: string): Promise<AnalyzePhotoResult> {
   const { user, profile } = await getCurrentUserAndProfile();
   if (!user || !profile) return { data: null, error: "Sign in to use this.", usesLeft: 0, freeLimit: FREE_USE_LIMIT, unlimited: false };
 
@@ -140,7 +198,8 @@ export async function analyzeListingPhoto(imageBase64: string, mediaType: string
   }
   const usesLeftAfter = unlimited ? effectiveLimit : Math.max(0, effectiveLimit - reservedCount);
 
-  const { categoryOptions } = await getCategoriesAndAttributes();
+  const { categoryOptions, attributesByCategory } = await getCategoriesAndAttributes();
+  const photos = images.slice(0, MAX_ANALYSIS_PHOTOS);
 
   // Category is deliberately NOT asked for here anymore -- it used to be a third field the model
   // picked verbatim out of a ~210-item list, and a free-tier fallback model occasionally
@@ -153,7 +212,7 @@ export async function analyzeListingPhoto(imageBase64: string, mediaType: string
   // generation. This also shrinks the prompt considerably, which was itself a real cost (the
   // category list used to be the dominant token cost here, enough on its own to tip a request over
   // OpenRouter's free-tier per-request cap regardless of image size, agents.md §12).
-  const prompt = `You are helping a seller on MarketitNow, a classifieds marketplace, list an item from a photo.
+  const prompt = `You are helping a seller on MarketitNow, a classifieds marketplace, list an item from ${photos.length > 1 ? "photos" : "a photo"}.
 Respond with ONLY a JSON object (no markdown fences, no commentary) with exactly these keys:
 {"title": "short listing title, max 80 characters, no marketing fluff", "description": "a rich, structured draft description in simple markdown -- see format below"}
 
@@ -161,68 +220,22 @@ Description format (this is a draft the seller reviews and edits before anything
 - 2-3 short sections, each starting with its own "## " header naming one real, visible aspect of the item (what it's for, a standout feature, its finish/style, etc.) -- write real headers specific to this item, not generic labels like "Overview". A couple of engaging, honest sentences under each.
 - Then a "## Highlights" section with 4-6 short "- " bullet points of real, visible selling points.
 - Mention visible condition or wear honestly if there is any.
-- Never invent measurements, technical specs, power ratings, model numbers, or box contents you can't actually see in the photo -- a specific number that isn't genuinely visible (on a label, tag, or the item itself) does not belong in the description at all. It's fine, and expected, to leave precise specs for the seller to add themselves.
-
-If the photo doesn't clearly show a sellable item, respond with {"title": "", "description": ""} instead.`;
+- Never invent measurements, technical specs, power ratings, model numbers, or box contents you can't actually see in the photo${photos.length > 1 ? "s" : ""} -- a specific number that isn't genuinely visible (on a label, tag, or the item itself) does not belong in the description at all. It's fine, and expected, to leave precise specs for the seller to add themselves.
+${extraText?.trim() ? `\nThe seller also typed these extra details (use them, but the photo${photos.length > 1 ? "s" : ""} still take priority for anything visible): ${extraText.trim().slice(0, 500)}\n` : ""}
+If the photo${photos.length > 1 ? "s don't" : " doesn't"} clearly show a sellable item, respond with {"title": "", "description": ""} instead.`;
 
   // Try each model in order, moving on to the next on ANY failure (rate limit, no credit, model
   // deprecated/unavailable, anything) -- see the fallback list's own comment above for why this
-  // isn't narrowed to specific "retryable" statuses.
-  let res: Response | null = null;
-  let lastStatus = 0;
-  let networkError = false;
-  for (const attempt of attempts) {
-    // reasoning:{exclude:true} is an OpenRouter-specific extension -- Gemini's OpenAI-compatible
-    // endpoint doesn't recognize it, so only send it to OpenRouter.
-    const body: Record<string, unknown> = {
-      model: attempt.model,
-      // Was 500 -- too tight for the richer, multi-section description format below; the
-      // model was visibly truncating mid-sentence on longer items before this bump.
-      max_tokens: 1100,
-      messages: [
-        {
-          role: "user",
-          content: [
-            { type: "text", text: prompt },
-            { type: "image_url", image_url: { url: `data:${mediaType};base64,${imageBase64}` } },
-          ],
-        },
-      ],
-    };
-    // Confirmed live that several current free OpenRouter models default to an internal "thinking"
-    // pass that can consume most or all of max_tokens before ever emitting the real answer
-    // (message.content stays null, message.reasoning holds the scratch-work instead). This still
-    // lets the model think, it just omits that text from the response and reliably leaves more of
-    // the budget for the actual title/description/category JSON.
-    if (attempt.baseUrl.includes("openrouter.ai")) body.reasoning = { exclude: true };
-    try {
-      res = await fetch(attempt.baseUrl, {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          authorization: `Bearer ${attempt.apiKey}`,
-          ...attempt.extraHeaders,
-        },
-        body: JSON.stringify(body),
-      });
-      networkError = false;
-    } catch {
-      // A blip on this one model shouldn't forfeit the whole fallback chain -- try the next model
-      // instead of giving up immediately, same as a retryable HTTP status below.
-      res = null;
-      networkError = true;
-      continue;
-    }
-    if (res.ok) break;
-    lastStatus = res.status;
-    // Try every model in the list regardless of why the previous one failed -- confirmed live
-    // that OpenRouter can deprecate a free model out from under this list entirely (a 404, not a
-    // retryable-looking status), and stopping at the first failure meant this whole feature was
-    // silently dead until the fallback list was updated, never even reaching the paid model at
-    // the end. The only real cost of trying one more model is a small added latency.
-  }
+  // isn't narrowed to specific "retryable" statuses. Confirmed live that OpenRouter can deprecate a
+  // free model out from under this list entirely (a 404, not a retryable-looking status), so this
+  // tries every model regardless of why the previous one failed rather than stopping at the first
+  // failure -- the only real cost of trying one more model is a small added latency.
+  //
+  // Was 500 -- too tight for the richer, multi-section description format below; the model was
+  // visibly truncating mid-sentence on longer items before this bump.
+  const result = await callVisionModel(attempts, prompt, photos, 1100);
 
-  if (!res || !res.ok) {
+  if (result.text == null) {
     // The reservation above already spent a use before this call was even made -- a service
     // failure (rate limit, no credit, network error, every provider down) isn't the user's fault,
     // so it's refunded here rather than left charged against their count. usesLeftBefore (computed
@@ -231,20 +244,15 @@ If the photo doesn't clearly show a sellable item, respond with {"title": "", "d
     const { error: releaseError } = await supabase.rpc("release_ai_photo_analysis_use", { p_profile_id: profile.id });
     if (releaseError) console.error(`Failed to release a reserved AI photo-analysis use for profile ${profile.id}:`, releaseError);
 
-    if (!res && networkError) {
+    if (result.networkError) {
       return { data: null, error: "Couldn't reach the photo analysis service. Check your connection and try again.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
     }
-    if (lastStatus === 429) return { data: null, error: "Photo analysis is busy right now — try again in a moment.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
-    if (lastStatus === 402) return { data: null, error: "Photo analysis is temporarily unavailable — the account behind it needs more credits.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
-    return { data: null, error: `Photo analysis failed (${lastStatus}). Try again in a moment.`, usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
+    if (result.lastStatus === 429) return { data: null, error: "Photo analysis is busy right now — try again in a moment.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
+    if (result.lastStatus === 402) return { data: null, error: "Photo analysis is temporarily unavailable — the account behind it needs more credits.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
+    return { data: null, error: `Photo analysis failed (${result.lastStatus}). Try again in a moment.`, usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
   }
 
-  const json = await res.json();
-  const content = json?.choices?.[0]?.message?.content;
-  const text: string =
-    typeof content === "string" ? content : Array.isArray(content) ? content.map((p: { text?: string }) => p?.text ?? "").join("") : "";
-
-  const parsed = parseJsonResponse<{ title?: string; description?: string }>(text);
+  const parsed = parseJsonResponse<{ title?: string; description?: string }>(result.text);
   if (!parsed) {
     return { data: null, error: "Couldn't make sense of that photo — try a clearer, closer shot of the item.", usesLeft: usesLeftAfter, freeLimit: FREE_USE_LIMIT, unlimited };
   }
@@ -266,8 +274,27 @@ If the photo doesn't clearly show a sellable item, respond with {"title": "", "d
     return { data: null, error: "Identified the item but couldn't match it to a category — please pick one manually below.", usesLeft: usesLeftAfter, freeLimit: FREE_USE_LIMIT, unlimited };
   }
 
+  // Second pass, same photos: the category (and so its attribute list) is only known now, so this
+  // can't be folded into the first call above. Best-effort only -- an already-reserved use isn't
+  // refunded for a failure here, since the seller still got a usable title/description/category out
+  // of it either way; the attribute guesses are a bonus on top, not the thing being paid for.
+  let attributes: Record<string, string | string[]> | undefined;
+  const categoryAttributes = attributesByCategory[matched.id] ?? [];
+  const attributePrompt = buildAttributeGuessPrompt(categoryAttributes);
+  if (attributePrompt) {
+    const fullAttributePrompt = extraText?.trim() ? `${attributePrompt}\n\nThe seller's own notes: ${extraText.trim().slice(0, 500)}` : attributePrompt;
+    const attributeResult = await callVisionModel(attempts, fullAttributePrompt, photos, 500);
+    if (attributeResult.text != null) {
+      const parsedAttributes = parseJsonResponse<Record<string, unknown>>(attributeResult.text);
+      if (parsedAttributes) {
+        const resolved = resolveAttributeGuesses(parsedAttributes, categoryAttributes);
+        if (Object.keys(resolved).length > 0) attributes = resolved;
+      }
+    }
+  }
+
   return {
-    data: { title: parsed.title.slice(0, 80), description: parsed.description ?? "", categoryId: matched.id, categoryLabel: matched.label },
+    data: { title: parsed.title.slice(0, 80), description: parsed.description ?? "", categoryId: matched.id, categoryLabel: matched.label, attributes },
     error: null,
     usesLeft: usesLeftAfter,
     freeLimit: FREE_USE_LIMIT,

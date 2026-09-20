@@ -11,7 +11,14 @@ export type ListingDraft = {
   title: string;
   categoryId: string;
   description?: string;
-  imageDataUrl?: string;
+  // Up to 3 (analyzeListingPhoto's own cap) -- plural since the AI-assist step can now analyze
+  // more than one photo, matching the reference this was modeled on.
+  imageDataUrls?: string[];
+  // Attribute guesses from the AI-assist photo analysis (app/listings/new/analyze-photo-action.ts),
+  // already resolved to real attribute_option ids -- same shape CharacteristicsSection's
+  // defaultValues prop expects, so step 2 applies these through the exact same autofill path the
+  // RDW plate lookup below uses.
+  attributes?: Record<string, string | string[]>;
   // Set by the step-1 "Sell your car" plate modal (components/listings/sell-car-plate-modal.tsx)
   // when the seller used a plate instead of skipping -- step 2 applies the same
   // mapVehicleLookupToAttributeDefaults (lib/vehicle-listing-defaults.ts) its own inline plate

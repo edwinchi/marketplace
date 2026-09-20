@@ -72,7 +72,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
   const [draftPhotoFiles, setDraftPhotoFiles] = useState<File[] | undefined>(undefined);
   const [draftDescription, setDraftDescription] = useState<string | undefined>(undefined);
   const [aiAssisted, setAiAssisted] = useState(false);
-  const [attributeDefaults, setAttributeDefaults] = useState<Record<string, string> | undefined>(undefined);
+  const [attributeDefaults, setAttributeDefaults] = useState<Record<string, string | string[]> | undefined>(undefined);
 
   useEffect(() => {
     const draft = takeListingDraft(title, categoryId);
@@ -85,12 +85,21 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
       setAiAssisted(true);
       setDraftDescription(draft.description);
     }
-    if (draft.imageDataUrl) {
-      fetch(draft.imageDataUrl)
-        .then((r) => r.blob())
-        .then((blob) => setDraftPhotoFiles([new File([blob], "photo.jpg", { type: blob.type || "image/jpeg" })]))
+    if (draft.imageDataUrls?.length) {
+      Promise.all(
+        draft.imageDataUrls.map((url, i) =>
+          fetch(url)
+            .then((r) => r.blob())
+            .then((blob) => new File([blob], `photo${i}.jpg`, { type: blob.type || "image/jpeg" })),
+        ),
+      )
+        .then(setDraftPhotoFiles)
         .catch(() => {});
     }
+    // Carried over by the step-1 AI-assist photo analysis -- already resolved to real
+    // attribute_option ids server-side (lib/ai-attribute-guess.ts), same shape
+    // mapVehicleLookupToAttributeDefaults below produces.
+    if (draft.attributes) setAttributeDefaults(draft.attributes);
     // Carried over by the step-1 "Sell your car" plate modal -- same mapping step 2's own inline
     // plate search uses, so a plate entered at either point fills in the same fields.
     if (draft.vehicleLookup) setAttributeDefaults(mapVehicleLookupToAttributeDefaults(draft.vehicleLookup, attributes));
@@ -155,8 +164,8 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
     setCategoryMismatch(null);
     startAnalyzing(async () => {
       try {
-        const { base64, mediaType } = await fileToResizedBase64(cover);
-        const { data, error, usesLeft: left } = await analyzeListingPhoto(base64, mediaType);
+        const image = await fileToResizedBase64(cover);
+        const { data, error, usesLeft: left } = await analyzeListingPhoto([image]);
         setUsesLeft(left);
         if (error || !data) {
           setAnalyzeError(error ?? "Couldn't analyze that photo.");
@@ -166,6 +175,12 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
         setAiAssisted(true);
         setDraftDescription(data.description);
         if (data.categoryId !== categoryId) setCategoryMismatch(data.categoryLabel);
+        // Only applied when the AI's own category guess actually matches the category already
+        // chosen on this page -- data.attributes' option ids are specific to data.categoryId's
+        // attribute list, and silently applying them under a mismatched category risks a
+        // same-named-but-different attribute (e.g. two categories both having a "colour" field
+        // with unrelated option ids) getting a wrong default with no visible error.
+        if (data.categoryId === categoryId && data.attributes) setAttributeDefaults(data.attributes);
       } catch {
         setAnalyzeError("Couldn't analyze that photo — try again.");
       } finally {

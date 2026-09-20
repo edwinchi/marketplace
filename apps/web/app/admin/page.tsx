@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
   Users, Store, MessageSquare, Heart, Handshake, Star, Sparkles, DollarSign,
-  Building2, User as UserIcon, TrendingUp, MapPin, Tag, Clock, Eye, ShieldAlert,
+  Building2, User as UserIcon, TrendingUp, MapPin, Tag, Clock, Eye, ShieldAlert, Flag,
 } from "lucide-react";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createServiceClient } from "@/lib/supabase/service";
@@ -117,7 +117,7 @@ export default async function AdminDashboardPage() {
   const { user } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) return <AdminLoginScreen />;
 
-  const [stats, requireLogin, disabledLocales, collapsedLimit, listenFreeAccess, sellerProGlobalUnlock, newListingNotificationsUnlock, buyerFeePercent, buyerFeeMin, buyerFeeMax, adBumpPriceCents, { count: embeddingsRemaining }, { count: flaggedCount }, openRouterStatus, healthCheck] = await Promise.all([
+  const [stats, requireLogin, disabledLocales, collapsedLimit, listenFreeAccess, sellerProGlobalUnlock, newListingNotificationsUnlock, buyerFeePercent, buyerFeeMin, buyerFeeMax, adBumpPriceCents, { count: embeddingsRemaining }, { count: flaggedCount }, { count: openAiReportsCount }, openRouterStatus, healthCheck] = await Promise.all([
     getAdminStats(),
     getRequireLoginSetting(),
     getDisabledLocales(),
@@ -134,6 +134,7 @@ export default async function AdminDashboardPage() {
     // this admin's own).
     createServiceClient().from("listings").select("id", { count: "exact", head: true }).is("title_embedding", null).neq("status", "deleted"),
     createServiceClient().from("listings").select("id", { count: "exact", head: true }).eq("moderation_status", "flagged"),
+    createServiceClient().from("ai_output_reports").select("id", { count: "exact", head: true }).eq("status", "open"),
     getOpenRouterStatus(),
     getLatestHealthCheck(),
   ]);
@@ -156,6 +157,14 @@ export default async function AdminDashboardPage() {
               className="flex items-center gap-1.5 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-1.5 text-sm font-medium text-destructive transition-all duration-150 hover:-translate-y-0.5"
             >
               <ShieldAlert className="size-4" /> {flaggedCount} flagged for review
+            </Link>
+          )}
+          {!!openAiReportsCount && (
+            <Link
+              href="/admin/ai-reports"
+              className="flex items-center gap-1.5 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-1.5 text-sm font-medium text-destructive transition-all duration-150 hover:-translate-y-0.5"
+            >
+              <Flag className="size-4" /> {openAiReportsCount} AI report{openAiReportsCount === 1 ? "" : "s"}
             </Link>
           )}
           <Link href="/" className="rounded-lg border px-3 py-1.5 text-sm font-medium transition-all duration-150 hover:-translate-y-0.5 hover:border-[#e89818]/50">

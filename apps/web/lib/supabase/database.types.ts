@@ -1480,6 +1480,57 @@ export type Database = {
           },
         ]
       }
+      ai_output_reports: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          description: string
+          extra_text: string | null
+          id: string
+          reason: string
+          reporter_id: string
+          status: string
+          title: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          description: string
+          extra_text?: string | null
+          id?: string
+          reason: string
+          reporter_id: string
+          status?: string
+          title: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          description?: string
+          extra_text?: string | null
+          id?: string
+          reason?: string
+          reporter_id?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_output_reports_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_output_reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           body: string | null

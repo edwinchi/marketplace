@@ -2,13 +2,14 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
-import { Sparkles, Camera, X, Car } from "lucide-react";
+import { Sparkles, Camera, X, Car, Flag } from "lucide-react";
 import { findCategoryMatches, type CategoryMatch } from "@/app/listings/new/find-category-action";
-import { analyzeListingPhoto } from "@/app/listings/new/analyze-photo-action";
+import { analyzeListingPhoto, type PhotoAnalysis } from "@/app/listings/new/analyze-photo-action";
+import { reportAiOutput } from "@/app/listings/new/report-ai-output-action";
 import { fileToResizedBase64 } from "@/lib/image";
 import { saveListingDraft } from "@/lib/listing-draft";
+import { MAX_ANALYSIS_PHOTOS as MAX_AI_PHOTOS } from "@/lib/ai-photo-analysis";
 import type { VehicleLookupResult } from "@/lib/rdw";
 import { vehicleLookupTitle } from "@/lib/vehicle-listing-defaults";
 import type { CategoryOption } from "@/lib/categories";
@@ -16,7 +17,73 @@ import { SellCarPlateModal } from "@/components/listings/sell-car-plate-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+function ReportAiOutput({ result, extraText }: { result: PhotoAnalysis; extraText: string }) {
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState("");
+  const [pending, startTransition] = useTransition();
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (done) {
+    return <p className="mt-2 text-xs text-muted-foreground">Thanks — this has been reported for review.</p>;
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="mt-2 flex items-center gap-1 text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
+      >
+        <Flag className="size-3" /> Something wrong with this? Report it
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-2 flex flex-col gap-2 rounded-md border border-dashed p-3">
+      <Label htmlFor="ai_report_reason" className="text-xs">What&apos;s wrong with the AI-generated text?</Label>
+      <Textarea
+        id="ai_report_reason"
+        value={reason}
+        onChange={(e) => setReason(e.target.value)}
+        placeholder="E.g. wrong item, offensive language, made-up details..."
+        rows={2}
+        className="text-sm"
+      />
+      {error && <p className="text-xs text-destructive">{error}</p>}
+      <div className="flex gap-2">
+        <Button
+          type="button"
+          size="sm"
+          disabled={!reason.trim() || pending}
+          onClick={() =>
+            startTransition(async () => {
+              setError(null);
+              const res = await reportAiOutput({
+                categoryId: result.categoryId,
+                title: result.title,
+                description: result.description,
+                extraText,
+                reason: reason.trim(),
+              });
+              if (res.error) setError(res.error);
+              else setDone(true);
+            })
+          }
+        >
+          {pending ? "Sending…" : "Submit report"}
+        </Button>
+        <Button type="button" size="sm" variant="ghost" onClick={() => setOpen(false)}>
+          Cancel
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 export function NewListingStep1({
   categoryOptions,
@@ -35,11 +102,11 @@ export function NewListingStep1({
   const [searching, startSearch] = useTransition();
 
   const [useAi, setUseAi] = useState(true);
-  const [photoPreview, setPhotoPreview] = useState<{ file: File; dataUrl: string } | null>(null);
+  const [photoPreviews, setPhotoPreviews] = useState<{ file: File; dataUrl: string }[]>([]);
+  const [extraText, setExtraText] = useState("");
   const [analyzing, startAnalyzing] = useTransition();
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
-  const [aiDescription, setAiDescription] = useState<string | null>(null);
-  const [aiCategoryLabel, setAiCategoryLabel] = useState<string | null>(null);
+  const [aiResult, setAiResult] = useState<PhotoAnalysis | null>(null);
   const [usesLeft, setUsesLeft] = useState(initialUsesLeft);
 
   const chosenCategoryId = selected === "manual" ? manualCategoryId : selected;
@@ -86,45 +153,60 @@ export function NewListingStep1({
     });
   }
 
+  function handlePhotosSelected(files: FileList) {
+    const room = MAX_AI_PHOTOS - photoPreviews.length;
+    if (room <= 0) return;
+    setAiResult(null);
+    setAnalyzeError(null);
+    for (const file of Array.from(files).slice(0, room)) {
+      const reader = new FileReader();
+      reader.onload = () => setPhotoPreviews((prev) => (prev.length >= MAX_AI_PHOTOS ? prev : [...prev, { file, dataUrl: reader.result as string }]));
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function removePhoto(index: number) {
+    setPhotoPreviews((prev) => prev.filter((_, i) => i !== index));
+    setAiResult(null);
+    setAnalyzeError(null);
+  }
+
   const analyzeInFlight = useRef(false);
 
-  async function handlePhotoSelected(file: File) {
-    if (analyzeInFlight.current) return;
+  // A deliberate button click, not auto-triggered per photo (unlike the single-photo version this
+  // replaced) -- with up to 3 photos now selectable, auto-analyzing on every add would burn through
+  // the free-use limit (see FREE_USE_LIMIT, app/listings/new/analyze-photo-action.ts) just from
+  // adding photos one at a time. Matches the reference's own explicit "Maak mijn advertentie"
+  // button rather than an implicit trigger.
+  function handleAnalyze() {
+    if (analyzeInFlight.current || photoPreviews.length === 0) return;
     analyzeInFlight.current = true;
     setAnalyzeError(null);
-    setAiDescription(null);
-    setAiCategoryLabel(null);
-    const reader = new FileReader();
-    reader.onload = () => setPhotoPreview({ file, dataUrl: reader.result as string });
-    reader.readAsDataURL(file);
+    setAiResult(null);
 
     startAnalyzing(async () => {
       try {
-        const { base64, mediaType } = await fileToResizedBase64(file);
-        const { data, error, usesLeft: left } = await analyzeListingPhoto(base64, mediaType);
+        const images = await Promise.all(photoPreviews.map((p) => fileToResizedBase64(p.file)));
+        const { data, error, usesLeft: left } = await analyzeListingPhoto(images, extraText);
         setUsesLeft(left);
         if (error || !data) {
-          setAnalyzeError(error ?? "Couldn't analyze that photo.");
+          setAnalyzeError(error ?? "Couldn't analyze those photos.");
           return;
         }
         setTitle(data.title);
         setManualCategoryId(data.categoryId);
         setSelected(data.categoryId);
         setMatches(null);
-        setAiDescription(data.description);
-        setAiCategoryLabel(data.categoryLabel);
-        const reader2 = new FileReader();
-        reader2.onload = () => {
-          saveListingDraft({
-            title: data.title,
-            categoryId: data.categoryId,
-            description: data.description,
-            imageDataUrl: reader2.result as string,
-          });
-        };
-        reader2.readAsDataURL(file);
+        setAiResult(data);
+        saveListingDraft({
+          title: data.title,
+          categoryId: data.categoryId,
+          description: data.description,
+          attributes: data.attributes,
+          imageDataUrls: photoPreviews.map((p) => p.dataUrl),
+        });
       } catch {
-        setAnalyzeError("Couldn't analyze that photo — try again or fill in the details yourself below.");
+        setAnalyzeError("Couldn't analyze those photos — try again or fill in the details yourself below.");
       } finally {
         analyzeInFlight.current = false;
       }
@@ -164,7 +246,7 @@ export function NewListingStep1({
           <p className="mb-2 text-xs text-amber-600">
             {usesLeft} free AI {usesLeft === 1 ? "use" : "uses"} left —{" "}
             <Link href="/my-account/ai-features" className="underline underline-offset-2">
-              see what's next
+              see what&apos;s next
             </Link>
             .
           </p>
@@ -187,66 +269,96 @@ export function NewListingStep1({
           <p className="text-sm text-muted-foreground">
             AI assistance is off — no photo will be analyzed. Fill in the title and category yourself below.
           </p>
-        ) : <div className="flex items-start gap-3">
-          {photoPreview ? (
-            <div className="relative size-20 shrink-0 overflow-hidden rounded-md border">
-              {/* eslint-disable-next-line @next/next/no-img-element -- local preview, not a remote/optimizable image */}
-              <img src={photoPreview.dataUrl} alt="" className="size-full object-cover" />
-              {!analyzing && (
-                <button
-                  type="button"
-                  aria-label="Remove photo"
-                  onClick={() => {
-                    setPhotoPreview(null);
-                    setAiDescription(null);
-                    setAiCategoryLabel(null);
-                    setAnalyzeError(null);
-                  }}
-                  className="absolute top-0.5 right-0.5 flex size-5 items-center justify-center rounded-full bg-background/90"
-                >
-                  <X className="size-3" />
-                </button>
+        ) : (
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-wrap items-start gap-3">
+              {photoPreviews.map((p, i) => (
+                <div key={i} className="relative size-20 shrink-0 overflow-hidden rounded-md border">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- local preview, not a remote/optimizable image */}
+                  <img src={p.dataUrl} alt="" className="size-full object-cover" />
+                  {!analyzing && (
+                    <button
+                      type="button"
+                      aria-label="Remove photo"
+                      onClick={() => removePhoto(i)}
+                      className="absolute top-0.5 right-0.5 flex size-5 items-center justify-center rounded-full bg-background/90"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  )}
+                </div>
+              ))}
+              {photoPreviews.length < MAX_AI_PHOTOS && (
+                <label className="flex size-20 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed text-muted-foreground hover:border-foreground/40 hover:text-foreground">
+                  <Camera className="size-5" />
+                  <span className="text-[10px]">{photoPreviews.length > 0 ? "Add more" : "Add photo"}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files?.length) handlePhotosSelected(e.target.files);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
               )}
             </div>
-          ) : (
-            <label className="flex size-20 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed text-muted-foreground hover:border-foreground/40 hover:text-foreground">
-              <Camera className="size-5" />
-              <span className="text-[10px]">Add photo</span>
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handlePhotoSelected(file);
-                  e.target.value = "";
-                }}
-              />
-            </label>
-          )}
-          <div className="flex-1 text-sm">
-            {analyzing && <p className="text-muted-foreground">Analyzing photo…</p>}
-            {!analyzing && analyzeError && <p className="text-destructive">{analyzeError}</p>}
-            {!analyzing && !analyzeError && aiCategoryLabel && (
-              <div>
-                <p className="text-muted-foreground">
-                  Suggested category: <span className="font-medium text-foreground">{aiCategoryLabel}</span>
-                </p>
-                {aiDescription && <p className="mt-1 text-xs text-muted-foreground">{aiDescription}</p>}
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Title and description are filled in below — read them over, then continue.
-                </p>
-              </div>
-            )}
-            {!analyzing && !analyzeError && !aiCategoryLabel && (
-              <p className="text-muted-foreground">
-                Upload a photo and AI drafts a title, category, and description for you to review — saves you the
-                typing, but it&apos;s entirely optional. Prefer to do it yourself? Just skip this and fill in the
-                fields below.
+
+            {photoPreviews.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                Add up to {MAX_AI_PHOTOS} photos and AI drafts a title, category, description, and matching details for
+                you to review — saves you the typing, but it&apos;s entirely optional. Prefer to do it yourself? Just
+                skip this and fill in the fields below.
               </p>
             )}
+
+            {photoPreviews.length > 0 && (
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="extra_text" className="text-xs text-muted-foreground">
+                  Add details AI can&apos;t see from the photo (brand, exact size, condition...) — optional
+                </Label>
+                <Textarea
+                  id="extra_text"
+                  value={extraText}
+                  onChange={(e) => setExtraText(e.target.value)}
+                  placeholder="E.g. Size 42, barely worn, original box included"
+                  rows={2}
+                  className="text-sm"
+                />
+              </div>
+            )}
+
+            {photoPreviews.length > 0 && !aiResult && (
+              <Button type="button" size="sm" disabled={analyzing} onClick={handleAnalyze} className="self-start gap-1.5">
+                <Sparkles className="size-3.5" />
+                {analyzing ? "Analyzing…" : "Analyze with AI"}
+              </Button>
+            )}
+
+            {analyzeError && <p className="text-sm text-destructive">{analyzeError}</p>}
+
+            {aiResult && (
+              <div className="rounded-md border bg-background p-3 text-sm">
+                <p className="text-muted-foreground">
+                  Suggested category: <span className="font-medium text-foreground">{aiResult.categoryLabel}</span>
+                </p>
+                {aiResult.description && <p className="mt-1 text-xs text-muted-foreground">{aiResult.description}</p>}
+                {aiResult.attributes && Object.keys(aiResult.attributes).length > 0 && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Also filled in {Object.keys(aiResult.attributes).length} matching detail
+                    {Object.keys(aiResult.attributes).length === 1 ? "" : "s"} below.
+                  </p>
+                )}
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Title, description, and details are filled in below — review them, then continue.
+                </p>
+                <ReportAiOutput result={aiResult} extraText={extraText} />
+              </div>
+            )}
           </div>
-        </div>}
+        )}
       </div>
 
       <div>
