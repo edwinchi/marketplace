@@ -235,7 +235,7 @@ export async function Nav() {
           {user ? t("account") : t("signIn")}
         </Link>
       </nav>
-      {profile && <MessageSoundNotifier initialCount={unreadCount} />}
+      {profile && <MessageSoundNotifier initialCount={unreadCount} myProfileId={profile.id} />}
     </>
   );
 }
