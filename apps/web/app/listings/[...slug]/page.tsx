@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTranslations, getLocale } from "next-intl/server";
-import { MessageCircle, Globe, Calendar, Fuel, Cog, Gauge, Tag, Phone } from "lucide-react";
+import { MessageCircle, Globe, Calendar, Fuel, Cog, Gauge, Tag, Phone, Eye, Heart } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getCategoryPath } from "@/lib/categories";
@@ -93,7 +93,7 @@ export default async function ListingPage({
   const { data: listing } = await supabase
     .from("listings")
     .select(
-      "id, title, description, price_minor, currency_code, price_type, pickup_available, delivery_available, offers_allowed, status, seller_id, category_id, location_id, created_at",
+      "id, title, description, price_minor, currency_code, price_type, pickup_available, delivery_available, offers_allowed, status, seller_id, category_id, location_id, created_at, view_count",
     )
     .eq("id", id)
     .single();
@@ -655,6 +655,32 @@ export default async function ListingPage({
             />
           </div>
         )}
+
+        {/* view_count is a genuine, live-incremented counter (see increment_listing_view_count,
+            called further up this file) -- shown to everyone, not just the owner, same as
+            Marktplaats' own reference. favoriteCount is already computed live from the favorites
+            table above for the photo-gallery badge; reused here as an always-visible stat instead
+            of only appearing once >0. */}
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t pt-4 text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span className="flex items-center gap-1">
+              <Eye className="size-3.5" />
+              {t("viewCount", { count: listing.view_count ?? 0 })}
+            </span>
+            <span className="flex items-center gap-1">
+              <Heart className="size-3.5" />
+              {t("saveCount", { count: favoriteCount ?? 0 })}
+            </span>
+            <span className="flex items-center gap-1">
+              <Calendar className="size-3.5" />
+              {t("listedSince", { date: new Date(listing.created_at).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" }) })}
+            </span>
+          </div>
+          {/* No dedicated short ad-code column exists -- this is the listing's own real id,
+              uppercased and truncated to a Marktplaats-style reference length, not a fabricated
+              number. Still uniquely identifies the listing for a report/support conversation. */}
+          <span>{t("adReferenceNumber", { number: listing.id.slice(0, 8).toUpperCase() })}</span>
+        </div>
       </div>
     </div>
   );
