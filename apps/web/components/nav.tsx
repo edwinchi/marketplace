@@ -120,15 +120,19 @@ export async function Nav() {
                   ETag/conditional-request staleness in dev that a source-file replacement didn't
                   bust (confirmed: the raw /logo.png and a fresh-width optimizer request both
                   returned the new file, but the browser's actual rendered request kept getting a
-                  304 against old cached bytes). Serving it as-is sidesteps that whole class of bug
-                  — no runtime resizing needed for a logo this size anyway. The ?v= query string on
-                  every /logo*.png reference below is the same fix applied at the URL level: it hit
-                  the same 304-against-stale-bytes problem again after the MarketitNow swap, and a
-                  changed URL is a guaranteed cache miss everywhere (browser + CDN), unlike hoping a
-                  revalidation notices the file changed. Bump the version whenever the file changes
-                  again. */}
+                  304 against old cached bytes). Serving it as-is sidesteps that whole class of bug.
+                  logo-sm.png (400x171, ~35KB) rather than the full logo.png (1167x500, ~425KB) --
+                  confirmed live that every icon-sized logo placement in the app (this one, admin,
+                  login, the document-page byline) renders at 80px tall or less, so the full-res
+                  file was pure waste; logo.png itself is kept only for document-page.tsx's
+                  full-bleed watermark, which genuinely needs the resolution. The ?v= query string
+                  on every /logo*.png reference below is the same fix applied at the URL level: it
+                  hit the same 304-against-stale-bytes problem again after the MarketitNow swap, and
+                  a changed URL is a guaranteed cache miss everywhere (browser + CDN), unlike hoping
+                  a revalidation notices the file changed. Bump the version whenever the file
+                  changes again. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png?v=2" alt="MarketitNow" className="h-20 w-auto" />
+              <img src="/logo-sm.png?v=1" alt="MarketitNow" className="h-20 w-auto" />
             </Link>
             {/* xl, matching "How it works" right below -- the same measured constraint applies
                 (this row already fills 1024-1280px, only 1280px+ has real spare room). Search was

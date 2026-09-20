@@ -1,6 +1,7 @@
 {
   "Common": {
-    "back": "返回"
+    "back": "返回",
+    "skipToContent": "跳至内容"
   },
   "Listen": {
     "listen": "朗读",

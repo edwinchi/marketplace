@@ -220,18 +220,26 @@ export default async function HomePage({
           <form className="flex flex-col gap-2 rounded-xl border bg-background p-2 shadow-sm sm:flex-row sm:items-center">
             <SearchQueryInput name="q" placeholder={t("searchPlaceholder")} defaultValue={q} />
             {/* items (plain data, not a render function) is required here because this Select is
-                rendered from a Server Component — a function child can't cross that boundary. */}
+                rendered from a Server Component — a function child can't cross that boundary.
+                Top-level categories only (~36), not the full categoryOptions taxonomy (~2,630
+                subcategories) -- that full list was getting embedded into every homepage response
+                regardless of whether the dropdown was ever opened (a Client Component's props are
+                serialized into the page's own initial payload), confirmed live as the dominant
+                contributor to a ~1MB homepage response. Subcategory-level filtering still works
+                the same as always, just from a category's own page (/categories/[...slug]), not
+                from this one quick dropdown -- nothing on the site ever links to this homepage
+                with a subcategory id in the URL, confirmed by search, so nothing regresses. */}
             <Select
               name="category"
               defaultValue={category ?? "all"}
-              items={[{ value: "all", label: t("allCategories") }, ...categoryOptions.map((c) => ({ value: c.id, label: c.label }))]}
+              items={[{ value: "all", label: t("allCategories") }, ...topLevelCategories.map((c) => ({ value: c.id, label: c.label }))]}
             >
               <SelectTrigger className="border-0 shadow-none sm:w-56">
                 <SelectValue placeholder={t("allCategories")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{t("allCategories")}</SelectItem>
-                {categoryOptions.map((c) => (
+                {topLevelCategories.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {c.label}
                   </SelectItem>

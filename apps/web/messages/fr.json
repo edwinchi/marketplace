@@ -1,6 +1,7 @@
 {
   "Common": {
-    "back": "Retour"
+    "back": "Retour",
+    "skipToContent": "Passer au contenu"
   },
   "Listen": {
     "listen": "Écouter",

@@ -45,6 +45,46 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.supabase.co", pathname: "/storage/v1/object/public/**" },
     ],
   },
+  // No security headers existed at all before this -- confirmed live (curl -I marketitnow.net had
+  // none of these). CSP is the one genuinely risky one to get wrong (a too-strict policy silently
+  // breaks real functionality), so it's scoped to exactly what this app actually loads: Stripe.js
+  // (checkout/Connect), Supabase (API + Storage images), Mapbox (the location picker), Google
+  // Fonts, and this app's own origin -- not a generic lockdown copied from elsewhere.
+  headers: async () => [
+    {
+      source: "/:path*",
+      headers: [
+        // 2 years, includes subdomains -- safe to set unconditionally since the site has been
+        // HTTPS-only on Vercel from day one; there's no live HTTP variant this could break.
+        { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+        { key: "X-Content-Type-Options", value: "nosniff" },
+        // SAMEORIGIN, not DENY -- Stripe Checkout/Connect return-navigations and this app's own
+        // admin iframinstall-prompt flows are same-origin; DENY would be strictly safer but has a
+        // real chance of breaking one of those without a way to verify every embed path from here.
+        { key: "X-Frame-Options", value: "SAMEORIGIN" },
+        { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+        {
+          key: "Content-Security-Policy",
+          value: [
+            "default-src 'self'",
+            // 'unsafe-inline'/'unsafe-eval' on scripts is broader than ideal, but Next.js's own
+            // inline hydration scripts and Mapbox GL's runtime both need it -- a nonce-based CSP
+            // is the tighter fix, and a real enough restructuring (every inline script in the app
+            // would need it threaded through) that it belongs in its own follow-up, not bundled
+            // into this first pass of "no headers at all" -> "a real, working CSP".
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://api.mapbox.com",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.mapbox.com",
+            "font-src 'self' https://fonts.gstatic.com",
+            "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://api.mapbox.com",
+            "connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.mapbox.com https://events.mapbox.com",
+            "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://connect.stripe.com",
+            "object-src 'none'",
+            "base-uri 'self'",
+          ].join("; "),
+        },
+      ],
+    },
+  ],
   redirects: async () => {
     // Final step of the afrodeals.net -> marketitnow.net domain migration (agents.md §13). This
     // must stay off (returns []) until marketitnow.net is fully verified: attached as a domain on

@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Fraunces, Roboto } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { isRtlLocale } from "@/i18n/request";
 import "./globals.css";
 import { Nav } from "@/components/nav";
@@ -55,6 +55,7 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const locale = await getLocale();
+  const t = await getTranslations("Common");
 
   return (
     <html
@@ -70,11 +71,20 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           silences the mismatch warning for these two elements' own attributes; it doesn't hide
           real hydration bugs elsewhere in the tree. */}
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
+        {/* Visually hidden until focused (Tab from a fresh page load lands here first) -- lets a
+            keyboard/screen-reader user jump straight past the nav bar instead of tabbing through
+            every link in it on every single page. */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
+        >
+          {t("skipToContent")}
+        </a>
         <NextIntlClientProvider>
           <Nav />
           {/* pb-20 keeps content clear of the fixed cookie banner (~72px tall) while it's showing;
               harmless empty space once it's dismissed. */}
-          <main className="flex flex-1 flex-col pb-20">{children}</main>
+          <main id="main-content" className="flex flex-1 flex-col pb-20">{children}</main>
           <Footer />
           <CookieConsentBanner />
           <VisitTracker />
