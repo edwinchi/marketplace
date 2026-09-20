@@ -44,7 +44,15 @@ export default async function MyAccountPage() {
     ? t("activeSince", { date: new Date(fullProfile.created_at).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) })
     : null;
 
-  const cardHover = "transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[#008848]/40 hover:shadow-md";
+  // bg-[#008848]/5 (a light brand-green tint) is the same "distinguish a card from the plain
+  // white page" pattern already used across my-account (ai-features, business, favorite-sellers,
+  // saved-searches) -- reused here rather than inventing a new color so this page matches the
+  // rest of the app. hover:bg-[#008848]/10 deepens that same tint on hover (mirrors the
+  // hover:bg-brand-green/10 already used on nav/buttons/badges) -- a real, visible color shift on
+  // top of the existing lift/border/shadow, not just those. Irrelevant on touch (no hover state),
+  // but the base tint alone already gives mobile the "not stark white" look on its own.
+  const cardHover =
+    "bg-[#008848]/5 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#008848]/10 hover:border-[#008848]/40 hover:shadow-md";
 
   return (
     <div className="flex flex-col gap-6">
