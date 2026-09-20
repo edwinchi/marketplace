@@ -16,10 +16,10 @@ import { EditPhotoManager, type ExistingPhoto, type CoverPhoto } from "@/compone
 import { RichDescription } from "@/components/listings/rich-description";
 import { AttributeField } from "@/components/listing-attribute-field";
 import { AdvertiseTierSelector } from "@/components/listings/advertise-tier-selector";
+import { DescriptionEditor } from "@/components/listings/description-editor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Props = {
@@ -264,7 +264,7 @@ export function ListingForm({
         {/* key forces a remount when AI fills this in, the same trick new-listing-step2-form.tsx
             uses -- defaultValue (uncontrolled, like every other field in this form) only applies
             on first mount otherwise. */}
-        <Textarea
+        <DescriptionEditor
           ref={descriptionRef}
           key={aiDescription ?? "initial"}
           id="description"
@@ -278,7 +278,7 @@ export function ListingForm({
         {(analyzing || polishing) && (
           <p className="text-xs text-muted-foreground">Description is locked while AI writes a draft — it&apos;ll unlock in a few seconds.</p>
         )}
-        {/^(##\s|[-*]\s)/m.test(descriptionPreview) && (
+        {/^(##\s|[-*]\s)|\*\*.+?\*\*|\*.+?\*|\+\+.+?\+\+/m.test(descriptionPreview) && (
           <div className="rounded-md border bg-muted/30 p-3">
             <p className="mb-2 text-xs font-medium text-muted-foreground">Preview — this is how buyers will see it</p>
             <RichDescription text={descriptionPreview} />

@@ -35,7 +35,7 @@ import { AdvertiseTierSelector } from "@/components/listings/advertise-tier-sele
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { DescriptionEditor } from "@/components/listings/description-editor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Props = {
@@ -331,7 +331,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
               (uncontrolled, matching every other field in this form) actually takes effect —
               React only applies defaultValue on first mount, and that read can't finish
               synchronously before this first renders. */}
-          <Textarea
+          <DescriptionEditor
             key={draftDescription ?? "empty"}
             id="description"
             name="description"
