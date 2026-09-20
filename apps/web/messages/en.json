@@ -110,6 +110,8 @@
     "openToOffers": "Open to offers",
     "pickup": "Pickup",
     "shipping": "Shipping",
+    "freeShipping": "Free shipping",
+    "shippingCostAmount": "Shipping · {amount}",
     "following": "Following",
     "follow": "Follow",
     "website": "Website",

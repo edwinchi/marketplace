@@ -1201,6 +1201,7 @@ export type Database = {
           published_at: string | null
           quantity: number
           seller_id: string
+          shipping_cost_minor: number | null
           source_language: string
           status: string
           title: string
@@ -1235,6 +1236,7 @@ export type Database = {
           published_at?: string | null
           quantity?: number
           seller_id: string
+          shipping_cost_minor?: number | null
           source_language: string
           status?: string
           title: string
@@ -1269,6 +1271,7 @@ export type Database = {
           published_at?: string | null
           quantity?: number
           seller_id?: string
+          shipping_cost_minor?: number | null
           source_language?: string
           status?: string
           title?: string

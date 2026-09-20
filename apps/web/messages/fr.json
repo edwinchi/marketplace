@@ -110,6 +110,8 @@
     "openToOffers": "Ouvert aux offres",
     "pickup": "Retrait",
     "shipping": "Livraison",
+    "freeShipping": "Livraison gratuite",
+    "shippingCostAmount": "Livraison · {amount}",
     "following": "Suivi",
     "follow": "Suivre",
     "website": "Site web",

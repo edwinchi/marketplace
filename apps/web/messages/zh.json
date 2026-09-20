@@ -110,6 +110,8 @@
     "openToOffers": "接受议价",
     "pickup": "自提",
     "shipping": "配送",
+    "freeShipping": "免费配送",
+    "shippingCostAmount": "配送费 · {amount}",
     "following": "已关注",
     "follow": "关注",
     "website": "网站",

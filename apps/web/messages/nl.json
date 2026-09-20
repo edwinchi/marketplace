@@ -110,6 +110,8 @@
     "openToOffers": "Open voor bod",
     "pickup": "Ophalen",
     "shipping": "Verzenden",
+    "freeShipping": "Gratis verzending",
+    "shippingCostAmount": "Verzending · {amount}",
     "following": "Gevolgd",
     "follow": "Volgen",
     "website": "Website",

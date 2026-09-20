@@ -110,6 +110,8 @@
     "openToOffers": "مفتوح للعروض",
     "pickup": "استلام شخصي",
     "shipping": "شحن",
+    "freeShipping": "شحن مجاني",
+    "shippingCostAmount": "الشحن · {amount}",
     "following": "تمت المتابعة",
     "follow": "متابعة",
     "website": "الموقع الإلكتروني",

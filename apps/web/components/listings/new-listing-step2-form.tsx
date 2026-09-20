@@ -357,7 +357,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
 
       <section className={card}>
         <SectionHeading icon={Truck}>Delivery</SectionHeading>
-        <DeliveryOptions />
+        <DeliveryOptions currencyCode={currencyCode} />
         {/* Direct Buy (app/listings/payment-actions.ts) is real and live -- a buyer-paid
             protection fee via Stripe Connect, Terms of Service §6 -- but it's not a fund hold, and
             named carrier integration (Budbee/PostNL/DHL-style) still isn't real (agents.md §6/§10

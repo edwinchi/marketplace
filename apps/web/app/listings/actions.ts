@@ -345,6 +345,10 @@ export async function createListing(_prevState: ListingFormState, formData: Form
   const pickupAvailable = formData.get("pickup_available") === "on";
   const deliveryAvailable = formData.get("delivery_available") === "on";
   const offersAllowed = formData.get("offers_allowed") === "on";
+  // Only meaningful when shipping is actually offered -- a pickup-only listing has no shipping
+  // cost to store, and an empty/zero field means free shipping, not "unset".
+  const shippingCostRaw = Number(formData.get("shipping_cost") ?? 0);
+  const shippingCostMinor = deliveryAvailable && shippingCostRaw > 0 ? toMinorUnits(shippingCostRaw) : deliveryAvailable ? 0 : null;
   const priceType = formData.get("price_type") === "bidding" ? "bidding" : "fixed";
   const websiteUrlRaw = String(formData.get("website_url") ?? "");
 
@@ -400,6 +404,7 @@ export async function createListing(_prevState: ListingFormState, formData: Form
       price_type: priceType,
       pickup_available: pickupAvailable,
       delivery_available: deliveryAvailable,
+      shipping_cost_minor: shippingCostMinor,
       offers_allowed: offersAllowed,
       status: "active",
       published_at: new Date().toISOString(),

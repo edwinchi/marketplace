@@ -93,7 +93,7 @@ export default async function ListingPage({
   const { data: listing } = await supabase
     .from("listings")
     .select(
-      "id, title, description, price_minor, currency_code, price_type, pickup_available, delivery_available, offers_allowed, status, seller_id, category_id, location_id, created_at, view_count",
+      "id, title, description, price_minor, currency_code, price_type, pickup_available, delivery_available, shipping_cost_minor, offers_allowed, status, seller_id, category_id, location_id, created_at, view_count",
     )
     .eq("id", id)
     .single();
@@ -223,6 +223,10 @@ export default async function ListingPage({
   const listingPath = `/listings/${breadcrumbSlugPath(categoryPath.map((n) => ({ name: n.name })), listing.title, listing.id)}`;
 
   const memberSince = new Date(seller?.created_at ?? listing.created_at);
+  // This is an async Server Component -- it runs once per request on the server, not re-rendered
+  // client-side, so Date.now() here can't produce the inconsistent-across-renders bug this lint
+  // rule exists to catch.
+  // eslint-disable-next-line react-hooks/purity
   const yearsOnPlatform = Math.max(0, Math.floor((Date.now() - memberSince.getTime()) / (365.25 * 24 * 60 * 60 * 1000)));
   const tenureLabel = yearsOnPlatform > 0 ? t("yearsOnPlatform", { count: yearsOnPlatform }) : t("newOnPlatform");
   const sellerName = seller?.display_name || seller?.username || t("aSeller");
@@ -273,7 +277,6 @@ export default async function ListingPage({
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
-      {/* eslint-disable-next-line react/no-danger -- JSON-LD requires raw script content; productJsonLdString is escaped above */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: productJsonLdString }} />
       <div className="mb-3">
         <BackButton />
@@ -421,7 +424,11 @@ export default async function ListingPage({
 
           <div className="flex flex-wrap gap-2">
             {listing.pickup_available && <Badge variant="secondary">{t("pickup")}</Badge>}
-            {listing.delivery_available && <Badge variant="secondary">{t("shipping")}</Badge>}
+            {listing.delivery_available && (
+              <Badge variant="secondary">
+                {listing.shipping_cost_minor ? t("shippingCostAmount", { amount: formatPrice(listing.shipping_cost_minor, listing.currency_code, locale) }) : t("freeShipping")}
+              </Badge>
+            )}
           </div>
 
           {orderResult === "canceled" && (
