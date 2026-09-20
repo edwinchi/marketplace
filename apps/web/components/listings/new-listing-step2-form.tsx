@@ -340,7 +340,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
             id="description"
             name="description"
             required
-            rows={6}
+            rows={9}
             disabled={analyzing}
             defaultValue={draftDescription}
             className="text-base leading-relaxed md:text-base"

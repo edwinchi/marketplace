@@ -270,7 +270,7 @@ export function ListingForm({
           id="description"
           name="description"
           required
-          rows={5}
+          rows={9}
           disabled={analyzing || polishing}
           defaultValue={aiDescription ?? initial?.description}
           onChange={(e) => setDescriptionPreview(e.target.value)}

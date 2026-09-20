@@ -7,8 +7,7 @@ import { getSiteOrigin } from "@/lib/site-url";
 import { getStripe, EUR_CHECKOUT_PAYMENT_METHOD_TYPES } from "@/lib/stripe";
 import { getNumericSetting } from "@/lib/numeric-settings";
 import { slugPath } from "@/lib/slug";
-
-export const HOMEPAGE_PLACEMENT_DAYS = 3;
+import { HOMEPAGE_PLACEMENT_DAYS } from "@/lib/homepage-placement";
 
 // Platform-charged fee, not a Direct Buy-style transfer -- same shape as bumpListingCheckout (no
 // transfer_data/application_fee, doesn't depend on Connect onboarding). The actual state change
