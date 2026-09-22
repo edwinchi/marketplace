@@ -422,7 +422,7 @@ export async function createListing(_prevState: ListingFormState, formData: Form
       offers_allowed: offersAllowed,
       status: "active",
       published_at: new Date().toISOString(),
-      // 60 days, matching common classifieds convention (Marktplaats et al.) — the expiry sweep
+      // 60 days, matching common classifieds convention — the expiry sweep
       // (supabase/migrations/20260101004200_listing_expiry.sql) flips anything past this to
       // 'expired' so the marketplace feed doesn't fill up with abandoned listings.
       expires_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),

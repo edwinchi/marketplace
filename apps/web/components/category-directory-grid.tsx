@@ -9,8 +9,8 @@ type Group = { id: string; name: string; href: string; children: { id: string; n
 
 const INITIAL_LIMIT = 24;
 
-// Some top-level categories now have 90+ subcategory groups (the real Marktplaats taxonomy import
-// went several levels deep) -- rendering all of them at once made a few category pages enormous.
+// Some top-level categories now have 90+ subcategory groups (the real taxonomy import went several
+// levels deep) -- rendering all of them at once made a few category pages enormous.
 // Same collapse pattern as CategoryGroupCard's own leaf-list "show more", one level up. Groups (and
 // their leaves) carry pre-built hrefs from the server -- this is a Client Component, and functions
 // can't cross that boundary as props, so hrefs get computed once up in the page instead.

@@ -23,6 +23,13 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) return NextResponse.redirect(`${origin}${next}`);
+    // Logged, not discarded -- this route previously gave no way to tell "expired code" apart
+    // from "PKCE code_verifier cookie missing" apart from "wrong project config" apart from
+    // anything else; a user-reported "password reset doesn't work" was otherwise undiagnosable
+    // without this. Same reasoning as the Stripe Connect error logging earlier in this project.
+    console.error(`exchangeCodeForSession failed (next=${next}):`, error.message, error.status);
+  } else {
+    console.error(`auth/callback called with no code param (next=${next}), full url:`, request.url);
   }
 
   // Missing/expired/already-used code, or the exchange itself failed — surface that on /login

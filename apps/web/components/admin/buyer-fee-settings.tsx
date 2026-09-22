@@ -36,7 +36,7 @@ export function BuyerFeeSettings({ initial }: { initial: { percentX100: number; 
     <div className="py-2">
       <p className="text-sm font-medium">Direct Buy protection fee</p>
       <p className="mt-1 text-xs text-muted-foreground">
-        Paid by the buyer on top of the item price — the seller always receives the full price. Mirrors Marktplaats&apos; Kopersbescherming model.
+        Paid by the buyer on top of the item price — the seller always receives the full price.
       </p>
       <div className="mt-3 flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-1">

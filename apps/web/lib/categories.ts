@@ -13,7 +13,7 @@ import { createServiceClient } from "./supabase/service";
 const CATEGORY_CACHE_REVALIDATE_SECONDS = 300;
 
 // PostgREST caps any single response at its configured max-rows (1000 here) -- categories and
-// category_translations both crossed that after the Marktplaats taxonomy import (2666/2859 rows),
+// category_translations both crossed that after the full taxonomy import (2666/2859 rows),
 // so an unbounded .select() on either silently truncates instead of erroring. Every full-table read
 // of either table goes through this helper instead, paging in batches of 1000 until a short page
 // confirms the end.

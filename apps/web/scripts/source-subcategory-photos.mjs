@@ -1,6 +1,6 @@
 // Bulk pass over every level-2/3 subcategory missing a photo (~964 of them, mostly imported
-// wholesale from Marktplaats' taxonomy -- see supabase/migrations/20260101004000_marktplaats_
-// subcategory_taxonomy.sql). Unlike source-category-photos.mjs's ~36 hand-curated top-level terms,
+// wholesale from a reference classifieds taxonomy -- see supabase/migrations/20260101004000_*.sql.
+// Unlike source-category-photos.mjs's ~36 hand-curated top-level terms,
 // there are too many of these to curate individually -- each category's own English name (from
 // category_translations) is used directly as the Wikipedia lookup term instead, so the hit rate is
 // necessarily lower (a name like "Predom" or "Elddis" -- real appliance/caravan brands -- won't

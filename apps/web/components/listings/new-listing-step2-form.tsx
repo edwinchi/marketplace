@@ -478,11 +478,11 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
         <AdvertiseTierSelector plusPriceCents={plusPriceCents} premiumPriceCents={premiumPriceCents} />
       </section>
 
-      {/* Extra paid promotion add-ons (homepage feature, urgent bump) are the same Stripe-dependent
-          gap as the tiers above — omitted rather than shown non-functional, since unlike the tier
-          cards there's no honest "coming soon" framing that fits a per-item checkbox-with-a-price.
-          (A seller's website link — a paid extra on Marktplaats — is offered free here instead,
-          since there's no payment infrastructure to gate it behind; see Contact details above.) */}
+      {/* Homepage placement and ad bump are deliberately NOT offered here at creation time -- both
+          are post-creation upsells (app/listings/homepage-placement-actions.ts, bump-actions.ts),
+          available from My Listings once the ad is already live, not bundled into this form's
+          price total. A seller's website link is offered free instead, since there's no reason to
+          gate it behind payment; see Contact details above. */}
 
       <TurnstileWidget />
 

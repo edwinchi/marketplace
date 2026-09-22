@@ -68,7 +68,7 @@ function mapFuelTypeToStableKey(descriptions: string[]): string | null {
   const normalized = descriptions.map((d) => d.trim().toLowerCase());
   if (normalized.length > 1) {
     // Multiple fuel rows means hybrid -- RDW lists electricity and a combustion fuel as separate
-    // rows for hybrids, so which combustion fuel is present tells us which of the two Marktplaats
+    // rows for hybrids, so which combustion fuel is present tells us which of the two
     // hybrid categories (fuel_type migration 20260101004500) this actually is.
     if (normalized.includes("diesel")) return "hybrid_diesel";
     if (normalized.includes("benzine")) return "hybrid_petrol";

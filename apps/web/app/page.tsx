@@ -250,8 +250,8 @@ export default async function HomePage({
               search bar and nothing telling them MarketitNow is also where they'd sell. Solid brand
               color, not a gradient/glow -- restrained enough to still read as a trustworthy
               classifieds marketplace, not a SaaS landing page. The real-photo collage behind it
-              (.brand-lattice::before, see globals.css) is the actual differentiator from
-              Marktplaats' plain header band. */}
+              (.brand-lattice::before, see globals.css) is the actual differentiator from a
+              plain header band. */}
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <h1 className="hero-text-halo text-brand-gold text-balance text-3xl font-extrabold tracking-tight sm:text-4xl">

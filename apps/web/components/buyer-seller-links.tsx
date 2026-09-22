@@ -6,9 +6,8 @@ import { Baby, Wrench, Sparkles, Handshake, Wallet, Truck } from "lucide-react";
 
 type LinkItem = { href: string; icon: React.ComponentType<{ className?: string }>; title: string; subtitle: string };
 
-// Marktplaats-style "For the buyer / For the seller" promo links, adapted to features MarketitNow
-// actually has rather than a literal copy of Marktplaats' own paid products (their "Marktplaats
-// Pro"/"Pakketten" are Marktplaats-branded tools with no real equivalent here). Every href below
+// A "For the buyer / For the seller" promo link set, adapted to features MarketitNow actually has
+// rather than a literal copy of any other marketplace's own paid products. Every href below
 // points at a real page or category, not a placeholder. Tab-switched (not both lists stacked) per
 // request -- a client component just for that toggle, everything else stays plain links.
 export function BuyerSellerLinks({ servicesHref, toysHref }: { servicesHref: string | null; toysHref: string | null }) {

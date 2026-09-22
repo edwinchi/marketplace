@@ -1,9 +1,9 @@
 import { getNumericSetting } from "./numeric-settings";
 
 // The buyer-side protection fee for a Direct Buy payment (see supabase/migrations/20260101005100_
-// stripe_connect.sql) -- mirrors Marktplaats' own Kopersbescherming model: a percentage of the
-// item price, clamped to a min/max, paid on top by the buyer so the seller receives the full
-// agreed price with nothing deducted. Admin-adjustable from /admin, no code deploy needed.
+// stripe_connect.sql) -- a percentage of the item price, clamped to a min/max, paid on top by the
+// buyer so the seller receives the full agreed price with nothing deducted. Admin-adjustable from
+// /admin, no code deploy needed.
 export async function calculateBuyerFeeMinor(itemPriceMinor: number): Promise<number> {
   const [percentX100, minCents, maxCents] = await Promise.all([
     getNumericSetting("buyer_fee_percent_x100"),

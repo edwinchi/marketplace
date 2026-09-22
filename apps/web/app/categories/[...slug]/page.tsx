@@ -201,8 +201,8 @@ export default async function CategoryPage({
         <CarsLanding
           carsRootId={id}
           // The 6 real vehicle-type subcategories this page's pills/tiles were designed around, by
-          // explicit stable_key allowlist -- the Marktplaats taxonomy import added ~93 more direct
-          // children under Cars (brand names, "Trucks", "Delivery Vans", etc.), most without any
+          // explicit stable_key allowlist -- the taxonomy import added ~93 more direct children
+          // under Cars (brand names, "Trucks", "Delivery Vans", etc.), most without any
           // "-grp-" marker to filter on, so an allowlist is the only reliable way to keep just these six.
           subcategories={directory.children
             .filter((c) => CARS_TYPE_STABLE_KEYS.has(c.stableKey))

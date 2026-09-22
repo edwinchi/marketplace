@@ -10,8 +10,8 @@
   /* Was `var(--font-sans)` -- a circular self-reference that silently fell through to Tailwind's
      built-in system-font stack, meaning the Geist Sans font loaded in layout.tsx was never
      actually applied anywhere despite being wired onto <html>. Fixed to lead with Roboto -- see
-     layout.tsx's Roboto import for why (confirmed straight from Marktplaats' own stylesheet, not
-     guessed), with Geist Sans and a generic fallback behind it. */
+     layout.tsx's Roboto import for why (a deliberate, verified choice, not guessed), with Geist
+     Sans and a generic fallback behind it. */
   --font-sans: var(--font-roboto), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-fraunces);
@@ -141,8 +141,8 @@
 }
 
 @layer components {
-  /* A distinctive, brand-colored signature for the homepage hero -- what actually sets AfroDeals
-     apart from Marktplaats' plain, undecorated header band, without reintroducing the "SaaS
+  /* A distinctive, brand-colored signature for the homepage hero -- what actually sets MarketitNow
+     apart from a plain, undecorated header band, without reintroducing the "SaaS
      landing page" glow-blob/gradient-text look that was deliberately removed. Went through four
      iterations: a pure-CSS crossed-gradient lattice, a scattered collage of the site's own
      category icons, a stitched grid of 16 individually-vetted CC0 stock photos, now a single

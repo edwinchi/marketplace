@@ -1,6 +1,6 @@
-// "Today"/"Yesterday"/"N days ago" then a plain date -- the same posted-time convention real
-// classifieds sites (Marktplaats: "Vandaag"/"Gisteren") use on every listing card, which MarketitNow'
-// own card was missing entirely despite already querying published_at for sort order.
+// "Today"/"Yesterday"/"N days ago" then a plain date -- a familiar posted-time convention on
+// classifieds sites, which MarketitNow's own card was missing entirely despite already querying
+// published_at for sort order.
 export function formatListingAge(publishedAt: string): string {
   const posted = new Date(publishedAt);
   const now = new Date();

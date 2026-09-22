@@ -118,8 +118,8 @@ export default async function ListingPage({
 
   const isOwner = profile?.id === listing.seller_id;
 
-  // Offers are private between buyer and seller (RLS: offer_party_read), unlike Marktplaats'
-  // publicly-visible bid list — so the owner sees every offer on their listing, a signed-in buyer
+  // Offers are private between buyer and seller (RLS: offer_party_read), not a publicly-visible
+  // bid list — so the owner sees every offer on their listing, a signed-in buyer
   // sees only their own, and everyone else sees none. Both branches select the same columns so
   // `offers` has one consistent shape below regardless of which branch ran.
   const offersQuery = isOwner
@@ -524,7 +524,7 @@ export default async function ListingPage({
                 </CardContent>
               </Card>
 
-              {/* Stacked full-width, matching Marktplaats' reference layout: Website (if set),
+              {/* Stacked full-width: Website (if set),
                   Show number (if set), then Message — always last so there's always at least one
                   way to reach the seller. */}
               <div className="flex flex-col gap-2">
@@ -681,8 +681,8 @@ export default async function ListingPage({
         )}
 
         {/* view_count is a genuine, live-incremented counter (see increment_listing_view_count,
-            called further up this file) -- shown to everyone, not just the owner, same as
-            Marktplaats' own reference. favoriteCount is already computed live from the favorites
+            called further up this file) -- shown to everyone, not just the owner. favoriteCount
+            is already computed live from the favorites
             table above for the photo-gallery badge; reused here as an always-visible stat instead
             of only appearing once >0. */}
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t pt-4 text-xs text-muted-foreground">
@@ -701,7 +701,7 @@ export default async function ListingPage({
             </span>
           </div>
           {/* No dedicated short ad-code column exists -- this is the listing's own real id,
-              uppercased and truncated to a Marktplaats-style reference length, not a fabricated
+              uppercased and truncated to a short reference length, not a fabricated
               number. Still uniquely identifies the listing for a report/support conversation. */}
           <span>{t("adReferenceNumber", { number: listing.id.slice(0, 8).toUpperCase() })}</span>
         </div>

@@ -19,9 +19,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Body text stack, wired into --font-sans in globals.css. Confirmed by pulling Marktplaats' own
-// Fonts.css directly (not guessed from screenshots) -- they load Roboto for body/UI text and Bree
-// Serif for their branded headings. Adopting Roboto here for the same reason they use it: it's
+// Body text stack, wired into --font-sans in globals.css. Roboto for body/UI text: it's
 // extremely well-hinted at small sizes (this project's dense listing-card grid leans on that),
 // freely licensed, and a proven choice at marketplace scale -- a strictly better pick than Calibri,
 // which also required a Carlito substitute since real Calibri can't be legally webfont-embedded.

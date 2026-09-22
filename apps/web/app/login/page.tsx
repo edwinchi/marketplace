@@ -48,14 +48,11 @@ export default async function LoginPage({
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)] bg-size-[28px_28px]"
       />
 
-      {/* Foreground layer — logo, copy, and the elevated auth card, all on top of the background */}
+      {/* Foreground layer — copy and the elevated auth card, all on top of the background. No
+          second logo here -- the nav bar right above this already shows one, and repeating it in
+          its own white card directly above "Welcome to MarketitNow" just doubled up. */}
       <div className="relative z-10 flex w-full flex-col items-center">
-        <div className="rounded-2xl bg-white px-6 py-3 shadow-lg">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-sm.png?v=1" alt="MarketitNow" className="h-10 w-auto sm:h-11" />
-        </div>
-
-        <h1 className="mt-6 max-w-lg text-center text-3xl leading-tight font-bold text-white sm:text-4xl">
+        <h1 className="max-w-lg text-center text-3xl leading-tight font-bold text-white sm:text-4xl">
           {t("welcomeHeading")}
         </h1>
         <p className="mt-3 max-w-md text-center text-sm text-white/60 sm:text-base">{t("welcomeSubtext")}</p>
