@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { getSiteOrigin } from "@/lib/site-url";
 import { getStripe, BUSINESS_PRICE_ID } from "@/lib/stripe";
 
@@ -32,7 +33,7 @@ export async function startBusinessCheckout() {
   if (!customerId) {
     const customer = await stripe.customers.create({ email: user.email ?? undefined, metadata: { profile_id: profile.id } });
     customerId = customer.id;
-    await supabase.from("profiles").update({ stripe_customer_id: customerId }).eq("id", profile.id);
+    await createServiceClient().from("profiles").update({ stripe_customer_id: customerId }).eq("id", profile.id);
   }
 
   const origin = await getSiteOrigin();

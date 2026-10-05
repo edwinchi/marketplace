@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { getSiteOrigin } from "@/lib/site-url";
 import { getStripe, SELLER_PRO_PRICE_ID, AI_TOPUP_PRICE_ID } from "@/lib/stripe";
 
@@ -37,7 +38,7 @@ async function startCheckout(mode: "subscription" | "payment", priceId: string |
   if (!customerId) {
     const customer = await stripe.customers.create({ email: user.email ?? undefined, metadata: { profile_id: profile.id } });
     customerId = customer.id;
-    await supabase.from("profiles").update({ stripe_customer_id: customerId }).eq("id", profile.id);
+    await createServiceClient().from("profiles").update({ stripe_customer_id: customerId }).eq("id", profile.id);
   }
 
   const session = await stripe.checkout.sessions.create({

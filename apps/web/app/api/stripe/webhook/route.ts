@@ -62,10 +62,14 @@ export async function POST(request: Request) {
   // would double-credit ai_bonus_uses on every retry.
   const { error: dedupeError } = await supabase.from("stripe_webhook_events").insert({ id: event.id });
   if (dedupeError) {
-    // 23505 = unique_violation -- already processed, nothing to do. Any other error means the
-    // dedupe check itself failed (e.g. DB unreachable) -- still return 200 so Stripe doesn't spin
-    // retrying forever on an infrastructure problem this event's contents can't fix.
-    return NextResponse.json({ received: true, duplicate: dedupeError.code === "23505" });
+    // 23505 = unique_violation -- already processed, nothing to do.
+    if (dedupeError.code === "23505") return NextResponse.json({ received: true, duplicate: true });
+    // Any other error means the dedupe check itself failed (e.g. DB unreachable). Returning 200
+    // here used to drop the event for good -- a paid order/top-up/subscription never applied.
+    // Stripe retries a non-2xx with backoff for ~3 days (not forever), which is exactly what a
+    // transient infrastructure failure needs.
+    console.error(`Webhook dedupe insert failed for event ${event.id} (${event.type}):`, dedupeError);
+    return NextResponse.json({ error: "Temporarily unavailable" }, { status: 500 });
   }
 
   try {
@@ -86,8 +90,18 @@ export async function POST(request: Request) {
 
 async function handleEvent(event: Stripe.Event, stripe: Stripe, supabase: ReturnType<typeof createServiceClient>) {
   switch (event.type) {
-    case "checkout.session.completed": {
+    // A delayed-notification method (Multibanco, in EUR_CHECKOUT_PAYMENT_METHOD_TYPES) fires
+    // checkout.session.completed with payment_status "unpaid" the moment the customer is handed a
+    // voucher -- before any money has moved. Fulfilling on that would mark an order paid (so the
+    // seller ships), or apply a bump/placement/tier/top-up, for a payment that may never arrive.
+    // Those sessions are fulfilled on checkout.session.async_payment_succeeded instead, which
+    // fires once the funds actually land. ("no_payment_required", e.g. a 100%-off subscription, is
+    // fine to fulfil immediately.) Requires that event to be enabled on the platform webhook
+    // endpoint in the Stripe Dashboard.
+    case "checkout.session.completed":
+    case "checkout.session.async_payment_succeeded": {
       const session = event.data.object as Stripe.Checkout.Session;
+      if (session.payment_status === "unpaid") break;
 
       // Direct Buy order payment -- distinguished by metadata.type rather than by mode alone,
       // since it shares mode: "payment" with the AI top-up below. Stripe Connect already paid the
@@ -97,8 +111,16 @@ async function handleEvent(event: Stripe.Event, stripe: Stripe, supabase: Return
       if (session.metadata?.type === "order_payment" && session.metadata?.order_id) {
         const orderId = session.metadata.order_id;
         const paymentIntentId = typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id;
-        await supabase.from("orders").update({ status: "paid" }).eq("id", orderId);
-        await supabase.from("payments").insert({
+        // Errors thrown, not ignored -- the outer handler rolls back the dedupe row and returns
+        // 500 so Stripe redelivers, instead of silently leaving a paid order at pending_payment.
+        const { data: paidOrder, error: orderError } = await supabase
+          .from("orders")
+          .update({ status: "paid" })
+          .eq("id", orderId)
+          .select("listing_id")
+          .single();
+        if (orderError) throw orderError;
+        const { error: paymentError } = await supabase.from("payments").insert({
           order_id: orderId,
           provider: "stripe",
           provider_payment_id: paymentIntentId ?? session.id,
@@ -108,6 +130,16 @@ async function handleEvent(event: Stripe.Event, stripe: Stripe, supabase: Return
           payment_method: "card",
           paid_at: new Date().toISOString(),
         });
+        if (paymentError) throw paymentError;
+
+        // Take the (single-quantity) item off the market so startOrderPayment's status check turns
+        // away the next buyer -- otherwise several buyers could each pay for the same one item.
+        // Logged rather than thrown: the order and payment are already recorded above, and a
+        // redelivery would insert a duplicate payments row just to retry this.
+        if (paidOrder?.listing_id) {
+          const { error: soldError } = await supabase.from("listings").update({ status: "sold" }).eq("id", paidOrder.listing_id).eq("status", "active");
+          if (soldError) console.error(`Failed to mark listing ${paidOrder.listing_id} sold after order ${orderId} was paid:`, soldError);
+        }
         break;
       }
 
@@ -165,10 +197,11 @@ async function handleEvent(event: Stripe.Event, stripe: Stripe, supabase: Return
         const periodEnd = subscription.items.data[0]?.current_period_end;
         const plan = subscriptionPlanFor(subscription);
         if (plan) {
-          await supabase
+          const { error: subscriptionError } = await supabase
             .from("profiles")
             .update(subscriptionUpdateFor(plan, subscription.status, periodEnd ? new Date(periodEnd * 1000).toISOString() : null))
             .eq("id", profileId);
+          if (subscriptionError) throw subscriptionError;
         }
       }
       break;
@@ -186,10 +219,11 @@ async function handleEvent(event: Stripe.Event, stripe: Stripe, supabase: Return
       const periodEnd = subscription.items.data[0]?.current_period_end;
       const plan = subscriptionPlanFor(subscription);
       if (plan) {
-        await supabase
+        const { error: subscriptionError } = await supabase
           .from("profiles")
           .update(subscriptionUpdateFor(plan, status, periodEnd ? new Date(periodEnd * 1000).toISOString() : null))
           .eq("stripe_customer_id", customerId);
+        if (subscriptionError) throw subscriptionError;
       }
       break;
     }
@@ -199,13 +233,14 @@ async function handleEvent(event: Stripe.Event, stripe: Stripe, supabase: Return
     // actually flips to true (there's no "onboarding complete" event of its own to listen for).
     case "account.updated": {
       const account = event.data.object as Stripe.Account;
-      await supabase
+      const { error: accountError } = await supabase
         .from("profiles")
         .update({
           stripe_connect_charges_enabled: !!account.charges_enabled,
           stripe_connect_payouts_enabled: !!account.payouts_enabled,
         })
         .eq("stripe_connect_account_id", account.id);
+      if (accountError) throw accountError;
       break;
     }
   }

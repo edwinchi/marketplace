@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { getSiteOrigin } from "@/lib/site-url";
 import { getStripe } from "@/lib/stripe";
 import { isStripeEligibleCountry } from "@/lib/payment-coverage";
@@ -47,7 +48,7 @@ export async function startConnectOnboarding() {
         metadata: { profile_id: profile.id },
       });
       accountId = account.id;
-      await supabase.from("profiles").update({ stripe_connect_account_id: accountId }).eq("id", profile.id);
+      await createServiceClient().from("profiles").update({ stripe_connect_account_id: accountId }).eq("id", profile.id);
     }
 
     const origin = await getSiteOrigin();

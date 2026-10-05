@@ -2,6 +2,7 @@
 
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { getCategoriesAndAttributes } from "@/lib/categories";
 import { isAdminEmail } from "@/lib/admin";
 import { parseJsonResponse } from "@/lib/ai-text";
@@ -178,7 +179,7 @@ export async function analyzeListingPhoto(images: { base64: string; mediaType: s
   // requests could each read the same pre-call count, each pass the limit check, and each trigger
   // a real (potentially paid) provider call before any of them had actually advanced the stored
   // count. See supabase/migrations/20260101006700_atomic_ai_use_reservation.sql.
-  const { data: reservedCount, error: reserveError } = await supabase.rpc("reserve_ai_photo_analysis_use", {
+  const { data: reservedCount, error: reserveError } = await createServiceClient().rpc("reserve_ai_photo_analysis_use", {
     p_profile_id: profile.id,
     p_effective_limit: effectiveLimit,
     p_unlimited: unlimited,
@@ -241,7 +242,7 @@ If the photo${photos.length > 1 ? "s don't" : " doesn't"} clearly show a sellabl
     // so it's refunded here rather than left charged against their count. usesLeftBefore (computed
     // before the reservation) is what the response reports, matching what actually happened from
     // the user's point of view: nothing was spent.
-    const { error: releaseError } = await supabase.rpc("release_ai_photo_analysis_use", { p_profile_id: profile.id });
+    const { error: releaseError } = await createServiceClient().rpc("release_ai_photo_analysis_use", { p_profile_id: profile.id });
     if (releaseError) console.error(`Failed to release a reserved AI photo-analysis use for profile ${profile.id}:`, releaseError);
 
     if (result.networkError) {

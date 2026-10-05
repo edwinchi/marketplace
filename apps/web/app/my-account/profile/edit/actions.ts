@@ -45,11 +45,13 @@ export async function deleteAccount() {
   // cascade, so a hard delete would fail or orphan real transaction history. Marking the profile
   // deleted and removing the auth account (so the old credentials stop working) is the safe
   // equivalent, same pattern as the existing profiles.status column already supports.
-  const supabase = await createClient();
-  await supabase.from("profiles").update({ status: "deleted", display_name: null }).eq("id", profile.id);
-
+  // Service-role write: `status` isn't in the user-updatable column grant (see
+  // supabase/migrations/20260101008800_lock_down_profiles_and_rpcs.sql).
   const service = createServiceClient();
+  await service.from("profiles").update({ status: "deleted", display_name: null }).eq("id", profile.id);
   await service.auth.admin.deleteUser(user.id);
+
+  const supabase = await createClient();
 
   await supabase.auth.signOut();
   redirect("/login");

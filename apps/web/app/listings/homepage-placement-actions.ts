@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { getSiteOrigin } from "@/lib/site-url";
 import { getStripe, EUR_CHECKOUT_PAYMENT_METHOD_TYPES } from "@/lib/stripe";
 import { getNumericSetting } from "@/lib/numeric-settings";
@@ -47,7 +48,7 @@ export async function homepagePlacementCheckout(listingId: string) {
   if (!customerId) {
     const customer = await stripe.customers.create({ email: user.email ?? undefined, metadata: { profile_id: profile.id } });
     customerId = customer.id;
-    await supabase.from("profiles").update({ stripe_customer_id: customerId }).eq("id", profile.id);
+    await createServiceClient().from("profiles").update({ stripe_customer_id: customerId }).eq("id", profile.id);
   }
 
   const origin = await getSiteOrigin();

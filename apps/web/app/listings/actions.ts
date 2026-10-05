@@ -104,12 +104,12 @@ function enqueueTranslation(listingId: string, title: string, description: strin
 // of each broadcast. A recipient with no country set never matches and won't be notified; only a
 // null countryCode here (which shouldn't happen in practice, every listing requires a country at
 // creation) would skip the filter and notify everyone regardless of country.
-function enqueueNewListingNotifications(supabase: Awaited<ReturnType<typeof createClient>>, listingId: string, sellerId: string, title: string, countryCode: string | null) {
+function enqueueNewListingNotifications(listingId: string, sellerId: string, title: string, countryCode: string | null) {
   after(async () => {
     const [sellerIsPro, globalUnlock] = await Promise.all([isSellerProSubscriber(), getNewListingNotificationsGlobalUnlockSetting()]);
     if (!sellerIsPro && !globalUnlock) return;
 
-    const { error } = await supabase.rpc("notify_new_listing", { p_listing_id: listingId, p_seller_id: sellerId, p_title: title, p_country_code: countryCode });
+    const { error } = await createServiceClient().rpc("notify_new_listing", { p_listing_id: listingId, p_seller_id: sellerId, p_title: title, p_country_code: countryCode });
     if (error) console.error(`Failed to fan out new-listing notifications for listing ${listingId}:`, error);
   });
 }
@@ -305,7 +305,7 @@ async function maybeStartTierUpgradeCheckout({
   if (!customerId) {
     const customer = await stripe.customers.create({ email: user.email ?? undefined, metadata: { profile_id: profile.id } });
     customerId = customer.id;
-    await supabase.from("profiles").update({ stripe_customer_id: customerId }).eq("id", profile.id);
+    await createServiceClient().from("profiles").update({ stripe_customer_id: customerId }).eq("id", profile.id);
   }
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
@@ -441,7 +441,7 @@ export async function createListing(_prevState: ListingFormState, formData: Form
   enqueueEmbedding(supabase, listing.id, title, description);
   enqueueTranslation(listing.id, title, description);
   enqueueModerationCheck(listing.id, title, description);
-  enqueueNewListingNotifications(supabase, listing.id, profile.id, title, countryCode || null);
+  enqueueNewListingNotifications(listing.id, profile.id, title, countryCode || null);
   after(() => pingIndexNow([`https://marketitnow.net/listings/${slugPath(title, listing.id)}`]));
 
   revalidatePath("/");

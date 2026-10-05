@@ -32,7 +32,7 @@ import { UserPlus, UserCheck } from "lucide-react";
 import { idFromSlugSegments, breadcrumbSlugPath } from "@/lib/slug";
 import { getSiteOrigin } from "@/lib/site-url";
 import { getStripe } from "@/lib/stripe";
-import { calculateBuyerFeeMinor } from "@/lib/payments";
+import { calculateBuyerFeeMinor, isDirectBuyEligible } from "@/lib/payments";
 import { startOrderPayment } from "@/app/listings/payment-actions";
 import { ShieldCheck, Building2 } from "lucide-react";
 import { LISTING_TRANSLATION_TARGETS, type ListingTranslationTarget } from "@/lib/listing-translations";
@@ -253,8 +253,9 @@ export default async function ListingPage({
   // "no button that doesn't work" rule as everywhere else this project touches Stripe) and the
   // seller has actually finished Connect onboarding -- there's nowhere for the money to go
   // otherwise. Fee is computed here, not just left to Stripe Checkout to reveal, so the buyer sees
-  // the real total before ever leaving this page.
-  const canDirectBuy = !isOwner && !!profile && !!getStripe() && !!seller?.stripe_connect_charges_enabled;
+  // the real total before ever leaving this page. isDirectBuyEligible: active, fixed-price, real
+  // price only -- see lib/payments.ts.
+  const canDirectBuy = !isOwner && !!profile && !!getStripe() && !!seller?.stripe_connect_charges_enabled && isDirectBuyEligible(listing);
   const buyerFeeMinor = canDirectBuy ? await calculateBuyerFeeMinor(listing.price_minor ?? 0) : 0;
 
   // Product/Offer structured data -- the single highest-value SEO addition for a classifieds
@@ -483,7 +484,7 @@ export default async function ListingPage({
                     <p className="mt-0.5">
                       Item price {formatPrice(listing.price_minor ?? 0, listing.currency_code, locale)} + buyer protection fee{" "}
                       {formatPrice(buyerFeeMinor, listing.currency_code, locale)} = {formatPrice((listing.price_minor ?? 0) + buyerFeeMinor, listing.currency_code, locale)}{" "}
-                      total. Funds are held until you confirm delivery.
+                      total. Paid securely via Stripe, which pays the seller once your payment succeeds.
                     </p>
                   </div>
                 </div>

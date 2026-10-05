@@ -5,7 +5,7 @@ import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createServiceClient } from "@/lib/supabase/service";
 import { getSiteOrigin } from "@/lib/site-url";
 import { getStripe, EUR_CHECKOUT_PAYMENT_METHOD_TYPES } from "@/lib/stripe";
-import { calculateBuyerFeeMinor } from "@/lib/payments";
+import { calculateBuyerFeeMinor, isDirectBuyEligible } from "@/lib/payments";
 import { slugPath } from "@/lib/slug";
 
 // Direct Buy -- a protected, in-platform payment (the buyer-fee-funded model from
@@ -29,10 +29,10 @@ export async function startOrderPayment(listingId: string) {
   const supabase = createServiceClient();
   const { data: listing } = await supabase
     .from("listings")
-    .select("id, title, price_minor, currency_code, seller_id, status")
+    .select("id, title, price_minor, currency_code, seller_id, status, price_type")
     .eq("id", listingId)
     .single();
-  if (!listing || listing.status !== "active") redirect(`/listings/x-${listingId}?error=listing_unavailable`);
+  if (!listing || !isDirectBuyEligible(listing)) redirect(`/listings/x-${listingId}?error=listing_unavailable`);
   if (listing.seller_id === profile.id) redirect(`/listings/x-${listingId}`);
 
   const { data: seller } = await supabase
