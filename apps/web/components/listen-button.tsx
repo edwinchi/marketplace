@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Volume2, Square, Lock } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { getCanListen } from "@/app/actions/get-can-listen";
+
+const subscribeNever = () => () => {};
 
 const SPEECH_LANG_BY_LOCALE: Record<string, string> = { en: "en-US", fr: "fr-FR", ar: "ar-SA", zh: "zh-CN" };
 
@@ -26,13 +28,13 @@ export function ListenButton({ selector = "main", className }: { selector?: stri
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
-  const [supported, setSupported] = useState(false);
+  // Browser capability, never changes after load -- false on the server/during hydration.
+  const supported = useSyncExternalStore(subscribeNever, () => "speechSynthesis" in window, () => false);
   const [canListen, setCanListen] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   useEffect(() => {
-    setSupported(typeof window !== "undefined" && "speechSynthesis" in window);
     getCanListen()
       .then(setCanListen)
       .catch(() => setCanListen(false));

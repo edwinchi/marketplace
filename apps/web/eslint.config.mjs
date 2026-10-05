@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Plesk's LiteSpeed Node runner needs a CommonJS app.js shim (see agents.md §11).
+    "app.js",
   ]),
 ]);
 

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getStripe, AI_TOPUP_USES, SELLER_PRO_PRICE_ID, BUSINESS_PRICE_ID } from "@/lib/stripe";
 import { createServiceClient } from "@/lib/supabase/service";
+import { fromStripeAmount } from "@/lib/money";
 
 // Two independent subscription products share this one webhook endpoint -- disambiguated by the
 // subscription's own price id (checkout.session.completed's metadata.profile_id tells us WHO, not
@@ -124,7 +125,8 @@ async function handleEvent(event: Stripe.Event, stripe: Stripe, supabase: Return
           order_id: orderId,
           provider: "stripe",
           provider_payment_id: paymentIntentId ?? session.id,
-          amount_minor: session.amount_total ?? 0,
+          // Back into this app's own ×100 minor units (zero-/three-decimal currencies differ).
+          amount_minor: fromStripeAmount(session.amount_total ?? 0, session.currency ?? "eur"),
           currency_code: (session.currency ?? "eur").toUpperCase(),
           status: "succeeded",
           payment_method: "card",

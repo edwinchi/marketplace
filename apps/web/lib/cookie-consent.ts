@@ -26,6 +26,13 @@ export function setCookieConsent(value: CookieConsent): void {
   }
 }
 
+// useSyncExternalStore subscriber for components that react to consent (the banner itself, and
+// anything offsetting around it) -- setCookieConsent above dispatches this same event.
+export function subscribeCookieConsent(onChange: () => void): () => void {
+  window.addEventListener("cookie-consent-change", onChange);
+  return () => window.removeEventListener("cookie-consent-change", onChange);
+}
+
 export function hasAnalyticsConsent(): boolean {
   return getCookieConsent() === "accepted";
 }

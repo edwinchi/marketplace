@@ -315,7 +315,7 @@ export default async function AiFeaturesPage({
           })}
         </div>
         <p className="mt-4 text-sm text-muted-foreground">
-          Each one works from your own listing's real title, photos, and comparable prices — never a
+          Each one works from your own listing&apos;s real title, photos, and comparable prices — never a
           fabricated figure or fact. The first three are available from any listing&apos;s edit page.
         </p>
       </div>

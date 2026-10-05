@@ -34,7 +34,7 @@ export function CollapsedLimitSetting({ initial }: { initial: number }) {
 
   return (
     <div className="py-2">
-      <p className="text-sm font-medium">Subcategories shown before "Show more"</p>
+      <p className="text-sm font-medium">Subcategories shown before &quot;Show more&quot;</p>
       <p className="mt-1 text-xs text-muted-foreground">
         Applies to every subcategory group card, site-wide (e.g. the group cards on a category page like Services &amp; Tradespeople).
       </p>

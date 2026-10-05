@@ -32,7 +32,7 @@ export function BackfillEmbeddingsButton({ initialRemaining }: { initialRemainin
       <p className="text-sm font-medium">Semantic search embeddings</p>
       <p className="mt-1 text-xs text-muted-foreground">
         Listings only get an embedding when posted or edited from here on — this backfills existing ones so they can
-        show up in "Related to your search" too.
+        show up in &quot;Related to your search&quot; too.
       </p>
       <div className="mt-2 flex items-center gap-2">
         <Button type="button" size="sm" onClick={run} disabled={pending || remaining === 0} className="gap-1.5">

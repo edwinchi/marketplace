@@ -24,6 +24,32 @@ export function toMinorUnits(amount: number): number {
   return Math.round(amount * 100);
 }
 
+// Stripe's amount convention isn't always "×100" like this app's own minor units (toMinorUnits
+// above stores every currency ×100). Passing price_minor straight through as a Stripe unit_amount
+// overcharged zero-decimal currencies 100× (a 5,000 XOF item charged as 500,000 XOF -- Côte d'Ivoire
+// is Stripe-eligible, see lib/payment-coverage.ts) and undercharged three-decimal TND 10×.
+// Source: docs.stripe.com/currencies (zero-decimal, special-case and three-decimal lists),
+// intersected with SUPPORTED_CURRENCIES.
+const STRIPE_ZERO_DECIMAL = new Set(["BIF", "DJF", "GNF", "KMF", "MGA", "RWF", "XAF", "XOF"]);
+// Zero-decimal in practice, but Stripe requires them sent ×100 and divisible by 100.
+const STRIPE_WHOLE_UNITS_AS_TWO_DECIMAL = new Set(["ISK", "UGX"]);
+const STRIPE_THREE_DECIMAL = new Set(["TND"]);
+
+export function toStripeAmount(minorUnits: number, currency: string): number {
+  const code = currency.toUpperCase();
+  if (STRIPE_ZERO_DECIMAL.has(code)) return Math.round(minorUnits / 100);
+  if (STRIPE_WHOLE_UNITS_AS_TWO_DECIMAL.has(code)) return Math.round(minorUnits / 100) * 100;
+  if (STRIPE_THREE_DECIMAL.has(code)) return minorUnits * 10;
+  return minorUnits;
+}
+
+export function fromStripeAmount(stripeAmount: number, currency: string): number {
+  const code = currency.toUpperCase();
+  if (STRIPE_ZERO_DECIMAL.has(code)) return stripeAmount * 100;
+  if (STRIPE_THREE_DECIMAL.has(code)) return Math.round(stripeAmount / 10);
+  return stripeAmount;
+}
+
 export function formatPrice(minorUnits: number, currency: string, locale = "en") {
   return new Intl.NumberFormat(locale, {
     style: "currency",

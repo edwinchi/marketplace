@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getTranslations, getLocale } from "next-intl/server";
 import { MessageCircle, Globe, Calendar, Fuel, Cog, Gauge, Tag, Phone, Eye, Heart } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { getCategoryPath } from "@/lib/categories";
 import { formatPrice } from "@/lib/money";
@@ -208,8 +209,10 @@ export default async function ListingPage({
   // signal instead of the dead listings.view_count column this schema shipped with. Every page
   // load counts, not just signed-in ones (anonymous browsing is the norm here), except the owner's
   // own visits -- a seller repeatedly checking their own listing shouldn't inflate its own count.
+  // Service-role client: the RPC is service_role-only (20260101008900), so it can't be called
+  // straight from the public API to inflate a listing's views.
   if (!isOwner) {
-    supabase.rpc("increment_listing_view_count", { p_listing_id: listing.id }).then(({ error }) => {
+    createServiceClient().rpc("increment_listing_view_count", { p_listing_id: listing.id }).then(({ error }) => {
       if (error) console.error("Failed to increment listing view count:", error);
     });
   }

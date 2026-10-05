@@ -95,7 +95,7 @@ async function runOneAttempt(attempts, imageBase64, mediaType) {
         headers: { "content-type": "application/json", authorization: `Bearer ${attempt.apiKey}`, ...(attempt.extraHeaders ?? {}) },
         body: JSON.stringify(body),
       });
-    } catch (e) {
+    } catch {
       continue; // network blip on this provider -- try the next one, same as production
     }
     if (!res.ok) continue;

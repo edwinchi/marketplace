@@ -10,7 +10,7 @@ export default function NotFound() {
       </span>
       <h1 className="text-2xl font-semibold">Page not found</h1>
       <p className="text-sm text-muted-foreground">
-        This page doesn't exist, or the listing it pointed to may have been removed or sold.
+        This page doesn&apos;t exist, or the listing it pointed to may have been removed or sold.
       </p>
       <div className="mt-2 flex flex-wrap justify-center gap-3">
         <Link href="/" className={buttonVariants({ variant: "default" })}>

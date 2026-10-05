@@ -16,7 +16,7 @@ import { getTextEmbedding } from "@/lib/embeddings";
 import { isSellerProSubscriber } from "@/lib/seller-pro";
 import { getNewListingNotificationsGlobalUnlockSetting } from "@/lib/app-settings";
 import { pingIndexNow } from "@/lib/indexnow";
-import { translateListingForAllVisitors } from "./translate-action";
+import { translateListingForAllVisitors } from "@/lib/listing-auto-translate";
 import { checkListingContentPolicy } from "@/lib/content-moderation";
 import { getNumericSetting } from "@/lib/numeric-settings";
 import { getStripe, EUR_CHECKOUT_PAYMENT_METHOD_TYPES } from "@/lib/stripe";
@@ -36,11 +36,15 @@ export type ListingFormState = { error: string | null };
 // create/update on embedding latency or failure (see lib/embeddings.ts's own best-effort design);
 // worst case a listing's title_embedding stays null and it just doesn't participate in semantic
 // search (see supabase/migrations/20260101005700_semantic_search.sql), same as any older listing.
-function enqueueEmbedding(supabase: Awaited<ReturnType<typeof createClient>>, listingId: string, title: string, description: string) {
+//
+// Service-role client: title_embedding isn't in the user UPDATE grant (20260101008400), so the
+// seller's request-scoped client silently failed this write for every listing created or edited
+// after that migration.
+function enqueueEmbedding(listingId: string, title: string, description: string) {
   after(async () => {
     const embedding = await getTextEmbedding(`${title}\n${description}`);
     if (!embedding) return;
-    const { error } = await supabase.from("listings").update({ title_embedding: embedding as unknown as string }).eq("id", listingId);
+    const { error } = await createServiceClient().from("listings").update({ title_embedding: embedding as unknown as string }).eq("id", listingId);
     if (error) console.error(`Failed to store title_embedding for listing ${listingId}:`, error);
   });
 }
@@ -421,6 +425,9 @@ export async function createListing(_prevState: ListingFormState, formData: Form
       shipping_cost_minor: shippingCostMinor,
       offers_allowed: offersAllowed,
       status: "active",
+      // Overwritten with the database's now() by the listings_user_write_guard trigger
+      // (supabase/migrations/20260101008900) for any user-originated insert, so a direct API call
+      // can't backdate or future-date it to game the feed's published_at ordering.
       published_at: new Date().toISOString(),
       // 60 days, matching common classifieds convention — the expiry sweep
       // (supabase/migrations/20260101004200_listing_expiry.sql) flips anything past this to
@@ -438,7 +445,7 @@ export async function createListing(_prevState: ListingFormState, formData: Form
     return { error: e instanceof Error ? e.message : "Could not save listing details." };
   }
 
-  enqueueEmbedding(supabase, listing.id, title, description);
+  enqueueEmbedding(listing.id, title, description);
   enqueueTranslation(listing.id, title, description);
   enqueueModerationCheck(listing.id, title, description);
   enqueueNewListingNotifications(listing.id, profile.id, title, countryCode || null);
@@ -510,7 +517,7 @@ export async function updateListing(
     return { error: e instanceof Error ? e.message : "Could not save listing details." };
   }
 
-  enqueueEmbedding(supabase, listingId, title, description);
+  enqueueEmbedding(listingId, title, description);
   enqueueTranslation(listingId, title, description);
   enqueueModerationCheck(listingId, title, description);
   after(() => pingIndexNow([`https://marketitnow.net/listings/${slugPath(title, listingId)}`]));

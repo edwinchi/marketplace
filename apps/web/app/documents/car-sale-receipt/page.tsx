@@ -33,7 +33,7 @@ export default async function CarSaleReceiptPage() {
         </div>
         <div className="mt-8 flex flex-col gap-3 sm:w-1/2">
           <div className="h-10 border-b border-foreground/40" />
-          <span className="text-xs text-muted-foreground">Seller's signature</span>
+          <span className="text-xs text-muted-foreground">Seller&apos;s signature</span>
         </div>
       </Section>
     </DocumentPage>

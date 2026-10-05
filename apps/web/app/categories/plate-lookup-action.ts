@@ -3,6 +3,19 @@
 import { lookupVehicleByPlate as lookupVehicleByPlateRdw, normalizePlate, type VehicleLookupResult } from "@/lib/rdw";
 import { isRegcheckConfigured, lookupVehicleByPlateRegcheck, lookupVehicleGermanyByKba } from "@/lib/regcheck";
 import { VEHICLE_REGISTRY_COUNTRIES } from "@/lib/vehicle-registries";
+import { headers } from "next/headers";
+import { checkRateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
+
+// RegCheck bills per lookup, and these Server Actions are publicly POST-able without signing in, so
+// without a cap anyone could script them to drain the account's credits. Per-IP, RegCheck paths
+// only -- the Dutch RDW lookup is free open data and stays unlimited.
+const REGCHECK_LOOKUPS_PER_HOUR = 10;
+const RATE_LIMITED_ERROR = "Too many vehicle lookups from your connection — try again in an hour.";
+
+async function allowRegcheckLookup(): Promise<boolean> {
+  const ip = clientIpFromHeaders(await headers());
+  return checkRateLimit(`regcheck-lookup:${ip}`, REGCHECK_LOOKUPS_PER_HOUR, 3600);
+}
 
 export type PlateLookupResult = { data: VehicleLookupResult | null; error: string | null };
 
@@ -33,6 +46,7 @@ export async function searchVehicleByPlate(plate: string, countryCode: string): 
     if (!isRegcheckConfigured()) {
       return { data: null, error: `${country.name} lookup is being set up — check back soon.` };
     }
+    if (!(await allowRegcheckLookup())) return { data: null, error: RATE_LIMITED_ERROR };
     try {
       const result = await lookupVehicleByPlateRegcheck(country.regcheckMethod, normalized);
       if (!result) return { data: null, error: `No ${country.name}-registered vehicle found for that plate.` };
@@ -57,6 +71,7 @@ export async function searchVehicleByKba(kbaNumber: string, countryCode: string)
   if (!isRegcheckConfigured()) {
     return { data: null, error: `${country.name} lookup is being set up — check back soon.` };
   }
+  if (!(await allowRegcheckLookup())) return { data: null, error: RATE_LIMITED_ERROR };
   try {
     const result = await lookupVehicleGermanyByKba(cleaned);
     if (!result) return { data: null, error: `No vehicle found for that HSN/TSN number.` };

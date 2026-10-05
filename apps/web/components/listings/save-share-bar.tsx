@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Heart, Share2, Check, Link2, Mail, Flag } from "lucide-react";
 import { toggleFavorite } from "@/app/listings/favorite-actions";
@@ -22,6 +23,7 @@ const REPORT_REASONS: { value: string; label: string }[] = [
 ];
 
 function ReportButton({ listingId, signedIn }: { listingId: string; signedIn: boolean }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [description, setDescription] = useState("");
@@ -43,7 +45,7 @@ function ReportButton({ listingId, signedIn }: { listingId: string; signedIn: bo
       open={open}
       onOpenChange={(next) => {
         if (!signedIn && next) {
-          window.location.href = "/login";
+          router.push("/login");
           return;
         }
         setOpen(next);
@@ -274,6 +276,7 @@ export function SaveShareBar({
   signedIn: boolean;
 }) {
   const t = useTranslations("Listing");
+  const router = useRouter();
   const [favorited, setFavorited] = useState(initialFavorited);
   const [pending, startTransition] = useTransition();
 
@@ -286,7 +289,7 @@ export function SaveShareBar({
         className={cn("flex items-center gap-1.5 hover:underline", favorited && "text-destructive")}
         onClick={() => {
           if (!signedIn) {
-            window.location.href = "/login";
+            router.push("/login");
             return;
           }
           const next = !favorited;

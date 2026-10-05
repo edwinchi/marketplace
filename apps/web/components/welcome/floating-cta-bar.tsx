@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { getCookieConsent } from "@/lib/cookie-consent";
+import { getCookieConsent, subscribeCookieConsent } from "@/lib/cookie-consent";
 
 // Fixed to the bottom of the viewport for the whole page -- this page's one persistent conversion
 // driver, visible at every scroll depth. Offsets itself above the cookie-consent banner (also
@@ -12,14 +12,7 @@ import { getCookieConsent } from "@/lib/cookie-consent";
 // cookie-consent-banner.tsx already dispatches, rather than duplicating consent state.
 export function FloatingCtaBar() {
   const t = useTranslations("Welcome");
-  const [bannerShowing, setBannerShowing] = useState(false);
-
-  useEffect(() => {
-    setBannerShowing(!getCookieConsent());
-    const onChange = () => setBannerShowing(false);
-    window.addEventListener("cookie-consent-change", onChange);
-    return () => window.removeEventListener("cookie-consent-change", onChange);
-  }, []);
+  const bannerShowing = useSyncExternalStore(subscribeCookieConsent, () => !getCookieConsent(), () => false);
 
   return (
     <div

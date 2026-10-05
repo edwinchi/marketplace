@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Heart } from "lucide-react";
 import { toggleFavorite } from "@/app/listings/favorite-actions";
 import { cn } from "@/lib/utils";
 
 export function FavoriteButton({ listingId, initialFavorited, signedIn }: { listingId: string; initialFavorited: boolean; signedIn: boolean }) {
+  const router = useRouter();
   const [favorited, setFavorited] = useState(initialFavorited);
   const [pending, startTransition] = useTransition();
 
@@ -20,7 +22,7 @@ export function FavoriteButton({ listingId, initialFavorited, signedIn }: { list
         e.preventDefault();
         e.stopPropagation();
         if (!signedIn) {
-          window.location.href = "/login";
+          router.push("/login");
           return;
         }
         const next = !favorited;

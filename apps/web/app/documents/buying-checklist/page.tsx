@@ -48,8 +48,8 @@ export default async function BuyingChecklistPage() {
             The car pulling to one side, or the pedal vibrating under braking, can mean worn brakes.
           </CheckItem>
           <CheckItem title="Clutch and gears">
-            Shifting should feel smooth and easy. On a manual, check where the clutch engages — if it's very high,
-            that's not a good sign.
+            Shifting should feel smooth and easy. On a manual, check where the clutch engages — if it&apos;s very high,
+            that&apos;s not a good sign.
           </CheckItem>
           <CheckItem title="Steering">Watch for excess play, and confirm the car tracks straight without correction.</CheckItem>
           <CheckItem title="Overall handling">
@@ -65,8 +65,8 @@ export default async function BuyingChecklistPage() {
             Ask for the original vehicle registration/ownership documents — not photocopies.
           </CheckItem>
           <CheckItem title="Seller's identification">
-            Confirm the seller's ID matches the name on the registration documents, and have them confirm in
-            writing that they're the actual owner.
+            Confirm the seller&apos;s ID matches the name on the registration documents, and have them confirm in
+            writing that they&apos;re the actual owner.
           </CheckItem>
           <CheckItem title="Cross-check the details">
             Compare the chassis number, colour, and other details on the documents against the actual car.

@@ -88,12 +88,12 @@ export default async function CarSaleAgreementPage() {
           <div className="flex flex-col gap-3">
             <Field label="Date & place (seller)" />
             <div className="mt-6 h-10 border-b border-foreground/40" />
-            <span className="text-xs text-muted-foreground">Seller's signature</span>
+            <span className="text-xs text-muted-foreground">Seller&apos;s signature</span>
           </div>
           <div className="flex flex-col gap-3">
             <Field label="Date & place (buyer)" />
             <div className="mt-6 h-10 border-b border-foreground/40" />
-            <span className="text-xs text-muted-foreground">Buyer's signature</span>
+            <span className="text-xs text-muted-foreground">Buyer&apos;s signature</span>
           </div>
         </div>
       </Section>

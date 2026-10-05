@@ -7,6 +7,7 @@ import { getSiteOrigin } from "@/lib/site-url";
 import { getStripe, EUR_CHECKOUT_PAYMENT_METHOD_TYPES } from "@/lib/stripe";
 import { calculateBuyerFeeMinor, isDirectBuyEligible } from "@/lib/payments";
 import { slugPath } from "@/lib/slug";
+import { toStripeAmount } from "@/lib/money";
 
 // Direct Buy -- a protected, in-platform payment (the buyer-fee-funded model from
 // supabase/migrations/20260101005100_stripe_connect.sql; the seller is paid directly via
@@ -85,41 +86,57 @@ export async function startOrderPayment(listingId: string) {
   const origin = await getSiteOrigin();
   const listingPath = `/listings/${slugPath(listing.title, listing.id)}`;
 
-  const session = await stripe.checkout.sessions.create({
-    customer: customerId,
-    mode: "payment",
-    // EUR_CHECKOUT_PAYMENT_METHOD_TYPES's methods (iDEAL, Bancontact, ...) only support EUR --
-    // applying it to a non-EUR listing would throw at session-creation time, not just omit those
-    // methods, so this only overrides Stripe's default dynamic mode for EUR listings. Every other
-    // currency keeps dynamic mode (card plus whatever's regionally appropriate), which was never
-    // the problem -- the small-amount iDEAL exclusion (see lib/stripe.ts) is EUR-specific.
-    ...(listing.currency_code === "EUR" ? { payment_method_types: EUR_CHECKOUT_PAYMENT_METHOD_TYPES } : {}),
-    line_items: [
-      {
-        price_data: {
-          currency: listing.currency_code.toLowerCase(),
-          unit_amount: totalMinor,
-          product_data: { name: listing.title },
-        },
-        quantity: 1,
-      },
-    ],
-    payment_intent_data: {
-      application_fee_amount: feeMinor,
-      transfer_data: { destination: seller.stripe_connect_account_id },
-    },
-    // Confirmed live (a real 400 from Stripe, not a guess): "Managed Payments" -- enabled by
-    // default on this Stripe account, a newer feature this SDK's own TypeScript types (stripe@22.6)
-    // don't know about yet, hence the cast -- requires a product tax_code on every price_data line
-    // item unless explicitly disabled per-session. A tax code doesn't map cleanly onto a classifieds
-    // platform fee, so disabling it here (Stripe's own suggested workaround) is the honest fix,
-    // not picking an arbitrary category to satisfy the requirement.
-    ...({ managed_payments: { enabled: false } } as Record<string, unknown>),
-    success_url: `${origin}${listingPath}?order=success`,
-    cancel_url: `${origin}${listingPath}?order=canceled`,
-    metadata: { type: "order_payment", order_id: order.id },
-  });
+  // Stripe's minor units aren't always ×100 like ours (zero-decimal XOF/XAF/RWF..., three-decimal
+  // TND) -- see toStripeAmount. Both amounts converted the same way so the fee stays proportional.
+  const stripeTotal = toStripeAmount(totalMinor, listing.currency_code);
+  const stripeFee = toStripeAmount(feeMinor, listing.currency_code);
 
-  if (!session.url) redirect(`${listingPath}?error=checkout_failed`);
+  // Caught rather than left to crash the page: Stripe rejects some listing currencies outright (e.g.
+  // LYD isn't a supported presentment currency), and the pending order inserted above would
+  // otherwise be left orphaned at pending_payment.
+  let session: Awaited<ReturnType<typeof stripe.checkout.sessions.create>> | null = null;
+  try {
+    session = await stripe.checkout.sessions.create({
+      customer: customerId,
+      mode: "payment",
+      // EUR_CHECKOUT_PAYMENT_METHOD_TYPES's methods (iDEAL, Bancontact, ...) only support EUR --
+      // applying it to a non-EUR listing would throw at session-creation time, not just omit those
+      // methods, so this only overrides Stripe's default dynamic mode for EUR listings. Every other
+      // currency keeps dynamic mode (card plus whatever's regionally appropriate), which was never
+      // the problem -- the small-amount iDEAL exclusion (see lib/stripe.ts) is EUR-specific.
+      ...(listing.currency_code === "EUR" ? { payment_method_types: EUR_CHECKOUT_PAYMENT_METHOD_TYPES } : {}),
+      line_items: [
+        {
+          price_data: {
+            currency: listing.currency_code.toLowerCase(),
+            unit_amount: stripeTotal,
+            product_data: { name: listing.title },
+          },
+          quantity: 1,
+        },
+      ],
+      payment_intent_data: {
+        application_fee_amount: stripeFee,
+        transfer_data: { destination: seller.stripe_connect_account_id },
+      },
+      // Confirmed live (a real 400 from Stripe, not a guess): "Managed Payments" -- enabled by
+      // default on this Stripe account, a newer feature this SDK's own TypeScript types (stripe@22.6)
+      // don't know about yet, hence the cast -- requires a product tax_code on every price_data line
+      // item unless explicitly disabled per-session. A tax code doesn't map cleanly onto a classifieds
+      // platform fee, so disabling it here (Stripe's own suggested workaround) is the honest fix,
+      // not picking an arbitrary category to satisfy the requirement.
+      ...({ managed_payments: { enabled: false } } as Record<string, unknown>),
+      success_url: `${origin}${listingPath}?order=success`,
+      cancel_url: `${origin}${listingPath}?order=canceled`,
+      metadata: { type: "order_payment", order_id: order.id },
+    });
+  } catch (err) {
+    console.error(`Checkout session creation failed for order ${order.id} (${listing.currency_code}):`, err);
+  }
+
+  if (!session?.url) {
+    await supabase.from("orders").delete().eq("id", order.id).eq("status", "pending_payment");
+    redirect(`${listingPath}?error=checkout_failed`);
+  }
   redirect(session.url);
 }

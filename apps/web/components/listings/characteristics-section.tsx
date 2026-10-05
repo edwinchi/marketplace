@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { AttributeDef } from "@/lib/categories";
 import type { AttributeGroup } from "@/lib/car-attribute-groups";
 import { AttributeField, attributeFieldName } from "@/components/listing-attribute-field";
@@ -14,6 +14,16 @@ import { Sparkles } from "lucide-react";
 // defaultValues is keyed by attribute stableKey (e.g. "brand", "fuel_type") -- for a select
 // attribute the value must be that option's id (see AttributeField); the caller is responsible
 // for that lookup since only it knows which raw value maps to which seeded option.
+function withDefaults(prev: Set<string>, attributes: AttributeDef[], defaultValues?: Record<string, string | string[]>): Set<string> {
+  if (!defaultValues) return prev;
+  const next = new Set(prev);
+  for (const attr of attributes) {
+    const v = defaultValues[attr.stableKey];
+    if (Array.isArray(v) ? v.length > 0 : !!v) next.add(attributeFieldName(attr));
+  }
+  return next;
+}
+
 export function CharacteristicsSection({
   attributes,
   defaultValues,
@@ -26,26 +36,18 @@ export function CharacteristicsSection({
   // category keeps the original flat list.
   groups?: AttributeGroup[];
 }) {
-  const [filled, setFilled] = useState<Set<string>>(new Set());
-
   // defaultValues fills fields via the DOM's own defaultValue/defaultChecked, which never fires a
   // change event -- without this, a plate lookup that fills in a dozen fields at once would still
-  // show "0/23 filled" until the seller edited something themselves. Re-runs whenever defaultValues
-  // changes (e.g. a plate lookup resolving after the fieldset already mounted).
-  useEffect(() => {
-    if (!defaultValues) return;
-    setFilled((prev) => {
-      const next = new Set(prev);
-      for (const attr of attributes) {
-        const v = defaultValues[attr.stableKey];
-        if (Array.isArray(v) ? v.length > 0 : !!v) next.add(attributeFieldName(attr));
-      }
-      return next;
-    });
-    // attributes is effectively static for a given category page -- only defaultValues arriving
-    // (or changing) should re-trigger this.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultValues]);
+  // show "0/23 filled" until the seller edited something themselves. Applied at mount and again
+  // whenever defaultValues changes (e.g. a plate lookup resolving after the fieldset already
+  // mounted), during render rather than in an effect -- React's "adjusting state when a prop
+  // changes" pattern, which avoids an extra render pass with a stale count.
+  const [filled, setFilled] = useState<Set<string>>(() => withDefaults(new Set(), attributes, defaultValues));
+  const [appliedDefaults, setAppliedDefaults] = useState(defaultValues);
+  if (defaultValues !== appliedDefaults) {
+    setAppliedDefaults(defaultValues);
+    setFilled((prev) => withDefaults(prev, attributes, defaultValues));
+  }
 
   function handleChange(e: React.ChangeEvent<HTMLFieldSetElement>) {
     // e.target is the actual bubbled-from input/select, not the fieldset itself — React types

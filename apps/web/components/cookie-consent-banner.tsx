@@ -1,21 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Cookie } from "lucide-react";
-import { getCookieConsent, setCookieConsent } from "@/lib/cookie-consent";
+import { getCookieConsent, setCookieConsent, subscribeCookieConsent } from "@/lib/cookie-consent";
 import { Button } from "@/components/ui/button";
 
 export function CookieConsentBanner() {
-  // null while unknown (avoids a flash of the banner on first paint before localStorage is read),
-  // then either "accepted"/"rejected" (hide) or "unset" (show).
-  const [status, setStatus] = useState<"unknown" | "unset" | "decided">("unknown");
+  // "unknown" on the server and during hydration (avoids a flash of the banner on first paint
+  // before localStorage is read), then "decided" (hide) or "unset" (show).
+  const status = useSyncExternalStore(
+    subscribeCookieConsent,
+    () => (getCookieConsent() ? "decided" : "unset"),
+    () => "unknown",
+  );
+  // Also hides on click even if storage is blocked (private browsing) and the choice can't persist.
+  const [dismissed, setDismissed] = useState(false);
 
-  useEffect(() => {
-    setStatus(getCookieConsent() ? "decided" : "unset");
-  }, []);
-
-  if (status !== "unset") return null;
+  if (status !== "unset" || dismissed) return null;
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 border-t bg-card p-4 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] print:hidden">
@@ -32,7 +34,7 @@ export function CookieConsentBanner() {
             variant="outline"
             onClick={() => {
               setCookieConsent("rejected");
-              setStatus("decided");
+              setDismissed(true);
             }}
           >
             Essential only
@@ -41,7 +43,7 @@ export function CookieConsentBanner() {
             type="button"
             onClick={() => {
               setCookieConsent("accepted");
-              setStatus("decided");
+              setDismissed(true);
             }}
           >
             Accept all

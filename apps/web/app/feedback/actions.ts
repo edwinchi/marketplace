@@ -2,6 +2,8 @@
 
 import { sendEmail, isResendConfigured } from "@/lib/resend";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { headers } from "next/headers";
+import { checkRateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 
 export type FeedbackState = { sent: boolean; error: string | null };
 
@@ -24,6 +26,14 @@ export async function submitFeedback(_prevState: FeedbackState, formData: FormDa
   const message = String(formData.get("message") ?? "").trim();
   const contactEmail = String(formData.get("email") ?? "").trim();
   if (!message) return { sent: false, error: "Enter your feedback before sending." };
+
+  // Publicly POST-able without signing in, and every call sends a real email (with up to 3
+  // attachments) through Resend -- capped per IP so it can't be scripted to flood the inbox or burn
+  // the Resend sending quota.
+  const ip = clientIpFromHeaders(await headers());
+  if (!(await checkRateLimit(`feedback:${ip}`, 5, 3600))) {
+    return { sent: false, error: "You've sent a lot of feedback recently — try again in an hour." };
+  }
 
   if (!isResendConfigured()) {
     console.error("submitFeedback: RESEND_API_KEY not configured");

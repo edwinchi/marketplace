@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Info } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";

@@ -49,7 +49,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
       </span>
       <h1 className="text-2xl font-semibold">Something went wrong</h1>
       <p className="text-sm text-muted-foreground">
-        That's on us, not you — try again, and let us know if it keeps happening.
+        That&apos;s on us, not you — try again, and let us know if it keeps happening.
       </p>
       <div className="mt-2 flex flex-wrap justify-center gap-3">
         <Button onClick={reset}>Try again</Button>

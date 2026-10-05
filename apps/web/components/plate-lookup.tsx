@@ -90,7 +90,7 @@ export function PlateLookup() {
         <h2 className="text-sm font-semibold">Look up a car by its license plate</h2>
       </div>
       <p className="mb-3 text-xs text-muted-foreground">
-        Checks each country's official vehicle registry — coverage expands over time, real data only, no guessing.
+        Checks each country&apos;s official vehicle registry — coverage expands over time, real data only, no guessing.
       </p>
       <div className="flex flex-wrap gap-2">
         <Select
@@ -130,7 +130,7 @@ export function PlateLookup() {
       </div>
       {isKbaBased && (
         <p className="mt-2 text-xs text-muted-foreground">
-          Germany doesn't allow plate lookups — enter the HSN/TSN vehicle-type key number from your Fahrzeugschein
+          Germany doesn&apos;t allow plate lookups — enter the HSN/TSN vehicle-type key number from your Fahrzeugschein
           (vehicle registration document) instead.
         </p>
       )}
