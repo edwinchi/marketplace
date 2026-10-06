@@ -394,11 +394,14 @@ export default async function HomePage({
             </div>
             <div className="flex items-center gap-3">
               <SortSelect sort={sort} />
-              {profile && (q || (category && category !== "all") || city) && (
+              {profile && (q || (category && category !== "all") || city || priceMin || priceMax || condition) && (
                 <form action={saveSearch}>
                   {q && <input type="hidden" name="q" value={q} />}
                   {category && <input type="hidden" name="category" value={category} />}
                   {city && <input type="hidden" name="city" value={city} />}
+                  {priceMin && <input type="hidden" name="priceMin" value={priceMin} />}
+                  {priceMax && <input type="hidden" name="priceMax" value={priceMax} />}
+                  {condition && <input type="hidden" name="condition" value={condition} />}
                   <input type="hidden" name="returnTo" value="/" />
                   <Button type="submit" variant="outline" size="sm" className="transition-transform duration-150 hover:-translate-y-0.5">{t("saveSearch")}</Button>
                 </form>

@@ -2514,6 +2514,7 @@ export type Database = {
       mark_order_shipped: { Args: { p_order_id: string; p_carrier?: string | null; p_tracking_number?: string | null }; Returns: undefined }
       bump_listing: { Args: { p_listing_id: string }; Returns: undefined }
       extend_homepage_placement: { Args: { p_listing_id: string; p_days?: number }; Returns: undefined }
+      seller_response_minutes: { Args: { p_profile_id: string }; Returns: number | null }
       match_listings_by_embedding: {
         Args: { filter_category_ids?: string[] | null; filter_city?: string | null; match_count?: number; query_embedding: string }
         Returns: { id: string; similarity: number }[]

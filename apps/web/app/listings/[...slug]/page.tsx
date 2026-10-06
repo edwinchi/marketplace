@@ -25,6 +25,9 @@ import { SaveShareBar } from "@/components/listings/save-share-bar";
 import { RichDescription } from "@/components/listings/rich-description";
 import { ListenButton } from "@/components/listen-button";
 import { PhoneRevealButton } from "@/components/listings/phone-reveal-button";
+import { ListingGrid } from "@/components/listing-grid";
+import { getSimilarListings } from "@/lib/similar-listings";
+import { getSellerResponseBucket } from "@/lib/seller-response";
 import { PhotoGallery } from "@/components/listings/photo-gallery";
 import { OfferBox } from "@/components/listings/offer-box";
 import { messageSellerAction } from "@/app/listings/message-seller-action";
@@ -197,6 +200,13 @@ export default async function ListingPage({
     ]);
   const sellerHasPhone = await sellerHasPhonePromise;
 
+  const similarListings = await getSimilarListings(supabase, listing.id, listing.category_id);
+  const { data: similarFavorites } =
+    profile && similarListings.length
+      ? await supabase.from("favorites").select("listing_id").eq("profile_id", profile.id).in("listing_id", similarListings.map((l) => l.id))
+      : { data: [] as { listing_id: string }[] };
+  const similarFavoritedIds = new Set((similarFavorites ?? []).map((f) => f.listing_id));
+
   const displayTitle = translation?.title ?? listing.title;
   const displayDescription = translation?.description ?? listing.description;
 
@@ -260,6 +270,10 @@ export default async function ListingPage({
   // eslint-disable-next-line react-hooks/purity
   const yearsOnPlatform = Math.max(0, Math.floor((Date.now() - memberSince.getTime()) / (365.25 * 24 * 60 * 60 * 1000)));
   const tenureLabel = yearsOnPlatform > 0 ? t("yearsOnPlatform", { count: yearsOnPlatform }) : t("newOnPlatform");
+  const responseBucket = await getSellerResponseBucket(listing.seller_id);
+  const responseLabel = responseBucket
+    ? t({ hour: "respondsWithinHour", hours: "respondsWithinHours", day: "respondsWithinDay", days: "respondsWithinDays" }[responseBucket])
+    : null;
   const sellerName = seller?.display_name || seller?.username || t("aSeller");
   const sellerInitial = sellerName.charAt(0).toUpperCase();
 
@@ -522,6 +536,7 @@ export default async function ListingPage({
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{sellerName}</p>
                     <p className="text-xs text-muted-foreground">{tenureLabel}</p>
+                    {responseLabel && <p className="text-xs text-muted-foreground">{responseLabel}</p>}
                     {reviewCount > 0 && (
                       <p className="text-xs text-muted-foreground">{t("reviewSummary", { rating: reviewAverage ?? "0.0", count: reviewCount })}</p>
                     )}
@@ -635,6 +650,7 @@ export default async function ListingPage({
                       )}
                     </p>
                     <p className="text-xs text-muted-foreground">{tenureLabel}</p>
+                    {responseLabel && <p className="text-xs text-muted-foreground">{responseLabel}</p>}
                   </div>
                 </div>
                 {profile && (
@@ -721,6 +737,13 @@ export default async function ListingPage({
           <span>{t("adReferenceNumber", { number: listing.id.slice(0, 8).toUpperCase() })}</span>
         </div>
       </div>
+
+      {similarListings.length > 0 && (
+        <section className="mt-10">
+          <h2 className="mb-3 text-lg font-semibold">{t("similarListings")}</h2>
+          <ListingGrid listings={similarListings} favoritedIds={similarFavoritedIds} signedIn={!!profile} />
+        </section>
+      )}
     </div>
   );
 }

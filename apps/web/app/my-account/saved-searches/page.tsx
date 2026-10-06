@@ -15,7 +15,7 @@ export default async function SavedSearchesPage() {
   const supabase = await createClient();
   const { data: searches } = await supabase
     .from("saved_searches")
-    .select("id, name, query_text, notify_push, notify_email, created_at")
+    .select("id, name, query_text, filters, notify_push, notify_email, created_at")
     .eq("profile_id", profile.id)
     .order("created_at", { ascending: false });
 
@@ -29,7 +29,14 @@ export default async function SavedSearchesPage() {
               <Card key={s.id}>
                 <CardContent className="flex flex-col gap-3 py-4">
                   <div className="flex items-center justify-between gap-4">
-                    <p className="font-medium">{s.name || s.query_text || "Saved search"}</p>
+                    <div className="flex min-w-0 flex-col">
+                      <p className="font-medium">{s.name || s.query_text || "Saved search"}</p>
+                      {resultsUrl(s.filters) && (
+                        <Link href={resultsUrl(s.filters)!} className="text-xs text-muted-foreground underline hover:text-foreground">
+                          View results
+                        </Link>
+                      )}
+                    </div>
                     <form action={deleteSavedSearch}>
                       <input type="hidden" name="id" value={s.id} />
                       <Button type="submit" variant="ghost" size="sm" className="gap-1.5 text-muted-foreground">
@@ -41,11 +48,14 @@ export default async function SavedSearchesPage() {
                   <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
                     <div className="flex items-center gap-2">
                       <SavedSearchToggle id={s.id} channel="push" checked={s.notify_push} />
-                      <span className="text-muted-foreground">Push notifications</span>
+                      {/* In-app only: the hourly saved-search-alerts job writes to /notifications.
+                          There's no browser/mobile push behind this. */}
+                      <span className="text-muted-foreground">Notifications on MarketitNow</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <SavedSearchToggle id={s.id} channel="email" checked={s.notify_email} />
-                      <span className="text-muted-foreground">Email</span>
+                      {/* Not sent yet -- needs a verified sending domain in Resend (lib/resend.ts). */}
+                      <span className="text-muted-foreground">Email (coming soon)</span>
                     </div>
                   </div>
                 </CardContent>
@@ -73,4 +83,10 @@ export default async function SavedSearchesPage() {
       </div>
     </div>
   );
+}
+
+// Saved before results URLs were stored (or malformed) -> no link rather than a wrong one.
+function resultsUrl(filters: unknown): string | null {
+  const url = filters && typeof filters === "object" ? (filters as { url?: unknown }).url : null;
+  return typeof url === "string" && url.startsWith("/") && !url.startsWith("//") ? url : null;
 }

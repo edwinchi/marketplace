@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Bell, Megaphone, Truck, TrendingDown } from "lucide-react";
+import { Bell, Megaphone, Truck, TrendingDown, Search, Undo2 } from "lucide-react";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 
@@ -11,12 +11,12 @@ type NotificationRow = {
   notification_type: string;
   title: string;
   body: string | null;
-  payload: { listing_id?: string } | null;
+  payload: { listing_id?: string; url?: string } | null;
   read_at: string | null;
   created_at: string;
 };
 
-const ICONS: Record<string, typeof Bell> = { new_listing: Megaphone, order_shipped: Truck, price_drop: TrendingDown };
+const ICONS: Record<string, typeof Bell> = { new_listing: Megaphone, order_shipped: Truck, price_drop: TrendingDown, saved_search_match: Search, order_refunded: Undo2 };
 
 export default async function NotificationsPage() {
   const { profile } = await getCurrentUserAndProfile();
@@ -56,6 +56,10 @@ export default async function NotificationsPage() {
           {notifications.map((n) => {
             const Icon = ICONS[n.notification_type] ?? Bell;
             const listingId = n.payload?.listing_id;
+            // Saved-search digests link to the saved results page; only a same-site path is ever
+            // followed, whatever ends up in payload.
+            const url = n.payload?.url;
+            const href = listingId ? `/listings/x-${listingId}` : url && url.startsWith("/") && !url.startsWith("//") ? url : null;
             const content = (
               <>
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#008848]/10 text-[#008848]">
@@ -71,8 +75,8 @@ export default async function NotificationsPage() {
             );
             return (
               <li key={n.id}>
-                {listingId ? (
-                  <Link href={`/listings/x-${listingId}`} className="flex items-start gap-3 rounded-xl border p-4 shadow-sm transition-colors hover:bg-brand-green/10">
+                {href ? (
+                  <Link href={href} className="flex items-start gap-3 rounded-xl border p-4 shadow-sm transition-colors hover:bg-brand-green/10">
                     {content}
                   </Link>
                 ) : (
