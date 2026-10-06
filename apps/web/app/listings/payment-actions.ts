@@ -30,7 +30,7 @@ export async function startOrderPayment(listingId: string) {
   const supabase = createServiceClient();
   const { data: listing } = await supabase
     .from("listings")
-    .select("id, title, price_minor, currency_code, seller_id, status, price_type")
+    .select("id, title, price_minor, currency_code, seller_id, status, price_type, is_reserved")
     .eq("id", listingId)
     .single();
   if (!listing || !isDirectBuyEligible(listing)) redirect(`/listings/x-${listingId}?error=listing_unavailable`);

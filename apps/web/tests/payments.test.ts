@@ -20,6 +20,7 @@ describe("isDirectBuyEligible", () => {
     ["bidding", { ...base, price_type: "bidding" }],
     ["no price", { ...base, price_minor: null }],
     ["zero price", { ...base, price_minor: 0 }],
+    ["reserved", { ...base, is_reserved: true }],
   ])("rejects a %s listing", (_label, listing) => {
     expect(isDirectBuyEligible(listing)).toBe(false);
   });

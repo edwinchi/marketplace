@@ -21,6 +21,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PriceTypeSelect } from "@/components/listings/price-type-select";
+import { parsePriceType, priceTypeHasAmount, type PriceType } from "@/lib/price-types";
 
 type Props = {
   categoryOptions: CategoryOption[];
@@ -32,6 +34,7 @@ type Props = {
     description?: string;
     categoryId?: string;
     price?: string;
+    priceType?: string;
     currencyCode?: string;
     websiteUrl?: string | null;
   };
@@ -86,6 +89,7 @@ export function ListingForm({
   // app/listings/actions.ts) -- defaults to the listing's current currency, but a seller can change
   // it here same as on create.
   const [currencyCode, setCurrencyCode] = useState<CurrencyCode>((initial?.currencyCode as CurrencyCode) ?? "EUR");
+  const [priceType, setPriceType] = useState<PriceType>(parsePriceType(initial?.priceType));
   const attributes = attributesByCategory[categoryId] ?? [];
 
   const titleRef = useRef<HTMLInputElement>(null);
@@ -323,11 +327,15 @@ export function ListingForm({
         </Select>
       </div>
 
+      <PriceTypeSelect value={priceType} onChange={setPriceType} />
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="price">Price</Label>
-          <Input id="price" name="price" type="number" min="0" step="0.01" required defaultValue={initial?.price} />
-        </div>
+        {priceTypeHasAmount(priceType) && (
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="price">{priceType === "bidding" ? "Asking price (bids from)" : "Price"}</Label>
+            <Input id="price" name="price" type="number" min="0.01" step="0.01" required defaultValue={initial?.price} />
+          </div>
+        )}
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="currency_code">Currency</Label>
           <Select name="currency_code" value={currencyCode} onValueChange={(v) => v && setCurrencyCode(v as CurrencyCode)}>

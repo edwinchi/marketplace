@@ -37,6 +37,7 @@ export async function calculateBuyerFeeMinor(itemPriceMinor: number, currencyCod
 // marked paid with a 5-day shipping deadline. Shared by the listing page (whether to show the
 // button) and startOrderPayment (re-checked server-side, since a Server Action is directly
 // POST-reachable regardless of what the page rendered).
-export function isDirectBuyEligible(listing: { status: string; price_type: string; price_minor: number | null }): boolean {
-  return listing.status === "active" && listing.price_type === "fixed" && (listing.price_minor ?? 0) > 0;
+// A reserved listing (is_reserved) is being held for one buyer, so it can't be bought outright.
+export function isDirectBuyEligible(listing: { status: string; price_type: string; price_minor: number | null; is_reserved?: boolean | null }): boolean {
+  return listing.status === "active" && listing.price_type === "fixed" && (listing.price_minor ?? 0) > 0 && !listing.is_reserved;
 }

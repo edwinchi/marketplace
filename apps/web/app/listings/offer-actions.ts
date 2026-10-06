@@ -18,11 +18,12 @@ export async function createOffer(_prevState: OfferFormState, formData: FormData
   const supabase = await createClient();
   const { data: listing } = await supabase
     .from("listings")
-    .select("seller_id, currency_code, offers_allowed")
+    .select("seller_id, currency_code, offers_allowed, is_reserved, status")
     .eq("id", listingId)
     .single();
   if (!listing) return { error: "Listing not found." };
-  if (!listing.offers_allowed) return { error: "This seller isn't accepting offers." };
+  if (!listing.offers_allowed || listing.status !== "active") return { error: "This seller isn't accepting offers." };
+  if (listing.is_reserved) return { error: "This item is reserved for another buyer right now." };
   if (listing.seller_id === profile.id) return { error: "You can't make an offer on your own listing." };
 
   const { error } = await supabase.from("offers").insert({

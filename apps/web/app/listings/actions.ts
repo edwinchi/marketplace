@@ -22,6 +22,7 @@ import { getNumericSetting } from "@/lib/numeric-settings";
 import { getStripe, EUR_CHECKOUT_PAYMENT_METHOD_TYPES } from "@/lib/stripe";
 import { getSiteOrigin } from "@/lib/site-url";
 import { tierFromBoostRank } from "@/lib/listing-tiers";
+import { parsePriceType, priceMinorFor } from "@/lib/price-types";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 
@@ -367,12 +368,16 @@ export async function createListing(_prevState: ListingFormState, formData: Form
   // cost to store, and an empty/zero field means free shipping, not "unset".
   const shippingCostRaw = Number(formData.get("shipping_cost") ?? 0);
   const shippingCostMinor = deliveryAvailable && shippingCostRaw > 0 ? toMinorUnits(shippingCostRaw) : deliveryAvailable ? 0 : null;
-  const priceType = formData.get("price_type") === "bidding" ? "bidding" : "fixed";
+  const priceType = parsePriceType(formData.get("price_type"));
   const websiteUrlRaw = String(formData.get("website_url") ?? "");
 
-  if (!title || !description || !categoryId || !price || !city || !countryCode) {
+  if (!title || !description || !categoryId || !city || !countryCode) {
     return { error: "Please fill in every required field." };
   }
+  // Only fixed/bidding need an amount -- free/swap/see-description/on-request don't (see
+  // lib/price-types.ts), so a missing price is no longer a blanket "required field" error.
+  const pricing = priceMinorFor(priceType, price);
+  if ("error" in pricing) return { error: pricing.error };
   // Validated against the real country list server-side -- a direct call to this action (bypassing
   // the <select> the UI renders) with a bogus code would otherwise silently store a garbage
   // locations.country_code and price in EUR (getCurrencyForCountry's fallback for an unrecognized
@@ -417,7 +422,7 @@ export async function createListing(_prevState: ListingFormState, formData: Form
       source_language: "en",
       title,
       description,
-      price_minor: toMinorUnits(price),
+      price_minor: pricing.priceMinor,
       currency_code: currencyCode,
       price_type: priceType,
       pickup_available: pickupAvailable,
@@ -479,7 +484,7 @@ export async function updateListing(
   const price = Number(formData.get("price") ?? 0);
   const websiteUrlRaw = String(formData.get("website_url") ?? "");
 
-  if (!title || !description || !categoryId || !price) {
+  if (!title || !description || !categoryId) {
     return { error: "Please fill in every required field." };
   }
   if (websiteUrlRaw.trim() && !normalizeWebsiteUrl(websiteUrlRaw)) {
@@ -488,6 +493,14 @@ export async function updateListing(
 
   const supabase = await createClient();
 
+  // Read before anything is written: the current price type is the fallback when the submitted
+  // form doesn't carry one, and currency/boost_rank are needed further down.
+  const { data: currentListing } = await supabase.from("listings").select("currency_code, boost_rank, price_type").eq("id", listingId).single();
+  const submittedPriceType = formData.get("price_type");
+  const priceType = parsePriceType(submittedPriceType ?? currentListing?.price_type);
+  const pricing = priceMinorFor(priceType, price);
+  if ("error" in pricing) return { error: pricing.error };
+
   // Seller-wide, not per-listing (same field createListing writes) — an empty submission here
   // intentionally clears it, unlike create, since this is the one place a seller can remove it.
   await supabase.from("profiles").update({ website_url: normalizeWebsiteUrl(websiteUrlRaw) }).eq("id", profile.id);
@@ -495,7 +508,6 @@ export async function updateListing(
   // Currency is now an explicit, independently editable seller choice (see createListing) --
   // validated against the real currency list, falling back to the listing's current currency
   // (fetched below) rather than guessing from country if the submitted value is missing/invalid.
-  const { data: currentListing } = await supabase.from("listings").select("currency_code, boost_rank").eq("id", listingId).single();
   const submittedCurrency = String(formData.get("currency_code") ?? "");
   const currencyCode = (SUPPORTED_CURRENCIES as readonly string[]).includes(submittedCurrency)
     ? (submittedCurrency as (typeof SUPPORTED_CURRENCIES)[number])
@@ -504,7 +516,7 @@ export async function updateListing(
   // RLS's listing_write policy already scopes this update to seller_id = current_profile_id().
   const { error: updateError } = await supabase
     .from("listings")
-    .update({ title, description, category_id: categoryId, price_minor: toMinorUnits(price), currency_code: currencyCode })
+    .update({ title, description, category_id: categoryId, price_minor: pricing.priceMinor, price_type: priceType, currency_code: currencyCode })
     .eq("id", listingId);
   if (updateError) return { error: updateError.message };
 
@@ -565,6 +577,18 @@ export async function markListingSold(listingId: string) {
   // reconstruct without a DB round-trip -- revalidating the literal route pattern instead of a
   // guessed resolved URL is the documented way to invalidate every path under a dynamic segment.
   revalidatePath("/listings/[...slug]", "page");
+}
+
+// "Reserved" (Marktplaats' "Gereserveerd"): hold an item for one buyer without taking the listing
+// down. Visible everywhere with a badge; Direct Buy and new offers pause while it's set. The
+// seller_id filter is belt-and-braces on top of listing_write RLS.
+export async function toggleListingReserved(listingId: string, reserved: boolean) {
+  const { profile } = await getCurrentUserAndProfile();
+  if (!profile) redirect("/login");
+  const supabase = await createClient();
+  await supabase.from("listings").update({ is_reserved: reserved }).eq("id", listingId).eq("seller_id", profile.id);
+  revalidatePath("/listings/[...slug]", "page");
+  revalidatePath("/my-account/my-listings");
 }
 
 // Undoes markListingSold, or brings back a listing the expiry sweep flipped to 'expired' — same

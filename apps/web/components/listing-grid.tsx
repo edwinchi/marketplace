@@ -6,6 +6,10 @@ type Listing = {
   title: string;
   price_minor: number | null;
   currency_code: string;
+  // Optional so a caller whose query predates these still type-checks; without them the card just
+  // shows the amount and no Reserved badge.
+  price_type?: string | null;
+  is_reserved?: boolean | null;
   locations: { city: string | null } | { city: string | null }[] | null;
   listing_media: { storage_key: string; sort_order: number }[] | null;
   // Not rendered on the card (see ListingCard) -- kept optional so callers whose queries already
@@ -26,8 +30,10 @@ export function ListingGrid({ listings, favoritedIds, signedIn }: { listings: Li
             key={l.id}
             id={l.id}
             title={l.title}
-            priceMinor={l.price_minor ?? 0}
+            priceMinor={l.price_minor}
             currencyCode={l.currency_code}
+            priceType={l.price_type}
+            isReserved={l.is_reserved}
             imageUrl={media ? resolveMediaUrl(media.storage_key, process.env.NEXT_PUBLIC_SUPABASE_URL!) : null}
             isFavorited={favoritedIds.has(l.id)}
             signedIn={signedIn}

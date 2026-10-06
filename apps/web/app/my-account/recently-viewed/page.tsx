@@ -15,7 +15,7 @@ export default async function RecentlyViewedPage() {
     supabase
       .from("recently_viewed_listings")
       .select(
-        "listing_id, viewed_at, listings(id, title, price_minor, currency_code, locations(city), listing_media(storage_key, sort_order))",
+        "listing_id, viewed_at, listings(id, title, price_minor, currency_code, price_type, is_reserved, locations(city), listing_media(storage_key, sort_order))",
       )
       .eq("profile_id", profile.id)
       .order("viewed_at", { ascending: false })

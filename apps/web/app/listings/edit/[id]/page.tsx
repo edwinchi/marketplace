@@ -24,7 +24,7 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
   const supabase = await createClient();
   const { data: listing } = await supabase
     .from("listings")
-    .select("id, title, description, category_id, price_minor, currency_code, seller_id, boost_rank")
+    .select("id, title, description, category_id, price_minor, price_type, currency_code, seller_id, boost_rank")
     .eq("id", id)
     .single();
   if (!listing) notFound();
@@ -96,7 +96,8 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
           title: listing.title,
           description: listing.description,
           categoryId: listing.category_id,
-          price: String((listing.price_minor ?? 0) / 100),
+          price: listing.price_minor ? String(listing.price_minor / 100) : "",
+          priceType: listing.price_type,
           currencyCode: listing.currency_code,
           websiteUrl: profile.website_url,
         }}

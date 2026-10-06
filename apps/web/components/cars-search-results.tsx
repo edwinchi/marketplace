@@ -4,7 +4,8 @@ import type { CarsListing, CarsFilters } from "@/lib/cars-landing";
 import { getDisplayCurrency } from "@/lib/display-currency";
 import { getExchangeRates } from "@/lib/exchange-rates";
 import { resolveMediaUrl } from "@/lib/media";
-import { Price } from "@/components/price";
+import { ListingPrice } from "@/components/listing-price";
+import { getTranslations } from "next-intl/server";
 import { FavoriteButton } from "@/components/favorite-button";
 import { cn } from "@/lib/utils";
 import { slugPath } from "@/lib/slug";
@@ -124,6 +125,11 @@ async function CarResultCard({ listing, favorited, signedIn }: { listing: CarsLi
               <span className="flex items-center gap-1"><Cog className="size-3.5" />{listing.transmission}</span>
             )}
           </div>
+          {listing.is_reserved && (
+            <span className="mt-1.5 mr-1.5 inline-block rounded-full bg-[#e89818]/15 px-2 py-0.5 text-[11px] font-medium text-[#b06f00]">
+              {(await getTranslations("Listing"))("reserved")}
+            </span>
+          )}
           {listing.price_type === "bidding" && (
             <span className="mt-1.5 inline-block rounded-full bg-[#008848]/10 px-2 py-0.5 text-[11px] font-medium text-[#008848]">
               Open to offers
@@ -149,7 +155,7 @@ async function CarResultCard({ listing, favorited, signedIn }: { listing: CarsLi
             )}
           </div>
           <p className="shrink-0 text-base font-bold whitespace-nowrap">
-            <Price minorUnits={listing.price_minor ?? 0} currency={listing.currency_code} displayCurrency={displayCurrency} rates={rates?.rates ?? null} />
+            <ListingPrice priceType={listing.price_type} minorUnits={listing.price_minor} currency={listing.currency_code} displayCurrency={displayCurrency} rates={rates?.rates ?? null} />
           </p>
         </div>
       </div>

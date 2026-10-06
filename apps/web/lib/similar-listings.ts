@@ -2,7 +2,7 @@ import type { createClient } from "@/lib/supabase/server";
 
 type Client = Awaited<ReturnType<typeof createClient>>;
 
-export const SIMILAR_LISTING_SELECT = "id, title, price_minor, currency_code, locations(city), listing_media(storage_key, sort_order)";
+export const SIMILAR_LISTING_SELECT = "id, title, price_minor, currency_code, price_type, is_reserved, locations(city), listing_media(storage_key, sort_order)";
 
 // "Similar listings" under a listing page -- Marktplaats shows comparable ads under every ad, and a
 // buyer who lands on one listing from search is the most likely person to want the next one.

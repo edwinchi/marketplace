@@ -7,6 +7,7 @@ type Listing = {
   description: string;
   price_minor: number | null;
   currency_code: string;
+  price_type?: string | null;
   pickup_available: boolean;
   delivery_available: boolean;
   locations: { city: string | null } | { city: string | null }[] | null;
@@ -26,7 +27,8 @@ export function ListingList({ listings, favoritedIds, signedIn }: { listings: Li
             id={l.id}
             title={l.title}
             description={l.description}
-            priceMinor={l.price_minor ?? 0}
+            priceMinor={l.price_minor}
+            priceType={l.price_type}
             currencyCode={l.currency_code}
             city={Array.isArray(l.locations) ? l.locations[0]?.city : l.locations?.city}
             imageUrl={media ? resolveMediaUrl(media.storage_key, process.env.NEXT_PUBLIC_SUPABASE_URL!) : null}

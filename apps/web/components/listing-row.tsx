@@ -4,14 +4,15 @@ import { ImageOff } from "lucide-react";
 import { getDisplayCurrency } from "@/lib/display-currency";
 import { getExchangeRates } from "@/lib/exchange-rates";
 import { FavoriteButton } from "@/components/favorite-button";
-import { Price } from "@/components/price";
+import { ListingPrice } from "@/components/listing-price";
 import { slugPath } from "@/lib/slug";
 
 type Props = {
   id: string;
   title: string;
   description: string;
-  priceMinor: number;
+  priceMinor: number | null;
+  priceType?: string | null;
   currencyCode: string;
   city?: string | null;
   imageUrl?: string | null;
@@ -27,6 +28,7 @@ export async function ListingRow({
   title,
   description,
   priceMinor,
+  priceType,
   currencyCode,
   city,
   imageUrl,
@@ -61,7 +63,7 @@ export async function ListingRow({
 
       <div className="flex shrink-0 flex-col items-end justify-between text-right">
         <p className="font-semibold">
-          <Price minorUnits={priceMinor} currency={currencyCode} displayCurrency={displayCurrency} rates={rates?.rates ?? null} />
+          <ListingPrice priceType={priceType} minorUnits={priceMinor} currency={currencyCode} displayCurrency={displayCurrency} rates={rates?.rates ?? null} />
         </p>
         <div className="text-xs text-muted-foreground">
           <p>{sellerName}</p>

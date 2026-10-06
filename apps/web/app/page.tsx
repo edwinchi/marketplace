@@ -36,7 +36,7 @@ const CONDITIONS = [
 ];
 
 const DEFAULT_VIEW_LISTING_SELECT =
-  "id, title, price_minor, currency_code, pickup_available, delivery_available, published_at, locations(city), listing_media(storage_key, sort_order)";
+  "id, title, price_minor, currency_code, price_type, is_reserved, pickup_available, delivery_available, published_at, locations(city), listing_media(storage_key, sort_order)";
 
 // The exact, most-hit query on the site -- a fresh/logged-out visitor and every crawler land on
 // this precise no-filter, page-1, newest-sort view. Caching it here is a real, live fix for the
@@ -140,8 +140,8 @@ export default async function HomePage({
   // Filtering by an embedded resource's column (locations.city) requires an inner join in
   // PostgREST's embed syntax — a plain left-embed silently ignores that filter.
   const listingSelect = city
-    ? "id, title, price_minor, currency_code, pickup_available, delivery_available, published_at, locations!inner(city), listing_media(storage_key, sort_order)"
-    : "id, title, price_minor, currency_code, pickup_available, delivery_available, published_at, locations(city), listing_media(storage_key, sort_order)";
+    ? "id, title, price_minor, currency_code, price_type, is_reserved, pickup_available, delivery_available, published_at, locations!inner(city), listing_media(storage_key, sort_order)"
+    : "id, title, price_minor, currency_code, price_type, is_reserved, pickup_available, delivery_available, published_at, locations(city), listing_media(storage_key, sort_order)";
 
   // Needed by the non-default query branch below AND the semantic-search block further down --
   // hoisted above both so it's computed exactly once regardless of which path runs. A no-op
@@ -165,7 +165,9 @@ export default async function HomePage({
       .from("listings")
       .select(listingSelect, { count: "exact" })
       .eq("status", "active")
-      .order(sort === "price_asc" || sort === "price_desc" ? "price_minor" : "published_at", { ascending: sort === "price_asc" })
+      // nullsFirst: false keeps swap / see-description / price-on-request listings (no amount) at the
+      // end of a price sort instead of topping "price: high to low".
+      .order(sort === "price_asc" || sort === "price_desc" ? "price_minor" : "published_at", { ascending: sort === "price_asc", nullsFirst: false })
       .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 
     if (categoryIds) {

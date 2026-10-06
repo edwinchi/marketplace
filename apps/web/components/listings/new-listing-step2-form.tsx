@@ -38,6 +38,8 @@ import { Label } from "@/components/ui/label";
 import { DescriptionEditor } from "@/components/listings/description-editor";
 import { TurnstileWidget } from "@/components/turnstile-widget";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PriceTypeSelect } from "@/components/listings/price-type-select";
+import { priceTypeHasAmount, type PriceType } from "@/lib/price-types";
 
 type Props = {
   categoryId: string;
@@ -154,6 +156,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
   // currency list rather than re-deriving it (see createListing in app/listings/actions.ts).
   const [countryCode, setCountryCode] = useState(ANCHOR_COUNTRIES[0].code);
   const [currencyCode, setCurrencyCode] = useState<CurrencyCode>(() => getCurrencyForCountry(ANCHOR_COUNTRIES[0].code));
+  const [priceType, setPriceType] = useState<PriceType>("fixed");
 
   const analyzeInFlight = useRef(false);
 
@@ -391,23 +394,14 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
 
       <section className={card}>
         <SectionHeading icon={Tag}>Price</SectionHeading>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="price_type">Price type</Label>
-          <Select name="price_type" defaultValue="fixed">
-            <SelectTrigger id="price_type" className="w-full sm:w-56">
-              <SelectValue>{(v: string | null) => (v === "bidding" ? "Accepting offers" : "Fixed price")}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="fixed">Fixed price</SelectItem>
-              <SelectItem value="bidding">Accepting offers</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <PriceTypeSelect value={priceType} onChange={setPriceType} />
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="price">Price</Label>
-            <Input id="price" name="price" type="number" min="0" step="0.01" required />
-          </div>
+          {priceTypeHasAmount(priceType) && (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="price">{priceType === "bidding" ? "Asking price (bids from)" : "Price"}</Label>
+              <Input id="price" name="price" type="number" min="0.01" step="0.01" required />
+            </div>
+          )}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="currency_code">Currency</Label>
             <Select name="currency_code" value={currencyCode} onValueChange={(v) => v && setCurrencyCode(v as CurrencyCode)}>

@@ -4,14 +4,17 @@ import { ImageOff, Camera } from "lucide-react";
 import { getDisplayCurrency } from "@/lib/display-currency";
 import { getExchangeRates } from "@/lib/exchange-rates";
 import { FavoriteButton } from "@/components/favorite-button";
-import { Price } from "@/components/price";
+import { getTranslations } from "next-intl/server";
+import { ListingPrice } from "@/components/listing-price";
 import { slugPath } from "@/lib/slug";
 
 type Props = {
   id: string;
   title: string;
-  priceMinor: number;
+  priceMinor: number | null;
   currencyCode: string;
+  priceType?: string | null;
+  isReserved?: boolean | null;
   city?: string | null;
   imageUrl?: string | null;
   isFavorited: boolean;
@@ -31,6 +34,8 @@ export async function ListingCard({
   title,
   priceMinor,
   currencyCode,
+  priceType,
+  isReserved,
   imageUrl,
   isFavorited,
   signedIn,
@@ -38,6 +43,7 @@ export async function ListingCard({
 }: Props) {
   const displayCurrency = await getDisplayCurrency();
   const rates = displayCurrency ? await getExchangeRates() : null;
+  const t = isReserved ? await getTranslations("Listing") : null;
 
   return (
     <Link
@@ -61,6 +67,11 @@ export async function ListingCard({
         ) : (
           <ImageOff className="size-7" />
         )}
+        {t && (
+          <span className="absolute top-1.5 left-1.5 rounded-full bg-[#e89818] px-2 py-0.5 text-[10px] font-semibold text-white shadow-sm">
+            {t("reserved")}
+          </span>
+        )}
         {/* Multi-photo completeness is its own quiet trust signal on a classifieds card -- a
             listing with several angles reads as more serious/real than a single crop. */}
         {!!photoCount && photoCount > 1 && (
@@ -72,7 +83,7 @@ export async function ListingCard({
       </div>
       <div className="flex flex-col gap-1 p-2.5">
         <p className="text-base font-extrabold tracking-tight @[13rem]:text-lg">
-          <Price minorUnits={priceMinor} currency={currencyCode} displayCurrency={displayCurrency} rates={rates?.rates ?? null} />
+          <ListingPrice priceType={priceType} minorUnits={priceMinor} currency={currencyCode} displayCurrency={displayCurrency} rates={rates?.rates ?? null} />
         </p>
         <p className="line-clamp-2 text-xs leading-snug font-medium text-foreground/80 transition-colors group-hover:text-foreground">{title}</p>
       </div>

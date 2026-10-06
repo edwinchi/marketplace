@@ -1198,6 +1198,7 @@ export type Database = {
           pickup_available: boolean
           price_minor: number | null
           price_type: string
+          is_reserved: boolean
           published_at: string | null
           quantity: number
           seller_id: string
@@ -1233,6 +1234,7 @@ export type Database = {
           pickup_available?: boolean
           price_minor?: number | null
           price_type?: string
+          is_reserved?: boolean
           published_at?: string | null
           quantity?: number
           seller_id: string
@@ -1268,6 +1270,7 @@ export type Database = {
           pickup_available?: boolean
           price_minor?: number | null
           price_type?: string
+          is_reserved?: boolean
           published_at?: string | null
           quantity?: number
           seller_id?: string
@@ -2511,6 +2514,7 @@ export type Database = {
       increment_daily_visitor_count: { Args: { p_day: string }; Returns: undefined }
       increment_listing_view_count: { Args: { p_listing_id: string }; Returns: undefined }
       notify_new_listing: { Args: { p_country_code: string | null; p_listing_id: string; p_seller_id: string; p_title: string }; Returns: undefined }
+      public_bids: { Args: { p_listing_id: string }; Returns: { amount_minor: number; currency_code: string; bidder_name: string; created_at: string }[] }
       mark_order_shipped: { Args: { p_order_id: string; p_carrier?: string | null; p_tracking_number?: string | null }; Returns: undefined }
       bump_listing: { Args: { p_listing_id: string }; Returns: undefined }
       extend_homepage_placement: { Args: { p_listing_id: string; p_days?: number }; Returns: undefined }

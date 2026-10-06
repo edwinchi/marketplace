@@ -12,7 +12,8 @@ import { getExchangeRates } from "@/lib/exchange-rates";
 import { resolveMediaUrl } from "@/lib/media";
 import { getCountryName } from "@/lib/countries";
 import { getDisplayCurrency } from "@/lib/display-currency";
-import { Price } from "@/components/price";
+import { ListingPrice } from "@/components/listing-price";
+import { toggleListingReserved } from "@/app/listings/actions";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -114,7 +115,7 @@ export default async function ListingPage({
   const { data: listing } = await supabase
     .from("listings")
     .select(
-      "id, title, description, price_minor, currency_code, price_type, pickup_available, delivery_available, shipping_cost_minor, offers_allowed, status, seller_id, category_id, location_id, created_at, view_count",
+      "id, title, description, price_minor, currency_code, price_type, is_reserved, pickup_available, delivery_available, shipping_cost_minor, offers_allowed, status, seller_id, category_id, location_id, created_at, view_count",
     )
     .eq("id", id)
     .single();
@@ -199,6 +200,12 @@ export default async function ListingPage({
         : Promise.resolve({ data: null }),
     ]);
   const sellerHasPhone = await sellerHasPhonePromise;
+
+  // Null (no section) unless this is a bidding listing being viewed by someone other than its seller.
+  const publicBids =
+    listing.price_type === "bidding" && !isOwner
+      ? ((await supabase.rpc("public_bids", { p_listing_id: listing.id })).data ?? [])
+      : null;
 
   const similarListings = await getSimilarListings(supabase, listing.id, listing.category_id);
   const { data: similarFavorites } =
@@ -307,7 +314,8 @@ export default async function ListingPage({
       "@type": "Offer",
       url: `https://marketitnow.net${listingPath}`,
       priceCurrency: listing.currency_code,
-      price: ((listing.price_minor ?? 0) / 100).toFixed(2),
+      // No amount for swap / see description / price on request -- omitted rather than a fake "0.00".
+      price: listing.price_minor != null ? (listing.price_minor / 100).toFixed(2) : undefined,
       availability: availabilityMap[listing.status] ?? "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/UsedCondition",
       seller: {
@@ -438,6 +446,13 @@ export default async function ListingPage({
                 {t("edit")}
               </Link>
               <MarkSoldButton listingId={listing.id} status={listing.status} />
+              {listing.status === "active" && (
+                <form action={toggleListingReserved.bind(null, listing.id, !listing.is_reserved)}>
+                  <Button type="submit" variant="outline" className="transition-transform duration-150 hover:-translate-y-0.5">
+                    {listing.is_reserved ? t("unmarkReserved") : t("markReserved")}
+                  </Button>
+                </form>
+              )}
               <DeleteListingButton listingId={listing.id} />
             </div>
           )}
@@ -450,9 +465,14 @@ export default async function ListingPage({
           <div>
             <h1 className="text-xl font-semibold">{displayTitle}</h1>
             <p className="mt-1 text-3xl font-bold">
-              <Price minorUnits={listing.price_minor ?? 0} currency={listing.currency_code} displayCurrency={displayCurrency} rates={rates?.rates ?? null} locale={locale} />
+              <ListingPrice priceType={listing.price_type} minorUnits={listing.price_minor} currency={listing.currency_code} displayCurrency={displayCurrency} rates={rates?.rates ?? null} locale={locale} />
             </p>
             {listing.price_type === "bidding" && <p className="text-sm text-muted-foreground">{t("openToOffers")}</p>}
+            {listing.is_reserved && (
+              <p className="mt-2 rounded-md border border-[#e89818]/40 bg-[#e89818]/10 px-3 py-2 text-sm font-medium text-[#8a5700]">
+                {t("reservedNotice")}
+              </p>
+            )}
           </div>
 
           {quickSpecs.length > 0 && (
@@ -602,10 +622,36 @@ export default async function ListingPage({
                 )}
               </div>
 
-              {listing.offers_allowed && (
+              {listing.offers_allowed && !listing.is_reserved && (
                 <OfferBox listingId={listing.id} currencyCode={listing.currency_code} signedIn={!!profile} />
               )}
             </>
+          )}
+
+          {/* Public bid list ("Biedingen") -- only on listings whose seller chose bidding, first names
+              and amounts only (public_bids(), 20260101009300). The owner's own panel below keeps the
+              full private view. */}
+          {publicBids && (
+            <div>
+              <h2 className="mb-2 text-sm font-semibold">{t("bidsTitle")}</h2>
+              {publicBids.length > 0 ? (
+                <ul className="flex flex-col gap-1.5">
+                  {publicBids.map((b, i) => (
+                    <li key={`${b.created_at}-${i}`} className="flex items-center justify-between rounded-md border p-2 text-sm">
+                      <span>
+                        {b.bidder_name}
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          {new Date(b.created_at).toLocaleDateString(locale, { day: "numeric", month: "short" })}
+                        </span>
+                      </span>
+                      <span className="font-medium">{formatPrice(b.amount_minor, b.currency_code)}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">{t("noBidsYet")}</p>
+              )}
+            </div>
           )}
 
           {offers && offers.length > 0 && (

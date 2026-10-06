@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ city: str
 
 // Filtering by an embedded resource's column (locations.city) requires an inner join in
 // PostgREST's embed syntax -- same gotcha app/page.tsx's own city filter already works around.
-const LISTING_SELECT = "id, title, price_minor, currency_code, locations!inner(city), listing_media(storage_key, sort_order)";
+const LISTING_SELECT = "id, title, price_minor, currency_code, price_type, is_reserved, locations!inner(city), listing_media(storage_key, sort_order)";
 
 export default async function CityPage({ params }: { params: Promise<{ city: string }> }) {
   const { city } = await params;

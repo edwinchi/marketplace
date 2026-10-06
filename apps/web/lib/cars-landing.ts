@@ -25,6 +25,7 @@ export type CarsListing = {
   price_minor: number | null;
   currency_code: string;
   price_type: string;
+  is_reserved: boolean;
   published_at: string | null;
   city: string | null;
   photoStorageKey: string | null;
@@ -68,7 +69,7 @@ export async function getCarsLandingData(carsRootId: string, filters: CarsFilter
   let query = supabase
     .from("listings")
     .select(
-      "id, title, price_minor, currency_code, price_type, published_at, locations!inner(city), listing_media(storage_key, sort_order), profiles_public!listings_seller_id_fkey(display_name, username, website_url, account_type)",
+      "id, title, price_minor, currency_code, price_type, is_reserved, published_at, locations!inner(city), listing_media(storage_key, sort_order), profiles_public!listings_seller_id_fkey(display_name, username, website_url, account_type)",
     )
     .eq("status", "active")
     .in("category_id", scopeIds);
@@ -118,6 +119,7 @@ export async function getCarsLandingData(carsRootId: string, filters: CarsFilter
       price_minor: l.price_minor,
       currency_code: l.currency_code,
       price_type: l.price_type,
+      is_reserved: l.is_reserved,
       published_at: l.published_at,
       city: firstOf(l.locations)?.city ?? null,
       photoStorageKey: media?.storage_key ?? null,
