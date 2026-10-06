@@ -13,9 +13,12 @@ type QuickNavCategory = { id: string; label: string; stableKey: string };
 // Sticky (not just part of the page flow) so it stays visible once a category is selected and the
 // page is scrolled -- the same below-header offset /welcome's own sticky nav uses (top-20 mobile,
 // where the header is `fixed` with an h-20 spacer; sm:top-[89px] desktop, matching the header's
-// real height there), so it tucks in flush under the header instead of colliding with it. A solid
+// real height there), so it tucks in flush under the header instead of colliding with it. A
 // background is required, not optional, once something is sticky -- otherwise scrolled page
-// content shows through it, the same bug class the mobile nav bars hit earlier.
+// content shows through it, the same bug class the mobile nav bars hit earlier. It's 75% opaque
+// plus a strong backdrop blur rather than fully solid, so the category hero photo (which now runs
+// on behind this row, see app/categories/[...slug]/page.tsx) shows through softly, while scrolled
+// content underneath stays an unreadable blur.
 //
 // Callers pass spacing via `className` directly on this root element (rather than wrapping it in
 // their own `<div className="mt-4">`) for a real reason, not just tidiness: a sticky element can
@@ -34,7 +37,7 @@ export function CategoryQuickNav({ categories, activeId, className }: { categori
   return (
     <div
       className={cn(
-        "sticky top-20 z-20 -mx-4 flex gap-5 overflow-x-auto bg-background px-4 py-3 shadow-[0_6px_16px_-8px_rgba(0,0,0,0.18)] sm:top-[89px] sm:mx-0 sm:flex-wrap sm:rounded-xl sm:border sm:px-5 sm:py-4 sm:shadow-sm",
+        "sticky top-20 z-20 -mx-4 flex gap-5 overflow-x-auto bg-background/75 backdrop-blur-md px-4 py-3 shadow-[0_6px_16px_-8px_rgba(0,0,0,0.18)] sm:top-[89px] sm:mx-0 sm:flex-wrap sm:rounded-xl sm:border sm:px-5 sm:py-4 sm:shadow-sm",
         className,
       )}
     >

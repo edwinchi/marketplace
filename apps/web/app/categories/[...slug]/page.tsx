@@ -335,7 +335,12 @@ export default async function CategoryPage({
       <>
         {breadcrumbJsonLdScript}
         {itemListJsonLdScript}
-        <div className="brand-lattice relative bg-muted/30" style={heroBannerStyle}>
+        {/* The photo runs on below the heading, behind the breadcrumb and category row: extra bottom
+            padding paired with an equal negative margin, so the content block below overlaps it
+            (that block is `relative` so it stacks above and stays clickable). Done this way rather
+            than moving the row inside this element, because the row is sticky and needs the whole
+            page as its containing block -- this element clips its overflow. */}
+        <div className="brand-lattice relative bg-muted/30 pb-36 -mb-36 sm:pb-[17rem] sm:-mb-[17rem]" style={heroBannerStyle}>
           <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
             <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
               {t("heroHeadingPrefix")}
@@ -345,7 +350,7 @@ export default async function CategoryPage({
             <p className="hero-text-halo mt-1 text-sm font-medium text-[#046637] sm:text-base">{t("heroSubtext")}</p>
           </div>
         </div>
-        <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
+        <div className="relative mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
           <Breadcrumbs path={breadcrumbPath} />
           <CategoryQuickNav categories={topLevelCategories} activeId={topLevelActiveId} className="mt-4 mb-6" />
           <CategoryGallery images={galleryImages} />
@@ -370,7 +375,12 @@ export default async function CategoryPage({
     <>
       {breadcrumbJsonLdScript}
       {itemListJsonLdScript}
-      <div className="brand-lattice relative bg-muted/30" style={heroBannerStyle}>
+      {/* The photo runs on below the heading, behind the breadcrumb and category row: extra bottom
+            padding paired with an equal negative margin, so the content block below overlaps it
+            (that block is `relative` so it stacks above and stays clickable). Done this way rather
+            than moving the row inside this element, because the row is sticky and needs the whole
+            page as its containing block -- this element clips its overflow. */}
+        <div className="brand-lattice relative bg-muted/30 pb-36 -mb-36 sm:pb-[17rem] sm:-mb-[17rem]" style={heroBannerStyle}>
         <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
           <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
             {t("heroHeadingPrefix")}
@@ -380,7 +390,7 @@ export default async function CategoryPage({
           <p className="hero-text-halo mt-1 text-sm font-medium text-[#046637] sm:text-base">{t("heroSubtext")}</p>
         </div>
       </div>
-      <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
+      <div className="relative mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
       <Breadcrumbs path={breadcrumbPath} />
       <CategoryQuickNav categories={topLevelCategories} activeId={topLevelActiveId} className="mt-4 mb-6" />
 
