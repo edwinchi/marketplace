@@ -26,7 +26,7 @@ select
   created_at,
   website_url,
   stripe_connect_charges_enabled,
-  null::varchar(30) as phone_number,
+  null::varchar as phone_number,
   business_subscription_status
 from profiles;
 
