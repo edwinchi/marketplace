@@ -118,29 +118,48 @@ async function handleEvent(event: Stripe.Event, stripe: Stripe, supabase: Return
           .from("orders")
           .update({ status: "paid" })
           .eq("id", orderId)
-          .select("listing_id")
+          .select("listing_id, buyer_id")
           .single();
         if (orderError) throw orderError;
-        const { error: paymentError } = await supabase.from("payments").insert({
-          order_id: orderId,
-          provider: "stripe",
-          provider_payment_id: paymentIntentId ?? session.id,
-          // Back into this app's own ×100 minor units (zero-/three-decimal currencies differ).
-          amount_minor: fromStripeAmount(session.amount_total ?? 0, session.currency ?? "eur"),
-          currency_code: (session.currency ?? "eur").toUpperCase(),
-          status: "succeeded",
-          payment_method: "card",
-          paid_at: new Date().toISOString(),
-        });
+
+        const providerPaymentId = paymentIntentId ?? session.id;
+        // Upsert, not insert: provider_payment_id is UNIQUE, so if anything after this point throws
+        // and Stripe redelivers, a plain insert would fail on the retry and wedge the event forever.
+        const { error: paymentError } = await supabase.from("payments").upsert(
+          {
+            order_id: orderId,
+            provider: "stripe",
+            provider_payment_id: providerPaymentId,
+            // Back into this app's own ×100 minor units (zero-/three-decimal currencies differ).
+            amount_minor: fromStripeAmount(session.amount_total ?? 0, session.currency ?? "eur"),
+            currency_code: (session.currency ?? "eur").toUpperCase(),
+            status: "succeeded",
+            payment_method: paymentIntentId ? await paymentMethodType(stripe, paymentIntentId) : null,
+            paid_at: new Date().toISOString(),
+          },
+          { onConflict: "provider_payment_id", ignoreDuplicates: true },
+        );
         if (paymentError) throw paymentError;
 
         // Take the (single-quantity) item off the market so startOrderPayment's status check turns
-        // away the next buyer -- otherwise several buyers could each pay for the same one item.
-        // Logged rather than thrown: the order and payment are already recorded above, and a
-        // redelivery would insert a duplicate payments row just to retry this.
+        // away the next buyer. 'expired' counts as still available -- the 60-day sweep can flip a
+        // listing mid-checkout without the item having gone anywhere.
         if (paidOrder?.listing_id) {
-          const { error: soldError } = await supabase.from("listings").update({ status: "sold" }).eq("id", paidOrder.listing_id).eq("status", "active");
-          if (soldError) console.error(`Failed to mark listing ${paidOrder.listing_id} sold after order ${orderId} was paid:`, soldError);
+          const { data: soldRows, error: soldError } = await supabase
+            .from("listings")
+            .update({ status: "sold" })
+            .eq("id", paidOrder.listing_id)
+            .in("status", ["active", "expired"])
+            .select("id");
+          if (soldError) {
+            console.error(`Failed to mark listing ${paidOrder.listing_id} sold after order ${orderId} was paid:`, soldError);
+          } else if (!soldRows?.length && paymentIntentId) {
+            // Already sold (another buyer's payment landed first -- two checkouts can be open on
+            // the same item at once), or the seller removed it mid-checkout. The buyer paid for
+            // something they can't get, so refund them in full instead of leaving the seller to
+            // sort it out.
+            await refundUnavailableOrder(stripe, supabase, { orderId, paymentIntentId, providerPaymentId, buyerId: paidOrder.buyer_id, listingId: paidOrder.listing_id });
+          }
         }
         break;
       }
@@ -246,4 +265,52 @@ async function handleEvent(event: Stripe.Event, stripe: Stripe, supabase: Return
       break;
     }
   }
+}
+
+// The method the buyer actually used (ideal, klarna, multibanco, card, ...), read off the charge --
+// this used to be hard-coded "card" whatever was used. Best-effort: null if it can't be read, never
+// a reason to fail the webhook.
+async function paymentMethodType(stripe: Stripe, paymentIntentId: string): Promise<string | null> {
+  try {
+    const intent = await stripe.paymentIntents.retrieve(paymentIntentId, { expand: ["latest_charge"] });
+    const charge = intent.latest_charge;
+    return typeof charge === "object" && charge ? (charge.payment_method_details?.type ?? null) : null;
+  } catch (err) {
+    console.error(`Couldn't read payment method for ${paymentIntentId}:`, err);
+    return null;
+  }
+}
+
+// Full refund for a Direct Buy whose item was no longer available when the payment landed:
+// reverse_transfer pulls the seller's share back from their Connect account and
+// refund_application_fee returns the buyer fee, so everyone ends where they started. The
+// idempotency key makes a redelivered event safe. If Stripe refuses (some voucher methods can't
+// be refunded automatically), the order is parked at needs_refund for a manual refund instead of
+// throwing -- a retry can't change Stripe's answer, it would just loop for three days.
+async function refundUnavailableOrder(
+  stripe: Stripe,
+  supabase: ReturnType<typeof createServiceClient>,
+  o: { orderId: string; paymentIntentId: string; providerPaymentId: string; buyerId: string; listingId: string },
+) {
+  try {
+    await stripe.refunds.create(
+      { payment_intent: o.paymentIntentId, reverse_transfer: true, refund_application_fee: true },
+      { idempotencyKey: `refund-unavailable-${o.orderId}` },
+    );
+  } catch (err) {
+    console.error(`Automatic refund failed for order ${o.orderId} (item unavailable) -- needs a manual refund:`, err);
+    await supabase.from("orders").update({ status: "needs_refund" }).eq("id", o.orderId);
+    return;
+  }
+
+  const now = new Date().toISOString();
+  await supabase.from("orders").update({ status: "refunded" }).eq("id", o.orderId);
+  await supabase.from("payments").update({ status: "refunded", refunded_at: now }).eq("provider_payment_id", o.providerPaymentId);
+  await supabase.from("notifications").insert({
+    profile_id: o.buyerId,
+    notification_type: "order_refunded",
+    title: "Your order was refunded",
+    body: "The item sold to someone else just before your payment completed, so your payment has been refunded in full.",
+    payload: { order_id: o.orderId, listing_id: o.listingId },
+  });
 }

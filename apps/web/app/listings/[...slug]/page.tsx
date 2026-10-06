@@ -140,6 +140,16 @@ export default async function ListingPage({
           data: [] as { id: string; amount_minor: number; currency_code: string; status: string; created_at: string; profiles_public: { display_name: string | null; username: string } }[],
         });
 
+  // Only WHETHER the seller has a number, never the number itself -- that's fetched on click via
+  // revealSellerPhone (app/listings/phone-actions.ts), signed-in and rate-limited. Started here so
+  // it runs alongside the Promise.all below rather than after it.
+  const sellerHasPhonePromise = createServiceClient()
+    .from("profiles")
+    .select("phone_number")
+    .eq("id", listing.seller_id)
+    .maybeSingle()
+    .then(({ data }) => !!data?.phone_number);
+
   const [categoryPath, { data: location }, { data: seller }, { data: attributeValues }, { data: multiOptionValues }, { data: media }, { data: favoriteRow }, { count: otherListingsCount }, { count: favoriteCount }, { data: offers }, { data: followRow }, { data: sellerReviews }, { data: translation }] =
     await Promise.all([
       getCategoryPath(listing.category_id),
@@ -148,7 +158,7 @@ export default async function ListingPage({
         : Promise.resolve({ data: null }),
       supabase
         .from("profiles_public")
-        .select("username, display_name, created_at, website_url, account_type, phone_number, stripe_connect_charges_enabled, business_subscription_status")
+        .select("username, display_name, created_at, website_url, account_type, stripe_connect_charges_enabled, business_subscription_status")
         .eq("id", listing.seller_id)
         .single(),
       supabase
@@ -185,6 +195,7 @@ export default async function ListingPage({
         ? supabase.from("listing_translations").select("title, description").eq("listing_id", id).eq("language_code", locale).maybeSingle()
         : Promise.resolve({ data: null }),
     ]);
+  const sellerHasPhone = await sellerHasPhonePromise;
 
   const displayTitle = translation?.title ?? listing.title;
   const displayDescription = translation?.description ?? listing.description;
@@ -259,7 +270,7 @@ export default async function ListingPage({
   // the real total before ever leaving this page. isDirectBuyEligible: active, fixed-price, real
   // price only -- see lib/payments.ts.
   const canDirectBuy = !isOwner && !!profile && !!getStripe() && !!seller?.stripe_connect_charges_enabled && isDirectBuyEligible(listing);
-  const buyerFeeMinor = canDirectBuy ? await calculateBuyerFeeMinor(listing.price_minor ?? 0) : 0;
+  const buyerFeeMinor = canDirectBuy ? await calculateBuyerFeeMinor(listing.price_minor ?? 0, listing.currency_code) : 0;
 
   // Product/Offer structured data -- the single highest-value SEO addition for a classifieds
   // listing page: it's what lets Google show price, availability and a thumbnail directly in
@@ -543,8 +554,8 @@ export default async function ListingPage({
                     {t("website")}
                   </a>
                 )}
-                {seller?.phone_number && (profile ? (
-                  <PhoneRevealButton phoneNumber={seller.phone_number} />
+                {sellerHasPhone && (profile ? (
+                  <PhoneRevealButton listingId={listing.id} />
                 ) : (
                   <a href="/login" className={buttonVariants({ variant: "outline", className: "w-full gap-1.5 transition-transform duration-150 hover:-translate-y-0.5" })}>
                     <Phone className="size-4" />
@@ -555,18 +566,18 @@ export default async function ListingPage({
                   <form action={messageSellerAction.bind(null, listing.id)}>
                     <Button
                       type="submit"
-                      variant={seller?.website_url || seller?.phone_number ? "outline" : "default"}
+                      variant={seller?.website_url || sellerHasPhone ? "outline" : "default"}
                       className="w-full gap-1.5 transition-transform duration-150 hover:-translate-y-0.5"
                     >
                       <MessageCircle className="size-4" />
-                      {seller?.website_url || seller?.phone_number ? t("message") : t("messageSeller")}
+                      {seller?.website_url || sellerHasPhone ? t("message") : t("messageSeller")}
                     </Button>
                   </form>
                 ) : (
                   <a
                     href="/login"
                     className={buttonVariants({
-                      variant: seller?.website_url || seller?.phone_number ? "outline" : "default",
+                      variant: seller?.website_url || sellerHasPhone ? "outline" : "default",
                       className: "w-full gap-1.5 transition-transform duration-150 hover:-translate-y-0.5",
                     })}
                   >

@@ -46,7 +46,7 @@ export async function startOrderPayment(listingId: string) {
   }
 
   const itemPriceMinor = listing.price_minor ?? 0;
-  const feeMinor = await calculateBuyerFeeMinor(itemPriceMinor);
+  const feeMinor = await calculateBuyerFeeMinor(itemPriceMinor, listing.currency_code);
   const totalMinor = itemPriceMinor + feeMinor;
 
   const { data: order, error: orderError } = await supabase
