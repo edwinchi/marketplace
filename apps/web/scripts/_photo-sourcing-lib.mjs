@@ -52,15 +52,29 @@ async function fetchCommonsLicense(fileTitle) {
   return { url: info.url, license, artist };
 }
 
+// Identifies a raster photo from its first bytes rather than trusting the URL or a response
+// header. Everything used to be stored as "0.jpg" / image/jpeg regardless, so when a Wikipedia
+// article's lead image was an SVG (e.g. "Do it yourself" -> an A4 line drawing), an SVG ended up
+// served as a fake JPEG -- next/image refuses to optimize it and the category page showed a
+// broken image.
+export function detectRasterType(buffer) {
+  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return { contentType: "image/jpeg", ext: "jpg" };
+  if (buffer.subarray(1, 4).toString("latin1") === "PNG") return { contentType: "image/png", ext: "png" };
+  if (buffer.subarray(0, 4).toString("latin1") === "RIFF" && buffer.subarray(8, 12).toString("latin1") === "WEBP") return { contentType: "image/webp", ext: "webp" };
+  return null;
+}
+
 async function uploadAndRecord(categoryId, imageUrl, license, artist) {
   const imgRes = await fetch(imageUrl, { headers: { "User-Agent": UA } });
   if (!imgRes.ok) throw new Error(`Image download failed: ${imgRes.status}`);
   const buffer = Buffer.from(await imgRes.arrayBuffer());
-  const storageKey = `${categoryId}/0.jpg`;
+  const type = detectRasterType(buffer);
+  if (!type) throw new Error("not a JPEG/PNG/WebP photo (likely an SVG diagram or logo)");
+  const storageKey = `${categoryId}/0.${type.ext}`;
 
   const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/category-photos/${storageKey}`, {
     method: "POST",
-    headers: { ...HEADERS, "Content-Type": "image/jpeg", "x-upsert": "true" },
+    headers: { ...HEADERS, "Content-Type": type.contentType, "x-upsert": "true" },
     body: buffer,
   });
   if (!uploadRes.ok) throw new Error(`Storage upload failed: ${uploadRes.status} ${await uploadRes.text()}`);
@@ -81,6 +95,8 @@ export async function sourceOneCategory(categoryId, term) {
 
   const filename = filenameFromCommonsUrl(thumb);
   if (!filename) return { ok: false, reason: `couldn't parse Commons filename from ${thumb}` };
+  // Diagrams, maps and logos -- never a usable category banner photo.
+  if (/\.(svg|gif|tiff?)$/i.test(filename)) return { ok: false, reason: `lead image isn't a photo (${filename})`, file: filename };
 
   const licenseInfo = await fetchCommonsLicense(filename);
   if (!licenseInfo || !licenseInfo.license || !FREE_LICENSE_RE.test(licenseInfo.license)) {

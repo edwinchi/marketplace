@@ -333,6 +333,12 @@ export async function getCategoryDirectory(categoryId: string, language?: string
   return { self: self ? { id: self.id, stableKey: self.stableKey, name: self.name } : null, children };
 }
 
+export function isNonPhotoSource(sourceUrl: string | null | undefined): boolean {
+  if (!sourceUrl) return false;
+  const path = sourceUrl.split(/[?#]/)[0];
+  return /\.(svg|webm|ogv|ogg|tiff?)$/i.test(path);
+}
+
 // Stock photo gallery for a leaf category's browse page. Rows only exist for categories that had
 // real listings at the time the gallery was sourced (scratchpad/source_photos*.mjs, one-off run,
 // not a live scraper) — most categories simply have none, which is a real empty state, not a bug.
@@ -341,12 +347,19 @@ export const getCategoryGallery = unstable_cache(
     const supabase = createServiceClient();
     const { data } = await supabase
       .from("category_gallery_images")
-      .select("id, storage_key")
+      .select("id, storage_key, source_url")
       .eq("category_id", categoryId)
       .order("sort_order");
-    return data ?? [];
+    // 121 of the sourced "photos" turned out to be Wikipedia lead images that aren't photos at all
+    // -- SVG diagrams and logos (plus one WebM video), saved as 0.jpg / image/jpeg by the original
+    // sourcing script. next/image refuses to optimize them, so the category page showed a broken
+    // image box. Skipped here by the original file's extension (the path before any ?utm_ query);
+    // the sourcing script now rejects these up front (scripts/_photo-sourcing-lib.mjs).
+    return (data ?? [])
+      .filter((img) => !isNonPhotoSource(img.source_url))
+      .map(({ id, storage_key }) => ({ id, storage_key }));
   },
-  ["category-gallery"],
+  ["category-gallery-v2"],
   { tags: ["categories"], revalidate: CATEGORY_CACHE_REVALIDATE_SECONDS },
 );
 
