@@ -103,3 +103,14 @@ export async function updateAdBumpPrice(priceCents: number) {
   // takes effect immediately for the next bump purchase -- /admin is the only route rendering it.
   revalidatePath("/admin");
 }
+
+// Same validation as updateAdBumpPrice. Read fresh by startOrderPayment and the listing page on
+// every request, so it applies to the next "Buy & ship with PostNL" checkout.
+export async function updatePostnlLabelPrice(priceCents: number) {
+  const { user } = await getCurrentUserAndProfile();
+  if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
+  if (!Number.isInteger(priceCents) || priceCents < 0) throw new Error("Price must be a positive amount.");
+
+  await setNumericSetting("postnl_label_price_cents", priceCents);
+  revalidatePath("/admin");
+}

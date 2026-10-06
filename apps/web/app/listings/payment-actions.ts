@@ -8,6 +8,8 @@ import { getStripe, EUR_CHECKOUT_PAYMENT_METHOD_TYPES } from "@/lib/stripe";
 import { calculateBuyerFeeMinor, isDirectBuyEligible } from "@/lib/payments";
 import { slugPath } from "@/lib/slug";
 import { toStripeAmount } from "@/lib/money";
+import { canShipWithPostnl } from "@/lib/postnl";
+import { getNumericSetting } from "@/lib/numeric-settings";
 
 // Direct Buy -- a protected, in-platform payment (the buyer-fee-funded model from
 // supabase/migrations/20260101005100_stripe_connect.sql; the seller is paid directly via
@@ -20,7 +22,11 @@ import { toStripeAmount } from "@/lib/money";
 // orders/payments (by design -- the amounts have to come from server-side computation, not a
 // client-writable row), so this is the one place allowed to create them, after checking the
 // request is a genuinely signed-in buyer itself.
-export async function startOrderPayment(listingId: string) {
+// method: "pickup" (collect in person, the original Direct Buy) or "postnl" (the buyer pays the
+// platform's fixed PostNL rate, kept by the platform via application_fee_amount since its PostNL
+// contract pays for the label; Stripe collects a Dutch delivery address). Fixed per checkout, not
+// chosen inside Stripe, because application_fee_amount has to be known when the session is made.
+export async function startOrderPayment(listingId: string, method: "pickup" | "postnl" = "pickup") {
   const { user, profile } = await getCurrentUserAndProfile();
   if (!user || !profile) redirect("/login");
 
@@ -30,7 +36,7 @@ export async function startOrderPayment(listingId: string) {
   const supabase = createServiceClient();
   const { data: listing } = await supabase
     .from("listings")
-    .select("id, title, price_minor, currency_code, seller_id, status, price_type, is_reserved")
+    .select("id, title, price_minor, currency_code, seller_id, status, price_type, is_reserved, delivery_available, locations(country_code)")
     .eq("id", listingId)
     .single();
   if (!listing || !isDirectBuyEligible(listing)) redirect(`/listings/x-${listingId}?error=listing_unavailable`);
@@ -45,9 +51,14 @@ export async function startOrderPayment(listingId: string) {
     redirect(`/listings/x-${listingId}?error=seller_not_ready`);
   }
 
+  const listingCountry = (Array.isArray(listing.locations) ? listing.locations[0] : listing.locations)?.country_code?.trim();
+  const shipWithPostnl = method === "postnl";
+  if (shipWithPostnl && !canShipWithPostnl(listing, listingCountry)) redirect(`/listings/x-${listingId}?error=shipping_unavailable`);
+
   const itemPriceMinor = listing.price_minor ?? 0;
   const feeMinor = await calculateBuyerFeeMinor(itemPriceMinor, listing.currency_code);
-  const totalMinor = itemPriceMinor + feeMinor;
+  const shippingMinor = shipWithPostnl ? await getNumericSetting("postnl_label_price_cents") : 0;
+  const totalMinor = itemPriceMinor + feeMinor + shippingMinor;
 
   const { data: order, error: orderError } = await supabase
     .from("orders")
@@ -56,7 +67,8 @@ export async function startOrderPayment(listingId: string) {
       buyer_id: profile.id,
       seller_id: listing.seller_id,
       subtotal_minor: itemPriceMinor,
-      shipping_minor: 0,
+      shipping_minor: shippingMinor,
+      shipping_method: method,
       platform_fee_minor: feeMinor,
       total_minor: totalMinor,
       currency_code: listing.currency_code,
@@ -88,8 +100,10 @@ export async function startOrderPayment(listingId: string) {
 
   // Stripe's minor units aren't always ×100 like ours (zero-decimal XOF/XAF/RWF..., three-decimal
   // TND) -- see toStripeAmount. Both amounts converted the same way so the fee stays proportional.
-  const stripeTotal = toStripeAmount(totalMinor, listing.currency_code);
-  const stripeFee = toStripeAmount(feeMinor, listing.currency_code);
+  const stripeItem = toStripeAmount(itemPriceMinor + feeMinor, listing.currency_code);
+  const stripeShipping = toStripeAmount(shippingMinor, listing.currency_code);
+  // The platform keeps the buyer fee, plus the shipping charge when it's paying PostNL for the label.
+  const stripeFee = toStripeAmount(feeMinor + shippingMinor, listing.currency_code);
 
   // Caught rather than left to crash the page: Stripe rejects some listing currencies outright (e.g.
   // LYD isn't a supported presentment currency), and the pending order inserted above would
@@ -109,12 +123,16 @@ export async function startOrderPayment(listingId: string) {
         {
           price_data: {
             currency: listing.currency_code.toLowerCase(),
-            unit_amount: stripeTotal,
+            unit_amount: stripeItem,
             product_data: { name: listing.title },
           },
           quantity: 1,
         },
+        ...(shipWithPostnl
+          ? [{ price_data: { currency: "eur", unit_amount: stripeShipping, product_data: { name: "Shipping with PostNL" } }, quantity: 1 }]
+          : []),
       ],
+      ...(shipWithPostnl ? { shipping_address_collection: { allowed_countries: ["NL" as const] } } : {}),
       payment_intent_data: {
         application_fee_amount: stripeFee,
         transfer_data: { destination: seller.stripe_connect_account_id },
@@ -128,7 +146,7 @@ export async function startOrderPayment(listingId: string) {
       ...({ managed_payments: { enabled: false } } as Record<string, unknown>),
       success_url: `${origin}${listingPath}?order=success`,
       cancel_url: `${origin}${listingPath}?order=canceled`,
-      metadata: { type: "order_payment", order_id: order.id },
+      metadata: { type: "order_payment", order_id: order.id, shipping_method: method },
     });
   } catch (err) {
     console.error(`Checkout session creation failed for order ${order.id} (${listing.currency_code}):`, err);

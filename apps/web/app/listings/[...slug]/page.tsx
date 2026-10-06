@@ -13,6 +13,8 @@ import { resolveMediaUrl } from "@/lib/media";
 import { getCountryName } from "@/lib/countries";
 import { getDisplayCurrency } from "@/lib/display-currency";
 import { ListingPrice } from "@/components/listing-price";
+import { canShipWithPostnl } from "@/lib/postnl";
+import { getNumericSetting } from "@/lib/numeric-settings";
 import { toggleListingReserved } from "@/app/listings/actions";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,7 +35,7 @@ import { PhotoGallery } from "@/components/listings/photo-gallery";
 import { OfferBox } from "@/components/listings/offer-box";
 import { messageSellerAction } from "@/app/listings/message-seller-action";
 import { followSeller, unfollowSeller } from "@/app/my-account/favorite-sellers/actions";
-import { UserPlus, UserCheck } from "lucide-react";
+import { UserPlus, UserCheck, Truck } from "lucide-react";
 import { idFromSlugSegments, breadcrumbSlugPath } from "@/lib/slug";
 import { getSiteOrigin } from "@/lib/site-url";
 import { getStripe } from "@/lib/stripe";
@@ -292,6 +294,10 @@ export default async function ListingPage({
   // price only -- see lib/payments.ts.
   const canDirectBuy = !isOwner && !!profile && !!getStripe() && !!seller?.stripe_connect_charges_enabled && isDirectBuyEligible(listing);
   const buyerFeeMinor = canDirectBuy ? await calculateBuyerFeeMinor(listing.price_minor ?? 0, listing.currency_code) : 0;
+  // "Ship with PostNL" (lib/postnl.ts canShipWithPostnl): offered next to collecting in person when
+  // the platform can make a label for this listing; the buyer pays the fixed PostNL rate.
+  const offerPostnl = canDirectBuy && canShipWithPostnl(listing, location?.country_code?.trim());
+  const postnlPriceMinor = offerPostnl ? await getNumericSetting("postnl_label_price_cents") : 0;
 
   // Product/Offer structured data -- the single highest-value SEO addition for a classifieds
   // listing page: it's what lets Google show price, availability and a thumbnail directly in
@@ -536,12 +542,22 @@ export default async function ListingPage({
                     </p>
                   </div>
                 </div>
-                <form action={startOrderPayment.bind(null, listing.id)}>
-                  <Button type="submit" className="w-full gap-1.5 transition-transform duration-150 hover:-translate-y-0.5">
-                    <ShieldCheck className="size-4" />
-                    Buy now — {formatPrice((listing.price_minor ?? 0) + buyerFeeMinor, listing.currency_code, locale)}
-                  </Button>
-                </form>
+                {(!offerPostnl || listing.pickup_available) && (
+                  <form action={startOrderPayment.bind(null, listing.id, "pickup")}>
+                    <Button type="submit" className="w-full gap-1.5 transition-transform duration-150 hover:-translate-y-0.5">
+                      <ShieldCheck className="size-4" />
+                      {offerPostnl ? "Buy & collect" : "Buy now"} — {formatPrice((listing.price_minor ?? 0) + buyerFeeMinor, listing.currency_code, locale)}
+                    </Button>
+                  </form>
+                )}
+                {offerPostnl && (
+                  <form action={startOrderPayment.bind(null, listing.id, "postnl")}>
+                    <Button type="submit" variant={listing.pickup_available ? "outline" : "default"} className="w-full gap-1.5 transition-transform duration-150 hover:-translate-y-0.5">
+                      <Truck className="size-4" />
+                      Buy & ship with PostNL — {formatPrice((listing.price_minor ?? 0) + buyerFeeMinor + postnlPriceMinor, listing.currency_code, locale)}
+                    </Button>
+                  </form>
+                )}
               </CardContent>
             </Card>
           )}

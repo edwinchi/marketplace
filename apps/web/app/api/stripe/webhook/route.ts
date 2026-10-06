@@ -114,9 +114,23 @@ async function handleEvent(event: Stripe.Event, stripe: Stripe, supabase: Return
         const paymentIntentId = typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id;
         // Errors thrown, not ignored -- the outer handler rolls back the dedupe row and returns
         // 500 so Stripe redelivers, instead of silently leaving a paid order at pending_payment.
+        // "Ship with PostNL" orders: Stripe collected the buyer's delivery address -- kept on the
+        // order for the seller's label (app/my-account/transactions/shipping-label-actions.ts).
+        const shipping = session.collected_information?.shipping_details;
+        const shippingAddress = shipping?.address
+          ? {
+              name: shipping.name,
+              line1: shipping.address.line1,
+              line2: shipping.address.line2,
+              postal_code: shipping.address.postal_code,
+              city: shipping.address.city,
+              country: shipping.address.country,
+              email: session.customer_details?.email ?? null,
+            }
+          : null;
         const { data: paidOrder, error: orderError } = await supabase
           .from("orders")
-          .update({ status: "paid" })
+          .update({ status: "paid", ...(shippingAddress ? { shipping_address: shippingAddress } : {}) })
           .eq("id", orderId)
           .select("listing_id, buyer_id")
           .single();

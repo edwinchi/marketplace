@@ -22,6 +22,10 @@ const DEFAULTS: Record<string, number> = {
   // Same reference/discount logic (a 3-day homepage placement add-on, EUR 22.99, minus
   // 40%) -- see listing-boost-actions.ts for what this actually buys.
   homepage_placement_price_cents: 1379,
+  // What the buyer pays for "Ship with PostNL" at checkout (EUR cents), kept by the platform since
+  // its PostNL contract pays for the label. A standard domestic parcel; set it at or above the
+  // contracted PostNL rate so labels never cost more than they bring in.
+  postnl_label_price_cents: 695,
 };
 
 // Fails open to the code-shipped default on any error, including "table doesn't exist yet" -- same

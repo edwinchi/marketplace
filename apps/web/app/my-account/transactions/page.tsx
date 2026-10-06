@@ -8,6 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { slugPath } from "@/lib/slug";
 import { MarkShippedForm } from "@/components/mark-shipped-form";
+import { CreateLabelButton } from "@/components/create-label-button";
+import { downloadShippingLabel } from "@/app/my-account/transactions/shipping-label-actions";
+import { postnlTrackingUrl } from "@/lib/postnl";
 
 // A seller has this many days from payment (order status "paid") to mark an order shipped -- see
 // mark_order_shipped in 20260101006900_shipping_sla_and_price_drop_alerts.sql, which is the
@@ -33,7 +36,7 @@ export default async function TransactionsPage({
   const query = supabase
     .from("orders")
     .select(
-      "id, total_minor, currency_code, status, created_at, listings(id, title), payments(status, refunded_at, paid_at), shipments(carrier, tracking_number, shipped_at)",
+      "id, total_minor, currency_code, status, created_at, shipping_method, shipping_address, listings(id, title), payments(status, refunded_at, paid_at), shipments(carrier, tracking_number, shipped_at, label_storage_key)",
     )
     .eq(tab === "sold" ? "seller_id" : "buyer_id", profile.id)
     .order("created_at", { ascending: false });
@@ -95,6 +98,9 @@ export default async function TransactionsPage({
             const shipment = Array.isArray(o.shipments) ? o.shipments[0] : o.shipments;
             const shipByDate = new Date(new Date(o.created_at).getTime() + SHIP_BY_DAYS * 24 * 60 * 60 * 1000);
             const isOverdue = o.status === "paid" && shipByDate < now;
+            const isPostnl = o.shipping_method === "postnl";
+            const isPickup = o.shipping_method === "pickup";
+            const deliveryPostcode = (o.shipping_address as { postal_code?: string } | null)?.postal_code;
 
             return (
               <Card key={o.id}>
@@ -128,11 +134,15 @@ export default async function TransactionsPage({
                       <p className={`text-xs ${isOverdue ? "font-medium text-destructive" : "text-muted-foreground"}`}>
                         {tab === "sold"
                           ? isOverdue
-                            ? `Overdue — should have shipped by ${shipByDate.toLocaleDateString()}`
-                            : `Ship by ${shipByDate.toLocaleDateString()}`
-                          : "Waiting for the seller to ship."}
+                            ? `Overdue — should have ${isPickup ? "been handed over" : "shipped"} by ${shipByDate.toLocaleDateString()}`
+                            : isPickup
+                              ? `Buyer collects — hand over by ${shipByDate.toLocaleDateString()}`
+                              : `Ship${isPostnl ? " with PostNL" : ""} by ${shipByDate.toLocaleDateString()}`
+                          : isPickup
+                            ? "Arrange the pickup with the seller."
+                            : "Waiting for the seller to ship."}
                       </p>
-                      {tab === "sold" && <MarkShippedForm orderId={o.id} />}
+                      {tab === "sold" && (isPostnl ? <CreateLabelButton orderId={o.id} /> : <MarkShippedForm orderId={o.id} />)}
                     </div>
                   )}
 
@@ -142,7 +152,24 @@ export default async function TransactionsPage({
                       Shipped {shipment.shipped_at && new Date(shipment.shipped_at).toLocaleDateString()}
                       {shipment.carrier && ` · ${shipment.carrier}`}
                       {shipment.tracking_number && ` · ${shipment.tracking_number}`}
+                      {shipment.carrier === "PostNL" && shipment.tracking_number && deliveryPostcode && (
+                        <a
+                          href={postnlTrackingUrl(shipment.tracking_number, deliveryPostcode)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="ml-1 underline hover:text-foreground"
+                        >
+                          Track parcel
+                        </a>
+                      )}
                     </p>
+                  )}
+                  {tab === "sold" && shipment?.label_storage_key && (
+                    <form action={downloadShippingLabel.bind(null, o.id)}>
+                      <button type="submit" className="text-xs font-medium text-[#008200] underline">
+                        Download PostNL label (PDF)
+                      </button>
+                    </form>
                   )}
                 </CardContent>
               </Card>

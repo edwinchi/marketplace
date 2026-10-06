@@ -1653,6 +1653,8 @@ export type Database = {
           quantity: number
           seller_id: string
           shipping_minor: number
+          shipping_method: string | null
+          shipping_address: Json | null
           status: string
           subtotal_minor: number
           total_minor: number
@@ -1667,6 +1669,8 @@ export type Database = {
           quantity?: number
           seller_id: string
           shipping_minor?: number
+          shipping_method?: string | null
+          shipping_address?: Json | null
           status?: string
           subtotal_minor: number
           total_minor: number
@@ -1681,6 +1685,8 @@ export type Database = {
           quantity?: number
           seller_id?: string
           shipping_minor?: number
+          shipping_method?: string | null
+          shipping_address?: Json | null
           status?: string
           subtotal_minor?: number
           total_minor?: number
