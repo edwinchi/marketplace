@@ -602,16 +602,19 @@ export type Database = {
         Row: {
           conversation_id: string
           last_read_at: string | null
+          last_emailed_at: string | null
           profile_id: string
         }
         Insert: {
           conversation_id: string
           last_read_at?: string | null
+          last_emailed_at?: string | null
           profile_id: string
         }
         Update: {
           conversation_id?: string
           last_read_at?: string | null
+          last_emailed_at?: string | null
           profile_id?: string
         }
         Relationships: [

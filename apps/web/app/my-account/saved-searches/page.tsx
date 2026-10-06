@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { isUserEmailConfigured } from "@/lib/resend";
 import Link from "next/link";
 import { Search, Info, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -12,6 +13,7 @@ export default async function SavedSearchesPage() {
   const { profile } = await getCurrentUserAndProfile();
   if (!profile) redirect("/login");
 
+  const emailOn = isUserEmailConfigured();
   const supabase = await createClient();
   const { data: searches } = await supabase
     .from("saved_searches")
@@ -54,8 +56,8 @@ export default async function SavedSearchesPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <SavedSearchToggle id={s.id} channel="email" checked={s.notify_email} />
-                      {/* Not sent yet -- needs a verified sending domain in Resend (lib/resend.ts). */}
-                      <span className="text-muted-foreground">Email (coming soon)</span>
+                      {/* Daily digest via app/api/cron/send-emails, once a verified Resend sender is set. */}
+                      <span className="text-muted-foreground">{emailOn ? "Email (daily digest)" : "Email (coming soon)"}</span>
                     </div>
                   </div>
                 </CardContent>

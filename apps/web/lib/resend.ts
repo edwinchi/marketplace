@@ -12,12 +12,21 @@ export function isResendConfigured(): boolean {
   return !!process.env.RESEND_API_KEY;
 }
 
+// Mail to users (saved-search digests, unread-message reminders -- app/api/cron/send-emails) only
+// goes out once RESEND_FROM_EMAIL names a sender on a domain verified in Resend, e.g.
+// "MarketitNow <noreply@marketitnow.net>". The sandbox sender can't reach anyone but the account
+// owner, so without it those emails are skipped entirely rather than failing one by one.
+export function isUserEmailConfigured(): boolean {
+  return isResendConfigured() && !!process.env.RESEND_FROM_EMAIL;
+}
+
 export async function sendEmail(params: {
   to: string;
   subject: string;
   html: string;
   replyTo?: string;
   attachments?: { filename: string; content: string }[]; // content: base64, no data: prefix
+  from?: string;
 }): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return false;
@@ -29,7 +38,7 @@ export async function sendEmail(params: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "MarketitNow Feedback <onboarding@resend.dev>",
+      from: params.from ?? process.env.RESEND_FROM_EMAIL ?? "MarketitNow Feedback <onboarding@resend.dev>",
       to: params.to,
       subject: params.subject,
       html: params.html,
