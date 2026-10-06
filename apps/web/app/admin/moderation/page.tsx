@@ -22,6 +22,9 @@ export default async function ModerationQueuePage() {
     .from("listings")
     .select("id, title, price_minor, currency_code, metadata, created_at")
     .eq("moderation_status", "flagged")
+    // A listing its seller already deleted keeps its flag, but there's nothing left to decide --
+    // it's off the site either way, so it shouldn't sit in the review queue.
+    .neq("status", "deleted")
     .order("created_at", { ascending: false });
 
   return (
