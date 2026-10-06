@@ -18,6 +18,7 @@ import { NewListingNotificationsToggle } from "@/components/admin/new-listing-no
 import { BuyerFeeSettings } from "@/components/admin/buyer-fee-settings";
 import { AdBumpPriceSetting } from "@/components/admin/ad-bump-price-setting";
 import { BackfillEmbeddingsButton } from "@/components/admin/backfill-embeddings-button";
+import { BackfillCoordinatesButton } from "@/components/admin/backfill-coordinates-button";
 import { GrantAiUsesForm } from "@/components/admin/grant-ai-uses-form";
 import { OpenRouterStatusCard } from "@/components/admin/openrouter-status-card";
 import { AiFallbackProvidersCard } from "@/components/admin/ai-fallback-providers-card";
@@ -138,6 +139,7 @@ export default async function AdminDashboardPage() {
     getOpenRouterStatus(),
     getLatestHealthCheck(),
   ]);
+  const { count: coordinatesRemaining } = await createServiceClient().from("locations").select("id", { count: "exact", head: true }).is("latitude", null);
   const aiFallbackProviderStatus = getAiFallbackProviderStatus();
   const maxCategory = Math.max(1, ...stats.topCategories.map(([, c]) => c));
   const maxCity = Math.max(1, ...stats.topCities.map(([, c]) => c));
@@ -191,6 +193,7 @@ export default async function AdminDashboardPage() {
         </div>
         <div className="rounded-xl border bg-card p-5 shadow-sm">
           <BackfillEmbeddingsButton initialRemaining={embeddingsRemaining ?? 0} />
+          <BackfillCoordinatesButton initialRemaining={coordinatesRemaining ?? 0} />
         </div>
         <div className="rounded-xl border bg-card p-5 shadow-sm">
           <GrantAiUsesForm />

@@ -2514,6 +2514,7 @@ export type Database = {
       increment_daily_visitor_count: { Args: { p_day: string }; Returns: undefined }
       increment_listing_view_count: { Args: { p_listing_id: string }; Returns: undefined }
       notify_new_listing: { Args: { p_country_code: string | null; p_listing_id: string; p_seller_id: string; p_title: string }; Returns: undefined }
+      listing_ids_within: { Args: { p_lat: number; p_lng: number; p_km: number }; Returns: { id: string; distance_km: number }[] }
       public_bids: { Args: { p_listing_id: string }; Returns: { amount_minor: number; currency_code: string; bidder_name: string; created_at: string }[] }
       mark_order_shipped: { Args: { p_order_id: string; p_carrier?: string | null; p_tracking_number?: string | null }; Returns: undefined }
       bump_listing: { Args: { p_listing_id: string }; Returns: undefined }

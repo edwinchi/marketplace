@@ -16,11 +16,17 @@ import { BuyerSellerLinks } from "@/components/buyer-seller-links";
 import { SearchQueryInput } from "@/components/search-query-input";
 import { SortSelect } from "@/components/sort-select";
 import { saveSearch } from "@/app/my-account/saved-searches/actions";
+import { geocodeSearchInput } from "@/lib/geocode";
 import { Input } from "@/components/ui/input";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const SORT_OPTIONS = { newest: "newest", price_asc: "price_asc", price_desc: "price_desc" } as const;
+const RADIUS_OPTIONS_KM = [5, 10, 25, 50, 100] as const;
+const DEFAULT_RADIUS_KM = 25;
+// Matches nothing -- used when a distance filter finds no listings in range, since PostgREST's
+// in() with an empty list would otherwise be dropped rather than mean "none".
+const NO_MATCH_ID = "00000000-0000-0000-0000-000000000000";
 type SortOption = keyof typeof SORT_OPTIONS;
 const PAGE_SIZE = 60;
 // Real seeded stable_keys for the "condition" attribute (attribute_options table) -- not a fixed
@@ -124,9 +130,11 @@ const websiteJsonLd = {
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string; city?: string; sort?: string; page?: string; priceMin?: string; priceMax?: string; condition?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; city?: string; sort?: string; page?: string; priceMin?: string; priceMax?: string; condition?: string; near?: string; radius?: string }>;
 }) {
-  const { q, category, city, sort: sortParam, page: pageParam, priceMin, priceMax, condition } = await searchParams;
+  const { q, category, city, sort: sortParam, page: pageParam, priceMin, priceMax, condition, near: nearParam, radius } = await searchParams;
+  const near = nearParam?.trim() || undefined;
+  const radiusKm = RADIUS_OPTIONS_KM.find((r) => r === Number(radius)) ?? DEFAULT_RADIUS_KM;
   const sort: SortOption = sortParam && sortParam in SORT_OPTIONS ? (sortParam as SortOption) : "newest";
   const page = Math.max(1, Number(pageParam) || 1);
   const supabase = await createClient();
@@ -135,7 +143,10 @@ export default async function HomePage({
 
   // The exact no-filter, page-1, newest-sort view a fresh/logged-out visitor and every crawler
   // land on -- see getDefaultHomeViewListings's own comment for what this trades off.
-  const isDefaultHomeView = !q && (!category || category === "all") && !city && !sortParam && page === 1;
+  // Price/condition used to be missing here, so filtering by price alone silently served the cached
+  // unfiltered view.
+  const isDefaultHomeView =
+    !q && (!category || category === "all") && !city && !sortParam && page === 1 && !priceMin && !priceMax && !condition && !near;
 
   // Filtering by an embedded resource's column (locations.city) requires an inner join in
   // PostgREST's embed syntax — a plain left-embed silently ignores that filter.
@@ -152,6 +163,7 @@ export default async function HomePage({
   let totalCount: number;
   let featuredListings: typeof listings;
 
+  let nearNotFound = false;
   if (isDefaultHomeView) {
     const cached = await getDefaultHomeViewListings();
     listings = cached.listings;
@@ -186,6 +198,19 @@ export default async function HomePage({
     if (priceMinMinor != null && Number.isFinite(priceMinMinor)) query = query.gte("price_minor", priceMinMinor);
     if (priceMaxMinor != null && Number.isFinite(priceMaxMinor)) query = query.lte("price_minor", priceMaxMinor);
     if (condition) query = query.eq("condition_code", condition);
+    // Distance ("within 25 km of 1012AB"): geocode what the buyer typed, then keep only listings
+    // whose location is in range (listing_ids_within, 20260101009400). If the place can't be
+    // found, the filter is skipped and the results say so, rather than showing nothing.
+    if (near) {
+      const point = await geocodeSearchInput(near);
+      if (point) {
+        const { data: inRange } = await supabase.rpc("listing_ids_within", { p_lat: point.lat, p_lng: point.lng, p_km: radiusKm });
+        const ids = (inRange ?? []).map((r) => r.id);
+        query = query.in("id", ids.length ? ids : [NO_MATCH_ID]);
+      } else {
+        nearNotFound = true;
+      }
+    }
 
     const { data, count } = await query;
     listings = data ?? [];
@@ -301,6 +326,9 @@ export default async function HomePage({
               </SelectContent>
             </Select>
             <Input type="text" name="city" placeholder={t("city")} defaultValue={city} className="border-0 shadow-none sm:w-40" />
+            {/* A new keyword search keeps the buyer's distance filter, like Marktplaats does. */}
+            {near && <input type="hidden" name="near" value={near} />}
+            {near && <input type="hidden" name="radius" value={radiusKm} />}
             <Button type="submit" className="sm:px-6 transition-transform duration-150 hover:-translate-y-0.5">{t("search")}</Button>
           </form>
 
@@ -354,6 +382,24 @@ export default async function HomePage({
             {city && <input type="hidden" name="city" value={city} />}
             {sort !== "newest" && <input type="hidden" name="sort" value={sort} />}
             <div>
+              <p className="mb-2 font-semibold">Distance</p>
+              <div className="flex flex-col gap-2">
+                <Input type="text" name="near" placeholder="Postcode or town" defaultValue={near} className="h-8" />
+                <select
+                  name="radius"
+                  defaultValue={String(radiusKm)}
+                  aria-label="Distance"
+                  className="h-8 rounded-md border bg-background px-2 text-sm"
+                >
+                  {RADIUS_OPTIONS_KM.map((km) => (
+                    <option key={km} value={km}>
+                      Within {km} km
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div>
               <p className="mb-2 font-semibold">Price</p>
               <div className="flex items-center gap-2">
                 <Input type="number" name="priceMin" placeholder="Min" min="0" defaultValue={priceMin} className="h-8" />
@@ -388,6 +434,10 @@ export default async function HomePage({
             <div>
               {/* h2, not h1 -- the hero above already carries the page's one h1 (t("heroHeadline")). */}
               <h2 className="text-xl font-bold tracking-tight">{selectedCategory ? selectedCategory.label : q ? t("resultsFor", { q }) : t("recentListings")}</h2>
+              {nearNotFound && (
+                <p className="mt-1 text-sm text-muted-foreground">Couldn&apos;t find &ldquo;{near}&rdquo; — showing results from everywhere.</p>
+              )}
+              {near && !nearNotFound && <p className="mt-1 text-sm text-muted-foreground">Within {radiusKm} km of {near}</p>}
               {/* Hidden per explicit request while the site's real inventory is still small -- a
                   low count reads as "this marketplace is empty" rather than as a helpful stat.
                   totalCount itself is untouched (still a real exact-count query, not a guess) so
@@ -396,7 +446,7 @@ export default async function HomePage({
             </div>
             <div className="flex items-center gap-3">
               <SortSelect sort={sort} />
-              {profile && (q || (category && category !== "all") || city || priceMin || priceMax || condition) && (
+              {profile && (q || (category && category !== "all") || city || priceMin || priceMax || condition || near) && (
                 <form action={saveSearch}>
                   {q && <input type="hidden" name="q" value={q} />}
                   {category && <input type="hidden" name="category" value={category} />}
@@ -404,6 +454,8 @@ export default async function HomePage({
                   {priceMin && <input type="hidden" name="priceMin" value={priceMin} />}
                   {priceMax && <input type="hidden" name="priceMax" value={priceMax} />}
                   {condition && <input type="hidden" name="condition" value={condition} />}
+                  {near && <input type="hidden" name="near" value={near} />}
+                  {near && <input type="hidden" name="radius" value={radiusKm} />}
                   <input type="hidden" name="returnTo" value="/" />
                   <Button type="submit" variant="outline" size="sm" className="transition-transform duration-150 hover:-translate-y-0.5">{t("saveSearch")}</Button>
                 </form>

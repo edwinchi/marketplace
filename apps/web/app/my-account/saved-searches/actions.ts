@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { geocodeSearchInput } from "@/lib/geocode";
 
 // saved_search_owner's RLS policy (FOR ALL, profile_id = current_profile_id()) already permits a
 // normal authenticated insert/update/delete on the caller's own rows — no SECURITY DEFINER needed
@@ -29,6 +30,11 @@ export async function saveSearch(formData: FormData) {
   };
   const priceMinMinor = toMinor(field("priceMin"));
   const priceMaxMinor = toMinor(field("priceMax"));
+  // Distance filter: resolved to coordinates once, here, so the hourly alert job can match by
+  // radius without geocoding anything itself.
+  const near = field("near") || null;
+  const km = near ? Math.min(Math.max(Math.round(Number(field("radius")) || 25), 1), 500) : null;
+  const point = near ? await geocodeSearchInput(near) : null;
 
   const params = new URLSearchParams();
   if (query_text) params.set("q", query_text);
@@ -37,14 +43,18 @@ export async function saveSearch(formData: FormData) {
   if (priceMinMinor != null) params.set("priceMin", field("priceMin"));
   if (priceMaxMinor != null) params.set("priceMax", field("priceMax"));
   if (condition) params.set("condition", condition);
+  if (near && point) {
+    params.set("near", near);
+    params.set("radius", String(km));
+  }
   const url = params.size ? `/?${params.toString()}` : "/";
 
   await supabase.from("saved_searches").insert({
     profile_id: profile.id,
-    name: query_text || city || "Saved search",
+    name: query_text || city || near || "Saved search",
     query_text,
     category_id,
-    filters: { city, condition, priceMinMinor, priceMaxMinor, url },
+    filters: { city, condition, priceMinMinor, priceMaxMinor, url, ...(point ? { near, lat: point.lat, lng: point.lng, km } : {}) },
   });
 
   revalidatePath("/my-account/saved-searches");

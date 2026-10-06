@@ -23,6 +23,7 @@ import { getStripe, EUR_CHECKOUT_PAYMENT_METHOD_TYPES } from "@/lib/stripe";
 import { getSiteOrigin } from "@/lib/site-url";
 import { tierFromBoostRank } from "@/lib/listing-tiers";
 import { parsePriceType, priceMinorFor } from "@/lib/price-types";
+import { geocodeLocation } from "@/lib/geocode";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 
@@ -47,6 +48,22 @@ function enqueueEmbedding(listingId: string, title: string, description: string)
     if (!embedding) return;
     const { error } = await createServiceClient().from("listings").update({ title_embedding: embedding as unknown as string }).eq("id", listingId);
     if (error) console.error(`Failed to store title_embedding for listing ${listingId}:`, error);
+  });
+}
+
+// Coordinates for distance search (lib/geocode.ts) -- after(), like the jobs around it, because a
+// geocoder round trip can take a few seconds and posting shouldn't wait on it. Service-role write:
+// there's no user UPDATE policy on locations. A failed lookup just leaves the location without
+// coordinates (out of distance-filtered results) until the admin backfill retries it.
+function enqueueGeocode(locationId: string, city: string, postalCode: string | null, countryCode: string) {
+  after(async () => {
+    const point = await geocodeLocation({ city, postalCode, countryCode });
+    if (!point) return;
+    const { error } = await createServiceClient()
+      .from("locations")
+      .update({ latitude: point.lat, longitude: point.lng })
+      .eq("id", locationId);
+    if (error) console.error(`Failed to store coordinates for location ${locationId}:`, error);
   });
 }
 
@@ -453,6 +470,7 @@ export async function createListing(_prevState: ListingFormState, formData: Form
   enqueueEmbedding(listing.id, title, description);
   enqueueTranslation(listing.id, title, description);
   enqueueModerationCheck(listing.id, title, description);
+  enqueueGeocode(location.id, city, postalCode || null, countryCode);
   enqueueNewListingNotifications(listing.id, profile.id, title, countryCode || null);
   after(() => pingIndexNow([`https://marketitnow.net/listings/${slugPath(title, listing.id)}`]));
 
