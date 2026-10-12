@@ -10,6 +10,7 @@ import { buildProviderAttempts, type ProviderAttempt } from "@/lib/ai-providers"
 import { getTextEmbedding } from "@/lib/embeddings";
 import { buildAttributeGuessPrompt, resolveAttributeGuesses } from "@/lib/ai-attribute-guess";
 import { MAX_ANALYSIS_PHOTOS } from "@/lib/ai-photo-analysis";
+import { signAiAnalysis } from "@/lib/ai-analysis-token";
 
 // Free tier: 5 uses per registered account, then an honest "upgrade" prompt — there's no payment
 // processor wired up yet to actually charge for more (see /my-account/ai-features), so this just
@@ -24,6 +25,9 @@ export type PhotoAnalysis = {
   // Only present when the matched category has attributes a photo could plausibly inform, and the
   // model was confident enough about at least one of them -- see lib/ai-attribute-guess.ts.
   attributes?: Record<string, string | string[]>;
+  // Signed copy of this analysis (lib/ai-analysis-token.ts), posted back with the listing form so
+  // publishing records it in listing_ai_metadata. Null only if the server has no signing secret.
+  analysisToken: string | null;
 };
 
 export type AnalyzePhotoResult = {
@@ -107,11 +111,13 @@ async function callVisionModel(
   promptText: string,
   images: { base64: string; mediaType: string }[],
   maxTokens: number,
-): Promise<{ text: string } | { text: null; lastStatus: number; networkError: boolean }> {
+): Promise<{ text: string; model: string } | { text: null; lastStatus: number; networkError: boolean }> {
   let res: Response | null = null;
   let lastStatus = 0;
   let networkError = false;
+  let model = "";
   for (const attempt of attempts) {
+    model = attempt.model;
     const body: Record<string, unknown> = {
       model: attempt.model,
       max_tokens: maxTokens,
@@ -148,7 +154,7 @@ async function callVisionModel(
   const content = json?.choices?.[0]?.message?.content;
   const text: string =
     typeof content === "string" ? content : Array.isArray(content) ? content.map((p: { text?: string }) => p?.text ?? "").join("") : "";
-  return { text };
+  return { text, model };
 }
 
 // Grounds the model to categories that actually exist and can be posted to (getCategoriesAndAttributes
@@ -294,8 +300,21 @@ If the photo${photos.length > 1 ? "s don't" : " doesn't"} clearly show a sellabl
     }
   }
 
+  const title = parsed.title.slice(0, 80);
+  const description = parsed.description ?? "";
+  const analysisToken = signAiAnalysis({
+    profileId: profile.id,
+    issuedAt: Date.now(),
+    model: result.model || null,
+    title,
+    description,
+    categoryId: matched.id,
+    categoryLabel: matched.label,
+    attributes,
+  });
+
   return {
-    data: { title: parsed.title.slice(0, 80), description: parsed.description ?? "", categoryId: matched.id, categoryLabel: matched.label, attributes },
+    data: { title, description, categoryId: matched.id, categoryLabel: matched.label, attributes, analysisToken },
     error: null,
     usesLeft: usesLeftAfter,
     freeLimit: FREE_USE_LIMIT,

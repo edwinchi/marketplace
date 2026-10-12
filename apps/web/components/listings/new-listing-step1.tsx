@@ -203,6 +203,7 @@ export function NewListingStep1({
           categoryId: data.categoryId,
           description: data.description,
           attributes: data.attributes,
+          aiAnalysisToken: data.analysisToken ?? undefined,
           imageDataUrls: photoPreviews.map((p) => p.dataUrl),
         });
       } catch {

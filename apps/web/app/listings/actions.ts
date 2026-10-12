@@ -18,6 +18,7 @@ import { getNewListingNotificationsGlobalUnlockSetting } from "@/lib/app-setting
 import { pingIndexNow } from "@/lib/indexnow";
 import { translateListingForAllVisitors } from "@/lib/listing-auto-translate";
 import { checkListingContentPolicy } from "@/lib/content-moderation";
+import { verifyAiAnalysis } from "@/lib/ai-analysis-token";
 import { getNumericSetting } from "@/lib/numeric-settings";
 import { getStripe, EUR_CHECKOUT_PAYMENT_METHOD_TYPES } from "@/lib/stripe";
 import { getSiteOrigin } from "@/lib/site-url";
@@ -68,12 +69,13 @@ function enqueueGeocode(locationId: string, city: string, postalCode: string | n
 }
 
 // Same after()-scheduled, best-effort pattern -- a content-policy pre-screen (lib/content-moderation.ts)
-// runs on every new listing, not just ones that used AI photo analysis. Only ever writes when
-// flagged: an unflagged result leaves moderation_status at its 'pending' default rather than
-// writing 'clear', so a listing this check never got to run for (a failed AI call) reads the same
-// as one that passed -- both are "not yet flagged", the honest state either way. Never touches
-// `status`/visibility -- flagged listings stay live, surfaced at /admin/moderation for a human to
-// actually decide, not auto-removed on an unproven model's say-so.
+// runs on every new or edited listing, not just ones that used AI photo analysis. The status it
+// writes says what actually happened: 'clear' = screened and passed, 'flagged' = screened and sent
+// to /admin/moderation, 'pending' = the AI call failed, so it was never screened. (This used to
+// leave passing listings at 'pending' too, which made "passed" and "never ran" indistinguishable --
+// the October 2026 board review read all 28 listings as unreviewed for exactly that reason.)
+// Never touches `status`/visibility -- flagged listings stay live for a human to actually decide,
+// not auto-removed on an unproven model's say-so. An edit re-screens, since the text changed.
 //
 // Service-role client, not the seller's own request-scoped one: moderation_status is column-level
 // locked to service_role only (supabase/migrations/20260101007800_listing_moderation_lockdown.sql)
@@ -81,14 +83,59 @@ function enqueueGeocode(locationId: string, city: string, postalCode: string | n
 // the same self-service-bypass concern as listings.published_at and the ad-bump feature.
 function enqueueModerationCheck(listingId: string, title: string, description: string) {
   after(async () => {
-    const { flagged, reason } = await checkListingContentPolicy(title, description);
-    if (!flagged) return;
+    const { checked, flagged, reason } = await checkListingContentPolicy(title, description);
+    if (!checked) console.error(`Moderation pre-screen could not run for listing ${listingId}; left pending`);
     const supabase = createServiceClient();
     const { error } = await supabase
       .from("listings")
-      .update({ moderation_status: "flagged", metadata: { moderation_reason: reason } })
+      .update(
+        flagged
+          ? { moderation_status: "flagged", metadata: { moderation_reason: reason } }
+          : { moderation_status: checked ? "clear" : "pending" },
+      )
       .eq("id", listingId);
-    if (error) console.error(`Failed to record moderation flag for listing ${listingId}:`, error);
+    if (error) console.error(`Failed to record moderation result for listing ${listingId}:`, error);
+  });
+}
+
+// Records what the AI photo analysis suggested for this listing (AGENTS.md §5) when the form carries
+// its signed token -- the suggestion as the model made it, not what the seller ended up publishing,
+// so the two can be compared when tuning. Unsigned, expired or someone else's token = nothing
+// recorded (lib/ai-analysis-token.ts). Service role because listing_ai_metadata has no client write
+// policy by design, so ownership is checked here explicitly. Upsert: re-running the AI on the edit
+// page replaces the earlier suggestion.
+function enqueueAiMetadata(listingId: string, profileId: string, token: FormDataEntryValue | null) {
+  if (typeof token !== "string" || !token) return;
+  after(async () => {
+    const analysis = verifyAiAnalysis(token, profileId);
+    if (!analysis) {
+      console.warn(`Ignored an invalid or expired AI analysis token for listing ${listingId}`);
+      return;
+    }
+    const supabase = createServiceClient();
+    const { data: owned, error: ownedError } = await supabase
+      .from("listings")
+      .select("id")
+      .eq("id", listingId)
+      .eq("seller_id", profileId)
+      .maybeSingle();
+    if (ownedError || !owned) {
+      if (ownedError) console.error(`Failed to check listing ownership for AI metadata ${listingId}:`, ownedError);
+      return;
+    }
+    const { error } = await supabase.from("listing_ai_metadata").upsert({
+      listing_id: listingId,
+      raw_vision_analysis: {
+        title: analysis.title,
+        description: analysis.description,
+        category_label: analysis.categoryLabel,
+        attributes: analysis.attributes ?? {},
+      },
+      suggested_category_id: analysis.categoryId,
+      model_name: analysis.model?.slice(0, 100) ?? null,
+      processed_at: new Date(analysis.issuedAt).toISOString(),
+    });
+    if (error) console.error(`Failed to record AI metadata for listing ${listingId}:`, error);
   });
 }
 
@@ -473,6 +520,7 @@ export async function createListing(_prevState: ListingFormState, formData: Form
   enqueueEmbedding(listing.id, title, description);
   enqueueTranslation(listing.id, title, description);
   enqueueModerationCheck(listing.id, title, description);
+  enqueueAiMetadata(listing.id, profile.id, formData.get("ai_analysis_token"));
   enqueueGeocode(location.id, city, postalCode || null, countryCode);
   enqueueNewListingNotifications(listing.id, profile.id, title, countryCode || null);
   after(() => pingIndexNow([`https://marketitnow.net/listings/${slugPath(title, listing.id)}`]));
@@ -553,6 +601,7 @@ export async function updateListing(
   enqueueEmbedding(listingId, title, description);
   enqueueTranslation(listingId, title, description);
   enqueueModerationCheck(listingId, title, description);
+  enqueueAiMetadata(listingId, profile.id, formData.get("ai_analysis_token"));
   after(() => pingIndexNow([`https://marketitnow.net/listings/${slugPath(title, listingId)}`]));
 
   // The real page lives at a slugged path (/listings/[...slug]) this function has no way to

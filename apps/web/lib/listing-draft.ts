@@ -19,6 +19,9 @@ export type ListingDraft = {
   // defaultValues prop expects, so step 2 applies these through the exact same autofill path the
   // RDW plate lookup below uses.
   attributes?: Record<string, string | string[]>;
+  // The analysis's signed token (lib/ai-analysis-token.ts) -- step 2 posts it back with the form so
+  // publishing records the AI suggestion in listing_ai_metadata.
+  aiAnalysisToken?: string;
   // Set by the step-1 "Sell your car" plate modal (components/listings/sell-car-plate-modal.tsx)
   // when the seller used a plate instead of skipping -- step 2 applies the same
   // mapVehicleLookupToAttributeDefaults (lib/vehicle-listing-defaults.ts) its own inline plate

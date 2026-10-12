@@ -75,6 +75,9 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
   const [draftPhotoFiles, setDraftPhotoFiles] = useState<File[] | undefined>(undefined);
   const [draftDescription, setDraftDescription] = useState<string | undefined>(undefined);
   const [aiAssisted, setAiAssisted] = useState(false);
+  // Latest AI analysis behind this form's content, signed server-side -- posted as
+  // ai_analysis_token so publishing records it in listing_ai_metadata (lib/ai-analysis-token.ts).
+  const [aiAnalysisToken, setAiAnalysisToken] = useState<string | null>(null);
   const [attributeDefaults, setAttributeDefaults] = useState<Record<string, string | string[]> | undefined>(undefined);
 
   useEffect(() => {
@@ -88,6 +91,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
       setAiAssisted(true);
       setDraftDescription(draft.description);
     }
+    if (draft.aiAnalysisToken) setAiAnalysisToken(draft.aiAnalysisToken);
     if (draft.imageDataUrls?.length) {
       Promise.all(
         draft.imageDataUrls.map((url, i) =>
@@ -177,6 +181,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
         }
         if (titleRef.current) titleRef.current.value = data.title;
         setAiAssisted(true);
+        setAiAnalysisToken(data.analysisToken);
         setDraftDescription(data.description);
         if (data.categoryId !== categoryId) setCategoryMismatch(data.categoryLabel);
         // Only applied when the AI's own category guess actually matches the category already
@@ -198,6 +203,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
   return (
     <form action={formAction} className="flex flex-col gap-6">
       <input type="hidden" name="category_id" value={categoryId} />
+      {aiAnalysisToken && <input type="hidden" name="ai_analysis_token" value={aiAnalysisToken} />}
 
       <div className={`flex items-start justify-between gap-4 ${card} bg-primary/5`}>
         <div className="min-w-0">

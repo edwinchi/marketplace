@@ -1,6 +1,8 @@
 import { callFreeTextModel, parseJsonResponse } from "./ai-text";
 
-export type ModerationResult = { flagged: boolean; reason: string | null };
+// `checked` is false when the model call failed or returned something unparseable -- the listing
+// was never actually screened, which callers must not record as having passed.
+export type ModerationResult = { checked: boolean; flagged: boolean; reason: string | null };
 
 // Deliberately scoped to what a general-purpose text model can honestly do well: prohibited items
 // (weapons, illegal drugs, adult services) and scam-pattern language (payment/contact requests
@@ -13,7 +15,7 @@ export type ModerationResult = { flagged: boolean; reason: string | null };
 // AI photo analysis, and draws from Groq/Gemini's separate free-tier quotas (lib/ai-providers.ts)
 // rather than competing with the vision pipeline's.
 //
-// Fails open (not flagged) on any AI error -- same "best-effort, not the only safety net" reasoning
+// Fails open (not flagged, but checked: false) on any AI error -- same "best-effort, not the only safety net" reasoning
 // as every other AI feature in this app degrading gracefully; the existing reports table and human
 // moderation remain the real backstop, this is triage, not gatekeeping. Never blocks publishing --
 // see docs/comments on why an unproven auto-filter shouldn't be allowed to reject a legitimate
@@ -29,8 +31,8 @@ Respond with ONLY a JSON object, no markdown fences: {"flagged": true or false, 
 
 export async function checkListingContentPolicy(title: string, description: string): Promise<ModerationResult> {
   const { text } = await callFreeTextModel(PROMPT(title, description), 200);
-  if (!text) return { flagged: false, reason: null };
+  if (!text) return { checked: false, flagged: false, reason: null };
   const parsed = parseJsonResponse<{ flagged?: boolean; reason?: string }>(text);
-  if (!parsed) return { flagged: false, reason: null };
-  return { flagged: !!parsed.flagged, reason: parsed.reason?.trim() || null };
+  if (!parsed) return { checked: false, flagged: false, reason: null };
+  return { checked: true, flagged: !!parsed.flagged, reason: parsed.reason?.trim() || null };
 }

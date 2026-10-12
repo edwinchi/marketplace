@@ -450,10 +450,11 @@ worth reading before extending this code, since some are gotchas that will resur
   (`afrodeals_demo`) and ~12 realistic listings with real (verified-loading) Unsplash photos across
   several categories, so the browse UI isn't empty. Safe to re-run (looks up the demo seller by
   username first). Remove this data before any real launch.
-- **Supabase Auth `mailer_autoconfirm` is currently ON** for the `afrodeals` project (toggled via the
-  Management API during this build, not the dashboard). This was necessary because the shared/free
-  email-sending rate limit made iterating on signup impossible otherwise. **Turn this back off before
-  real users sign up** — right now every signup skips email verification entirely. Also note: Supabase
+- **Supabase Auth `mailer_autoconfirm` was ON during this build** (toggled via the Management API,
+  because the shared/free email rate limit made iterating on signup impossible). **It has since been
+  turned off** — confirmed 2026-10-12 via the public `GET /auth/v1/settings` endpoint
+  (`mailer_autoconfirm: false`), which is the quick way to re-check it without a management token.
+  Signups verify their email again (confirmation mail goes out through Resend). Also note: Supabase
   rejects signups on domains with no real MX records (e.g. `example.com`, made-up test domains) —
   use a real domain for any test signup.
 - **New listings could silently vanish from their own category page.** Two independent bugs, both
@@ -1009,3 +1010,26 @@ promoting Google sign-in to installed-app users.
   wrapper (e.g. Capacitor) built and signed in Xcode on a Mac. Apple guideline 4.2 rejects apps
   that are "just a website", so a store build needs genuine native value (push notifications,
   camera-first posting, etc.), not only a WebView of this site.
+
+## 15. The AI Executive Board — how feature work is run
+
+MarketitNow is built by an AI development organization: 15 role subagents in `.claude/agents/`
+(CEO/Product, CTO, Backend, Frontend, UX, AI, Search, Security/CISO, Growth, Trust & Safety,
+DevOps, Data, Monetization, QA, International Expansion), coordinated by the main Claude session
+acting as the **Executive Board**. How to summon and work with them: `docs/ai-board-guide.md`.
+
+Every role designs for **this** stack (§2): Next.js + Supabase + Vercel, not the
+FastAPI/Redis/Elasticsearch/Kubernetes stack in the original role prompts (decided 2026-10-12,
+same reasoning as §2's rejection of the `data/sokocoin-*` scaffold). Ambition is a top-tier
+global marketplace; every recommendation is labelled Now / At 10x / At 100x so scale planning
+never turns into speculative infrastructure (§7).
+
+**Board review — depth scales with the feature:**
+- **Small** (bug fix, copy, visual tweak): no board review. Just build, verify, ship.
+- **Medium** (a new flow or setting on existing tables): one-page review covering business case,
+  spec, security, testing and success metric.
+- **Large** (new table/money flow/AI system/market): the full 12 sections — 1) business analysis,
+  2) product spec, 3) UX plan, 4) database design, 5) backend architecture, 6) frontend
+  architecture, 7) AI requirements, 8) testing strategy, 9) deployment plan, 10) analytics plan,
+  11) security review (threat model), 12) monetization opportunities — each recommendation with
+  business impact, effort, expected ROI, risks and success metrics.

@@ -19,6 +19,7 @@ import { BuyerFeeSettings } from "@/components/admin/buyer-fee-settings";
 import { AdBumpPriceSetting } from "@/components/admin/ad-bump-price-setting";
 import { PostnlLabelPriceSetting } from "@/components/admin/postnl-label-price-setting";
 import { BackfillEmbeddingsButton } from "@/components/admin/backfill-embeddings-button";
+import { BackfillModerationButton } from "@/components/admin/backfill-moderation-button";
 import { BackfillCoordinatesButton } from "@/components/admin/backfill-coordinates-button";
 import { GrantAiUsesForm } from "@/components/admin/grant-ai-uses-form";
 import { OpenRouterStatusCard } from "@/components/admin/openrouter-status-card";
@@ -141,6 +142,7 @@ export default async function AdminDashboardPage() {
     getLatestHealthCheck(),
   ]);
   const postnlLabelPriceCents = await getNumericSetting("postnl_label_price_cents");
+  const { count: moderationRemaining } = await createServiceClient().from("listings").select("id", { count: "exact", head: true }).eq("moderation_status", "pending").neq("status", "deleted");
   const { count: coordinatesRemaining } = await createServiceClient().from("locations").select("id", { count: "exact", head: true }).is("latitude", null);
   const aiFallbackProviderStatus = getAiFallbackProviderStatus();
   const maxCategory = Math.max(1, ...stats.topCategories.map(([, c]) => c));
@@ -197,6 +199,7 @@ export default async function AdminDashboardPage() {
         <div className="rounded-xl border bg-card p-5 shadow-sm">
           <BackfillEmbeddingsButton initialRemaining={embeddingsRemaining ?? 0} />
           <BackfillCoordinatesButton initialRemaining={coordinatesRemaining ?? 0} />
+          <BackfillModerationButton initialRemaining={moderationRemaining ?? 0} />
         </div>
         <div className="rounded-xl border bg-card p-5 shadow-sm">
           <GrantAiUsesForm />

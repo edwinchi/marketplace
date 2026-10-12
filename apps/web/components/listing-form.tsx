@@ -97,6 +97,8 @@ export function ListingForm({
   const [analyzing, startAnalyzing] = useTransition();
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
   const [aiDescription, setAiDescription] = useState<string | null>(null);
+  // Signed AI analysis (lib/ai-analysis-token.ts), posted so saving records it in listing_ai_metadata.
+  const [aiAnalysisToken, setAiAnalysisToken] = useState<string | null>(null);
   const [descriptionPreview, setDescriptionPreview] = useState(initial?.description ?? "");
   const [categoryMismatch, setCategoryMismatch] = useState<string | null>(null);
   const [usesLeft, setUsesLeft] = useState<number | null>(aiUsage?.usesLeft ?? null);
@@ -174,6 +176,7 @@ export function ListingForm({
         }
         if (titleRef.current) titleRef.current.value = data.title;
         setAiDescription(data.description);
+        setAiAnalysisToken(data.analysisToken);
         setDescriptionPreview(data.description);
         if (data.categoryId !== categoryId) setCategoryMismatch(data.categoryLabel);
       } catch {
@@ -186,6 +189,7 @@ export function ListingForm({
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
+      {aiAnalysisToken && <input type="hidden" name="ai_analysis_token" value={aiAnalysisToken} />}
       {initialPhotos && (
         <div className="flex flex-col gap-1.5">
           <Label>Photos</Label>
