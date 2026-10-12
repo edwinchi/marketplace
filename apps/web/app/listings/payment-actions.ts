@@ -129,7 +129,7 @@ export async function startOrderPayment(listingId: string, method: "pickup" | "p
           quantity: 1,
         },
         ...(shipWithPostnl
-          ? [{ price_data: { currency: "eur", unit_amount: stripeShipping, product_data: { name: "Shipping with PostNL" } }, quantity: 1 }]
+          ? [{ price_data: { currency: "eur", unit_amount: stripeShipping, product_data: { name: "Shipping with PostNL", images: [`${origin}/logo-sm.png`] } }, quantity: 1 }]
           : []),
       ],
       ...(shipWithPostnl ? { shipping_address_collection: { allowed_countries: ["NL" as const] } } : {}),

@@ -9,7 +9,7 @@ const env = fs.readFileSync(new URL("../.env.local", import.meta.url), "utf8");
 export const SUPABASE_URL = env.match(/NEXT_PUBLIC_SUPABASE_URL=(\S+)/)[1];
 const SERVICE_KEY = env.match(/SUPABASE_SERVICE_ROLE_KEY=(\S+)/)[1];
 export const HEADERS = { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` };
-const UA = "AfroDeals/1.0 (https://afrodeals.net; contact: apehgongedwin@gmail.com)";
+const UA = "MarketitNow/1.0 (https://marketitnow.net; contact: apehgongedwin@gmail.com)";
 
 const FREE_LICENSE_RE = /^(CC0|CC BY|CC BY-SA|Public domain|PD)/i;
 

@@ -63,7 +63,10 @@ export async function homepagePlacementCheckout(listingId: string) {
           // Flat platform fee, always EUR -- same reasoning as ad_bump_price_cents.
           currency: "eur",
           unit_amount: priceCents,
-          product_data: { name: `Homepage placement (${HOMEPAGE_PLACEMENT_DAYS} days): ${listing.title}` },
+          product_data: {
+            name: `Homepage placement (${HOMEPAGE_PLACEMENT_DAYS} days): ${listing.title}`,
+            images: [`${origin}/logo-sm.png`],
+          },
         },
         quantity: 1,
       },

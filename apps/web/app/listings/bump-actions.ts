@@ -75,7 +75,10 @@ export async function bumpListingCheckout(listingId: string) {
           // cent, tripping Stripe's 50-cent-equivalent minimum-charge check.
           currency: "eur",
           unit_amount: priceCents,
-          product_data: { name: `Bump listing: ${listing.title}` },
+          product_data: {
+            name: `Bump listing: ${listing.title}`,
+            images: [`${origin}/logo-sm.png`],
+          },
         },
         quantity: 1,
       },

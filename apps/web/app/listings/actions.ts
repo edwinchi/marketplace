@@ -342,7 +342,10 @@ async function maybeStartTierUpgradeCheckout({
           // regardless of the listing's own currency_code (see bump-actions.ts's identical fix).
           currency: "eur",
           unit_amount: priceCents,
-          product_data: { name: `${advertiseTier === "plus" ? "Plus" : "Premium"} listing: ${title}` },
+          product_data: {
+            name: `${advertiseTier === "plus" ? "Plus" : "Premium"} listing: ${title}`,
+            images: [`${origin}/logo-sm.png`],
+          },
         },
         quantity: 1,
       },

@@ -84,7 +84,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // every nested route's title exactly once. Appending it again here (as this used to) doubled up
   // into "X | MarketitNow | MarketitNow" -- confirmed live on a real listing page.
   const title = displayTitle;
-  const logo = { url: `${origin}/logo.png`, width: 1167, height: 500, alt: "MarketitNow" };
+  const logo = { url: `${origin}/logo.png`, width: 1024, height: 438, alt: "MarketitNow" };
 
   return {
     title,
