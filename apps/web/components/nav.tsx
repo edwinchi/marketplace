@@ -121,7 +121,7 @@ export async function Nav() {
                   bust (confirmed: the raw /logo.png and a fresh-width optimizer request both
                   returned the new file, but the browser's actual rendered request kept getting a
                   304 against old cached bytes). Serving it as-is sidesteps that whole class of bug.
-                  logo-sm.png (400x171, ~19KB) rather than the full logo.png (1024x438, ~560KB) --
+                  logo-sm.png (800x342, ~105KB -- 4x its 80px display height, sharp on Retina/4K) rather than the full logo.png (1024x438, ~560KB) --
                   confirmed live that every icon-sized logo placement in the app (this one, admin,
                   login, the document-page byline) renders at 80px tall or less, so the full-res
                   file was pure waste; logo.png itself is kept only for document-page.tsx's
@@ -132,7 +132,7 @@ export async function Nav() {
                   a revalidation notices the file changed. Bump the version whenever the file
                   changes again. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-sm.png?v=3" alt="MarketitNow" className="h-20 w-auto" />
+              <img src="/logo-sm.png?v=4" alt="MarketitNow" className="h-20 w-auto" />
             </Link>
             {/* xl, matching "How it works" right below -- the same measured constraint applies
                 (this row already fills 1024-1280px, only 1280px+ has real spare room). Search was

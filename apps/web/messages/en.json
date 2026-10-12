@@ -25,7 +25,8 @@
     "postAdShort": "Post ad",
     "account": "Account",
     "searchPlaceholder": "Search listings…",
-    "search": "Search"
+    "search": "Search",
+    "getTheApp": "Get the app"
   },
   "AccountMenu": {
     "profile": "Profile",
@@ -413,5 +414,34 @@
     "closingBody": "Search thousands of listings, or post your own in a couple of minutes.",
     "startSearching": "Start searching",
     "postAd": "Post an ad"
+  },
+  "GetApp": {
+    "metaTitle": "Get the app",
+    "title": "MarketitNow on your phone",
+    "intro": "Add MarketitNow to your home screen and open it like any other app: full screen, one tap away, no app store needed.",
+    "installButton": "Install the app",
+    "installedTitle": "You're using the app",
+    "installedBody": "MarketitNow is installed on this device. Open it any time from your home screen.",
+    "justInstalled": "Installed! You'll find MarketitNow on your home screen.",
+    "iosTitle": "Install on iPhone or iPad",
+    "iosStep1": "Tap the Share button in your browser's toolbar (the square with an arrow pointing up).",
+    "iosStep2": "Scroll down and tap “Add to Home Screen”.",
+    "iosStep3": "Tap “Add”. MarketitNow appears on your home screen.",
+    "androidTitle": "Install on Android",
+    "androidStep1": "Open your browser's menu (⋮, top right).",
+    "androidStep2": "Tap “Install app” or “Add to Home screen”.",
+    "androidStep3": "Confirm. MarketitNow appears on your home screen.",
+    "desktopTitle": "Install on this computer",
+    "desktopBody": "In Chrome or Edge, click the install icon at the right end of the address bar. To get MarketitNow on your phone, open marketitnow.net/app on it.",
+    "inAppTitle": "Open this page in your browser first",
+    "inAppBody": "Apps like Instagram and Facebook open links in their own built-in browser, which can't install apps. Tap the menu (⋯) and choose “Open in browser”, then install from there.",
+    "benefitsTitle": "Why install?",
+    "benefit1Title": "One tap away",
+    "benefit1Body": "Opens straight from your home screen, full screen, without the browser's address bar.",
+    "benefit2Title": "Light and fast",
+    "benefit2Body": "Takes up almost no storage, and loads quickly even on a slow connection.",
+    "benefit3Title": "Always up to date",
+    "benefit3Body": "Nothing to update. You always get the latest version automatically.",
+    "otherDevicesTitle": "Instructions for other devices"
   }
 }

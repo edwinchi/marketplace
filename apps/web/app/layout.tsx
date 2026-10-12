@@ -8,6 +8,8 @@ import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { VisitTracker } from "@/components/visit-tracker";
+import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
+import { EARLY_INSTALL_PROMPT_SCRIPT } from "@/lib/pwa-install";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +43,9 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://marketitnow.net"),
   title: { default: "MarketitNow", template: "%s | MarketitNow" },
   description: "Buy and sell from anywhere in the world.",
+  // iOS ignores most of app/manifest.ts -- these emit its own apple-mobile-web-app-* tags so a
+  // home-screen launch opens full screen with the right name under the icon.
+  appleWebApp: { capable: true, title: "MarketitNow", statusBarStyle: "default" },
 };
 
 // theme-color is a separate metadata export from Next 14+ onward -- this is what tints a mobile
@@ -68,6 +73,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           remount the tree — losing in-flight state like a pending form submission. This only
           silences the mismatch warning for these two elements' own attributes; it doesn't hide
           real hydration bugs elsewhere in the tree. */}
+      <head>
+        {/* See lib/pwa-install.ts -- the browser's install prompt can fire before hydration. */}
+        <script dangerouslySetInnerHTML={{ __html: EARLY_INSTALL_PROMPT_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         {/* Visually hidden until focused (Tab from a fresh page load lands here first) -- lets a
             keyboard/screen-reader user jump straight past the nav bar instead of tabbing through
@@ -86,6 +95,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <Footer />
           <CookieConsentBanner />
           <VisitTracker />
+          <ServiceWorkerRegister />
         </NextIntlClientProvider>
       </body>
     </html>

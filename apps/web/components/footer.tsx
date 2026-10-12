@@ -5,9 +5,9 @@ import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { TARGET_CITIES } from "@/lib/target-cities";
 import { slugPath } from "@/lib/slug";
 
-// No app-store badges here — there is no MarketitNow mobile app, and a badge that links nowhere
-// real is exactly the kind of thing this project has consistently avoided (agents.md §12: Google
-// OAuth, buyer protection, carrier
+// No app-store badges here — MarketitNow installs as a web app from /app ("Get the app" below),
+// not from a store listing, and a badge that links nowhere real is exactly the kind of thing this
+// project has consistently avoided (agents.md §12: Google OAuth, buyer protection, carrier
 // integration all got the same treatment). Same reasoning kept "About/Careers/Press/sister sites"
 // out — MarketitNow has no such corporate structure to link to.
 export async function Footer() {
@@ -80,6 +80,7 @@ export async function Footer() {
 
         <div className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t pt-6 text-sm font-semibold text-[#008848]">
           <Link href="/welcome" className="hover:underline">{tNav("howItWorks")}</Link>
+          <Link href="/app" className="hover:underline">{tNav("getTheApp")}</Link>
           <Link href="/help" className="hover:underline">{tNav("helpInfo")}</Link>
           <Link href="/terms" className="hover:underline">{tNav("terms")}</Link>
           <Link href="/privacy" className="hover:underline">{tNav("privacy")}</Link>

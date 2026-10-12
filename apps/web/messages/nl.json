@@ -25,7 +25,8 @@
     "postAdShort": "Plaatsen",
     "account": "Account",
     "searchPlaceholder": "Zoek advertenties…",
-    "search": "Zoeken"
+    "search": "Zoeken",
+    "getTheApp": "Download de app"
   },
   "AccountMenu": {
     "profile": "Profiel",
@@ -413,5 +414,34 @@
     "closingBody": "Doorzoek duizenden advertenties, of plaats binnen een paar minuten je eigen advertentie.",
     "startSearching": "Begin met zoeken",
     "postAd": "Plaats een advertentie"
+  },
+  "GetApp": {
+    "metaTitle": "Download de app",
+    "title": "MarketitNow op je telefoon",
+    "intro": "Zet MarketitNow op je beginscherm en open het zoals elke andere app: schermvullend, met één tik, zonder app store.",
+    "installButton": "App installeren",
+    "installedTitle": "Je gebruikt de app",
+    "installedBody": "MarketitNow is geïnstalleerd op dit apparaat. Open het wanneer je wilt vanaf je beginscherm.",
+    "justInstalled": "Geïnstalleerd! Je vindt MarketitNow nu op je beginscherm.",
+    "iosTitle": "Installeren op iPhone of iPad",
+    "iosStep1": "Tik op de deelknop in de werkbalk van je browser (het vierkantje met een pijl omhoog).",
+    "iosStep2": "Scrol omlaag en tik op ‘Zet op beginscherm’.",
+    "iosStep3": "Tik op ‘Voeg toe’. MarketitNow staat nu op je beginscherm.",
+    "androidTitle": "Installeren op Android",
+    "androidStep1": "Open het menu van je browser (⋮, rechtsboven).",
+    "androidStep2": "Tik op ‘App installeren’ of ‘Toevoegen aan startscherm’.",
+    "androidStep3": "Bevestig. MarketitNow staat nu op je startscherm.",
+    "desktopTitle": "Installeren op deze computer",
+    "desktopBody": "Klik in Chrome of Edge op het installatie-icoon rechts in de adresbalk. Wil je MarketitNow op je telefoon? Open daar marketitnow.net/app.",
+    "inAppTitle": "Open deze pagina eerst in je browser",
+    "inAppBody": "Apps zoals Instagram en Facebook openen links in hun eigen ingebouwde browser, en die kan geen apps installeren. Tik op het menu (⋯), kies ‘Openen in browser’ en installeer het daar.",
+    "benefitsTitle": "Waarom installeren?",
+    "benefit1Title": "Eén tik verwijderd",
+    "benefit1Body": "Opent direct vanaf je beginscherm, schermvullend, zonder adresbalk.",
+    "benefit2Title": "Licht en snel",
+    "benefit2Body": "Neemt bijna geen opslagruimte in en laadt snel, ook met een trage verbinding.",
+    "benefit3Title": "Altijd up-to-date",
+    "benefit3Body": "Niets bij te werken. Je hebt automatisch altijd de nieuwste versie.",
+    "otherDevicesTitle": "Instructies voor andere apparaten"
   }
 }

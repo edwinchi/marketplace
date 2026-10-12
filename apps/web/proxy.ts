@@ -47,7 +47,11 @@ export async function proxy(request: NextRequest) {
   // sent (payments, subscription updates, Connect account status) was silently dropped before it
   // ever reached the route's own signature check. API routes authenticate themselves (this one via
   // the Stripe signature, same as any future one should), not via this cookie-based gate.
-  const PUBLIC_PATHS = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth", "/help", "/terms", "/safety", "/welcome", "/admin", "/api", "/robots.txt", "/sitemap.xml"];
+  // The app-install files (/app page, manifest, service worker, its offline page, and
+  // /.well-known for Android app-link verification) must be reachable signed-out: a browser
+  // fetching the manifest or sw.js gets the /login redirect instead, so the site silently wasn't
+  // installable for anyone not already signed in.
+  const PUBLIC_PATHS = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth", "/help", "/terms", "/safety", "/welcome", "/admin", "/api", "/robots.txt", "/sitemap.xml", "/app", "/manifest.webmanifest", "/sw.js", "/offline.html", "/.well-known"];
   const { pathname } = request.nextUrl;
   const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 

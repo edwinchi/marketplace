@@ -25,7 +25,8 @@
     "postAdShort": "Déposer",
     "account": "Compte",
     "searchPlaceholder": "Rechercher des annonces…",
-    "search": "Rechercher"
+    "search": "Rechercher",
+    "getTheApp": "Télécharger l'app"
   },
   "AccountMenu": {
     "profile": "Profil",
@@ -413,5 +414,34 @@
     "closingBody": "Parcourez des milliers d'annonces, ou publiez la vôtre en quelques minutes.",
     "startSearching": "Commencer la recherche",
     "postAd": "Publier une annonce"
+  },
+  "GetApp": {
+    "metaTitle": "Télécharger l'app",
+    "title": "MarketitNow sur votre téléphone",
+    "intro": "Ajoutez MarketitNow à votre écran d'accueil et ouvrez-le comme n'importe quelle autre app : en plein écran, en un geste, sans passer par une boutique d'applications.",
+    "installButton": "Installer l'app",
+    "installedTitle": "Vous utilisez l'app",
+    "installedBody": "MarketitNow est installé sur cet appareil. Ouvrez-le à tout moment depuis votre écran d'accueil.",
+    "justInstalled": "Installé ! Vous trouverez MarketitNow sur votre écran d'accueil.",
+    "iosTitle": "Installer sur iPhone ou iPad",
+    "iosStep1": "Touchez le bouton Partager dans la barre d'outils de votre navigateur (le carré avec une flèche vers le haut).",
+    "iosStep2": "Faites défiler et touchez « Sur l'écran d'accueil ».",
+    "iosStep3": "Touchez « Ajouter ». MarketitNow apparaît sur votre écran d'accueil.",
+    "androidTitle": "Installer sur Android",
+    "androidStep1": "Ouvrez le menu de votre navigateur (⋮, en haut à droite).",
+    "androidStep2": "Touchez « Installer l'application » ou « Ajouter à l'écran d'accueil ».",
+    "androidStep3": "Confirmez. MarketitNow apparaît sur votre écran d'accueil.",
+    "desktopTitle": "Installer sur cet ordinateur",
+    "desktopBody": "Dans Chrome ou Edge, cliquez sur l'icône d'installation à droite de la barre d'adresse. Pour avoir MarketitNow sur votre téléphone, ouvrez-y marketitnow.net/app.",
+    "inAppTitle": "Ouvrez d'abord cette page dans votre navigateur",
+    "inAppBody": "Des apps comme Instagram et Facebook ouvrent les liens dans leur propre navigateur intégré, qui ne peut pas installer d'applications. Touchez le menu (⋯), choisissez « Ouvrir dans le navigateur », puis installez depuis celui-ci.",
+    "benefitsTitle": "Pourquoi l'installer ?",
+    "benefit1Title": "À portée de doigt",
+    "benefit1Body": "S'ouvre directement depuis votre écran d'accueil, en plein écran, sans barre d'adresse.",
+    "benefit2Title": "Léger et rapide",
+    "benefit2Body": "N'occupe presque pas d'espace de stockage et se charge vite, même avec une connexion lente.",
+    "benefit3Title": "Toujours à jour",
+    "benefit3Body": "Rien à mettre à jour : vous avez automatiquement la dernière version.",
+    "otherDevicesTitle": "Instructions pour les autres appareils"
   }
 }

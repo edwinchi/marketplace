@@ -25,7 +25,8 @@
     "postAdShort": "发布",
     "account": "账户",
     "searchPlaceholder": "搜索广告…",
-    "search": "搜索"
+    "search": "搜索",
+    "getTheApp": "下载应用"
   },
   "AccountMenu": {
     "profile": "个人资料",
@@ -413,5 +414,34 @@
     "closingBody": "搜索数千条广告，或在几分钟内发布您自己的广告。",
     "startSearching": "开始搜索",
     "postAd": "发布广告"
+  },
+  "GetApp": {
+    "metaTitle": "下载应用",
+    "title": "手机上的 MarketitNow",
+    "intro": "将 MarketitNow 添加到主屏幕，像其他应用一样打开：全屏显示，一点即开，无需应用商店。",
+    "installButton": "安装应用",
+    "installedTitle": "您正在使用应用",
+    "installedBody": "MarketitNow 已安装在此设备上。随时从主屏幕打开即可。",
+    "justInstalled": "安装成功！您可以在主屏幕上找到 MarketitNow。",
+    "iosTitle": "在 iPhone 或 iPad 上安装",
+    "iosStep1": "点按浏览器工具栏中的“分享”按钮（带向上箭头的方框）。",
+    "iosStep2": "向下滚动，点按“添加到主屏幕”。",
+    "iosStep3": "点按“添加”。MarketitNow 将出现在您的主屏幕上。",
+    "androidTitle": "在 Android 上安装",
+    "androidStep1": "打开浏览器菜单（右上角的 ⋮）。",
+    "androidStep2": "点按“安装应用”或“添加到主屏幕”。",
+    "androidStep3": "确认后，MarketitNow 将出现在您的主屏幕上。",
+    "desktopTitle": "在此电脑上安装",
+    "desktopBody": "在 Chrome 或 Edge 中，点击地址栏右侧的安装图标。如需在手机上使用 MarketitNow，请在手机上打开 marketitnow.net/app。",
+    "inAppTitle": "请先在浏览器中打开此页面",
+    "inAppBody": "Instagram、Facebook 等应用会在其内置浏览器中打开链接，而内置浏览器无法安装应用。请点按菜单（⋯），选择“在浏览器中打开”，然后在浏览器中安装。",
+    "benefitsTitle": "为什么要安装？",
+    "benefit1Title": "一点即开",
+    "benefit1Body": "直接从主屏幕全屏打开，没有浏览器地址栏。",
+    "benefit2Title": "轻巧快速",
+    "benefit2Body": "几乎不占用存储空间，即使网络较慢也能快速加载。",
+    "benefit3Title": "始终保持最新",
+    "benefit3Body": "无需手动更新，您始终自动使用最新版本。",
+    "otherDevicesTitle": "其他设备的安装说明"
   }
 }

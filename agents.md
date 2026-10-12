@@ -971,3 +971,41 @@ Only once verified: `next.config.ts` has a `redirects()` rule, gated behind the
 purpose — enabling it before `marketitnow.net` is actually attached/verified would redirect 100% of
 live traffic to a domain serving nothing, i.e. a self-inflicted outage. Flip it on by setting
 `REDIRECT_AFRODEALS_TO_MARKETITNOW=1` in Vercel's Production env vars and redeploying.
+
+## 14. Mobile app — installable web app now, store listings later
+
+**What exists (2026-10-12):** MarketitNow installs to iOS and Android home screens as a web app
+(PWA); there is no App Store / Google Play listing yet, so nothing in the UI shows store badges.
+- `app/manifest.ts` — name, `id`, standalone display, `any` + `maskable` icons, home-screen
+  shortcuts. Icons (`public/icon-192.png`, `icon-512.png`, `icon-maskable-512.png`,
+  `app/icon.png`, `app/apple-icon.png`) are cut from the master logo's cart+globe mark;
+  `apple-icon` is opaque white on purpose (iOS paints transparent icon backgrounds black).
+- `public/sw.js` (registered production-only by `components/pwa/service-worker-register.tsx`) —
+  network-only for pages (never caches per-user HTML), cache-first for hashed `/_next/static/*`
+  (capped at 250 entries), precached `public/offline.html` (5-language, picks device language)
+  when a navigation fails offline. Bump its `VERSION` when the precache list/offline page changes.
+- `/app` ("Get the app", linked from the footer and the mobile menu) — `components/pwa/install-app.tsx`
+  shows the real browser install button where `beforeinstallprompt` exists (Chrome/Edge/Samsung;
+  captured app-wide by `lib/pwa-install.ts`, plus an inline `<head>` catcher for prompts that fire
+  before hydration), Share → Add to Home Screen steps on iOS (no install API there in any browser),
+  menu steps on other Android browsers, and "open in your browser first" inside
+  Instagram/Facebook/TikTok webviews.
+- `proxy.ts` `PUBLIC_PATHS` includes `/app`, `/manifest.webmanifest`, `/sw.js`, `/offline.html`,
+  `/.well-known` — before this, the "require login" gate redirected a signed-out browser's
+  manifest fetch to `/login`, so the site wasn't installable for anyone not signed in.
+
+**Known iOS limitation:** a home-screen web app on iOS has its own cookie jar, and OAuth (Google
+sign-in) leaves the app for a Safari sheet — the session may land there instead of in the app.
+Email/password sign-in inside the installed app is unaffected. Verify on a real iPhone before
+promoting Google sign-in to installed-app users.
+
+**Getting into the stores (needs accounts, not just code):**
+- **Google Play** — wrap the PWA as a Trusted Web Activity (Bubblewrap or pwabuilder.com) with a
+  Play Console developer account (one-time fee). Then set `ANDROID_APP_PACKAGE` and
+  `ANDROID_APP_SHA256_FINGERPRINTS` (Play Console → App integrity → app signing key) in Vercel;
+  `app/.well-known/assetlinks.json/route.ts` returns `[]` until both are set, and serves the
+  Digital Asset Links statement that lets the TWA run full screen without a URL bar afterwards.
+- **Apple App Store** — needs an Apple Developer Program membership (annual fee) and a native
+  wrapper (e.g. Capacitor) built and signed in Xcode on a Mac. Apple guideline 4.2 rejects apps
+  that are "just a website", so a store build needs genuine native value (push notifications,
+  camera-first posting, etc.), not only a WebView of this site.

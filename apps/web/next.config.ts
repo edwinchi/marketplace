@@ -56,6 +56,12 @@ const nextConfig: NextConfig = {
   // abandoned integration, not a real dependency; left out of this policy on purpose.)
   headers: async () => [
     {
+      // Always revalidated, so a fixed or updated service worker reaches users on their next visit
+      // instead of an old copy lingering in a browser or CDN cache.
+      source: "/sw.js",
+      headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }],
+    },
+    {
       source: "/:path*",
       headers: [
         // 2 years, includes subdomains -- safe to set unconditionally since the site has been

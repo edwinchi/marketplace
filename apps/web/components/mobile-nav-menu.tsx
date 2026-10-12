@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Menu, X, MessageCircle, Bell, User, PackagePlus, BookOpen } from "lucide-react";
+import { Menu, X, MessageCircle, Bell, User, PackagePlus, BookOpen, Smartphone } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 // Hamburger for the mobile header's secondary controls. Messages/Notifications/Account/Post an ad
@@ -84,6 +84,12 @@ export function MobileNavMenu({
               <Link href="/welcome" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]">
                 <BookOpen className="size-4 text-muted-foreground" />
                 {t("howItWorks")}
+              </Link>
+            </li>
+            <li>
+              <Link href="/app" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]">
+                <Smartphone className="size-4 text-muted-foreground" />
+                {t("getTheApp")}
               </Link>
             </li>
             <li>
