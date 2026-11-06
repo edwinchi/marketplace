@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { getCategoriesAndAttributes } from "@/lib/categories";
 import { updateListing } from "@/app/listings/actions";
 import { getAiUsageStatus } from "@/app/listings/new/analyze-photo-action";
@@ -18,7 +18,7 @@ import { tierFromBoostRank } from "@/lib/listing-tiers";
 // decoration needed here since this page is owner-only, never shared/indexed.
 export default async function EditListingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
   if (!profile) redirect("/login");
 
   const supabase = await createClient();

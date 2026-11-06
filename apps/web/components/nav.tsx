@@ -2,7 +2,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { Home, PlusCircle, User, MessageCircle, Bell, PackagePlus, Search } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { getUnreadMessageCount } from "@/lib/messages";
 import { getUnreadNotificationCount } from "@/lib/notifications";
 import { getDisabledLocales } from "@/lib/language-settings";
@@ -17,7 +17,7 @@ import { MessageSoundNotifier } from "@/components/message-sound-notifier";
 import { SearchQueryInput } from "@/components/search-query-input";
 
 export async function Nav() {
-  const { user, profile } = await getCurrentUserAndProfile();
+  const { user, profile } = await getCurrentUserAndProfileForRender();
   const [unreadCount, unreadNotifications] = await Promise.all([
     profile ? getUnreadMessageCount(profile.id) : Promise.resolve(0),
     profile ? getUnreadNotificationCount(profile.id) : Promise.resolve(0),
@@ -70,7 +70,7 @@ export async function Nav() {
             accountName={profile?.username || t("myAccount")}
             unreadCount={unreadCount}
           />
-          <Link href="/" aria-label="MarketitNow home" className="flex min-w-0 flex-1 justify-center px-2">
+          <Link href="/" aria-label={t("home")} className="flex min-w-0 flex-1 justify-center px-2">
             {/* logo-compact.svg: vector (sharp at any pixel density), no swoosh, cropped tight.
                 Centred in the space between the menu button and the icons rather than on the
                 screen: absolutely centred, the 171px-wide logo ran under the search icon on a
@@ -115,7 +115,7 @@ export async function Nav() {
             background, letting scrolled-past page content show through there while stuck. */}
         <div className="hidden border-b bg-background sm:block">
           <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-            <Link href="/" aria-label="MarketitNow home" className="shrink-0">
+            <Link href="/" aria-label={t("home")} className="shrink-0">
               {/* Plain <img>, not next/image — this is a small, rarely-changing static brand
                   asset, and Next's dynamic image-optimizer route (/_next/image) has shown
                   ETag/conditional-request staleness in dev that a source-file replacement didn't

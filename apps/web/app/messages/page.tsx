@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ShieldAlert, MessageCircle, MapPin } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { ConversationList } from "@/components/messages/conversation-list";
 import { MessageComposer } from "@/components/messages/message-composer";
 import { MarkRead } from "@/components/messages/mark-read";
@@ -44,7 +44,7 @@ async function fetchMessages(supabase: Awaited<ReturnType<typeof createClient>>,
 }
 
 export default async function MessagesPage({ searchParams }: { searchParams: Promise<{ c?: string }> }) {
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
   if (!profile) redirect("/login");
 
   const { c: activeConversationId } = await searchParams;

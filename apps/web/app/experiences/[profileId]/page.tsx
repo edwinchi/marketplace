@@ -1,4 +1,4 @@
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { ReviewsDisplay } from "@/components/reviews-display";
 
 // The general "view this seller's reviews" page — reachable from a listing's seller card, or
@@ -6,7 +6,7 @@ import { ReviewsDisplay } from "@/components/reviews-display";
 // the same component, not a separate implementation.
 export default async function SellerReviewsPage({ params }: { params: Promise<{ profileId: string }> }) {
   const { profileId } = await params;
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">

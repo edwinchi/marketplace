@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { unstable_cache } from "next/cache";
 import { BarChart3, Eye, Heart, MessageCircle, Handshake, Camera, Clock, Lock, TrendingUp } from "lucide-react";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import { isSellerProSubscriber } from "@/lib/seller-pro";
 import { callFreeTextModel } from "@/lib/ai-text";
@@ -64,7 +64,7 @@ function daysSince(iso: string): number {
 }
 
 export default async function SellerInsightsPage() {
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
   if (!profile) redirect("/login");
 
   const isSubscriber = await isSellerProSubscriber();

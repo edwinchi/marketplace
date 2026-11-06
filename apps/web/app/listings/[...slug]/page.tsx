@@ -5,7 +5,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { MessageCircle, Globe, Calendar, Fuel, Cog, Gauge, Tag, Phone, Eye, Heart } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { getCategoryPath } from "@/lib/categories";
 import { formatPrice } from "@/lib/money";
 import { getExchangeRates } from "@/lib/exchange-rates";
@@ -110,7 +110,7 @@ export default async function ListingPage({
   const { order: orderResult, error: paymentError, bump: bumpResult } = await searchParams;
   const id = idFromSlugSegments(slug);
   const supabase = await createClient();
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
   const [t, locale, displayCurrency] = await Promise.all([getTranslations("Listing"), getLocale(), getDisplayCurrency()]);
   const rates = displayCurrency ? await getExchangeRates() : null;
 

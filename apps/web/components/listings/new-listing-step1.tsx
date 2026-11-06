@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Sparkles, Camera, X, Car, Flag } from "lucide-react";
@@ -94,6 +95,7 @@ export function NewListingStep1({
   initialUsesLeft: number;
   freeLimit: number;
 }) {
+  const t = useTranslations("Listing");
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [matches, setMatches] = useState<CategoryMatch[] | null>(null);
@@ -280,7 +282,7 @@ export function NewListingStep1({
                   {!analyzing && (
                     <button
                       type="button"
-                      aria-label="Remove photo"
+                      aria-label={t("photoRemove")}
                       onClick={() => removePhoto(i)}
                       className="absolute top-0.5 right-0.5 flex size-5 items-center justify-center rounded-full bg-background/90"
                     >

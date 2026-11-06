@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { Gift, Users } from "lucide-react";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteOrigin } from "@/lib/site-url";
 import { getNumericSetting } from "@/lib/numeric-settings";
@@ -9,7 +9,7 @@ import { ReferralLinkBox } from "@/components/referral-link-box";
 // account_number doubles as the referral code (see supabase/migrations/20260101006500_referral_loop.sql)
 // -- already a unique, stable, human-typeable id on every profile, so no separate code needed.
 export default async function ReferralsPage() {
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
   if (!profile) redirect("/login");
 
   const supabase = await createClient();

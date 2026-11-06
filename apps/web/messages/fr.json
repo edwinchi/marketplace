@@ -5,7 +5,11 @@
     "sortBy": "Trier par",
     "sortNewest": "Plus récents d'abord",
     "sortPriceAsc": "Prix : croissant",
-    "sortPriceDesc": "Prix : décroissant"
+    "sortPriceDesc": "Prix : décroissant",
+    "sendMessage": "Envoyer le message",
+    "sendAddress": "Envoyer l'adresse",
+    "cancelShareAddress": "Annuler le partage de l'adresse",
+    "clearSearch": "Effacer la recherche"
   },
   "Listen": {
     "listen": "Écouter",
@@ -32,7 +36,8 @@
     "search": "Rechercher",
     "getTheApp": "Télécharger l'app",
     "language": "Langue",
-    "currency": "Devise"
+    "currency": "Devise",
+    "home": "Accueil MarketitNow"
   },
   "AccountMenu": {
     "profile": "Profil",
@@ -107,7 +112,8 @@
     "heroHeadingLine2": "pour les {name}",
     "heroSubtext": "Des annonces réelles de vendeurs du monde entier.",
     "metaTitle": "{name} à vendre",
-    "metaDescription": "Achetez, vendez et faites de la publicité pour les {name} sur MarketitNow — des annonces réelles sous {breadcrumb}, publiées par des vendeurs du monde entier."
+    "metaDescription": "Achetez, vendez et faites de la publicité pour les {name} sur MarketitNow — des annonces réelles sous {breadcrumb}, publiées par des vendeurs du monde entier.",
+    "breadcrumb": "Fil d'Ariane"
   },
   "Listing": {
     "characteristics": "Caractéristiques",
@@ -178,7 +184,10 @@
     "photoNext": "Photo suivante",
     "photoViewFull": "Voir en taille réelle",
     "photoClose": "Fermer",
-    "photoOf": "Photo {n} sur {total}"
+    "photoOf": "Photo {n} sur {total}",
+    "photoRemove": "Supprimer la photo",
+    "photoMoveEarlier": "Déplacer la photo vers l'avant",
+    "photoMoveLater": "Déplacer la photo vers l'arrière"
   },
   "Home": {
     "metaTitle": "Achetez et vendez voitures, électronique, meubles et plus",
@@ -199,7 +208,9 @@
     "noListingsYet": "Aucune annonce pour le moment.",
     "relatedToYourSearch": "En rapport avec votre recherche",
     "beTheFirst": "Soyez le premier à en publier une.",
-    "categoryLabel": "Catégorie"
+    "categoryLabel": "Catégorie",
+    "distanceLabel": "Distance",
+    "pagination": "Pagination"
   },
   "Profile": {
     "title": "Profil",

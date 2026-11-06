@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Flag, Check } from "lucide-react";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { isAdminEmail } from "@/lib/admin";
 import { createServiceClient } from "@/lib/supabase/service";
 import { buttonVariants, Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import { markAiReportReviewed } from "@/app/admin/ai-reports-actions";
 // new-listing-step1.tsx's ReportAiOutput and supabase/migrations/20260101008600_ai_output_reports.sql.
 // Same service-role-read, admin-only shape as the existing moderation queue.
 export default async function AiReportsPage() {
-  const { user } = await getCurrentUserAndProfile();
+  const { user } = await getCurrentUserAndProfileForRender();
   if (!user || !isAdminEmail(user.email)) redirect("/admin");
 
   const supabase = createServiceClient();

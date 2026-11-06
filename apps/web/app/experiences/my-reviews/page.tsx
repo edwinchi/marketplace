@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { ReviewsDisplay } from "@/components/reviews-display";
 
 export default async function MyReviewsPage() {
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
   if (!profile) redirect("/login");
 
   return (

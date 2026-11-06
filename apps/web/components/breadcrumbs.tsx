@@ -9,7 +9,7 @@ export async function Breadcrumbs({ path }: { path: Crumb[] }) {
   const t = await getTranslations("Categories");
 
   return (
-    <nav aria-label="Breadcrumb" className="mb-4 flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
+    <nav aria-label={t("breadcrumb")} className="mb-4 flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
       <Link href="/" className="flex items-center gap-1 transition-colors hover:text-foreground">
         <Home className="size-3.5" />
         {t("home")}

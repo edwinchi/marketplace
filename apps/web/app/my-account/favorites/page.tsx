@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import { Heart } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { ListingGrid } from "@/components/listing-grid";
 import { CategoryFilterSelect } from "@/components/category-filter-select";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ export default async function FavoritesPage({
 }: {
   searchParams: Promise<{ category?: string }>;
 }) {
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
   if (!profile) redirect("/login");
 
   const { category } = await searchParams;

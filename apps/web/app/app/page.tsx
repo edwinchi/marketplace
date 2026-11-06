@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { RefreshCw, Smartphone, Zap } from "lucide-react";
 import { InstallApp, InstallSteps } from "@/components/pwa/install-app";
+import { RouteMessages } from "@/components/route-messages";
 
 // "Get the app" -- MarketitNow installs to a phone's home screen as a web app (app/manifest.ts +
 // public/sw.js), not through the App Store or Google Play: there's no store listing yet, so this
@@ -30,7 +31,7 @@ export default async function GetAppPage() {
         <p className="mt-3 max-w-lg text-base text-pretty text-muted-foreground">{t("intro")}</p>
       </div>
 
-      <InstallApp />
+      <RouteMessages namespaces={["GetApp"]}><InstallApp /></RouteMessages>
 
       <section className="mt-10">
         <h2 className="mb-4 text-lg font-semibold text-[#082040]">{t("benefitsTitle")}</h2>
@@ -53,13 +54,13 @@ export default async function GetAppPage() {
           <details className="rounded-xl border p-4">
             <summary className="cursor-pointer font-medium">{t("iosTitle")}</summary>
             <div className="mt-4">
-              <InstallSteps steps={[t("iosStep1"), t("iosStep2"), t("iosStep3")]} />
+              <RouteMessages namespaces={["GetApp"]}><InstallSteps steps={[t("iosStep1"), t("iosStep2"), t("iosStep3")]} /></RouteMessages>
             </div>
           </details>
           <details className="rounded-xl border p-4">
             <summary className="cursor-pointer font-medium">{t("androidTitle")}</summary>
             <div className="mt-4">
-              <InstallSteps steps={[t("androidStep1"), t("androidStep2"), t("androidStep3")]} />
+              <RouteMessages namespaces={["GetApp"]}><InstallSteps steps={[t("androidStep1"), t("androidStep2"), t("androidStep3")]} /></RouteMessages>
             </div>
           </details>
           <details className="rounded-xl border p-4">

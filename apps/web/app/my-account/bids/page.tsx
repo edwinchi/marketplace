@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Handshake } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { formatPrice } from "@/lib/money";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import { slugPath } from "@/lib/slug";
 // on each of the seller's own listing pages (offer-box.tsx); this is the buyer's equivalent, one
 // list across every listing they've made an offer on, rather than having to revisit each listing.
 export default async function OffersPage() {
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
   if (!profile) redirect("/login");
 
   const [t, locale] = await Promise.all([getTranslations("Bids"), getLocale()]);

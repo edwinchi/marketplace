@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Send, ImagePlus, MapPin, X } from "lucide-react";
 import { sendMessage, sendMessagePhoto, sendMessageAddress } from "@/app/messages/actions";
@@ -10,6 +11,7 @@ import { Button } from "@/components/ui/button";
 // project collects no street-address field), just a starting point they edit and confirm before
 // anything is sent. See sendMessageAddress's own comment for why this isn't auto-filled/auto-sent.
 export function MessageComposer({ conversationId, addressStarter }: { conversationId: string; addressStarter: string }) {
+  const t = useTranslations("Common");
   const [value, setValue] = useState("");
   const [addressOpen, setAddressOpen] = useState(false);
   const [addressValue, setAddressValue] = useState(addressStarter);
@@ -84,7 +86,7 @@ export function MessageComposer({ conversationId, addressStarter }: { conversati
           type="submit"
           size="icon"
           disabled={pending || !value.trim()}
-          aria-label="Send message"
+          aria-label={t("sendMessage")}
           className="size-10 shrink-0 rounded-full bg-[#008200] text-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:bg-[#d4f5d4] hover:text-[#006800] hover:shadow-md disabled:hover:translate-y-0 disabled:hover:bg-[#008200] disabled:hover:text-white"
         >
           <Send className="size-4" />
@@ -135,7 +137,7 @@ export function MessageComposer({ conversationId, addressStarter }: { conversati
               size="icon"
               disabled={pending || !addressValue.trim()}
               onClick={submitAddress}
-              aria-label="Send address"
+              aria-label={t("sendAddress")}
               className="size-10 shrink-0 rounded-full bg-[#008200] text-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:bg-[#d4f5d4] hover:text-[#006800]"
             >
               <Send className="size-4" />
@@ -145,7 +147,7 @@ export function MessageComposer({ conversationId, addressStarter }: { conversati
               variant="ghost"
               size="icon"
               onClick={() => setAddressOpen(false)}
-              aria-label="Cancel sharing address"
+              aria-label={t("cancelShareAddress")}
               className="size-10 shrink-0 rounded-full"
             >
               <X className="size-4" />

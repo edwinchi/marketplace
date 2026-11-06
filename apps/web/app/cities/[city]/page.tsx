@@ -5,7 +5,7 @@ import { PackagePlus } from "lucide-react";
 import { getTargetCity } from "@/lib/target-cities";
 import { getCountryName } from "@/lib/countries";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { getCategoriesAndAttributes } from "@/lib/categories";
 import { slugPath } from "@/lib/slug";
 import { ListingGrid } from "@/components/listing-grid";
@@ -37,7 +37,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
   if (!target) notFound();
 
   const supabase = await createClient();
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
 
   const [{ data: listings }, { data: favorites }, { topLevelCategories }] = await Promise.all([
     supabase

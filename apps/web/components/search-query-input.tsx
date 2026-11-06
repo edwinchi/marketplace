@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
@@ -11,6 +12,7 @@ import { Input } from "@/components/ui/input";
 // can actually clear it -- [&::-webkit-search-cancel-button]:appearance-none turns off the
 // browser's own native clear icon for type="search" so this one doesn't double up with it.
 export function SearchQueryInput({ name, placeholder, defaultValue }: { name: string; placeholder: string; defaultValue?: string }) {
+  const t = useTranslations("Common");
   const [value, setValue] = useState(defaultValue ?? "");
 
   return (
@@ -27,7 +29,7 @@ export function SearchQueryInput({ name, placeholder, defaultValue }: { name: st
         <button
           type="button"
           onClick={() => setValue("")}
-          aria-label="Clear search"
+          aria-label={t("clearSearch")}
           className="absolute top-1/2 right-1.5 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-brand-green/10 hover:text-foreground"
         >
           <X className="size-3.5" />

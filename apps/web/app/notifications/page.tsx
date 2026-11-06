@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Bell, Megaphone, Truck, TrendingDown, Search, Undo2 } from "lucide-react";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Notifications — MarketitNow" };
@@ -19,7 +19,7 @@ type NotificationRow = {
 const ICONS: Record<string, typeof Bell> = { new_listing: Megaphone, order_shipped: Truck, price_drop: TrendingDown, saved_search_match: Search, order_refunded: Undo2 };
 
 export default async function NotificationsPage() {
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
   if (!profile) redirect("/login");
 
   const supabase = await createClient();

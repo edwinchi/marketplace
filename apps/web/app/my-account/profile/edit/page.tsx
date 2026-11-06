@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import { updateProfile } from "./actions";
 import { DeleteAccountButton } from "@/components/delete-account-button";
@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function EditProfilePage() {
-  const { user, profile } = await getCurrentUserAndProfile();
+  const { user, profile } = await getCurrentUserAndProfileForRender();
   if (!user || !profile) redirect("/login");
 
   // Separate, best-effort query — see the matching comment in my-account/profile/page.tsx.

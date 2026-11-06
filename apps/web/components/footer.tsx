@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getFooterCategories } from "@/lib/categories";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { TARGET_CITIES } from "@/lib/target-cities";
 import { slugPath } from "@/lib/slug";
 
@@ -11,7 +11,7 @@ import { slugPath } from "@/lib/slug";
 // integration all got the same treatment). Same reasoning kept "About/Careers/Press/sister sites"
 // out — MarketitNow has no such corporate structure to link to.
 export async function Footer() {
-  const { user } = await getCurrentUserAndProfile();
+  const { user } = await getCurrentUserAndProfileForRender();
   const [categories, t, tNav] = await Promise.all([
     // Browsing is sign-in-gated site-wide right now (see proxy.ts) — an anonymous visitor
     // clicking any of these would just bounce straight back to /login, so skip both the query

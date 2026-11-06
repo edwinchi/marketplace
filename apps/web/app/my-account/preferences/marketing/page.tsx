@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileToggle } from "@/components/profile-toggle";
 import { Card, CardContent } from "@/components/ui/card";
@@ -38,7 +38,7 @@ const CATEGORIES = [
 // same honest-not-yet framing as the rest of Marketing preferences: real per-category columns,
 // genuinely saved, just nothing reads them yet.
 export default async function MarketingPreferencesPage() {
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
   if (!profile) redirect("/login");
 
   const supabase = await createClient();

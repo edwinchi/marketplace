@@ -3,14 +3,14 @@ import { isUserEmailConfigured } from "@/lib/resend";
 import Link from "next/link";
 import { Search, Info, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { deleteSavedSearch } from "./actions";
 import { SavedSearchToggle } from "@/components/saved-search-toggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default async function SavedSearchesPage() {
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
   if (!profile) redirect("/login");
 
   const emailOn = isUserEmailConfigured();

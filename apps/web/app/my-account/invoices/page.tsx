@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { FileText } from "lucide-react";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileToggle } from "@/components/profile-toggle";
 import { buttonVariants } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import { buttonVariants } from "@/components/ui/button";
 // currently-unused query on this account hub. The monthly-invoice-by-email opt-in below is real
 // and genuinely saved, even though nothing sends that email yet.
 export default async function InvoicesPage() {
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
   if (!profile) redirect("/login");
 
   const supabase = await createClient();

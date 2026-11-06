@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { DocumentPage, Section, CheckItem } from "@/components/documents/document-page";
 
 export default async function BuyingChecklistPage() {
-  const { user } = await getCurrentUserAndProfile();
+  const { user } = await getCurrentUserAndProfileForRender();
   if (!user) redirect("/login");
 
   return (

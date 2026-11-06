@@ -5,7 +5,11 @@
     "sortBy": "Sorteren op",
     "sortNewest": "Nieuwste eerst",
     "sortPriceAsc": "Prijs: laag naar hoog",
-    "sortPriceDesc": "Prijs: hoog naar laag"
+    "sortPriceDesc": "Prijs: hoog naar laag",
+    "sendMessage": "Bericht versturen",
+    "sendAddress": "Adres versturen",
+    "cancelShareAddress": "Adres delen annuleren",
+    "clearSearch": "Zoekopdracht wissen"
   },
   "Listen": {
     "listen": "Luisteren",
@@ -32,7 +36,8 @@
     "search": "Zoeken",
     "getTheApp": "Download de app",
     "language": "Taal",
-    "currency": "Valuta"
+    "currency": "Valuta",
+    "home": "MarketitNow startpagina"
   },
   "AccountMenu": {
     "profile": "Profiel",
@@ -107,7 +112,8 @@
     "heroHeadingLine2": "{name}",
     "heroSubtext": "Echte advertenties van verkopers van over de hele wereld.",
     "metaTitle": "{name} te koop",
-    "metaDescription": "Koop, verkoop, adverteer {name} op MarketitNow — echte advertenties onder {breadcrumb}, van verkopers van over de hele wereld."
+    "metaDescription": "Koop, verkoop, adverteer {name} op MarketitNow — echte advertenties onder {breadcrumb}, van verkopers van over de hele wereld.",
+    "breadcrumb": "Kruimelpad"
   },
   "Listing": {
     "characteristics": "Kenmerken",
@@ -178,7 +184,10 @@
     "photoNext": "Volgende foto",
     "photoViewFull": "Volledig formaat bekijken",
     "photoClose": "Sluiten",
-    "photoOf": "Foto {n} van {total}"
+    "photoOf": "Foto {n} van {total}",
+    "photoRemove": "Foto verwijderen",
+    "photoMoveEarlier": "Foto naar voren",
+    "photoMoveLater": "Foto naar achteren"
   },
   "Home": {
     "metaTitle": "Auto's, elektronica, meubels en meer kopen en verkopen",
@@ -199,7 +208,9 @@
     "noListingsYet": "Nog geen advertenties.",
     "relatedToYourSearch": "Gerelateerd aan je zoekopdracht",
     "beTheFirst": "Wees de eerste die er een plaatst.",
-    "categoryLabel": "Categorie"
+    "categoryLabel": "Categorie",
+    "distanceLabel": "Afstand",
+    "pagination": "Paginering"
   },
   "Profile": {
     "title": "Profiel",

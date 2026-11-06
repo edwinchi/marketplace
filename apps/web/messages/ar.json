@@ -5,7 +5,11 @@
     "sortBy": "ترتيب حسب",
     "sortNewest": "الأحدث أولاً",
     "sortPriceAsc": "السعر: من الأقل إلى الأعلى",
-    "sortPriceDesc": "السعر: من الأعلى إلى الأقل"
+    "sortPriceDesc": "السعر: من الأعلى إلى الأقل",
+    "sendMessage": "إرسال الرسالة",
+    "sendAddress": "إرسال العنوان",
+    "cancelShareAddress": "إلغاء مشاركة العنوان",
+    "clearSearch": "مسح البحث"
   },
   "Listen": {
     "listen": "استماع",
@@ -32,7 +36,8 @@
     "search": "بحث",
     "getTheApp": "حمّل التطبيق",
     "language": "اللغة",
-    "currency": "العملة"
+    "currency": "العملة",
+    "home": "الصفحة الرئيسية لـ MarketitNow"
   },
   "AccountMenu": {
     "profile": "الملف الشخصي",
@@ -107,7 +112,8 @@
     "heroHeadingLine2": "{name}",
     "heroSubtext": "إعلانات حقيقية من بائعين حول العالم.",
     "metaTitle": "{name} للبيع",
-    "metaDescription": "اشترِ وبِع وأعلن عن {name} على MarketitNow — إعلانات حقيقية ضمن {breadcrumb} من بائعين حول العالم."
+    "metaDescription": "اشترِ وبِع وأعلن عن {name} على MarketitNow — إعلانات حقيقية ضمن {breadcrumb} من بائعين حول العالم.",
+    "breadcrumb": "مسار التنقل"
   },
   "Listing": {
     "characteristics": "المواصفات",
@@ -178,7 +184,10 @@
     "photoNext": "الصورة التالية",
     "photoViewFull": "عرض بالحجم الكامل",
     "photoClose": "إغلاق",
-    "photoOf": "الصورة {n} من {total}"
+    "photoOf": "الصورة {n} من {total}",
+    "photoRemove": "إزالة الصورة",
+    "photoMoveEarlier": "تحريك الصورة للأمام",
+    "photoMoveLater": "تحريك الصورة للخلف"
   },
   "Home": {
     "metaTitle": "بيع وشراء السيارات والإلكترونيات والأثاث والمزيد",
@@ -199,7 +208,9 @@
     "noListingsYet": "لا توجد إعلانات بعد.",
     "relatedToYourSearch": "ذو صلة بعملية البحث",
     "beTheFirst": "كن أول من ينشر إعلانًا.",
-    "categoryLabel": "الفئة"
+    "categoryLabel": "الفئة",
+    "distanceLabel": "المسافة",
+    "pagination": "ترقيم الصفحات"
   },
   "Profile": {
     "title": "الملف الشخصي",

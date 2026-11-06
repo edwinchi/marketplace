@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Building2, Check, ShieldCheck } from "lucide-react";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import { startBusinessCheckout } from "@/app/my-account/business/checkout-action";
 import { openBillingPortal } from "@/app/my-account/ai-features/checkout-action";
@@ -25,7 +25,7 @@ export default async function BusinessPage({
 }: {
   searchParams: Promise<{ checkout?: string; error?: string }>;
 }) {
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
   if (!profile) redirect("/login");
   const { checkout, error } = await searchParams;
 

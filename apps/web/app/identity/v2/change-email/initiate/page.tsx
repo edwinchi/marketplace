@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { ChangeEmailForm } from "@/components/change-email-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 
 export default async function ChangeEmailPage() {
-  const { user, profile } = await getCurrentUserAndProfile();
+  const { user, profile } = await getCurrentUserAndProfileForRender();
   if (!user || !profile) redirect("/login");
 
   return (

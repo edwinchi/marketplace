@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Camera, ImagePlus, X, GripVertical, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { compressImageFile } from "@/lib/image";
@@ -11,6 +12,7 @@ const MAX_PHOTOS = 24;
 // accept File values natively) — no separate upload endpoint or client-side Supabase call
 // needed. This component only manages local selection, reordering, and preview.
 export function PhotoUpload({ initialFiles, onFilesChange }: { initialFiles?: File[]; onFilesChange?: (files: File[]) => void }) {
+  const t = useTranslations("Listing");
   const [files, setFiles] = useState<File[]>([]);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
 
@@ -114,7 +116,7 @@ export function PhotoUpload({ initialFiles, onFilesChange }: { initialFiles?: Fi
             <button
               type="button"
               onClick={() => removeAt(i)}
-              aria-label="Remove photo"
+              aria-label={t("photoRemove")}
               className="absolute top-1 right-1 flex size-7 items-center justify-center rounded-full bg-background/90"
             >
               <X className="size-4" />
@@ -124,7 +126,7 @@ export function PhotoUpload({ initialFiles, onFilesChange }: { initialFiles?: Fi
                 type="button"
                 onClick={() => moveTo(i, i - 1)}
                 disabled={i === 0}
-                aria-label="Move photo earlier"
+                aria-label={t("photoMoveEarlier")}
                 className="flex size-7 items-center justify-center rounded-full bg-background/90 disabled:opacity-30"
               >
                 <ChevronLeft className="size-4" />
@@ -133,7 +135,7 @@ export function PhotoUpload({ initialFiles, onFilesChange }: { initialFiles?: Fi
                 type="button"
                 onClick={() => moveTo(i, i + 1)}
                 disabled={i === files.length - 1}
-                aria-label="Move photo later"
+                aria-label={t("photoMoveLater")}
                 className="flex size-7 items-center justify-center rounded-full bg-background/90 disabled:opacity-30"
               >
                 <ChevronRight className="size-4" />

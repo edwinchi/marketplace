@@ -1,11 +1,11 @@
 import { redirect, notFound } from "next/navigation";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import { ReviewForm } from "@/components/review-form";
 
 export default async function LeaveReviewPage({ params }: { params: Promise<{ profileId: string }> }) {
   const { profileId } = await params;
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
   if (!profile) redirect("/login");
   if (profileId === profile.id) redirect(`/experiences/${profileId}`);
 

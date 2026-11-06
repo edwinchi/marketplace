@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Camera, ImagePlus, X, GripVertical, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { compressImageFile } from "@/lib/image";
@@ -27,6 +28,7 @@ type Item = { key: string } & ({ kind: "existing"; mediaId: string; url: string 
 export type CoverPhoto = { kind: "existing"; url: string } | { kind: "new"; file: File; previewUrl: string };
 
 export function EditPhotoManager({ initialPhotos, onCoverChange }: { initialPhotos: ExistingPhoto[]; onCoverChange?: (cover: CoverPhoto | null) => void }) {
+  const t = useTranslations("Listing");
   const [items, setItems] = useState<Item[]>(() => initialPhotos.map((p) => ({ key: p.id, kind: "existing", mediaId: p.id, url: p.url })));
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const newKeyCounter = useRef(0);
@@ -129,7 +131,7 @@ export function EditPhotoManager({ initialPhotos, onCoverChange }: { initialPhot
             <button
               type="button"
               onClick={() => removeAt(i)}
-              aria-label="Remove photo"
+              aria-label={t("photoRemove")}
               className="absolute top-1 right-1 flex size-7 items-center justify-center rounded-full bg-background/90"
             >
               <X className="size-4" />
@@ -139,7 +141,7 @@ export function EditPhotoManager({ initialPhotos, onCoverChange }: { initialPhot
                 type="button"
                 onClick={() => moveTo(i, i - 1)}
                 disabled={i === 0}
-                aria-label="Move photo earlier"
+                aria-label={t("photoMoveEarlier")}
                 className="flex size-7 items-center justify-center rounded-full bg-background/90 disabled:opacity-30"
               >
                 <ChevronLeft className="size-4" />
@@ -148,7 +150,7 @@ export function EditPhotoManager({ initialPhotos, onCoverChange }: { initialPhot
                 type="button"
                 onClick={() => moveTo(i, i + 1)}
                 disabled={i === items.length - 1}
-                aria-label="Move photo later"
+                aria-label={t("photoMoveLater")}
                 className="flex size-7 items-center justify-center rounded-full bg-background/90 disabled:opacity-30"
               >
                 <ChevronRight className="size-4" />

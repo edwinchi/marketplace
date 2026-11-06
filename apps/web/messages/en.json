@@ -5,7 +5,11 @@
     "sortBy": "Sort by",
     "sortNewest": "Newest first",
     "sortPriceAsc": "Price: low to high",
-    "sortPriceDesc": "Price: high to low"
+    "sortPriceDesc": "Price: high to low",
+    "sendMessage": "Send message",
+    "sendAddress": "Send address",
+    "cancelShareAddress": "Cancel sharing address",
+    "clearSearch": "Clear search"
   },
   "Listen": {
     "listen": "Listen",
@@ -32,7 +36,8 @@
     "search": "Search",
     "getTheApp": "Get the app",
     "language": "Language",
-    "currency": "Currency"
+    "currency": "Currency",
+    "home": "MarketitNow home"
   },
   "AccountMenu": {
     "profile": "Profile",
@@ -107,7 +112,8 @@
     "heroHeadingLine2": "{name}",
     "heroSubtext": "Real listings from sellers around the world.",
     "metaTitle": "{name} for sale",
-    "metaDescription": "Buy, sell, advertise {name} on MarketitNow — real listings under {breadcrumb}, from sellers around the world."
+    "metaDescription": "Buy, sell, advertise {name} on MarketitNow — real listings under {breadcrumb}, from sellers around the world.",
+    "breadcrumb": "Breadcrumb"
   },
   "Listing": {
     "characteristics": "Characteristics",
@@ -178,7 +184,10 @@
     "photoNext": "Next photo",
     "photoViewFull": "View full size",
     "photoClose": "Close",
-    "photoOf": "Photo {n} of {total}"
+    "photoOf": "Photo {n} of {total}",
+    "photoRemove": "Remove photo",
+    "photoMoveEarlier": "Move photo earlier",
+    "photoMoveLater": "Move photo later"
   },
   "Home": {
     "metaTitle": "Buy & Sell Cars, Electronics, Furniture & More",
@@ -199,7 +208,9 @@
     "noListingsYet": "No listings yet.",
     "relatedToYourSearch": "Related to your search",
     "beTheFirst": "Be the first to post one.",
-    "categoryLabel": "Category"
+    "categoryLabel": "Category",
+    "distanceLabel": "Distance",
+    "pagination": "Pagination"
   },
   "Profile": {
     "title": "Profile",

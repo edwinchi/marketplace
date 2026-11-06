@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Sparkles, PenLine, TrendingUp, Languages, BarChart3, Check, Camera, Zap, ArrowRight } from "lucide-react";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import { getAiUsageStatus } from "@/app/listings/new/analyze-photo-action";
 import { startSellerProCheckout, startTopUpCheckout, openBillingPortal } from "@/app/my-account/ai-features/checkout-action";
@@ -56,7 +56,7 @@ export default async function AiFeaturesPage({
 }: {
   searchParams: Promise<{ checkout?: string; error?: string }>;
 }) {
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
   if (!profile) redirect("/login");
   const { checkout, error } = await searchParams;
 

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import { buttonVariants } from "@/components/ui/button";
 // payments (honest not-yet page — no bank-details form, since we won't store account numbers
 // without PCI-grade handling; nothing left in "Coming soon").
 export default async function MyAccountPage() {
-  const { user, profile } = await getCurrentUserAndProfile();
+  const { user, profile } = await getCurrentUserAndProfileForRender();
   if (!user || !profile) redirect("/login");
 
   const t = await getTranslations("Profile");

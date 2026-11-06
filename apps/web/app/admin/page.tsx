@@ -3,7 +3,7 @@ import {
   Users, Store, MessageSquare, Heart, Handshake, Star, Sparkles, DollarSign,
   Building2, User as UserIcon, TrendingUp, MapPin, Tag, Clock, Eye, ShieldAlert, Flag,
 } from "lucide-react";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { createServiceClient } from "@/lib/supabase/service";
 import { isAdminEmail } from "@/lib/admin";
 import { getAdminStats } from "@/lib/admin-stats";
@@ -117,7 +117,7 @@ function BarRow({ label, count, max }: { label: string; count: number; max: numb
 }
 
 export default async function AdminDashboardPage() {
-  const { user } = await getCurrentUserAndProfile();
+  const { user } = await getCurrentUserAndProfileForRender();
   if (!user || !isAdminEmail(user.email)) return <AdminLoginScreen />;
 
   const [stats, requireLogin, disabledLocales, collapsedLimit, listenFreeAccess, sellerProGlobalUnlock, newListingNotificationsUnlock, buyerFeePercent, buyerFeeMin, buyerFeeMax, adBumpPriceCents, { count: embeddingsRemaining }, { count: flaggedCount }, { count: openAiReportsCount }, openRouterStatus, healthCheck] = await Promise.all([

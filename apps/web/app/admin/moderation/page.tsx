@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ShieldAlert, Check, Trash2 } from "lucide-react";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { isAdminEmail } from "@/lib/admin";
 import { createServiceClient } from "@/lib/supabase/service";
 import { formatPrice } from "@/lib/money";
@@ -14,7 +14,7 @@ import { clearModerationFlag, removeFlaggedListing } from "@/app/admin/moderatio
 // for a human to look at, not a verdict. Service-role client: an admin reviewing someone else's
 // listing isn't its seller, so the normal listing_write RLS policy wouldn't return these rows.
 export default async function ModerationQueuePage() {
-  const { user } = await getCurrentUserAndProfile();
+  const { user } = await getCurrentUserAndProfileForRender();
   if (!user || !isAdminEmail(user.email)) redirect("/admin");
 
   const supabase = createServiceClient();

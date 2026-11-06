@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { AccountSidebar } from "@/components/account-sidebar";
 
 // Grouped sidebar (Account / Selling / Buying) — only lists sections this app actually has
 // something behind, no settings link that opens onto nothing.
 export default async function MyAccountLayout({ children }: { children: React.ReactNode }) {
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
   if (!profile) redirect("/login");
 
   return (

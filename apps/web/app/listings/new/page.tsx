@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { getCategoriesAndAttributes } from "@/lib/categories";
 import { getAiUsageStatus } from "@/app/listings/new/analyze-photo-action";
 import { NewListingStep1 } from "@/components/listings/new-listing-step1";
 
 export default async function NewListingPage() {
-  const { user } = await getCurrentUserAndProfile();
+  const { user } = await getCurrentUserAndProfileForRender();
   if (!user) redirect("/login?next=/listings/new");
 
   const [{ categoryOptions }, aiUsage] = await Promise.all([getCategoriesAndAttributes(), getAiUsageStatus()]);

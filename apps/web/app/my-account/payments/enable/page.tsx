@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Landmark, CheckCircle2, ExternalLink, Clock } from "lucide-react";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import { getStripe } from "@/lib/stripe";
 import { isStripeEligibleCountry } from "@/lib/payment-coverage";
@@ -19,7 +19,7 @@ export default async function EnablePaymentsPage({
 }: {
   searchParams: Promise<{ error?: string; onboarding?: string }>;
 }) {
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
   if (!profile) redirect("/login");
   const { error } = await searchParams;
 

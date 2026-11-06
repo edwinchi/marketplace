@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { getCategoriesAndAttributes, getCategoryPath } from "@/lib/categories";
 import { createListing } from "@/app/listings/actions";
 import { getAiUsageStatus } from "@/app/listings/new/analyze-photo-action";
@@ -12,7 +12,7 @@ export default async function NewListingDetailsPage({
   searchParams: Promise<{ title?: string; category?: string }>;
 }) {
   const { title, category } = await searchParams;
-  const { user, profile } = await getCurrentUserAndProfile();
+  const { user, profile } = await getCurrentUserAndProfileForRender();
   if (!user || !profile) {
     const qs = new URLSearchParams();
     if (title) qs.set("title", title);

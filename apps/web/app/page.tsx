@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { unstable_cache } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { getCategoriesAndAttributes, getCategoryDescendantIds } from "@/lib/categories";
 import { getTextEmbedding } from "@/lib/embeddings";
 import { getRandomHeroBanner } from "@/lib/hero-banner";
@@ -138,7 +138,13 @@ export default async function HomePage({
   const sort: SortOption = sortParam && sortParam in SORT_OPTIONS ? (sortParam as SortOption) : "newest";
   const page = Math.max(1, Number(pageParam) || 1);
   const supabase = await createClient();
-  const { profile } = await getCurrentUserAndProfile();
+  // Started now, awaited further down: the listing queries below don't depend on who is signed in
+  // or on the category tree, so all three run in parallel instead of one after another. The no-op
+  // catches only stop an early throw from leaving them unhandled; Promise.all still sees errors.
+  const profilePromise = getCurrentUserAndProfileForRender();
+  const categoriesPromise = getCategoriesAndAttributes();
+  profilePromise.catch(() => {});
+  categoriesPromise.catch(() => {});
   const t = await getTranslations("Home");
 
   // The exact no-filter, page-1, newest-sort view a fresh/logged-out visitor and every crawler
@@ -218,12 +224,10 @@ export default async function HomePage({
     featuredListings = [];
   }
 
-  const [{ categoryOptions, topLevelCategories }, { data: favorites }] = await Promise.all([
-    getCategoriesAndAttributes(),
-    profile
-      ? supabase.from("favorites").select("listing_id").eq("profile_id", profile.id)
-      : Promise.resolve({ data: [] as { listing_id: string }[] | null }),
-  ]);
+  const [{ categoryOptions, topLevelCategories }, { profile }] = await Promise.all([categoriesPromise, profilePromise]);
+  const { data: favorites } = profile
+    ? await supabase.from("favorites").select("listing_id").eq("profile_id", profile.id)
+    : { data: [] as { listing_id: string }[] | null };
   const favoritedIds = new Set((favorites ?? []).map((f) => f.listing_id));
   const selectedCategory = categoryOptions.find((c) => c.id === category);
   const servicesCategory = topLevelCategories.find((c) => c.stableKey === "services-trades");
@@ -388,7 +392,7 @@ export default async function HomePage({
                 <select
                   name="radius"
                   defaultValue={String(radiusKm)}
-                  aria-label="Distance"
+                  aria-label={t("distanceLabel")}
                   className="h-8 rounded-md border bg-background px-2 text-sm"
                 >
                   {RADIUS_OPTIONS_KM.map((km) => (
@@ -491,7 +495,7 @@ export default async function HomePage({
           {/* Real pagination, not a silent 90-item cutoff -- pageHref preserves every other active
               param (q/category/city/sort/price/condition) so paging never resets a filter. */}
           {totalCount != null && totalCount > PAGE_SIZE && (
-            <nav className="mt-8 flex items-center justify-center gap-2" aria-label="Pagination">
+            <nav className="mt-8 flex items-center justify-center gap-2" aria-label={t("pagination")}>
               {(() => {
                 const totalPages = Math.ceil(totalCount / PAGE_SIZE);
                 const pageHref = (p: number) => {

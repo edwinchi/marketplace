@@ -28,6 +28,7 @@ import {
 import { buttonVariants } from "@/components/ui/button";
 import { StickyAnchorNav } from "@/components/welcome/sticky-anchor-nav";
 import { FloatingCtaBar } from "@/components/welcome/floating-cta-bar";
+import { RouteMessages } from "@/components/route-messages";
 import { ListenButton } from "@/components/listen-button";
 
 export const metadata: Metadata = { title: "Welcome to MarketitNow" };
@@ -115,7 +116,7 @@ export default async function WelcomePage() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <StickyAnchorNav />
+      <RouteMessages namespaces={["Welcome"]}><StickyAnchorNav /></RouteMessages>
 
       {/* Section 1 — Hero */}
       <section
@@ -331,7 +332,7 @@ export default async function WelcomePage() {
       {/* Clears the fixed FloatingCtaBar so it never covers the last real content above. */}
       <div className="h-20" aria-hidden />
 
-      <FloatingCtaBar />
+      <RouteMessages namespaces={["Welcome"]}><FloatingCtaBar /></RouteMessages>
     </div>
   );
 }

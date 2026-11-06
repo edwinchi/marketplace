@@ -8,7 +8,7 @@ import { getRandomHeroBanner } from "@/lib/hero-banner";
 import { getCategoryCollageImage } from "@/lib/category-collage";
 import { getCarsLandingData, type CarsFilters } from "@/lib/cars-landing";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ListingGrid } from "@/components/listing-grid";
 import { CategoryDirectoryGrid } from "@/components/category-directory-grid";
@@ -161,7 +161,7 @@ export default async function CategoryPage({
       page: parseNum(sp.page),
     };
     const supabase = await createClient();
-    const { profile } = await getCurrentUserAndProfile();
+    const { profile } = await getCurrentUserAndProfileForRender();
     const [
       carsRootDescendantIds,
       { data: favorites },
@@ -229,7 +229,7 @@ export default async function CategoryPage({
   }
 
   const supabase = await createClient();
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
   const descendantIds = await getCategoryDescendantIds(id);
 
   // "Near You" has no real geodistance search behind it (nothing in this codebase computes

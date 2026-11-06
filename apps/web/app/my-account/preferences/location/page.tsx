@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
+import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import { ANCHOR_COUNTRIES } from "@/lib/countries";
 import { ProfileToggle } from "@/components/profile-toggle";
@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 // you" tab is an honest city-text filter, not device location) — this preference is the same
 // city-based approach, saved for real, not GPS tracking dressed up as a preference.
 export default async function LocationPreferencesPage() {
-  const { profile } = await getCurrentUserAndProfile();
+  const { profile } = await getCurrentUserAndProfileForRender();
   if (!profile) redirect("/login");
 
   const supabase = await createClient();
