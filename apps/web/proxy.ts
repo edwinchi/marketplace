@@ -2,6 +2,22 @@ import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 import type { Database } from "./lib/supabase/database.types";
 
+// require_login, remembered per warm server instance for SETTING_TTL_MS so anonymous page views
+// don't each pay a database round trip. Trade-off: flipping the toggle in /admin takes effect
+// within 30s instead of instantly. A failed/missing read is not cached and falls back to
+// locked-down (true), matching the original behaviour.
+const SETTING_TTL_MS = 30_000;
+let cachedRequireLogin: { value: boolean; at: number } | null = null;
+
+async function requireLoginSetting(supabase: ReturnType<typeof createServerClient<Database>>): Promise<boolean> {
+  if (cachedRequireLogin && Date.now() - cachedRequireLogin.at < SETTING_TTL_MS) return cachedRequireLogin.value;
+  const { data: setting, error } = await supabase.from("app_settings").select("value").eq("key", "require_login").maybeSingle();
+  if (error || !setting) return true;
+  const value = Boolean(setting.value ?? true); // same truthiness the old inline check used
+  cachedRequireLogin = { value, at: Date.now() };
+  return value;
+}
+
 // Keeps Supabase auth cookies fresh on every request — required because Server Components can't
 // write cookies themselves (see the catch in lib/supabase/server.ts).
 export async function proxy(request: NextRequest) {
@@ -38,9 +54,6 @@ export async function proxy(request: NextRequest) {
   // sees the dedicated admin login screen at /admin instead of bouncing to the public /login page
   // -- app/admin/page.tsx still does its own getCurrentUserAndProfile()+isAdminEmail() check and
   // shows the dashboard to nobody else.
-  const { data: setting } = await supabase.from("app_settings").select("value").eq("key", "require_login").maybeSingle();
-  const requireLogin = setting?.value ?? true;
-
   // /api is exempt for a real reason, not just convenience: confirmed live that Stripe's webhook
   // (the only route under here) was being redirected to /login on every single delivery attempt --
   // Stripe doesn't have a browser session and never will, so every webhook this project has ever
@@ -55,7 +68,10 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 
-  if (requireLogin && !user && !isPublic) {
+  // The setting only matters for a signed-out visitor on a non-public page, so only then is it read
+  // (it used to be a database round trip on every request, signed-in users and public pages
+  // included, before any page could start rendering).
+  if (!user && !isPublic && (await requireLoginSetting(supabase))) {
     const loginUrl = new URL("/login", request.url);
     // pathname alone drops the query string -- confirmed live: a signed-in user bounced here
     // mid-way through /listings/new/details?title=...&category=... (a session hiccup, not a data

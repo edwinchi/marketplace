@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Fraunces, Roboto } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
+import { pickClientMessages } from "@/lib/client-messages";
 import { isRtlLocale } from "@/i18n/request";
 import "./globals.css";
 import { Nav } from "@/components/nav";
@@ -59,6 +60,8 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const locale = await getLocale();
   const t = await getTranslations("Common");
+  // Only the namespaces client components use go to the browser (lib/client-messages.ts).
+  const clientMessages = pickClientMessages(await getMessages());
 
   return (
     <html
@@ -87,7 +90,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         >
           {t("skipToContent")}
         </a>
-        <NextIntlClientProvider>
+        <NextIntlClientProvider messages={clientMessages}>
           <Nav />
           {/* pb-20 keeps content clear of the fixed cookie banner (~72px tall) while it's showing;
               harmless empty space once it's dismissed. */}
