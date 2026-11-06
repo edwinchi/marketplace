@@ -5,6 +5,14 @@ repository. Read it before writing code. It reconciles the reference material in
 which contains **two incompatible draft blueprints** gathered from earlier brainstorming — into one
 decided architecture. Where this file and a document in `data/` disagree, **this file wins**.
 
+**How agents work here (owner's master prompts, mandatory):** follow
+[`docs/operating-model/concise-master-system-prompt.md`](docs/operating-model/concise-master-system-prompt.md)
+(lifecycle, definition of done, approval levels 0–3) and
+[`docs/operating-model/master-coding-application-prompt.md`](docs/operating-model/master-coding-application-prompt.md)
+(the 20 directives). Every report states what was done, why, risks introduced, risks mitigated and
+next actions. Production deploys (anything reaching https://marketitnow.net, including a push to
+`github main`) are Level 3: explicit sign-off each time. Deploy only to marketitnow.net (§13).
+
 ## 1. What we're building
 
 AfroDeals is a mobile-first, AI-first global classifieds and marketplace platform in the spirit of
@@ -58,7 +66,7 @@ Dutch/English/French primary, with Arabic and Chinese listing/category translati
 | Maps/geocoding | Mapbox (or Google Maps as fallback) for address autocomplete and map UI | PostGIS handles the actual proximity query server-side. |
 | Email | Resend | Transactional email (verification, offer notifications, order updates). |
 | Monitoring | Sentry (errors) + PostHog (product analytics) | |
-| Deployment | Plesk-hosted server at `marketplace.apps-pilot.nl` (Node.js via Phusion Passenger), Supabase (database/auth/storage) | You already have this Plesk hosting provisioned — see §11 for the exact setup. (Vercel was the initial default recommendation before that hosting existed; superseded.) |
+| Deployment | **Vercel project `afrodeals.net` → https://marketitnow.net, the only customer-facing site** (§13). Supabase (database/auth/storage). | Customers were migrated here from the Plesk host `marketplace.apps-pilot.nl` (§11), which is retired: never deploy there. Owner's rule (2026-11-06): deploy only to marketitnow.net, not to both. `afrodeals.net` stays only as a 308 redirect to marketitnow.net. |
 
 This replaces the FastAPI+Docker+React/Vite stack proposed in `data/sokocoin-*.md` and
 `data/deployment-guide.md`. Those documents remain useful for their *product* and *schema* ideas
@@ -303,7 +311,9 @@ front-loaded. Status as of this writing: **starting from zero on all external ac
 this list as each one gets created.
 
 **Needed now (Phase 0/1 — get the app talking to a real database): done.** Dedicated project `afrodeals`
-(ref `dqlpcodmfvwipnoyykwc`, org "Atlantean Globals Services", region `eu-west-1`) — created via the
+(originally ref `dqlpcodmfvwipnoyykwc`, org "Atlantean Globals Services", region `eu-west-1`; **production
+now runs on ref `nodzslouearhjsiwhvst`**, confirmed 2026-11-06 from the live site and `.env.local` — trust
+`NEXT_PUBLIC_SUPABASE_URL`, not this paragraph, and note local dev uses that same production database) — created via the
 Supabase CLI + a personal access token, not the Supabase dashboard. All 14 migrations are pushed (41
 tables, 167 seeded categories, 23 seeded attributes, `postgis`/`vector`/`pg_trgm`/`citext` extensions
 confirmed enabled). `apps/web/lib/supabase/database.types.ts` holds real generated types
@@ -890,11 +900,20 @@ restart is required. **Lesson: always verify a deploy landed by checking the liv
 *and* grepping its HTML for something from the latest code** (agents.md updates alone don't prove
 anything shipped) — this outage sat undetected until a routine post-deploy check caught it.
 
-## 13. Deployment — Vercel (`afrodeals.net`), the permanent production site
+## 13. Deployment — Vercel, https://marketitnow.net (the only production site)
 
-**`afrodeals.net` on Vercel is the permanent production site going forward** — the Plesk deploy in
-§11 remains documented and (as of writing) still live at `marketplace.apps-pilot.nl`, but new work
-ships to Vercel, not there.
+**Deploy only to marketitnow.net (owner's rule, 2026-11-06).** The Vercel project is still *named*
+`afrodeals.net`, but its customer-facing domain is `marketitnow.net`; `afrodeals.net` (and
+`www.afrodeals.net`) only 308-redirect there (`REDIRECT_AFRODEALS_TO_MARKETITNOW=1` is on — verified:
+`afrodeals.net/listings/abc` → `marketitnow.net/listings/abc`). Customers were migrated from the Plesk
+site in §11; never push/FTP to Plesk (`origin` remote) again. As of 2026-11-06 the old Plesk copy
+was **still serving an outdated build** at `marketplace.apps-pilot.nl` (noindex, but with a working
+sign-in, against the same production database) — it should be replaced with a redirect to
+marketitnow.net or taken down; until then, treat it as an outdated live copy, not a deploy target.
+
+**Deploy = Level 3 (owner sign-off each time).** Verify after every deploy: `vercel inspect
+marketitnow.net` (from `apps/web`) shows the new deployment id, and `curl -I https://marketitnow.net`
+returns the expected headers.
 
 **Deploy trigger: git push, not FTP.** Vercel is connected to the `github` remote's `main` branch
 (a separate GitHub repo, `edwinchi/marketplace`, pushed to via an SSH deploy-key alias —
@@ -953,7 +972,8 @@ back to its default Site URL for any `redirect_to` not on that allow-list.
 click-through testing (login, search, category browse, listing detail, favoriting, messages,
 notifications, my-account pages, the plate-lookup feature) — not just an HTTP 200.
 
-**Migration in progress: `afrodeals.net` → `marketitnow.net`.** `marketitnow.net` was also bought
+**Migration `afrodeals.net` → `marketitnow.net`: done** (redirect on, canonical/sitemap/robots all
+`marketitnow.net`, checked 2026-11-06). History kept below. `marketitnow.net` was also bought
 directly through Vercel, so both domains sit on Vercel's own nameservers — no external
 registrar/DNS to coordinate, which is what makes a near-zero-downtime cutover possible at all.
 Sequence: (1) attach `marketitnow.net` as an additional alias on the same `afrodeals.net` project
