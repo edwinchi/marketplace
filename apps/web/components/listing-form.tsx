@@ -201,7 +201,7 @@ export function ListingForm({
         <div className="rounded-lg border bg-muted/30 p-4">
           <div className="mb-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Sparkles className="size-4 text-primary" />
+              <Sparkles className="size-4 text-primary-ink" />
               <h2 className="text-sm font-semibold">Refresh with AI</h2>
             </div>
             {!aiUsage.unlimited && usesLeft === 0 && (
@@ -224,7 +224,7 @@ export function ListingForm({
                 onClick={analyzeCoverPhoto}
                 className="gap-1.5"
               >
-                <Sparkles className="size-4 text-primary" />
+                <Sparkles className="size-4 text-primary-ink" />
                 {analyzing ? "Analyzing…" : "Fill in title & description with AI"}
               </Button>
               <p className="mt-1.5 text-xs text-muted-foreground">
@@ -264,7 +264,7 @@ export function ListingForm({
           <Label htmlFor="description">Description</Label>
           {aiDescription && (
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Sparkles className="size-3 text-primary" />
+              <Sparkles className="size-3 text-primary-ink" />
               AI-generated — please review
             </span>
           )}
@@ -295,7 +295,7 @@ export function ListingForm({
         {initialPhotos && (
           <div>
             <Button type="button" variant="outline" size="sm" disabled={polishing} onClick={polish} className="gap-1.5">
-              {isSellerPro ? <Sparkles className="size-3.5 text-primary" /> : <Lock className="size-3.5" />}
+              {isSellerPro ? <Sparkles className="size-3.5 text-primary-ink" /> : <Lock className="size-3.5" />}
               {polishing ? "Polishing…" : "Polish with AI"}
             </Button>
             {polishError && (
@@ -360,7 +360,7 @@ export function ListingForm({
       {initialPhotos && (
         <div>
           <Button type="button" variant="outline" size="sm" disabled={suggesting || !categoryId} onClick={suggest} className="gap-1.5">
-            {isSellerPro ? <Sparkles className="size-3.5 text-primary" /> : <Lock className="size-3.5" />}
+            {isSellerPro ? <Sparkles className="size-3.5 text-primary-ink" /> : <Lock className="size-3.5" />}
             {suggesting ? "Checking similar listings…" : "Suggest a price"}
           </Button>
           {priceSuggestion && (
@@ -435,7 +435,7 @@ export function ListingForm({
           <Label>Translation</Label>
           <div>
             <Button type="button" variant="outline" size="sm" disabled={translating} onClick={translate} className="gap-1.5 w-fit">
-              {isSellerPro ? <Sparkles className="size-3.5 text-primary" /> : <Lock className="size-3.5" />}
+              {isSellerPro ? <Sparkles className="size-3.5 text-primary-ink" /> : <Lock className="size-3.5" />}
               {translating ? "Translating…" : translated ? "Update translations" : "Translate to French & Dutch"}
             </Button>
             {translated && !translateError && (

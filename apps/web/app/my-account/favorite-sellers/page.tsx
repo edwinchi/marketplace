@@ -46,7 +46,7 @@ export default async function FavoriteSellersPage() {
         <>
           <div className="rounded-xl border py-10" />
           <div className="flex items-start gap-2 rounded-lg border bg-primary/5 p-4 text-sm">
-            <Info className="mt-0.5 size-4 shrink-0 text-primary" />
+            <Info className="mt-0.5 size-4 shrink-0 text-primary-ink" />
             <div>
               <p className="font-semibold">You don&apos;t have any preferred sellers yet</p>
               <p className="mt-1 text-muted-foreground">

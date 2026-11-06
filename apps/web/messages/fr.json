@@ -26,7 +26,9 @@
     "account": "Compte",
     "searchPlaceholder": "Rechercher des annonces…",
     "search": "Rechercher",
-    "getTheApp": "Télécharger l'app"
+    "getTheApp": "Télécharger l'app",
+    "language": "Langue",
+    "currency": "Devise"
   },
   "AccountMenu": {
     "profile": "Profil",
@@ -187,7 +189,8 @@
     "clearFilter": "Effacer le filtre ×",
     "noListingsYet": "Aucune annonce pour le moment.",
     "relatedToYourSearch": "En rapport avec votre recherche",
-    "beTheFirst": "Soyez le premier à en publier une."
+    "beTheFirst": "Soyez le premier à en publier une.",
+    "categoryLabel": "Catégorie"
   },
   "Profile": {
     "title": "Profil",

@@ -34,14 +34,14 @@ export function BuyerSellerLinks({ servicesHref, toysHref }: { servicesHref: str
         <button
           type="button"
           onClick={() => setTab("buyer")}
-          className={`flex-1 rounded px-2 py-1 font-medium transition-colors ${tab === "buyer" ? "bg-background text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+          className={`flex-1 rounded px-2 py-1 font-medium transition-colors ${tab === "buyer" ? "bg-background text-primary-ink shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
         >
           For the buyer
         </button>
         <button
           type="button"
           onClick={() => setTab("seller")}
-          className={`flex-1 rounded px-2 py-1 font-medium transition-colors ${tab === "seller" ? "bg-background text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+          className={`flex-1 rounded px-2 py-1 font-medium transition-colors ${tab === "seller" ? "bg-background text-primary-ink shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
         >
           For the seller
         </button>
@@ -53,9 +53,9 @@ export function BuyerSellerLinks({ servicesHref, toysHref }: { servicesHref: str
               href={link.href}
               className="flex items-start gap-2.5 rounded-md px-2 py-1.5 transition-all duration-150 hover:translate-x-0.5 hover:bg-brand-green/10"
             >
-              <link.icon className="mt-0.5 size-4 shrink-0 text-primary" />
+              <link.icon className="mt-0.5 size-4 shrink-0 text-primary-ink" />
               <span>
-                <span className="block text-sm font-medium text-primary">{link.title}</span>
+                <span className="block text-sm font-medium text-primary-ink">{link.title}</span>
                 <span className="block text-xs text-muted-foreground">{link.subtitle}</span>
               </span>
             </Link>

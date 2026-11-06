@@ -86,7 +86,7 @@ export function PlateLookup() {
   return (
     <div className="rounded-xl border bg-card p-5 shadow-sm">
       <div className="mb-3 flex items-center gap-2">
-        <Car className="size-4 text-primary" />
+        <Car className="size-4 text-primary-ink" />
         <h2 className="text-sm font-semibold">Look up a car by its license plate</h2>
       </div>
       <p className="mb-3 text-xs text-muted-foreground">
@@ -146,7 +146,7 @@ export function PlateLookup() {
               </p>
               {result.trim && <p className="text-xs text-muted-foreground">{result.trim}</p>}
             </div>
-            <span className="rounded bg-primary/10 px-2 py-0.5 font-mono text-xs font-semibold text-primary">
+            <span className="rounded bg-primary/10 px-2 py-0.5 font-mono text-xs font-semibold text-primary-ink">
               {isKbaBased ? result.plate : formatPlate(result.plate)}
             </span>
           </div>

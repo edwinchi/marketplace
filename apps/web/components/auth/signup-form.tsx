@@ -24,7 +24,7 @@ export function SignupForm({ next = "/", referralCode }: { next?: string; referr
   if (state.checkEmail) {
     return (
       <div className="flex flex-col items-center gap-3 py-4 text-center">
-        <span className="flex size-12 items-center justify-center rounded-full bg-[#008848]/10 text-[#008848]">
+        <span className="flex size-12 items-center justify-center rounded-full bg-[#008848]/10 text-brand-green">
           <CheckCircle2 className="size-6" />
         </span>
         <p className="text-sm text-muted-foreground">
@@ -90,7 +90,7 @@ export function SignupForm({ next = "/", referralCode }: { next?: string; referr
 
         <p className="text-xs text-muted-foreground">
           {t("termsAgreement")}{" "}
-          <a href="/terms" className="font-medium text-primary underline-offset-2 hover:underline">
+          <a href="/terms" className="font-medium text-primary-ink underline-offset-2 hover:underline">
             {t("termsOfUse")}
           </a>
           .

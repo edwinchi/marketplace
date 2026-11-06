@@ -26,7 +26,9 @@
     "account": "Account",
     "searchPlaceholder": "Search listings…",
     "search": "Search",
-    "getTheApp": "Get the app"
+    "getTheApp": "Get the app",
+    "language": "Language",
+    "currency": "Currency"
   },
   "AccountMenu": {
     "profile": "Profile",
@@ -187,7 +189,8 @@
     "clearFilter": "Clear filter ×",
     "noListingsYet": "No listings yet.",
     "relatedToYourSearch": "Related to your search",
-    "beTheFirst": "Be the first to post one."
+    "beTheFirst": "Be the first to post one.",
+    "categoryLabel": "Category"
   },
   "Profile": {
     "title": "Profile",

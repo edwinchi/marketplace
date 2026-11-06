@@ -57,7 +57,7 @@ export function AccountSidebar() {
                       aria-current={active ? "page" : undefined}
                       className={`group relative flex items-center gap-2 rounded-md py-1.5 pr-2 pl-3 text-sm transition-all duration-150 ease-out ${
                         active
-                          ? "bg-[#008848]/10 font-medium text-[#008848]"
+                          ? "bg-[#008848]/10 font-medium text-brand-green"
                           : "text-foreground hover:translate-x-0.5 hover:bg-brand-green/10 hover:text-foreground"
                       }`}
                     >
@@ -68,7 +68,7 @@ export function AccountSidebar() {
                       />
                       <item.icon
                         className={`size-4 shrink-0 transition-colors duration-150 ${
-                          active ? "text-[#008848]" : "text-muted-foreground group-hover:text-foreground"
+                          active ? "text-brand-green" : "text-muted-foreground group-hover:text-foreground"
                         }`}
                       />
                       <span className="truncate">{t(item.key)}</span>

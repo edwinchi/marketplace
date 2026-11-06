@@ -241,7 +241,7 @@ function ShareMenu({ title }: { title: string }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]"
+                  className="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-brand-green"
                 >
                   <target.icon className="size-4 text-muted-foreground" />
                   {target.label}
@@ -253,7 +253,7 @@ function ShareMenu({ title }: { title: string }) {
           <button
             type="button"
             onClick={copyLink}
-            className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]"
+            className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-brand-green"
           >
             <Link2 className="size-4 text-muted-foreground" />
             {t("copyLink")}

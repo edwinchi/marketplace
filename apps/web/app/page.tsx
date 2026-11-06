@@ -313,7 +313,7 @@ export default async function HomePage({
               defaultValue={category ?? "all"}
               items={[{ value: "all", label: t("allCategories") }, ...topLevelCategories.map((c) => ({ value: c.id, label: c.label }))]}
             >
-              <SelectTrigger className="border-0 shadow-none sm:w-56">
+              <SelectTrigger aria-label={t("categoryLabel")} className="border-0 shadow-none sm:w-56">
                 <SelectValue placeholder={t("allCategories")} />
               </SelectTrigger>
               <SelectContent>
@@ -354,7 +354,7 @@ export default async function HomePage({
             <li>
               <Link
                 href="/"
-                className={`block rounded-md px-2 py-1.5 transition-all duration-150 ${!category ? "bg-primary/10 font-medium text-primary" : "text-muted-foreground hover:translate-x-0.5 hover:bg-brand-green/10 hover:text-foreground"}`}
+                className={`block rounded-md px-2 py-1.5 transition-all duration-150 ${!category ? "bg-primary/10 font-medium text-primary-ink" : "text-muted-foreground hover:translate-x-0.5 hover:bg-brand-green/10 hover:text-foreground"}`}
               >
                 {t("allCategories")}
               </Link>
@@ -363,7 +363,7 @@ export default async function HomePage({
               <li key={c.id}>
                 <Link
                   href={`/categories/${slugPath(c.label, c.id)}`}
-                  className={`block rounded-md px-2 py-1.5 transition-all duration-150 ${category === c.id ? "bg-primary/10 font-medium text-primary" : "text-muted-foreground hover:translate-x-0.5 hover:bg-brand-green/10 hover:text-foreground"}`}
+                  className={`block rounded-md px-2 py-1.5 transition-all duration-150 ${category === c.id ? "bg-primary/10 font-medium text-primary-ink" : "text-muted-foreground hover:translate-x-0.5 hover:bg-brand-green/10 hover:text-foreground"}`}
                 >
                   {c.label}
                 </Link>
@@ -463,7 +463,7 @@ export default async function HomePage({
               {/* Previously only shown for a category filter -- a text or city search with no
                   category had no way back to the unfiltered feed except editing the URL. */}
               {(q || (category && category !== "all") || city) && (
-                <Link href="/" className="text-sm text-muted-foreground transition-colors hover:text-primary hover:underline">
+                <Link href="/" className="text-sm text-muted-foreground transition-colors hover:text-primary-ink hover:underline">
                   {t("clearFilter")}
                 </Link>
               )}
@@ -482,7 +482,7 @@ export default async function HomePage({
           {!listings?.length && !relatedListings.length && (
             <div className="mt-8 flex flex-col items-center gap-2 rounded-xl border border-dashed py-12 text-center">
               <p className="text-muted-foreground">{t("noListingsYet")}</p>
-              <Link href="/listings/new" className="font-medium text-primary underline underline-offset-4 hover:no-underline">
+              <Link href="/listings/new" className="font-medium text-primary-ink underline underline-offset-4 hover:no-underline">
                 {t("beTheFirst")}
               </Link>
             </div>
@@ -527,7 +527,7 @@ export default async function HomePage({
                       <Link
                         key={p}
                         href={pageHref(p)}
-                        className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${p === page ? "border-primary bg-primary/10 font-semibold text-primary" : "hover:bg-brand-green/10"}`}
+                        className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${p === page ? "border-primary bg-primary/10 font-semibold text-primary-ink" : "hover:bg-brand-green/10"}`}
                       >
                         {p}
                       </Link>

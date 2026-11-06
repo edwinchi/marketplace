@@ -86,7 +86,7 @@ export async function Nav() {
             <NavIconLink href="/" aria-label={t("search")} className="relative flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-brand-green/10 hover:text-foreground">
               <Search className="size-5" />
             </NavIconLink>
-            <NavIconLink href="/messages" className="relative flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-brand-green/10 hover:text-foreground">
+            <NavIconLink href="/messages" aria-label={t("messages")} className="relative flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-brand-green/10 hover:text-foreground">
               <MessageCircle className="size-5" />
               {unreadCount > 0 && (
                 <span className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
@@ -94,7 +94,7 @@ export async function Nav() {
                 </span>
               )}
             </NavIconLink>
-            <NavIconLink href="/notifications" className="relative flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-brand-green/10 hover:text-foreground">
+            <NavIconLink href="/notifications" aria-label={t("notifications")} className="relative flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-brand-green/10 hover:text-foreground">
               <Bell className="size-5" />
               {unreadNotifications > 0 && (
                 <span className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
@@ -223,17 +223,17 @@ export async function Nav() {
       </header>
 
       <nav className="fixed inset-x-0 bottom-0 z-10 flex origin-bottom-left transform-[translate3d(0,0,0)] border-t bg-background will-change-transform md:hidden print:hidden">
-        <Link href="/" className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-semibold text-[#008848] transition-colors active:bg-muted">
+        <Link href="/" className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-semibold text-brand-green transition-colors active:bg-muted">
           <Home className="size-5" />
           {t("browse")}
         </Link>
-        <Link href="/listings/new" className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-semibold text-[#008848] transition-colors active:bg-muted">
+        <Link href="/listings/new" className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-semibold text-brand-green transition-colors active:bg-muted">
           <PlusCircle className="size-5" />
           {t("postAdShort")}
         </Link>
         <Link
           href={user ? "/my-account" : "/login"}
-          className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-semibold text-[#008848] transition-colors active:bg-muted"
+          className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-semibold text-brand-green transition-colors active:bg-muted"
         >
           <User className="size-5" />
           {user ? t("account") : t("signIn")}

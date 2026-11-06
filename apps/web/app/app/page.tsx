@@ -37,7 +37,7 @@ export default async function GetAppPage() {
         <ul className="grid gap-4 sm:grid-cols-3">
           {benefits.map(({ icon: Icon, title, body }) => (
             <li key={title} className="rounded-xl border p-4">
-              <Icon className="mb-2 size-5 text-[#008848]" />
+              <Icon className="mb-2 size-5 text-brand-green" />
               <p className="font-medium">{title}</p>
               <p className="mt-1 text-sm text-muted-foreground">{body}</p>
             </li>

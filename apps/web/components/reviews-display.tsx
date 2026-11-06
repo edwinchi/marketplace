@@ -39,7 +39,7 @@ export async function ReviewsDisplay({ profileId, viewerProfileId }: { profileId
           <h1 className="text-xl font-bold">{reviewee?.display_name || reviewee?.username || "MarketitNow user"}</h1>
           {count > 0 ? (
             <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-              <Star className="size-4 fill-primary text-primary" />
+              <Star className="size-4 fill-primary text-primary-ink" />
               {average} · {count} review{count === 1 ? "" : "s"}
             </p>
           ) : (
@@ -59,7 +59,7 @@ export async function ReviewsDisplay({ profileId, viewerProfileId }: { profileId
             {distribution.map((d) => (
               <div key={d.star} className="flex items-center gap-2 text-sm">
                 <span className="flex w-8 items-center gap-0.5 text-muted-foreground">
-                  {d.star} <Star className="size-3 fill-primary text-primary" />
+                  {d.star} <Star className="size-3 fill-primary text-primary-ink" />
                 </span>
                 <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
                   <div className="h-full bg-primary" style={{ width: `${count ? (d.count / count) * 100 : 0}%` }} />
@@ -91,7 +91,7 @@ export async function ReviewsDisplay({ profileId, viewerProfileId }: { profileId
                   </div>
                   <div className="flex gap-0.5">
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className={`size-3.5 ${i < r.rating ? "fill-primary text-primary" : "text-muted"}`} />
+                      <Star key={i} className={`size-3.5 ${i < r.rating ? "fill-primary text-primary-ink" : "text-muted"}`} />
                     ))}
                   </div>
                   {r.positive_tags.length > 0 && (

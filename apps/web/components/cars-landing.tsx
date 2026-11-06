@@ -225,7 +225,7 @@ export function CarsLanding({
                   href={sub.href}
                   className="group flex flex-col items-center gap-2 rounded-xl border bg-card p-4 text-center shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-[#e89818]/50 hover:shadow-md"
                 >
-                  <span className="flex size-10 items-center justify-center rounded-full bg-[#e89818]/10 text-[#e89818] transition-transform duration-200 group-hover:scale-110">
+                  <span className="flex size-10 items-center justify-center rounded-full bg-[#e89818]/10 text-primary-ink transition-transform duration-200 group-hover:scale-110">
                     <Icon className="size-5" />
                   </span>
                   <span className="text-xs font-medium sm:text-sm">{sub.name}</span>
@@ -257,7 +257,7 @@ export function CarsLanding({
         {/* Buying / selling tips — real, static guidance, not a fabricated "AI-powered" claim */}
         <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="rounded-xl border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-            <ShieldCheck className="mb-2 size-6 text-[#008848]" />
+            <ShieldCheck className="mb-2 size-6 text-brand-green" />
             <h3 className="font-semibold">Inspect before you commit</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Check the odometer reading, service history, and registration documents in person, and take a test
@@ -265,7 +265,7 @@ export function CarsLanding({
             </p>
           </div>
           <div className="rounded-xl border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-            <HandCoins className="mb-2 size-6 text-[#e89818]" />
+            <HandCoins className="mb-2 size-6 text-primary-ink" />
             <h3 className="font-semibold">Compare before you offer</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Browse a few similar listings — same make, model, year, and condition — to get a feel for a fair
@@ -277,7 +277,7 @@ export function CarsLanding({
             <h3 className="font-semibold">Meet safely</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Meet in a public place, bring someone with you, and never send money before seeing the car. See our{" "}
-              <Link href="/safety" className="text-[#e89818] hover:underline">Safety Center</Link> for more.
+              <Link href="/safety" className="text-primary-ink hover:underline">Safety Center</Link> for more.
             </p>
           </div>
         </div>
@@ -300,7 +300,7 @@ export function CarsLanding({
               href="/documents/car-sale-receipt"
               className="group flex items-center gap-3 rounded-xl border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#e89818]/50 hover:shadow-md"
             >
-              <Receipt className="size-8 shrink-0 text-[#008848] transition-transform duration-200 group-hover:scale-110" />
+              <Receipt className="size-8 shrink-0 text-brand-green transition-transform duration-200 group-hover:scale-110" />
               <div>
                 <p className="text-sm font-semibold">Payment receipt</p>
                 <p className="text-xs text-muted-foreground">Simple proof of payment for handover day</p>
@@ -310,7 +310,7 @@ export function CarsLanding({
               href="/documents/buying-checklist"
               className="group flex items-center gap-3 rounded-xl border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#e89818]/50 hover:shadow-md"
             >
-              <ClipboardCheck className="size-8 shrink-0 text-[#e89818] transition-transform duration-200 group-hover:scale-110" />
+              <ClipboardCheck className="size-8 shrink-0 text-primary-ink transition-transform duration-200 group-hover:scale-110" />
               <div>
                 <p className="text-sm font-semibold">Buying checklist</p>
                 <p className="text-xs text-muted-foreground">What to check before you commit</p>
@@ -332,7 +332,7 @@ export function CarsLanding({
                   href={basePath + buildQuery(filters, { city })}
                   className={cn(
                     "text-sm transition-colors duration-150 hover:text-[#082040] hover:underline",
-                    filters.city === city ? "font-semibold text-[#e89818]" : "text-[#e89818]/90",
+                    filters.city === city ? "font-semibold text-primary-ink" : "text-primary-ink/90",
                   )}
                 >
                   Cars in {city}

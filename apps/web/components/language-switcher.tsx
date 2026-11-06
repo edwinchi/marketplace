@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Globe } from "lucide-react";
 import { setLocale } from "@/app/actions/set-locale";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -19,6 +20,7 @@ const ALL_OPTIONS = [
 // locale resolves to, see i18n/request.ts), so it always renders regardless.
 export function LanguageSwitcher({ locale, disabledLocales = [] }: { locale: string; disabledLocales?: string[] }) {
   const [pending, startTransition] = useTransition();
+  const t = useTranslations("Nav");
   const options = ALL_OPTIONS.filter((o) => o.value === "en" || !disabledLocales.includes(o.value));
 
   return (
@@ -38,7 +40,8 @@ export function LanguageSwitcher({ locale, disabledLocales = [] }: { locale: str
     >
       {/* bg-transparent: opts this compact nav control out of SelectTrigger's default light-green
           "form field" background -- it's meant to blend into the header, not read as a form field. */}
-      <SelectTrigger size="sm" className="gap-1 border-none bg-transparent shadow-none">
+      {/* Screen readers otherwise announced just "EN, combobox" with no idea what it changes. */}
+      <SelectTrigger size="sm" aria-label={t("language")} className="gap-1 border-none bg-transparent shadow-none">
         <Globe className="size-4 text-muted-foreground" />
         <SelectValue>{(value: string | null) => LABELS[value ?? "en"]}</SelectValue>
       </SelectTrigger>

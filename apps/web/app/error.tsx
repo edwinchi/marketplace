@@ -27,7 +27,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
   if (isStaleDeployment) {
     return (
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center gap-4 px-4 py-24 text-center">
-        <span className="flex size-16 items-center justify-center rounded-full bg-[#e89818]/10 text-[#e89818]">
+        <span className="flex size-16 items-center justify-center rounded-full bg-[#e89818]/10 text-primary-ink">
           <RefreshCw className="size-8" />
         </span>
         <h1 className="text-2xl font-semibold">A new version of MarketitNow is ready</h1>

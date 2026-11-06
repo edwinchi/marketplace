@@ -25,7 +25,8 @@ export function SortSelect({ sort }: { sort: string }) {
 
   return (
     <Select value={sort} onValueChange={onChange}>
-      <SelectTrigger size="sm" className="w-auto">
+      {/* English like the option labels above (translating this control is in the backlog). */}
+      <SelectTrigger size="sm" aria-label="Sort by" className="w-auto">
         <SelectValue>{(value: string | null) => LABELS[value ?? "newest"]}</SelectValue>
       </SelectTrigger>
       <SelectContent>

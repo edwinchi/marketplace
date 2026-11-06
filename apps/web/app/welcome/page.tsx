@@ -38,7 +38,7 @@ function IconBadge({ icon: Icon, tone = "light" }: { icon: IconType; tone?: "lig
   return (
     <span
       className={`flex size-12 shrink-0 items-center justify-center rounded-full ${
-        tone === "dark" ? "bg-white/10 text-[#e89818]" : "bg-[#e89818]/10 text-[#e89818]"
+        tone === "dark" ? "bg-white/10 text-primary-ink" : "bg-[#e89818]/10 text-primary-ink"
       }`}
     >
       <Icon className="size-5.5" />
@@ -150,14 +150,14 @@ export default async function WelcomePage() {
                   i === 2 ? "size-20 sm:size-24" : "size-12 sm:size-14"
                 }`}
               >
-                <Icon className={i === 2 ? "size-9 text-[#e89818] sm:size-10" : "size-5 text-white/70 sm:size-6"} />
+                <Icon className={i === 2 ? "size-9 text-primary-ink sm:size-10" : "size-5 text-white/70 sm:size-6"} />
               </span>
             ))}
           </div>
 
           <div className="grid w-full grid-cols-1 gap-8 md:grid-cols-2 md:items-center">
             <h1 className="text-center text-3xl leading-tight font-bold sm:text-4xl md:text-left">
-              {t("heroHeadline1")} <span className="text-[#e89818]">{t("heroHeadline2")}</span>
+              {t("heroHeadline1")} <span className="text-primary-ink">{t("heroHeadline2")}</span>
             </h1>
             <div className="flex flex-col gap-3 text-center text-white/70 md:text-left">
               <p>{t("heroSub1")}</p>
@@ -220,7 +220,7 @@ export default async function WelcomePage() {
         <div className="mx-auto w-full max-w-[1600px]">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-bold sm:text-3xl">
-              {t("searchTipsHeading1")} <span className="text-[#e89818]">{t("searchTipsHeading2")}</span>
+              {t("searchTipsHeading1")} <span className="text-primary-ink">{t("searchTipsHeading2")}</span>
             </h2>
             <p className="mt-3 text-muted-foreground">{t("searchTipsIntro")}</p>
           </div>
@@ -240,7 +240,7 @@ export default async function WelcomePage() {
         <div className="mx-auto w-full max-w-[1600px]">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-bold sm:text-3xl">
-              {t("sellTipsHeading1")} <span className="text-[#e89818]">{t("sellTipsHeading2")}</span>
+              {t("sellTipsHeading1")} <span className="text-primary-ink">{t("sellTipsHeading2")}</span>
             </h2>
             <p className="mt-3 text-muted-foreground">{t("sellTipsIntro")}</p>
           </div>
@@ -257,7 +257,7 @@ export default async function WelcomePage() {
         <div className="mx-auto w-full max-w-[1600px]">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-bold sm:text-3xl">
-              {t("buySellHeading1")} <span className="text-[#e89818]">{t("buySellHeading2")}</span>
+              {t("buySellHeading1")} <span className="text-primary-ink">{t("buySellHeading2")}</span>
             </h2>
             <p className="mt-3 text-muted-foreground">{t("buySellIntro")}</p>
           </div>
@@ -274,7 +274,7 @@ export default async function WelcomePage() {
         <div className="mx-auto w-full max-w-[1600px]">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-bold sm:text-3xl">
-              {t("payShipHeading1")} <span className="text-[#e89818]">{t("payShipHeading2")}</span>
+              {t("payShipHeading1")} <span className="text-primary-ink">{t("payShipHeading2")}</span>
             </h2>
             <p className="mt-3 text-muted-foreground">{t("payShipIntro")}</p>
           </div>
@@ -291,7 +291,7 @@ export default async function WelcomePage() {
         <div className="mx-auto w-full max-w-[1600px]">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-bold sm:text-3xl">
-              {t("safetyHeading1")} <span className="text-[#e89818]">{t("safetyHeading2")}</span>
+              {t("safetyHeading1")} <span className="text-primary-ink">{t("safetyHeading2")}</span>
             </h2>
             <p className="mt-3 text-white/70">{t("safetyIntro")}</p>
           </div>

@@ -25,7 +25,7 @@ export default async function ReferralsPage() {
   return (
     <div className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 py-16">
       <div className="text-center">
-        <span className="mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-[#008848]/10 text-[#008848]">
+        <span className="mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-[#008848]/10 text-brand-green">
           <Gift className="size-6" />
         </span>
         <h1 className="text-2xl font-bold tracking-tight">Refer a friend</h1>

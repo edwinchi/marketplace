@@ -26,7 +26,9 @@
     "account": "账户",
     "searchPlaceholder": "搜索广告…",
     "search": "搜索",
-    "getTheApp": "下载应用"
+    "getTheApp": "下载应用",
+    "language": "语言",
+    "currency": "货币"
   },
   "AccountMenu": {
     "profile": "个人资料",
@@ -187,7 +189,8 @@
     "clearFilter": "清除筛选 ×",
     "noListingsYet": "暂无相关结果。",
     "relatedToYourSearch": "与您搜索相关的推荐",
-    "beTheFirst": "成为第一个发布的人。"
+    "beTheFirst": "成为第一个发布的人。",
+    "categoryLabel": "类别"
   },
   "Profile": {
     "title": "个人资料",

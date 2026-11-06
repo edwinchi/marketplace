@@ -224,7 +224,7 @@ export function NewListingStep1({
       <div className="rounded-lg border bg-muted/30 p-4">
         <div className="mb-3 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Sparkles className="size-4 text-primary" />
+            <Sparkles className="size-4 text-primary-ink" />
             <h2 className="text-sm font-semibold">Optional: skip the typing with AI</h2>
           </div>
           {usesLeft > 0 ? (

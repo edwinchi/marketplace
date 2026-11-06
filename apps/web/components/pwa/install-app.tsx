@@ -34,7 +34,7 @@ export function InstallApp() {
   if (platform === "installed" || installedNow || accepted) {
     const title = platform === "installed" ? t("installedTitle") : t("justInstalled");
     return (
-      <Card icon={<CheckCircle2 className="size-6 text-[#008848]" />} title={title}>
+      <Card icon={<CheckCircle2 className="size-6 text-brand-green" />} title={title}>
         {platform === "installed" && <p className="text-muted-foreground">{t("installedBody")}</p>}
       </Card>
     );
@@ -42,7 +42,7 @@ export function InstallApp() {
 
   if (platform === "in-app-browser") {
     return (
-      <Card icon={<ExternalLink className="size-6 text-[#e89818]" />} title={t("inAppTitle")}>
+      <Card icon={<ExternalLink className="size-6 text-primary-ink" />} title={t("inAppTitle")}>
         <p className="text-muted-foreground">{t("inAppBody")}</p>
       </Card>
     );

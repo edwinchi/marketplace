@@ -26,7 +26,9 @@
     "account": "Account",
     "searchPlaceholder": "Zoek advertenties…",
     "search": "Zoeken",
-    "getTheApp": "Download de app"
+    "getTheApp": "Download de app",
+    "language": "Taal",
+    "currency": "Valuta"
   },
   "AccountMenu": {
     "profile": "Profiel",
@@ -187,7 +189,8 @@
     "clearFilter": "Filter wissen ×",
     "noListingsYet": "Nog geen advertenties.",
     "relatedToYourSearch": "Gerelateerd aan je zoekopdracht",
-    "beTheFirst": "Wees de eerste die er een plaatst."
+    "beTheFirst": "Wees de eerste die er een plaatst.",
+    "categoryLabel": "Categorie"
   },
   "Profile": {
     "title": "Profiel",

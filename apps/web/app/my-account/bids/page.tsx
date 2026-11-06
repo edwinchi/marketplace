@@ -37,7 +37,7 @@ export default async function OffersPage() {
               <Card key={o.id} className="transition-shadow duration-200 hover:shadow-md">
                 <CardContent className="flex items-center justify-between gap-4 py-4">
                   <div className="min-w-0">
-                    <Link href={`/listings/${slugPath(listing.title, listing.id)}`} className="font-medium transition-colors hover:text-[#008848] hover:underline">
+                    <Link href={`/listings/${slugPath(listing.title, listing.id)}`} className="font-medium transition-colors hover:text-brand-green hover:underline">
                       {listing.title}
                     </Link>
                     <p className="text-sm text-muted-foreground">

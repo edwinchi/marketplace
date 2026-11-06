@@ -78,7 +78,7 @@ export async function Footer() {
           ))}
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t pt-6 text-sm font-semibold text-[#008848]">
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t pt-6 text-sm font-semibold text-brand-green">
           <Link href="/welcome" className="hover:underline">{tNav("howItWorks")}</Link>
           <Link href="/app" className="hover:underline">{tNav("getTheApp")}</Link>
           <Link href="/help" className="hover:underline">{tNav("helpInfo")}</Link>

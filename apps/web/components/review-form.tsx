@@ -52,7 +52,7 @@ export function ReviewForm({ revieweeId }: { revieweeId: string }) {
                   aria-label={`${n} star${n === 1 ? "" : "s"}`}
                   className="p-0.5"
                 >
-                  <Star className={`size-7 transition-colors ${n <= (hoverRating || rating) ? "fill-primary text-primary" : "text-muted"}`} />
+                  <Star className={`size-7 transition-colors ${n <= (hoverRating || rating) ? "fill-primary text-primary-ink" : "text-muted"}`} />
                 </button>
               ))}
             </div>
@@ -67,7 +67,7 @@ export function ReviewForm({ revieweeId }: { revieweeId: string }) {
                   type="button"
                   onClick={() => toggleTag(tag)}
                   className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                    tags.includes(tag) ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground hover:bg-brand-green/10"
+                    tags.includes(tag) ? "border-primary bg-primary/10 text-primary-ink" : "text-muted-foreground hover:bg-brand-green/10"
                   }`}
                 >
                   {tag}

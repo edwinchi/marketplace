@@ -485,7 +485,7 @@ export default async function ListingPage({
             <div className="grid grid-cols-2 gap-2 rounded-xl border bg-linear-to-br from-[#082040]/3 to-[#e89818]/3 p-3 sm:grid-cols-3">
               {quickSpecs.map(({ key, icon: Icon, label }) => (
                 <div key={key} className="flex items-center gap-2 text-sm">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#e89818]/10 text-[#e89818]">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#e89818]/10 text-primary-ink">
                     <Icon className="size-4" />
                   </span>
                   <span className="truncate font-medium">{label}</span>

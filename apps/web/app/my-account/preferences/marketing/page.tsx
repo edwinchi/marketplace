@@ -81,7 +81,7 @@ export default async function MarketingPreferencesPage() {
 
       <p className="text-sm text-muted-foreground">
         Want to set email preferences just for saved searches?{" "}
-        <Link href="/my-account/saved-searches" className="text-primary underline underline-offset-2">
+        <Link href="/my-account/saved-searches" className="text-primary-ink underline underline-offset-2">
           Manage your saved searches here.
         </Link>
       </p>

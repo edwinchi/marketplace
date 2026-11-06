@@ -60,7 +60,7 @@ export function AccountMenu({ name }: { name: string }) {
                 <Link
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]"
+                  className="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-brand-green"
                 >
                   <item.icon className="size-4 text-muted-foreground" />
                   {t(item.key)}

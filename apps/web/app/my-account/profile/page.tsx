@@ -165,7 +165,7 @@ export default async function MyAccountPage() {
               <CardTitle className="text-base">{t("website")}</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground">
-              <a href={profile.website_url} target="_blank" rel="noopener noreferrer" className="text-primary transition-colors hover:underline">
+              <a href={profile.website_url} target="_blank" rel="noopener noreferrer" className="text-primary-ink transition-colors hover:underline">
                 {profile.website_url}
               </a>
             </CardContent>

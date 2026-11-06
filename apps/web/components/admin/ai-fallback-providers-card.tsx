@@ -19,7 +19,7 @@ export function AiFallbackProvidersCard({ status }: { status: AiFallbackProvider
   return (
     <div className="rounded-xl border bg-card p-5 shadow-sm sm:col-span-2">
       <p className="flex items-center gap-1.5 text-sm font-semibold text-[#082040]">
-        <Zap className="size-4 text-[#e89818]" /> Fallback AI providers
+        <Zap className="size-4 text-primary-ink" /> Fallback AI providers
       </p>
       <p className="mt-1 text-xs text-muted-foreground">
         Tried before OpenRouter for every AI feature — each has its own separate free daily quota, so configuring them adds real capacity rather

@@ -43,12 +43,12 @@ export function DocumentPage({ title, subtitle, disclaimer, children }: Props) {
             <img src="/logo.svg?v=5" alt="MarketitNow" className="h-6 w-auto print:h-7" />
           </div>
 
-          <p className="text-xs font-semibold tracking-wide text-[#e89818] uppercase">Template</p>
+          <p className="text-xs font-semibold tracking-wide text-primary-ink uppercase">Template</p>
           <h1 className="mt-1 text-2xl font-bold text-[#082040] sm:text-3xl">{title}</h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{subtitle}</p>
 
           <div className="mt-4 flex items-start gap-2 rounded-lg border border-[#e89818]/30 bg-[#e89818]/5 p-3 text-xs text-[#082040]">
-            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-[#e89818]" />
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-primary-ink" />
             <p>{disclaimer}</p>
           </div>
 

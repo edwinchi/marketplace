@@ -117,7 +117,7 @@ export default async function BusinessPage({
             <ul className="flex flex-col gap-2 text-sm text-white/90">
               {BUSINESS_INCLUDES.map((line) => (
                 <li key={line} className="flex items-start gap-2">
-                  <Check className="mt-0.5 size-4 shrink-0 text-[#e89818]" />
+                  <Check className="mt-0.5 size-4 shrink-0 text-primary-ink" />
                   {line}
                 </li>
               ))}

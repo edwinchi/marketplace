@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import "./vendor/shadcn-tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -40,6 +40,9 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  /* Orange TEXT colour (text-primary-ink). --primary (#e89818) is for fills: as text on a light
+     background it's 2.2:1, far under WCAG AA's 4.5:1. */
+  --color-primary-ink: var(--primary-ink);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -71,11 +74,16 @@
      green #008848. Orange carries primary actions/links/focus; navy and green are used
      sparingly elsewhere (nav text, status accents) rather than saturating the whole UI. */
   --primary: #e89818;
+  /* Deep amber for orange text on light backgrounds: 4.7:1+ on white, the off-white page and the
+     orange/green tints (axe scan 2026-11-06). Fills keep #e89818. */
+  --primary-ink: #a05e00;
   --primary-foreground: #082040;
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  /* #696969, was oklch(0.556 0 0) = #737373: 4.3:1 on the grey tab/field backgrounds (axe
+     2026-11-06); this is 4.6:1+ on every light surface the app uses. */
+  --muted-foreground: #696969;
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
@@ -98,7 +106,9 @@
   --sidebar-ring: #e89818;
   --brand-navy: #082040;
   --brand-gold: #e89818;
-  --brand-green: #008848;
+  /* #008848 was 4.4:1 on the off-white page (footer links failed WCAG AA); #007f43 is 5:1 and
+     looks the same. */
+  --brand-green: #007f43;
 }
 
 .dark {
@@ -109,6 +119,7 @@
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
   --primary: #f2ad3d;
+  --primary-ink: #f2ad3d; /* the lighter orange already reads well on the dark background */
   --primary-foreground: #082040;
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);

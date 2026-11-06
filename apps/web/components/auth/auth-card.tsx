@@ -54,7 +54,7 @@ export function AuthCard({
               <button
                 type="button"
                 onClick={() => setTab("signup")}
-                className="font-medium text-primary underline-offset-2 hover:underline"
+                className="font-medium text-primary-ink underline-offset-2 hover:underline"
               >
                 {t("registerHere")}
               </button>
@@ -65,7 +65,7 @@ export function AuthCard({
               <button
                 type="button"
                 onClick={() => setTab("login")}
-                className="font-medium text-primary underline-offset-2 hover:underline"
+                className="font-medium text-primary-ink underline-offset-2 hover:underline"
               >
                 {t("logInNow")}
               </button>

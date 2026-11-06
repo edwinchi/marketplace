@@ -57,7 +57,7 @@ type Props = {
 function SectionHeading({ icon: Icon, children }: { icon: React.ComponentType<{ className?: string }>; children: React.ReactNode }) {
   return (
     <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary-ink">
         <Icon className="size-4" />
       </span>
       {children}
@@ -256,7 +256,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
                 onClick={analyzeFromPhotos}
                 className="shrink-0 gap-1.5"
               >
-                <Sparkles className="size-4 text-primary" />
+                <Sparkles className="size-4 text-primary-ink" />
                 {analyzing ? "Analyzing…" : "Fill in title & description with AI"}
               </Button>
               <div className="pt-1 text-xs text-muted-foreground">
@@ -335,7 +335,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
           )}
           {plateError && <p className="mt-2 text-sm text-destructive">{plateError}</p>}
           {attributeDefaults && !plateError && (
-            <p className="mt-2 text-sm text-[#008848]">Filled in below — review before continuing.</p>
+            <p className="mt-2 text-sm text-brand-green">Filled in below — review before continuing.</p>
           )}
         </section>
       )}
@@ -351,7 +351,7 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
             <Label htmlFor="description">Description</Label>
             {aiAssisted && draftDescription && (
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Sparkles className="size-3 text-primary" />
+                <Sparkles className="size-3 text-primary-ink" />
                 AI-generated — please review
               </span>
             )}

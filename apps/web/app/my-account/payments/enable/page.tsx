@@ -60,7 +60,7 @@ export default async function EnablePaymentsPage({
         // country Stripe assumed at the time; if charges are genuinely enabled, don't tell them
         // "coming soon" for a feature they're already using.
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed py-16">
-          <CheckCircle2 className="size-10 text-[#008848]" />
+          <CheckCircle2 className="size-10 text-brand-green" />
           <p className="font-medium">Payments enabled</p>
           <p className="max-w-xs text-sm text-muted-foreground">
             Buyers can pay you directly through MarketitNow — funds go straight to your own bank
@@ -86,7 +86,7 @@ export default async function EnablePaymentsPage({
         </div>
       ) : !countryEligible ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed py-16">
-          <Clock className="size-10 text-[#e89818]" />
+          <Clock className="size-10 text-primary-ink" />
           <p className="font-medium">Coming soon to {getCountryName(row.country_code)}</p>
           <p className="max-w-xs text-sm text-muted-foreground">
             Direct bank payouts run on Stripe, which doesn&apos;t yet support {getCountryName(row.country_code)} —

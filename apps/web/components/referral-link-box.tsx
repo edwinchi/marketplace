@@ -22,7 +22,7 @@ export function ReferralLinkBox({ link }: { link: string }) {
     <div className="flex items-center gap-2 rounded-lg border bg-muted/40 p-2">
       <code className="flex-1 truncate px-1 text-sm">{link}</code>
       <Button type="button" size="sm" variant="outline" onClick={copy} className="shrink-0 gap-1.5">
-        {copied ? <Check className="size-3.5 text-[#008848]" /> : <Copy className="size-3.5" />}
+        {copied ? <Check className="size-3.5 text-brand-green" /> : <Copy className="size-3.5" />}
         {copied ? "Copied" : "Copy"}
       </Button>
     </div>

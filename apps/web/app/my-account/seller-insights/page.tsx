@@ -101,7 +101,7 @@ export default async function SellerInsightsPage() {
     return (
       <div className="mx-auto w-full max-w-2xl px-4 py-12">
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed p-10 text-center">
-          <span className="flex size-12 items-center justify-center rounded-full bg-[#008848]/10 text-[#008848]">
+          <span className="flex size-12 items-center justify-center rounded-full bg-[#008848]/10 text-brand-green">
             <BarChart3 className="size-5" />
           </span>
           <div>
@@ -209,7 +209,7 @@ export default async function SellerInsightsPage() {
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8">
       <div className="mb-6 flex items-center gap-2">
-        <span className="flex size-9 items-center justify-center rounded-full bg-[#008848]/10 text-[#008848]">
+        <span className="flex size-9 items-center justify-center rounded-full bg-[#008848]/10 text-brand-green">
           <BarChart3 className="size-4" />
         </span>
         <h1 className="text-xl font-semibold text-[#082040]">Seller performance insights</h1>
@@ -246,7 +246,7 @@ export default async function SellerInsightsPage() {
           <Card>
             <CardContent>
               <p className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-[#082040]">
-                <TrendingUp className="size-4 text-[#008848]" /> Your best vs. lowest performing listing
+                <TrendingUp className="size-4 text-brand-green" /> Your best vs. lowest performing listing
               </p>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Link href={`/listings/${slugPath(bestListing.title, bestListing.id)}`} className="rounded-lg border p-3 transition-colors hover:bg-brand-green/10">
@@ -268,7 +268,7 @@ export default async function SellerInsightsPage() {
           <Card>
             <CardContent>
               <p className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-[#082040]">
-                <Camera className="size-4 text-[#008848]" /> Photos and views
+                <Camera className="size-4 text-brand-green" /> Photos and views
               </p>
               <p className="text-sm text-muted-foreground">
                 Your {photoInsight.withCount} listing{photoInsight.withCount === 1 ? "" : "s"} with 4+ photos average{" "}
@@ -284,7 +284,7 @@ export default async function SellerInsightsPage() {
           <Card>
             <CardContent>
               <p className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-[#082040]">
-                <BarChart3 className="size-4 text-[#008848]" /> How you compare in {categoryBenchmark.categoryLabel}
+                <BarChart3 className="size-4 text-brand-green" /> How you compare in {categoryBenchmark.categoryLabel}
               </p>
               <p className="text-sm text-muted-foreground">
                 Your listings in {categoryBenchmark.categoryLabel} average{" "}
@@ -300,7 +300,7 @@ export default async function SellerInsightsPage() {
           <Card>
             <CardContent>
               <p className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-[#082040]">
-                <Clock className="size-4 text-[#008848]" /> Time to sell
+                <Clock className="size-4 text-brand-green" /> Time to sell
               </p>
               <p className="text-sm text-muted-foreground">
                 Your {soldListings.length} sold listing{soldListings.length === 1 ? "" : "s"} took an average of{" "}

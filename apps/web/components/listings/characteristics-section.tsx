@@ -102,7 +102,7 @@ export function CharacteristicsSection({
         <h2 className="text-lg font-semibold">Characteristics</h2>
         {total > 0 && (
           <div className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
-            <Sparkles className="size-3.5 text-primary" />
+            <Sparkles className="size-3.5 text-primary-ink" />
             <div className="flex flex-col items-end gap-1">
               <span>Fill these in to sell faster</span>
               <div className="flex items-center gap-2">

@@ -13,7 +13,7 @@ export function HealthCheckCard({ result }: { result: HealthCheckResult | null }
         {!result ? (
           <HelpCircle className="size-4 text-muted-foreground" />
         ) : result.allPassed ? (
-          <CheckCircle2 className="size-4 text-[#008848]" />
+          <CheckCircle2 className="size-4 text-brand-green" />
         ) : (
           <AlertTriangle className="size-4 text-destructive" />
         )}

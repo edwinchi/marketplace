@@ -96,6 +96,8 @@ export function PhotoGallery({
               key={src + i}
               type="button"
               onClick={() => setActive(i)}
+              aria-label={`Photo ${i + 1} of ${images.length}`}
+              aria-current={i === active ? "true" : undefined}
               className={`relative size-16 shrink-0 overflow-hidden rounded-md border-2 ${
                 i === active ? "border-primary" : "border-transparent"
               }`}

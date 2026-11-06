@@ -75,7 +75,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
       ) : (
         <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed py-14 text-center">
           <p className="text-muted-foreground">No listings in {target.name} yet — be the first.</p>
-          <Link href="/listings/new" className="font-medium text-primary underline underline-offset-4 hover:no-underline">
+          <Link href="/listings/new" className="font-medium text-primary-ink underline underline-offset-4 hover:no-underline">
             Post a free ad
           </Link>
         </div>

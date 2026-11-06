@@ -182,7 +182,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
                 <div className="min-w-0">
                   <p className="truncate font-medium">{thread.otherName}</p>
                   {thread.listingId ? (
-                    <Link href={`/listings/${slugPath(thread.listingTitle, thread.listingId)}`} className="truncate text-xs text-muted-foreground hover:text-primary hover:underline">
+                    <Link href={`/listings/${slugPath(thread.listingTitle, thread.listingId)}`} className="truncate text-xs text-muted-foreground hover:text-primary-ink hover:underline">
                       {thread.listingTitle}
                     </Link>
                   ) : (

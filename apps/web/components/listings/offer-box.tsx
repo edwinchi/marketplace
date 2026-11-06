@@ -28,7 +28,7 @@ export function OfferBox({
 
   if (!signedIn) {
     return (
-      <a href="/login" className="text-sm text-primary underline transition-colors hover:text-primary/80">
+      <a href="/login" className="text-sm text-primary-ink underline transition-colors hover:text-primary-ink/80">
         {t("signInToOffer")}
       </a>
     );

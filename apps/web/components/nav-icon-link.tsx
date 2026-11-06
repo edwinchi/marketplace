@@ -12,10 +12,19 @@ import type { ComponentProps } from "react";
 export function NavIconLink({
   href,
   className,
-  activeClassName = "bg-[#c8f0c8] text-[#046637]",
+  // "!" because callers pass their own text colour (text-muted-foreground) and the two classes tied:
+  // the grey won, giving 4.4:1 on the green highlight (axe 2026-11-06). Dark green is 7:1.
+  activeClassName = "bg-[#c8f0c8] !text-[#046637]",
   ...props
 }: ComponentProps<typeof Link> & { activeClassName?: string }) {
   const pathname = usePathname();
   const active = pathname === href || pathname.startsWith(`${href}/`);
-  return <Link href={href} className={`${className ?? ""} ${active ? activeClassName : ""}`} {...props} />;
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={`${className ?? ""} ${active ? activeClassName : ""}`}
+      {...props}
+    />
+  );
 }

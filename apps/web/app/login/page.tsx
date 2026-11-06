@@ -64,7 +64,7 @@ export default async function LoginPage({
         <div className="mt-12 grid w-full max-w-3xl grid-cols-1 gap-x-8 gap-y-7 sm:grid-cols-3">
           {benefits.map(({ icon: Icon, title, text }) => (
             <div key={title} className="flex flex-col items-center gap-2 text-center sm:items-start sm:text-left">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-[#e89818]">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-primary-ink">
                 <Icon className="size-4.5" />
               </span>
               <p className="text-sm font-semibold text-white">{title}</p>

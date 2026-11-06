@@ -5,7 +5,7 @@ export function OpenRouterStatusCard({ status }: { status: OpenRouterStatus | nu
   return (
     <div className="rounded-xl border bg-card p-5 shadow-sm sm:col-span-2">
       <p className="flex items-center gap-1.5 text-sm font-semibold text-[#082040]">
-        <Zap className="size-4 text-[#e89818]" /> AI service (OpenRouter) — top-up guide
+        <Zap className="size-4 text-primary-ink" /> AI service (OpenRouter) — top-up guide
       </p>
 
       {status ? (

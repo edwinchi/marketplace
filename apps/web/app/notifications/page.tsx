@@ -62,7 +62,7 @@ export default async function NotificationsPage() {
             const href = listingId ? `/listings/x-${listingId}` : url && url.startsWith("/") && !url.startsWith("//") ? url : null;
             const content = (
               <>
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#008848]/10 text-[#008848]">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#008848]/10 text-brand-green">
                   <Icon className="size-4" />
                 </span>
                 <div className="min-w-0 flex-1">

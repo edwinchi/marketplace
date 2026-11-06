@@ -131,7 +131,7 @@ async function CarResultCard({ listing, favorited, signedIn }: { listing: CarsLi
             </span>
           )}
           {listing.price_type === "bidding" && (
-            <span className="mt-1.5 inline-block rounded-full bg-[#008848]/10 px-2 py-0.5 text-[11px] font-medium text-[#008848]">
+            <span className="mt-1.5 inline-block rounded-full bg-[#008848]/10 px-2 py-0.5 text-[11px] font-medium text-brand-green">
               Open to offers
             </span>
           )}
@@ -148,7 +148,7 @@ async function CarResultCard({ listing, favorited, signedIn }: { listing: CarsLi
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="mt-0.5 flex items-center gap-1 text-[#e89818] hover:underline"
+                className="mt-0.5 flex items-center gap-1 text-primary-ink hover:underline"
               >
                 <Globe className="size-3" />Visit website
               </a>
@@ -212,7 +212,7 @@ export function CarsSearchResults({
             <summary className="mb-1 flex cursor-pointer list-none items-center justify-between gap-2 rounded-xl border bg-card p-4 font-semibold text-[#082040] lg:hidden">
               <span className="flex items-center gap-2">
                 Filters
-                {filtered && <span className="rounded-full bg-[#e89818]/15 px-2 py-0.5 text-xs font-medium text-[#e89818]">Active</span>}
+                {filtered && <span className="rounded-full bg-[#e89818]/15 px-2 py-0.5 text-xs font-medium text-primary-ink">Active</span>}
               </span>
               <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
             </summary>
@@ -225,7 +225,7 @@ export function CarsSearchResults({
               ))}
               {extraBrands.length > 0 && (
                 <details className="mt-1">
-                  <summary className="cursor-pointer text-xs font-medium text-[#e89818]">Show {extraBrands.length} more</summary>
+                  <summary className="cursor-pointer text-xs font-medium text-primary-ink">Show {extraBrands.length} more</summary>
                   <div className="mt-1">
                     {extraBrands.map(([brand, count]) => (
                       <RadioRow key={brand} name="brand" value={brand} label={brand} count={count} checked={filters.brand === brand} />
@@ -342,7 +342,7 @@ export function CarsSearchResults({
               <Car className="size-10 text-muted-foreground" />
               <p className="font-medium">No cars match yet</p>
               <p className="max-w-sm text-sm text-muted-foreground">Try clearing a filter, or check back soon — new listings are added all the time.</p>
-              <Link href={basePath} className="mt-2 text-sm font-medium text-[#e89818] hover:underline">Clear filters</Link>
+              <Link href={basePath} className="mt-2 text-sm font-medium text-primary-ink hover:underline">Clear filters</Link>
             </div>
           )}
 

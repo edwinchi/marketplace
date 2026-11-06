@@ -70,7 +70,7 @@ export function MobileNavMenu({
           <p className="mb-2 px-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Quick access</p>
           <ul className="mb-3 flex flex-col gap-0.5">
             <li>
-              <Link href="/messages" onClick={() => setOpen(false)} className="relative flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]">
+              <Link href="/messages" onClick={() => setOpen(false)} className="relative flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-brand-green">
                 <MessageCircle className="size-4 text-muted-foreground" />
                 {t("messages")}
                 {unreadCount > 0 && (
@@ -81,25 +81,25 @@ export function MobileNavMenu({
               </Link>
             </li>
             <li>
-              <Link href="/welcome" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]">
+              <Link href="/welcome" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-brand-green">
                 <BookOpen className="size-4 text-muted-foreground" />
                 {t("howItWorks")}
               </Link>
             </li>
             <li>
-              <Link href="/app" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]">
+              <Link href="/app" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-brand-green">
                 <Smartphone className="size-4 text-muted-foreground" />
                 {t("getTheApp")}
               </Link>
             </li>
             <li>
-              <Link href="/notifications" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]">
+              <Link href="/notifications" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-brand-green">
                 <Bell className="size-4 text-muted-foreground" />
                 {t("notifications")}
               </Link>
             </li>
             <li>
-              <Link href={signedIn ? "/my-account/profile" : "/login"} onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]">
+              <Link href={signedIn ? "/my-account/profile" : "/login"} onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-brand-green">
                 <User className="size-4 text-muted-foreground" />
                 {signedIn ? accountName : t("signIn")}
               </Link>
@@ -120,17 +120,17 @@ export function MobileNavMenu({
           <div className="my-2 border-t" />
           <ul className="flex flex-col gap-0.5 pt-1">
             <li>
-              <Link href="/help" onClick={() => setOpen(false)} className="block rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]">
+              <Link href="/help" onClick={() => setOpen(false)} className="block rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-brand-green">
                 {t("helpInfo")}
               </Link>
             </li>
             <li>
-              <Link href="/terms" onClick={() => setOpen(false)} className="block rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]">
+              <Link href="/terms" onClick={() => setOpen(false)} className="block rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-brand-green">
                 {t("terms")}
               </Link>
             </li>
             <li>
-              <Link href="/safety" onClick={() => setOpen(false)} className="block rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-[#008848]">
+              <Link href="/safety" onClick={() => setOpen(false)} className="block rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-[#008848]/10 hover:text-brand-green">
                 {t("safetyCenter")}
               </Link>
             </li>

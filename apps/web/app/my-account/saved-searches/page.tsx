@@ -77,7 +77,7 @@ export default async function SavedSearchesPage() {
           )}
         </div>
         <div className="flex items-start gap-2 rounded-lg border bg-primary/5 p-4 text-sm">
-          <Info className="mt-0.5 size-4 shrink-0 text-primary" />
+          <Info className="mt-0.5 size-4 shrink-0 text-primary-ink" />
           <p>
             <span className="font-semibold">Found what you were looking for?</span> Remove the saved search once you don&apos;t need updates for it anymore.
           </p>

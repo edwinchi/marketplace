@@ -71,7 +71,7 @@ export default async function TransactionsPage({
           <Link
             key={t.key}
             href={`/my-account/transactions?tab=${t.key}`}
-            className={`-mb-px border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${tab === t.key ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            className={`-mb-px border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${tab === t.key ? "border-primary text-primary-ink" : "border-transparent text-muted-foreground hover:text-foreground"}`}
           >
             {t.label}
           </Link>
@@ -83,7 +83,7 @@ export default async function TransactionsPage({
           <Link
             key={f.key}
             href={`/my-account/transactions?tab=${tab}${f.key === "all" ? "" : `&status=${f.key}`}`}
-            className={`rounded-full border px-3 py-1 text-sm transition-colors ${status === f.key ? "border-primary bg-primary/10 font-medium text-primary" : "text-muted-foreground hover:bg-brand-green/10"}`}
+            className={`rounded-full border px-3 py-1 text-sm transition-colors ${status === f.key ? "border-primary bg-primary/10 font-medium text-primary-ink" : "text-muted-foreground hover:bg-brand-green/10"}`}
           >
             {f.label}
           </Link>

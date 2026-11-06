@@ -117,7 +117,7 @@ export default async function AiFeaturesPage({
           and earned, not like a limitation being apologized for. */}
       <div className="overflow-hidden rounded-2xl border shadow-sm">
         <div className="flex items-start gap-4 p-6">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#008848]/10 text-[#008848]">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#008848]/10 text-brand-green">
             <Camera className="size-5" />
           </span>
           <div className="min-w-0 flex-1">
@@ -219,7 +219,7 @@ export default async function AiFeaturesPage({
                 <ul className="flex flex-col gap-2 text-sm text-white/90">
                   {SELLER_PRO_INCLUDES.map((line) => (
                     <li key={line} className="flex items-start gap-2">
-                      <Check className="mt-0.5 size-4 shrink-0 text-[#e89818]" />
+                      <Check className="mt-0.5 size-4 shrink-0 text-primary-ink" />
                       {line}
                     </li>
                   ))}
@@ -257,15 +257,15 @@ export default async function AiFeaturesPage({
                 </div>
                 <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
-                    <Check className="mt-0.5 size-4 shrink-0 text-[#008848]" />
+                    <Check className="mt-0.5 size-4 shrink-0 text-brand-green" />
                     +{AI_TOPUP_USES} more photo autofill uses
                   </li>
                   <li className="flex items-start gap-2">
-                    <Check className="mt-0.5 size-4 shrink-0 text-[#008848]" />
+                    <Check className="mt-0.5 size-4 shrink-0 text-brand-green" />
                     No subscription — pay once, use anytime
                   </li>
                   <li className="flex items-start gap-2">
-                    <Check className="mt-0.5 size-4 shrink-0 text-[#008848]" />
+                    <Check className="mt-0.5 size-4 shrink-0 text-brand-green" />
                     Best for occasional sellers
                   </li>
                 </ul>
@@ -293,13 +293,13 @@ export default async function AiFeaturesPage({
           {SELLER_PRO_FEATURES.map((f) => {
             const card = (
               <>
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#008848]/10 text-[#008848]">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#008848]/10 text-brand-green">
                   <f.icon className="size-4" />
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="font-medium text-[#082040]">{f.title}</p>
                   <p className="mt-0.5 text-sm text-muted-foreground">{f.body}</p>
-                  {f.href && <p className="mt-1.5 text-xs font-medium text-[#008848]">View your insights →</p>}
+                  {f.href && <p className="mt-1.5 text-xs font-medium text-brand-green">View your insights →</p>}
                 </div>
               </>
             );

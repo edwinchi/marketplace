@@ -41,7 +41,7 @@ export function LoginForm({ next = "/" }: { next?: string }) {
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
             <Label htmlFor="password">{t("password")}</Label>
-            <a href="/forgot-password" className="text-xs font-medium text-primary underline-offset-2 hover:underline">
+            <a href="/forgot-password" className="text-xs font-medium text-primary-ink underline-offset-2 hover:underline">
               {t("forgotPassword")}
             </a>
           </div>

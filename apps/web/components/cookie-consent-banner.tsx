@@ -23,7 +23,7 @@ export function CookieConsentBanner() {
     <div className="fixed inset-x-0 bottom-0 z-50 border-t bg-card p-4 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] print:hidden">
       <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-3 sm:flex-row sm:justify-between">
         <p className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Cookie className="size-4 shrink-0 text-[#e89818]" />
+          <Cookie className="size-4 shrink-0 text-primary-ink" />
           We use essential cookies to keep you signed in, and would like your OK for optional
           analytics cookies that help us improve MarketitNow.{" "}
           <Link href="/privacy" className="underline hover:text-foreground">Learn more</Link>

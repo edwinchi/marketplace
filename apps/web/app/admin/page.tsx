@@ -152,7 +152,7 @@ export default async function AdminDashboardPage() {
     <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-3 border-b pb-6">
         <div>
-          <p className="text-xs font-semibold tracking-wide text-[#e89818] uppercase">MarketitNow</p>
+          <p className="text-xs font-semibold tracking-wide text-primary-ink uppercase">MarketitNow</p>
           <h1 className="text-2xl font-bold tracking-tight text-[#082040]">Executive Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">Real, live figures straight from the database — no sample or placeholder data.</p>
         </div>
@@ -211,15 +211,15 @@ export default async function AdminDashboardPage() {
 
       {/* Primary KPIs */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={Eye} label="Visitors today" value={stats.visitorsToday} sublabel={`${stats.visitorsLast7Days} in the last 7 days`} accent="bg-[#008848]/10 text-[#008848]" />
+        <StatCard icon={Eye} label="Visitors today" value={stats.visitorsToday} sublabel={`${stats.visitorsLast7Days} in the last 7 days`} accent="bg-[#008848]/10 text-brand-green" />
         <StatCard icon={Users} label="Total users" value={stats.totalUsers} sublabel={`${stats.businessUsers} business · ${stats.privateUsers} private`} accent="bg-[#082040]/10 text-[#082040]" />
-        <StatCard icon={Store} label="Active listings" value={stats.activeListings} sublabel={`${stats.deletedListings} removed`} accent="bg-[#e89818]/10 text-[#e89818]" />
+        <StatCard icon={Store} label="Active listings" value={stats.activeListings} sublabel={`${stats.deletedListings} removed`} accent="bg-[#e89818]/10 text-primary-ink" />
         <StatCard
           icon={DollarSign}
           label="Active inventory value"
           value={formatPrice(stats.totalValueUsd, "USD")}
           sublabel={stats.valueConvertedFrom < stats.valueTotalActive ? `${stats.valueTotalActive - stats.valueConvertedFrom} listing(s) not convertible` : "Converted to USD live"}
-          accent="bg-[#008848]/10 text-[#008848]"
+          accent="bg-[#008848]/10 text-brand-green"
         />
         <StatCard icon={Sparkles} label="AI photo analyses used" value={stats.totalAiUses} sublabel="Across all accounts" accent="bg-[#082040]/10 text-[#082040]" />
       </div>

@@ -46,7 +46,7 @@ export function PlanInfoDialog({
         <ul className="flex flex-col gap-2.5 text-sm">
           {features.map((f) => (
             <li key={f} className="flex items-start gap-2">
-              <Check className="mt-0.5 size-4 shrink-0 text-[#008848]" />
+              <Check className="mt-0.5 size-4 shrink-0 text-brand-green" />
               {f}
             </li>
           ))}
