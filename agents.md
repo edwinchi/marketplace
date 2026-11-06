@@ -912,8 +912,26 @@ sign-in, against the same production database) — it should be replaced with a 
 marketitnow.net or taken down; until then, treat it as an outdated live copy, not a deploy target.
 
 **Deploy = Level 3 (owner sign-off each time).** Verify after every deploy: `vercel inspect
-marketitnow.net` (from `apps/web`) shows the new deployment id, and `curl -I https://marketitnow.net`
-returns the expected headers.
+marketitnow.net` (from `apps/web`) shows the new deployment id, `curl https://marketitnow.net/api/health`
+returns `{"ok":true,"database":"up","version":"<commit>"}` with the pushed commit, and
+`curl -I https://marketitnow.net` returns the expected headers.
+
+**Links always say marketitnow.net.** `lib/site-url.ts` returns `CANONICAL_ORIGIN`
+(`https://marketitnow.net`) whenever `VERCEL_ENV=production`, for every email, OAuth `redirectTo`,
+Stripe return URL and share link, whatever host the request arrived on (also closes Host-header
+reset-link poisoning; `tests/site-url.test.ts`). Previews/local dev still follow the request host.
+Sitemap and robots import the same constant.
+
+**Health endpoint:** `GET /api/health` (`app/api/health/route.ts`), anon key, one public row,
+`no-store`; 200 when the database answers within 4s, else 503. Point uptime monitoring at it.
+
+**Brand assets (vector since 2026-11-06).** `public/logo.svg` (full lockup with swoosh, desktop
+header, documents, admin, offline page), `public/logo-compact.svg` (no swoosh, mobile header) and
+`public/logo-mark.svg` (cart+globe) were traced from the original artwork (brand colours navy
+`#032b67`, green `#0e9c50`, orange `#f2920e`). Every PNG (`logo.png` for JSON-LD/OG, `logo-sm.png` for
+Stripe Checkout, `icon-*.png`, `app/icon.png`, `app/apple-icon.png`, `app/favicon.ico`) is rendered from
+those SVGs at the old sizes. Replace the SVGs first and regenerate the PNGs from them, never the other
+way round; bump the `?v=` on references and `sw.js`'s `VERSION` when they change.
 
 **Deploy trigger: git push, not FTP.** Vercel is connected to the `github` remote's `main` branch
 (a separate GitHub repo, `edwinchi/marketplace`, pushed to via an SSH deploy-key alias —

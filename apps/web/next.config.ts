@@ -107,7 +107,11 @@ const nextConfig: NextConfig = {
             // that it belongs in its own follow-up, not bundled into this first pass of "no
             // headers at all" -> "a real, working CSP". challenges.cloudflare.com is Turnstile
             // (components/turnstile-widget.tsx) -- bot protection on signup and posting a listing.
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://challenges.cloudflare.com",
+            // 'unsafe-eval' only in development (React's dev build and Turbopack HMR use eval);
+            // production Next.js, Stripe.js and Turnstile don't, so live pages no longer allow
+            // eval() to run injected strings. Verified 2026-11-06 with a production build: no CSP
+            // violations on home, a listing, signup (Turnstile) or login.
+            `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval'"} https://js.stripe.com https://challenges.cloudflare.com`,
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "font-src 'self' https://fonts.gstatic.com",
             "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com",
