@@ -12,6 +12,20 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 // once deployed. Vercel sets its own VERCEL env var during every build, so that's what gates this.
 const isVercel = !!process.env.VERCEL;
 
+// The image optimizer may only fetch from THIS project's Supabase Storage. It used to allow
+// `*.supabase.co`, i.e. any stranger's Supabase bucket could be pulled through /_next/image on our
+// domain (bandwidth abuse, and the input path for the Next 16.0–16.4.0 SVG optimizer RCE,
+// GHSA-2464-fhr4-w9xw). Taken from the env so a project move needs no code change. Failing the
+// build is better than shipping a site where every listing photo silently 400s.
+const supabaseHost = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").hostname;
+  } catch {
+    return "";
+  }
+})();
+if (isVercel && !supabaseHost) throw new Error("NEXT_PUBLIC_SUPABASE_URL is missing: listing photos would not load");
+
 const nextConfig: NextConfig = {
   ...(isVercel
     ? {}
@@ -41,8 +55,10 @@ const nextConfig: NextConfig = {
       // Demo/seed listing photos (scripts/seed-demo-listings.mjs) — remove once real listing
       // photo uploads exist and demo data is gone.
       { protocol: "https", hostname: "images.unsplash.com" },
-      // Real listing photos, once upload exists (Supabase Storage public URLs).
-      { protocol: "https", hostname: "*.supabase.co", pathname: "/storage/v1/object/public/**" },
+      // Real listing photos (this project's Supabase Storage public URLs only, see supabaseHost).
+      ...(supabaseHost
+        ? [{ protocol: "https" as const, hostname: supabaseHost, pathname: "/storage/v1/object/public/**" }]
+        : []),
     ],
   },
   // No security headers existed at all before this -- confirmed live (curl -I marketitnow.net had
@@ -73,6 +89,14 @@ const nextConfig: NextConfig = {
         // way to verify every embed path from here.
         { key: "X-Frame-Options", value: "SAMEORIGIN" },
         { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+        // Turn off browser features the app never uses, so injected or embedded code can't ask for
+        // them either. Photo capture uses <input capture="environment">, which opens the OS camera
+        // app and needs no camera permission; share/clipboard stay allowed for this origin by
+        // default. payment= keeps Stripe.js's wallet buttons working.
+        {
+          key: "Permissions-Policy",
+          value: 'camera=(), microphone=(), geolocation=(), usb=(), browsing-topics=(), payment=(self "https://js.stripe.com")',
+        },
         {
           key: "Content-Security-Policy",
           value: [
