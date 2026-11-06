@@ -12,10 +12,10 @@
 //   to the network, exactly as without a service worker.
 //
 // Bump VERSION when offline.html or the precache list changes; activate() drops old caches.
-const VERSION = "v1";
+const VERSION = "v2";
 const PRECACHE = `precache-${VERSION}`;
 const STATIC = `static-${VERSION}`;
-const PRECACHE_URLS = ["/offline.html", "/icon-192.png", "/logo-sm.png?v=4"];
+const PRECACHE_URLS = ["/offline.html", "/icon-192.png", "/logo.svg?v=5"];
 const MAX_STATIC_ENTRIES = 250;
 
 self.addEventListener("install", (event) => {

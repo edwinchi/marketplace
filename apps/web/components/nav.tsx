@@ -70,12 +70,13 @@ export async function Nav() {
             accountName={profile?.username || t("myAccount")}
             unreadCount={unreadCount}
           />
-          <Link href="/" aria-label="MarketitNow home" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            {/* logo-compact.png: the same source artwork cropped tight to just the cart+map+
-                wordmark (no swoosh underline) so it reads at full size in this shorter mobile
-                bar instead of looking squeezed -- full original resolution, just trimmed. */}
+          <Link href="/" aria-label="MarketitNow home" className="flex min-w-0 flex-1 justify-center px-2">
+            {/* logo-compact.svg: vector (sharp at any pixel density), no swoosh, cropped tight.
+                Centred in the space between the menu button and the icons rather than on the
+                screen: absolutely centred, the 171px-wide logo ran under the search icon on a
+                390px phone. max-w-full lets it shrink on narrower screens instead of overlapping. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-compact.png?v=3" alt="MarketitNow" className="h-11 w-auto" />
+            <img src="/logo-compact.svg?v=5" alt="MarketitNow" width={142} height={36} className="h-9 w-auto max-w-full" />
           </Link>
           <div className="flex items-center">
             {/* No search bar fits in this bar's height, and there was previously no way at all to
@@ -131,8 +132,11 @@ export async function Nav() {
                   a changed URL is a guaranteed cache miss everywhere (browser + CDN), unlike hoping
                   a revalidation notices the file changed. Bump the version whenever the file
                   changes again. */}
+              {/* Vector logo.svg since 2026-11-06 (the PNGs were AI-generated rasters that looked soft
+                  and faded). It's cropped to the artwork, so h-12 shows the same size the padded
+                  80px PNG did. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-sm.png?v=4" alt="MarketitNow" className="h-20 w-auto" />
+              <img src="/logo.svg?v=5" alt="MarketitNow" width={189} height={48} className="h-12 w-auto" />
             </Link>
             {/* xl, matching "How it works" right below -- the same measured constraint applies
                 (this row already fills 1024-1280px, only 1280px+ has real spare room). Search was
