@@ -1,0 +1,40 @@
+# Quality gate for MarketitNow (apps/web). Runs on every push and pull request; it never deploys
+# (Vercel deploys main on its own, AGENTS.md §13). A red run means: don't merge / don't push to main.
+# The production build itself is checked by Vercel, which has the env vars a build needs.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24 # same as the Vercel project
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install (exactly the lockfile)
+        run: npm ci
+      - name: Types
+        run: npx tsc --noEmit
+      - name: Lint
+        run: npx eslint .
+      - name: Unit tests
+        run: npx vitest run
+      - name: Known vulnerabilities (fails on high or critical)
+        run: npm audit --audit-level=high

@@ -12,6 +12,11 @@ decided architecture. Where this file and a document in `data/` disagree, **this
 (the 20 directives). Every report states what was done, why, risks introduced, risks mitigated and
 next actions. Production deploys (anything reaching https://marketitnow.net, including a push to
 `github main`) are Level 3: explicit sign-off each time. Deploy only to marketitnow.net (§13).
+Living docs to read and keep current: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md),
+[`docs/RUNBOOK.md`](docs/RUNBOOK.md), [`docs/THREAT-MODEL.md`](docs/THREAT-MODEL.md),
+[`docs/BACKLOG.md`](docs/BACKLOG.md), and the directive status in
+[`docs/operating-model/master-directive-status.md`](docs/operating-model/master-directive-status.md).
+CI (`.github/workflows/ci.yml`) must be green before anything goes to `main`.
 
 ## 1. What we're building
 
