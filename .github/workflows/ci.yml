@@ -22,14 +22,18 @@ jobs:
       run:
         working-directory: apps/web
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24 # same as the Vercel project
           cache: npm
           cache-dependency-path: apps/web/package-lock.json
       - name: Install (exactly the lockfile)
         run: npm ci
+      # LayoutProps/PageProps and typed routes are generated into .next/types; a fresh checkout has
+      # no .next, so generate them first (no build or env vars needed).
+      - name: Route types
+        run: npx next typegen
       - name: Types
         run: npx tsc --noEmit
       - name: Lint
