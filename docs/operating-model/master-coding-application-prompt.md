@@ -92,7 +92,7 @@ For every task:
 8. ✅ Optimize.
 9. ✅ Document.
 10. 🟡 Secure.
-11. 🟡 Deploy.
+11. ✅ Deploy.
 12. 🟡 Monitor.
 13. ✅ Improve.
 

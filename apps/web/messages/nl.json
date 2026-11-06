@@ -1,7 +1,11 @@
 {
   "Common": {
     "back": "Terug",
-    "skipToContent": "Naar inhoud"
+    "skipToContent": "Naar inhoud",
+    "sortBy": "Sorteren op",
+    "sortNewest": "Nieuwste eerst",
+    "sortPriceAsc": "Prijs: laag naar hoog",
+    "sortPriceDesc": "Prijs: hoog naar laag"
   },
   "Listen": {
     "listen": "Luisteren",
@@ -169,7 +173,12 @@
     "signInToMessage": "Log in om de verkoper een bericht te sturen",
     "signInToViewNumber": "Log in om het nummer te bekijken",
     "sending": "Versturen…",
-    "makeOffer": "Bod doen"
+    "makeOffer": "Bod doen",
+    "photoPrevious": "Vorige foto",
+    "photoNext": "Volgende foto",
+    "photoViewFull": "Volledig formaat bekijken",
+    "photoClose": "Sluiten",
+    "photoOf": "Foto {n} van {total}"
   },
   "Home": {
     "metaTitle": "Auto's, elektronica, meubels en meer kopen en verkopen",

@@ -1,9 +1,12 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const LABELS: Record<string, string> = { newest: "Newest first", price_asc: "Price: low to high", price_desc: "Price: high to low" };
+// Value -> Common.* translation key. The values are what the URL's ?sort= carries.
+const OPTIONS = { newest: "sortNewest", price_asc: "sortPriceAsc", price_desc: "sortPriceDesc" } as const;
+type SortValue = keyof typeof OPTIONS;
 
 // Standalone from the q/category/city search form above it -- this only ever needs to change one
 // param (sort) while preserving whatever else is already in the URL, which a plain GET form
@@ -11,6 +14,8 @@ const LABELS: Record<string, string> = { newest: "Newest first", price_asc: "Pri
 export function SortSelect({ sort }: { sort: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations("Common");
+  const label = (value: string | null) => t(OPTIONS[(value ?? "newest") as SortValue] ?? "sortNewest");
 
   function onChange(value: string | null) {
     if (!value) return;
@@ -25,14 +30,13 @@ export function SortSelect({ sort }: { sort: string }) {
 
   return (
     <Select value={sort} onValueChange={onChange}>
-      {/* English like the option labels above (translating this control is in the backlog). */}
-      <SelectTrigger size="sm" aria-label="Sort by" className="w-auto">
-        <SelectValue>{(value: string | null) => LABELS[value ?? "newest"]}</SelectValue>
+      <SelectTrigger size="sm" aria-label={t("sortBy")} className="w-auto">
+        <SelectValue>{label}</SelectValue>
       </SelectTrigger>
       <SelectContent>
-        {Object.entries(LABELS).map(([value, label]) => (
+        {(Object.keys(OPTIONS) as SortValue[]).map((value) => (
           <SelectItem key={value} value={value}>
-            {label}
+            {label(value)}
           </SelectItem>
         ))}
       </SelectContent>

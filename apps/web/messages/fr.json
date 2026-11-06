@@ -1,7 +1,11 @@
 {
   "Common": {
     "back": "Retour",
-    "skipToContent": "Passer au contenu"
+    "skipToContent": "Passer au contenu",
+    "sortBy": "Trier par",
+    "sortNewest": "Plus récents d'abord",
+    "sortPriceAsc": "Prix : croissant",
+    "sortPriceDesc": "Prix : décroissant"
   },
   "Listen": {
     "listen": "Écouter",
@@ -169,7 +173,12 @@
     "signInToMessage": "Connectez-vous pour contacter le vendeur",
     "signInToViewNumber": "Connectez-vous pour voir le numéro",
     "sending": "Envoi…",
-    "makeOffer": "Faire une offre"
+    "makeOffer": "Faire une offre",
+    "photoPrevious": "Photo précédente",
+    "photoNext": "Photo suivante",
+    "photoViewFull": "Voir en taille réelle",
+    "photoClose": "Fermer",
+    "photoOf": "Photo {n} sur {total}"
   },
   "Home": {
     "metaTitle": "Achetez et vendez voitures, électronique, meubles et plus",

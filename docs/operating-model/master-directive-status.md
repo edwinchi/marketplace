@@ -20,7 +20,7 @@ Open items are tracked in [`docs/BACKLOG.md`](../BACKLOG.md) (E1–E9) and
 | 7 | Production-grade code only | ✅ | Typed, linted, commented with the why; 62/62 tests; `next build` clean | — |
 | 8 | Secure by default | 🟡 | Next 16.4.5 (2 critical RCEs closed), image proxy own-host only, CSP without `unsafe-eval`, Permissions-Policy, canonical links (reset-link poisoning closed) | R1 Turnstile keys (owner); R4 nonce CSP (E3) |
 | 9 | Detect and eliminate technical debt | ✅ | Removed: shadcn CLI dependency, root `.vercel` stale link, hardcoded colours (124 uses → tokens), stale docs; remaining debt listed in the backlog (E4, E6) | Backlog items |
-| 10 | Comprehensive automated testing | 🟡 | Unit (62, incl. new `site-url`, `client-messages`), browser regression (20 checks), accessibility (axe, 26 page views), translation checks; CI runs types/lint/tests/audit | Contract tests for webhooks, load tests, e2e in CI on previews (E8) |
+| 10 | Comprehensive automated testing | 🟡 | Unit + contract (72: `site-url`, `client-messages`, Stripe webhook contract suite mutation-checked), browser regression (20 checks), accessibility (axe, 26 page views), translation checks; CI runs types/lint/tests/audit | Load tests; e2e in CI on previews (E8) |
 | 11 | Continuously validate quality | ✅ | Every change verified on a production build, then on the live site after deploy (`/api/health` commit check) | — |
 | 12 | Autonomous debugging | ✅ | Root causes found and fixed: header overlap (absolute centring), npm crash (Vite 8 optional peers), active-link contrast (class tie) | — |
 | 13 | Optimize performance | ✅ | Pages −11% to −17% (translations trimmed), settings query removed from most requests; image weight `logo.png` 557 → 37 KB | E4: RSC payload, `getClaims()` |
@@ -46,7 +46,7 @@ Open items are tracked in [`docs/BACKLOG.md`](../BACKLOG.md) (E1–E9) and
 | 8 Optimize | ✅ | Page weight, query count, image sizes |
 | 9 Document | ✅ | Architecture, runbook, threat model, backlog, this page, `AGENTS.md` |
 | 10 Secure | 🟡 | See #8 (R1 needs the owner) |
-| 11 Deploy | 🟡 | Security, logos, links, health live (commit `3b08f78`); performance + accessibility + clean dependencies (`27ef16d`+) wait for the owner's sign-off |
+| 11 Deploy | ✅ | All of cycle 1 live and verified on marketitnow.net (commit `c9d0518`): regression 20/20, accessibility 0 serious/critical, translations clean. Cycle 2 (translations, webhook tests) waits for sign-off |
 | 12 Monitor | 🟡 | Health endpoint + manual checks; alerting needs E2 |
 | 13 Improve | ✅ | Backlog prioritised for the next cycle |
 

@@ -1,7 +1,11 @@
 {
   "Common": {
     "back": "رجوع",
-    "skipToContent": "تخطَّ إلى المحتوى"
+    "skipToContent": "تخطَّ إلى المحتوى",
+    "sortBy": "ترتيب حسب",
+    "sortNewest": "الأحدث أولاً",
+    "sortPriceAsc": "السعر: من الأقل إلى الأعلى",
+    "sortPriceDesc": "السعر: من الأعلى إلى الأقل"
   },
   "Listen": {
     "listen": "استماع",
@@ -169,7 +173,12 @@
     "signInToMessage": "سجّل الدخول لمراسلة البائع",
     "signInToViewNumber": "سجّل الدخول لإظهار الرقم",
     "sending": "جارٍ الإرسال…",
-    "makeOffer": "تقديم عرض"
+    "makeOffer": "تقديم عرض",
+    "photoPrevious": "الصورة السابقة",
+    "photoNext": "الصورة التالية",
+    "photoViewFull": "عرض بالحجم الكامل",
+    "photoClose": "إغلاق",
+    "photoOf": "الصورة {n} من {total}"
   },
   "Home": {
     "metaTitle": "بيع وشراء السيارات والإلكترونيات والأثاث والمزيد",

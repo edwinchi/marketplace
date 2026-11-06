@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { ImageOff, ZoomIn, X, ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import { FavoriteButton } from "@/components/favorite-button";
 
@@ -22,6 +23,7 @@ export function PhotoGallery({
 }) {
   const [active, setActive] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const t = useTranslations("Listing");
 
   if (images.length === 0) {
     return (
@@ -51,7 +53,7 @@ export function PhotoGallery({
           <>
             <button
               type="button"
-              aria-label="Previous photo"
+              aria-label={t("photoPrevious")}
               onClick={() => goTo(active - 1)}
               className="absolute top-1/2 left-2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-background/80 shadow-sm backdrop-blur hover:bg-background"
             >
@@ -59,7 +61,7 @@ export function PhotoGallery({
             </button>
             <button
               type="button"
-              aria-label="Next photo"
+              aria-label={t("photoNext")}
               onClick={() => goTo(active + 1)}
               className="absolute top-1/2 right-2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-background/80 shadow-sm backdrop-blur hover:bg-background"
             >
@@ -80,7 +82,7 @@ export function PhotoGallery({
           )}
           <button
             type="button"
-            aria-label="View full size"
+            aria-label={t("photoViewFull")}
             onClick={() => setLightboxOpen(true)}
             className="flex size-8 items-center justify-center rounded-full bg-background/80 shadow-sm backdrop-blur hover:bg-background"
           >
@@ -96,7 +98,7 @@ export function PhotoGallery({
               key={src + i}
               type="button"
               onClick={() => setActive(i)}
-              aria-label={`Photo ${i + 1} of ${images.length}`}
+              aria-label={t("photoOf", { n: i + 1, total: images.length })}
               aria-current={i === active ? "true" : undefined}
               className={`relative size-16 shrink-0 overflow-hidden rounded-md border-2 ${
                 i === active ? "border-primary" : "border-transparent"
@@ -115,7 +117,7 @@ export function PhotoGallery({
         >
           <button
             type="button"
-            aria-label="Close"
+            aria-label={t("photoClose")}
             onClick={() => setLightboxOpen(false)}
             className="absolute top-4 right-4 flex size-9 items-center justify-center rounded-full bg-background/20 text-white hover:bg-background/30"
           >
@@ -125,7 +127,7 @@ export function PhotoGallery({
             <>
               <button
                 type="button"
-                aria-label="Previous photo"
+                aria-label={t("photoPrevious")}
                 onClick={(e) => {
                   e.stopPropagation();
                   goTo(active - 1);
@@ -136,7 +138,7 @@ export function PhotoGallery({
               </button>
               <button
                 type="button"
-                aria-label="Next photo"
+                aria-label={t("photoNext")}
                 onClick={(e) => {
                   e.stopPropagation();
                   goTo(active + 1);

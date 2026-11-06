@@ -15,7 +15,7 @@ spammers); admins; third parties calling webhooks; anyone who obtains a leaked k
 
 | Threat (STRIDE) | Where | Control | Verified |
 |---|---|---|---|
-| **S**poofing: forged Stripe webhook | `/api/stripe/webhook` | `stripe.webhooks.constructEvent` signature check before any write | code review 2026-11-06 |
+| **S**poofing: forged or altered Stripe webhook | `/api/stripe/webhook` | `stripe.webhooks.constructEvent` signature check before any write; idempotent on event id | `tests/stripe-webhook.test.ts` (10 contract tests, mutation-checked) |
 | **S**poofing: forged cron call | `/api/cron/send-emails` | `Authorization: Bearer $CRON_SECRET`, inert when unset | code review |
 | **S**poofing: password-reset link poisoning via Host header | `lib/site-url.ts` | production links are always `https://marketitnow.net` | `tests/site-url.test.ts` |
 | **T**ampering: users editing others' rows | Postgres | RLS on every user-data table; privileged writes via service role only | `ops/security-audit.mjs` every 12h |

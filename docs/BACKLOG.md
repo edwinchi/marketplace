@@ -41,9 +41,11 @@ directive 4). **Owner** items need an account, credentials or a decision only th
   - AC: a separate Supabase dev project; `.env.local` points at it; migrations applied to both.
 
 ## E6 — Every word translated (Eng, Level 0)
-- **US6.1** AC: `components/sort-select.tsx` options and label, photo-gallery button labels and
-  other hardcoded English strings come from `messages/*.json` in all 5 locales;
+- **US6.1** AC: hardcoded English strings come from `messages/*.json` in all 5 locales;
   `tests/client-messages.test.ts` still passes.
+  - Done 2026-11-06: sort control (`Common.sort*`) and photo gallery (`Listing.photo*`).
+  - Left: 16 `aria-label="…"` literals in 8 files (photo editor, message composer, pagination,
+    distance filter): `grep -rE 'aria-label="[A-Z]' app components`.
 
 ## E7 — Emails reach users (Owner, Level 3)
 - **US7.1** As a user, I get saved-search alerts and unread-message reminders.

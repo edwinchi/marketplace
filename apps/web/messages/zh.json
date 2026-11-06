@@ -1,7 +1,11 @@
 {
   "Common": {
     "back": "返回",
-    "skipToContent": "跳至内容"
+    "skipToContent": "跳至内容",
+    "sortBy": "排序方式",
+    "sortNewest": "最新优先",
+    "sortPriceAsc": "价格：从低到高",
+    "sortPriceDesc": "价格：从高到低"
   },
   "Listen": {
     "listen": "朗读",
@@ -169,7 +173,12 @@
     "signInToMessage": "登录后联系卖家",
     "signInToViewNumber": "登录后查看号码",
     "sending": "发送中…",
-    "makeOffer": "出价"
+    "makeOffer": "出价",
+    "photoPrevious": "上一张照片",
+    "photoNext": "下一张照片",
+    "photoViewFull": "查看原图",
+    "photoClose": "关闭",
+    "photoOf": "第 {n} 张，共 {total} 张"
   },
   "Home": {
     "metaTitle": "买卖汽车、电子产品、家具等",

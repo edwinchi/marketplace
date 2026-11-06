@@ -1,7 +1,11 @@
 {
   "Common": {
     "back": "Back",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "sortBy": "Sort by",
+    "sortNewest": "Newest first",
+    "sortPriceAsc": "Price: low to high",
+    "sortPriceDesc": "Price: high to low"
   },
   "Listen": {
     "listen": "Listen",
@@ -169,7 +173,12 @@
     "signInToMessage": "Sign in to message the seller",
     "signInToViewNumber": "Sign in to view number",
     "sending": "Sending…",
-    "makeOffer": "Make offer"
+    "makeOffer": "Make offer",
+    "photoPrevious": "Previous photo",
+    "photoNext": "Next photo",
+    "photoViewFull": "View full size",
+    "photoClose": "Close",
+    "photoOf": "Photo {n} of {total}"
   },
   "Home": {
     "metaTitle": "Buy & Sell Cars, Electronics, Furniture & More",
