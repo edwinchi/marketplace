@@ -34,14 +34,14 @@ export default async function NotificationSettingsPage() {
               <p className="font-medium">New messages</p>
               <p className="text-sm text-muted-foreground">When a buyer or seller messages you.</p>
             </div>
-            <ProfileToggle field="notify_new_messages" checked={data?.notify_new_messages ?? true} returnTo="/my-account/preferences/notifications" />
+            <ProfileToggle label="New messages" field="notify_new_messages" checked={data?.notify_new_messages ?? true} returnTo="/my-account/preferences/notifications" />
           </div>
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="font-medium">Offers on your listings</p>
               <p className="text-sm text-muted-foreground">When someone makes an offer.</p>
             </div>
-            <ProfileToggle field="notify_offers" checked={data?.notify_offers ?? true} returnTo="/my-account/preferences/notifications" />
+            <ProfileToggle label="Offers on your listings" field="notify_offers" checked={data?.notify_offers ?? true} returnTo="/my-account/preferences/notifications" />
           </div>
           <p className="text-xs text-muted-foreground">
             These control your preference — the in-app{" "}
@@ -63,7 +63,7 @@ export default async function NotificationSettingsPage() {
               <p className="font-medium">Notify me of new postings</p>
               <p className="text-sm text-muted-foreground">Get a notification whenever anyone posts a new listing.</p>
             </div>
-            <ProfileToggle field="notify_new_listings" checked={data?.notify_new_listings ?? true} returnTo="/my-account/preferences/notifications" />
+            <ProfileToggle label="Notify me of new postings" field="notify_new_listings" checked={data?.notify_new_listings ?? true} returnTo="/my-account/preferences/notifications" />
           </div>
         </CardContent>
       </Card>
@@ -78,7 +78,7 @@ export default async function NotificationSettingsPage() {
               <p className="font-medium">Sellers can contact you</p>
               <p className="text-sm text-muted-foreground">Let a seller reach out when you save their listing as a favorite.</p>
             </div>
-            <ProfileToggle
+            <ProfileToggle label="Sellers can contact you"
               field="allow_seller_contact_on_favorite"
               checked={data?.allow_seller_contact_on_favorite ?? true}
               returnTo="/my-account/preferences/notifications"
@@ -89,7 +89,7 @@ export default async function NotificationSettingsPage() {
               <p className="font-medium">Notify me</p>
               <p className="text-sm text-muted-foreground">When someone saves your listing as a favorite.</p>
             </div>
-            <ProfileToggle
+            <ProfileToggle label="Notify me when someone saves your listing as a favorite"
               field="notify_listing_favorited"
               checked={data?.notify_listing_favorited ?? true}
               returnTo="/my-account/preferences/notifications"
@@ -100,7 +100,7 @@ export default async function NotificationSettingsPage() {
               <p className="font-medium">Price drops</p>
               <p className="text-sm text-muted-foreground">When a listing you&apos;ve favorited gets cheaper.</p>
             </div>
-            <ProfileToggle
+            <ProfileToggle label="Price drops"
               field="notify_price_drops"
               checked={data?.notify_price_drops ?? true}
               returnTo="/my-account/preferences/notifications"

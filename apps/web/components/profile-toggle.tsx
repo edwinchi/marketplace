@@ -7,6 +7,7 @@ export function ProfileToggle({
   field,
   checked,
   returnTo,
+  label,
 }: {
   field:
     | "marketing_emails_opt_in"
@@ -25,6 +26,8 @@ export function ProfileToggle({
     | "digital_invoice_opt_in";
   checked: boolean;
   returnTo: string;
+  /** What the switch controls: the visible text beside it, so screen readers announce the same words. */
+  label: string;
 }) {
   const [isPending, startTransition] = useTransition();
 
@@ -32,6 +35,8 @@ export function ProfileToggle({
     <label className="relative inline-flex h-5 w-9 cursor-pointer items-center rounded-full bg-muted transition-colors has-checked:bg-primary has-disabled:opacity-50">
       <input
         type="checkbox"
+        role="switch"
+        aria-label={label}
         className="peer sr-only"
         defaultChecked={checked}
         disabled={isPending}

@@ -43,9 +43,11 @@ directive 4). **Owner** items need an account, credentials or a decision only th
 ## E6 — Every word translated (Eng, Level 0)
 - **US6.1** AC: hardcoded English strings come from `messages/*.json` in all 5 locales;
   `tests/client-messages.test.ts` still passes.
-  - Done 2026-11-06: sort control (`Common.sort*`) and photo gallery (`Listing.photo*`).
-  - Left: 16 `aria-label="…"` literals in 8 files (photo editor, message composer, pagination,
-    distance filter): `grep -rE 'aria-label="[A-Z]' app components`.
+  - Done 2026-11-06: every `aria-label` is translated (`tests/no-hardcoded-labels.test.ts`
+    enforces it).
+  - Left: the signed-in preference pages (`my-account/preferences/*`, `invoices`,
+    `saved-searches`) still render their visible text in English only; the switch labels match
+    that text, so translate both together.
 
 ## E7 — Emails reach users (Owner, Level 3)
 - **US7.1** As a user, I get saved-search alerts and unread-message reminders.
@@ -56,6 +58,12 @@ directive 4). **Owner** items need an account, credentials or a decision only th
 - **US8.1** AC: the axe WCAG 2.1 AA scan covers signed-in pages (my-account, post-an-ad, messages)
   with a test account and reports 0 serious/critical issues; the scan runs in CI against the
   preview deployment.
+  - Done 2026-11-06 except CI: 24 signed-in pages × phone/desktop → 0 serious/critical, as
+    `claude-agent-test@marketitnow.net` (created 2026-11-06 with owner sign-off; password
+    discarded, sign-in only via an admin one-time link through `/auth/confirm`). Fixed on the
+    way: unlabelled switches (`ProfileToggle`/`SavedSearchToggle` now require `label`, `role=switch`),
+    the read-only email field, the account sidebar's active colour.
+  - Left: run it in CI (needs the service key as a CI secret: Level 3).
 
 ## E9 — Compliance (Owner, Level 3)
 - **US9.1** GDPR: records of processing, DPAs with Supabase/Stripe/Resend/OpenRouter/Vercel, the

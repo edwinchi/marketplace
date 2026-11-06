@@ -33,7 +33,7 @@ export default async function InvoicesPage() {
 
       <div className="flex items-center justify-between gap-4 rounded-xl border p-4 text-left">
         <p className="text-sm">Send me a monthly digital invoice by email.</p>
-        <ProfileToggle
+        <ProfileToggle label="Send me a monthly digital invoice by email."
           field="digital_invoice_opt_in"
           checked={data?.digital_invoice_opt_in ?? false}
           returnTo="/my-account/invoices"

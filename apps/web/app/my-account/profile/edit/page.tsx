@@ -39,8 +39,8 @@ export default async function EditProfilePage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label>Email</Label>
-              <Input value={user.email ?? ""} disabled />
+              <Label htmlFor="account_email">Email</Label>
+              <Input id="account_email" value={user.email ?? ""} disabled />
               <p className="text-xs text-muted-foreground">
                 Email changes aren&apos;t supported from here yet.
               </p>

@@ -69,7 +69,7 @@ export default async function MarketingPreferencesPage() {
                 <p className="font-medium">{c.title}</p>
                 <p className="text-sm text-muted-foreground">{c.body}</p>
               </div>
-              <ProfileToggle
+              <ProfileToggle label={c.title}
                 field={c.field}
                 checked={data?.[c.field] ?? true}
                 returnTo="/my-account/preferences/marketing"

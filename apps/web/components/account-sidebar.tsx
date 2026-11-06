@@ -57,7 +57,7 @@ export function AccountSidebar() {
                       aria-current={active ? "page" : undefined}
                       className={`group relative flex items-center gap-2 rounded-md py-1.5 pr-2 pl-3 text-sm transition-all duration-150 ease-out ${
                         active
-                          ? "bg-[#008848]/10 font-medium text-brand-green"
+                          ? "bg-[#008848]/10 font-medium text-[#046637]"
                           : "text-foreground hover:translate-x-0.5 hover:bg-brand-green/10 hover:text-foreground"
                       }`}
                     >

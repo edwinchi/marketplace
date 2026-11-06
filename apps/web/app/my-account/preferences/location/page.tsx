@@ -34,7 +34,7 @@ export default async function LocationPreferencesPage() {
                 Pre-fills the &quot;Near you&quot; tab with this city. MarketitNow doesn&apos;t use precise device location anywhere.
               </p>
             </div>
-            <ProfileToggle field="location_sharing_opt_in" checked={data?.location_sharing_opt_in ?? false} returnTo="/my-account/preferences/location" />
+            <ProfileToggle label="Use my city for nearby listings" field="location_sharing_opt_in" checked={data?.location_sharing_opt_in ?? false} returnTo="/my-account/preferences/location" />
           </div>
 
           <form action={updatePreferredCity} className="flex flex-col gap-1.5">

@@ -49,13 +49,13 @@ export default async function SavedSearchesPage() {
                   </div>
                   <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
                     <div className="flex items-center gap-2">
-                      <SavedSearchToggle id={s.id} channel="push" checked={s.notify_push} />
+                      <SavedSearchToggle id={s.id} channel="push" checked={s.notify_push} label="Notifications on MarketitNow" />
                       {/* In-app only: the hourly saved-search-alerts job writes to /notifications.
                           There's no browser/mobile push behind this. */}
                       <span className="text-muted-foreground">Notifications on MarketitNow</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <SavedSearchToggle id={s.id} channel="email" checked={s.notify_email} />
+                      <SavedSearchToggle id={s.id} channel="email" checked={s.notify_email} label={emailOn ? "Email (daily digest)" : "Email (coming soon)"} />
                       {/* Daily digest via app/api/cron/send-emails, once a verified Resend sender is set. */}
                       <span className="text-muted-foreground">{emailOn ? "Email (daily digest)" : "Email (coming soon)"}</span>
                     </div>

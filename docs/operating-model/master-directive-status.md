@@ -23,7 +23,7 @@ Open items are tracked in [`docs/BACKLOG.md`](../BACKLOG.md) (E1–E9) and
 | 10 | Comprehensive automated testing | 🟡 | Unit + contract (72: `site-url`, `client-messages`, Stripe webhook contract suite mutation-checked), browser regression (20 checks), accessibility (axe, 26 page views), translation checks; CI runs types/lint/tests/audit | Load tests; e2e in CI on previews (E8) |
 | 11 | Continuously validate quality | ✅ | Every change verified on a production build, then on the live site after deploy (`/api/health` commit check) | — |
 | 12 | Autonomous debugging | ✅ | Root causes found and fixed: header overlap (absolute centring), npm crash (Vite 8 optional peers), active-link contrast (class tie) | — |
-| 13 | Optimize performance | ✅ | Pages −11% to −17% (translations trimmed), settings query removed from most requests; image weight `logo.png` 557 → 37 KB | E4: RSC payload, `getClaims()` |
+| 13 | Optimize performance | ✅ | Compressed transfer −12% home, −23% login, −19% /app (per-route translations); one auth + profile lookup per render instead of 3–4; homepage queries in parallel; settings query off most requests; `logo.png` 557 → 37 KB | E4: `getClaims()` |
 | 14 | Privacy and compliance | 🟡 | GDPR: cookie consent, data-deletion page, links only to marketitnow.net; PCI: Stripe-hosted checkout (SAQ A); HIPAA not applicable (no health data) | E9: processing records, DPAs, counsel review; SOC2/ISO 27001 are certifications, not code |
 | 15 | Protect against emerging threats | ✅ | `docs/THREAT-MODEL.md` STRIDE review + risk register R1–R7; RLS audit every 12h | Owner actions R1, R2 |
 | 16 | Complete observability | 🟡 | `/api/health` (DB + commit), runbook with incident procedures, Vercel logs | E2: uptime alerts, Sentry, dashboards (accounts needed) |
@@ -58,7 +58,7 @@ Open items are tracked in [`docs/BACKLOG.md`](../BACKLOG.md) (E1–E9) and
 | Security validation | 🟡 | 0 known vulnerabilities, threat model; open R1–R2 |
 | Performance validation | ✅ | Measured before/after |
 | Scalability validation | 🟡 | Serverless + managed Postgres scale by design; no load test yet |
-| Accessibility validation | ✅ | WCAG 2.1 AA: 0 serious/critical on 13 public pages × 2 viewports; signed-in pages in E8 |
+| Accessibility validation | ✅ | WCAG 2.1 AA: 0 serious/critical on 13 public + 24 signed-in pages × 2 viewports (2026-11-06) |
 | Documentation completion | ✅ | See step 9 |
 | Test coverage completion | 🟡 | See #10 |
 | Deployment readiness | ✅ | CI + verified deploy + rollback |
