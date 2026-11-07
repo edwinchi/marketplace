@@ -427,7 +427,10 @@ export async function createListing(_prevState: ListingFormState, formData: Form
   const price = Number(formData.get("price") ?? 0);
   const city = String(formData.get("city") ?? "").trim();
   const countryCode = String(formData.get("country_code") ?? "");
-  const postalCode = String(formData.get("postal_code") ?? "").trim();
+  // Letters, digits, spaces and hyphens only (NL "1234 AB", FR "75001", UK "SW1A 1AA"); anything
+  // else (a dialling code like "+237" was found in production) is dropped rather than stored.
+  const postalCodeRaw = String(formData.get("postal_code") ?? "").trim();
+  const postalCode = /^[A-Za-z0-9][A-Za-z0-9 -]{1,9}$/.test(postalCodeRaw) ? postalCodeRaw : "";
   const pickupAvailable = formData.get("pickup_available") === "on";
   const deliveryAvailable = formData.get("delivery_available") === "on";
   const offersAllowed = formData.get("offers_allowed") === "on";

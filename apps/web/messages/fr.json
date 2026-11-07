@@ -485,5 +485,10 @@
     "cta": "Voir les fonctions d'IA",
     "plansReturn": "Seller Pro et les recharges reviennent le {date}. D'ici là, il n'y a rien à acheter.",
     "welcomeBullet": "Toutes les fonctions d'IA sont gratuites pour tous les comptes jusqu'au {date}"
+  },
+  "DataExport": {
+    "title": "Télécharger vos données",
+    "body": "Obtenez une copie de tout ce que MarketitNow conserve sur votre compte : profil, annonces, messages, commandes, avis et plus encore, dans un seul fichier (JSON).",
+    "button": "Télécharger mes données"
   }
 }

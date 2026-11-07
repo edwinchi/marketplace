@@ -485,5 +485,10 @@
     "cta": "查看 AI 功能",
     "plansReturn": "Seller Pro 和次数充值将于 {date} 恢复，在此之前无需购买。",
     "welcomeBullet": "所有 AI 功能对每个账户免费至 {date}"
+  },
+  "DataExport": {
+    "title": "下载你的数据",
+    "body": "获取 MarketitNow 保存的有关你账户的全部数据副本：个人资料、商品、消息、订单、评价等，合为一个文件（JSON）。",
+    "button": "下载我的数据"
   }
 }

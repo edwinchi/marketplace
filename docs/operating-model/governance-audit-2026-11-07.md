@@ -20,18 +20,18 @@ documents it comes from: **Y** = governance YAML, **C** = concise prompt, **M** 
 | Encryption in transit (Y) | ✅ | HTTPS only; `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` (live header) |
 | Encryption at rest (Y) | ✅ | Supabase (AES-256 on disk) and Vercel; no data stored elsewhere |
 | Secret management (Y, M8) | ✅ | Secrets live only in Vercel env vars and git-ignored `.env.local`. `git grep` for Stripe, Supabase, Resend, GitHub and JWT secrets: none in tracked files (one documentation placeholder) and none in `.env` history |
-| Audit logging (Y, TASK mitigation) | 🟡 | Supabase logs every sign-in natively, but the app never writes to its own `audit_logs` table: admin actions (grant AI uses, site settings, moderation) leave no trail → proposed (Level 2) |
+| Audit logging (Y, TASK mitigation) | ✅ **fixed today** | Supabase logs every sign-in natively. **Added:** every admin action (15 actions: settings, moderation, AI-use grants, backfills, admin sign-in) writes who/what/which/before/after/IP to `audit_logs` (`lib/audit.ts`, tests in `tests/audit.test.ts`); last 15 shown on the admin dashboard |
 | Dependency scanning (Y) | ✅ **+ fixed today** | `npm audit`: 0 vulnerabilities (CI enforces high/critical). **Added** Dependabot (`.github/dependabot.yml`) |
 | Vulnerability scanning / static analysis (Y quality, Y security) | ✅ **fixed today** | **Added** CodeQL `security-extended` (`.github/workflows/codeql.yml`), on every PR, on main, and weekly |
-| OWASP Top 10 / ASVS (Y) | 🟡 | A01 access control: RLS probe passes. A03 injection: parameterised Supabase queries only. A05 misconfiguration: security headers set; CSP still has `'unsafe-inline'` (R4). A07 authentication: rate limit, Turnstile and password policy on signup; **login and reset not rate limited (R9, proposed)**. **Unvalidated redirects: open redirect in 10 places, fixed today (R10)** |
+| OWASP Top 10 / ASVS (Y) | 🟡 | A01 access control: RLS probe passes. A03 injection: parameterised Supabase queries only. A05 misconfiguration: security headers set; CSP still has `'unsafe-inline'` (R4). A07 authentication: rate limits on signup, login, admin login and reset (login and reset **added today**, R9); Turnstile and password policy on signup. **Unvalidated redirects: open redirect in 10 places, fixed today (R10)** |
 | Zero Trust (Y, M8) | 🟡 | Every request is re-authenticated (`auth.getUser()`), and RLS is enforced in the database, not only the app. No device or network trust is assumed. Missing: an MFA requirement for admin accounts |
 | NIST CSF (Y) | 🟡 | Identify ✅ (architecture, risk register) · Protect ✅ mostly · Detect ❌ (no alerting, R3) · Respond 🟡 (runbook) · Recover 🟡 (rollback yes; database restore never tested) |
-| Credential stuffing, brute force (TASK) | 🟡 | Signup: 5/hour per IP plus Turnstile (Turnstile fails open without keys, R1). Login: no app limit (R9). Calls straight to Supabase's auth API bypass the app's checks; Supabase's own per-IP limits apply → enable Supabase Auth CAPTCHA (owner, dashboard) |
+| Credential stuffing, brute force (TASK) | 🟡 | Signup: 5/hour per IP plus Turnstile (Turnstile fails open without keys, R1). Login: **rate limited today** (R9, verified live). Calls straight to Supabase's auth API bypass the app's checks; Supabase's own per-IP limits apply → enable Supabase Auth CAPTCHA (owner, dashboard) |
 | Account enumeration (TASK) | ✅ | Reset always answers "sent"; signup with an existing email returns the same "check your email"; login says "Invalid login credentials" |
 | Session hijacking (TASK) | 🟡 | HTTPS + HSTS, SameSite=Lax cookies, CSP. Supabase SSR cookies are readable by page scripts (library design), so an XSS would expose them; `'unsafe-inline'` raises that risk (R4) |
 | CSRF (TASK) | ✅ | Mutations are Server Actions (Next checks Origin against Host). The only cookie-free POST endpoints are the Stripe webhook (signature verified, 10 contract tests) and an anonymous visit counter |
 | MFA support (TASK) | ✅ | `components/two-factor-setup.tsx` (TOTP, Supabase MFA) on the profile page |
-| Email abuse (TASK) | 🟡 | Signup is rate limited; reset requests are not, and can use up the project's email quota (R9) |
+| Email abuse (TASK) | ✅ **fixed today** | Signup and reset requests are rate limited per IP and per address (R9) |
 | Emerging threats, abuse (M15) | 🟡 | AI cost abuse capped (40/day photo, 20/hour text); content moderation and reports exist; bot defence waits on Turnstile keys (R1) |
 
 ## 2. Testing and quality (Y testing & quality, C step 5 & directive 7, M 10 & 11)
@@ -69,7 +69,7 @@ documents it comes from: **Y** = governance YAML, **C** = concise prompt, **M** 
 
 | Item | Status | Evidence |
 |---|---|---|
-| Latency measured | ✅ **root cause found today** | Functions ran in `iad1` (Washington DC); the database is in AWS eu-west-1 (Ireland, IPv6 range 2a05:d018::/32). Every query crossed the Atlantic: `/api/health` (one query) 130-450 ms, home p50 1.0 s. **Fixed in code:** `vercel.json` `"regions": ["dub1"]` (ADR-0002); **takes effect after the next deploy** |
+| Latency measured | ✅ **root cause found today** | Functions ran in `iad1` (Washington DC); the database is in AWS eu-west-1 (Ireland, IPv6 range 2a05:d018::/32). Every query crossed the Atlantic: `/api/health` (one query) 130-450 ms, home p50 1.0 s. **Fixed and live:** `vercel.json` `"regions": ["dub1"]` (ADR-0002). Measured after deploy: DB query 18-54 ms, home p50 0.52 s / p95 0.89 s, throughput doubled |
 | Throughput | ✅ | 8-25 req/s per page at concurrency 10, 0 errors |
 | Memory / CPU | ➖ / 🟡 | Serverless: Vercel meters it per invocation; no custom metrics |
 | Query optimisation | 🟡 | Parallel queries on the homepage; React `cache()` dedupe (one auth lookup per render instead of 3-4); indexes from migrations. No slow-query review (needs Supabase dashboard access) |
@@ -95,7 +95,7 @@ documents it comes from: **Y** = governance YAML, **C** = concise prompt, **M** 
 
 | Framework | Status | Evidence / gap |
 |---|---|---|
-| GDPR | 🟡 | Cookie consent; privacy policy; self-service account deletion (`/data-deletion`). Gaps: **no data export** (Art. 15/20, R11, proposed); **full postcodes public** (data minimisation, R8, proposed); records of processing and DPAs (E9, owner) |
+| GDPR | 🟡 | Cookie consent; privacy policy; self-service account deletion (`/data-deletion`). **Added today:** "Download my data" (Art. 15/20, R11). **Postcodes:** fix written, waiting for the owner to run the migration (R8). Remaining: records of processing and DPAs (E9, owner) |
 | CCPA | 🟡 | Covered in substance by the GDPR controls (access, deletion, no sale of data); the privacy policy doesn't mention CCPA or California by name. Only applies if MarketitNow reaches CCPA thresholds |
 | SOC 2 / ISO 27001 | ➖ | Certifications of an organisation, not code. The controls above (access control, change management through CI, encryption, logging) are the technical groundwork |
 | PCI-DSS | ✅ | Stripe-hosted checkout only (SAQ A); no card data touches our servers |
@@ -120,11 +120,11 @@ documents it comes from: **Y** = governance YAML, **C** = concise prompt, **M** 
 | User can log in | ✅ | `app/login`; signed-in suite logs in on every run |
 | Password policy enforced | 🟡 | App: 8+ characters, a digit and a special character, on signup and reset (`lib/password-rules.ts`). The same minimum isn't confirmed in Supabase's own settings, so a direct API signup could use a weaker password → owner: Supabase → Auth → password requirements |
 | GDPR compliant | 🟡 | §6 |
-| OWASP compliant | 🟡 | §1: open redirect fixed today; login/reset rate limit pending (R9) |
+| OWASP compliant | 🟡 | §1: open redirect and login/reset rate limits fixed today; remaining: `'unsafe-inline'` CSP (R4) |
 | 99.9% uptime | 🟡 | §5 |
-| Mitigations: rate limiting / MFA / CSRF / audit logging | 🟡 / ✅ / ✅ / 🟡 | §1 |
+| Mitigations: rate limiting / MFA / CSRF / audit logging | ✅ / ✅ / ✅ / ✅ | §1 (rate limits and admin audit log added today) |
 | Monitoring: signup, verification, login-success rates; auth and email failure alerts | ❌ | Not instrumented; Supabase auth logs hold the raw events |
-| **ready_for_deployment** | 🟡 | Works in production today. Remaining blockers are the Level 2/3 items below |
+| **ready_for_deployment** | ✅ | Live and working. Hardening left: Turnstile keys and Supabase Auth CAPTCHA (owner), signup/login metrics |
 
 ## 9. Approval framework (Y, C) and lifecycle (Y, C, M)
 
@@ -132,7 +132,7 @@ documents it comes from: **Y** = governance YAML, **C** = concise prompt, **M** 
 |---|---|---|
 | Level 0 done alone | ✅ | Today: redirect fix, tests, docs, ADRs |
 | Level 1 done and reported | ✅ | Today: `playwright-core` and `axe-core` dev dependencies, Dependabot, CodeQL, the Vercel region (all reported here) |
-| Level 2 stopped for approval | ✅ | Login/reset rate limits, postcode minimisation, admin audit logging: proposed, not built |
+| Level 2 stopped for approval | ✅ | Login/reset rate limits, postcode minimisation, admin audit logging: proposed, then built after the owner approved them |
 | Level 3 explicit sign-off | ✅ | Production deploys only on owner instruction (the push rule covers one command); credentials and compliance items handed to the owner |
 | Lifecycle: understand → … → improve | ✅ | This audit is one full loop: measured, found root causes, fixed, tested, documented, waiting for deploy approval |
 
@@ -144,13 +144,21 @@ documents it comes from: **Y** = governance YAML, **C** = concise prompt, **M** 
 4. **Dependabot and CodeQL** added to CI.
 5. **Decision records** (`docs/adr/`), risk register R8-R11, architecture regions.
 
-## Waiting for a decision (Level 2: approval; Level 3: sign-off)
+## Approved and built the same day (owner, 2026-11-07)
 
-| # | Change | Level | Why |
-|---|---|---|---|
-| 1 | Deploy today's fixes (redirect fix, Dublin region) | 3 | Production deploy |
-| 2 | Rate limits on login (per IP and per email) and password-reset requests | 2 (auth) | Credential stuffing; email quota exhaustion (R9) |
-| 3 | Expose only the 4-digit postcode area; clean the bad row | 2 (data) | GDPR minimisation (R8) |
-| 4 | Write admin actions to `audit_logs` | 2 | Accountability for privileged actions |
-| 5 | "Download my data" (GDPR Art. 15/20) | 3 (compliance) | R11 |
-| 6 | Owner settings: Turnstile keys; Supabase Auth CAPTCHA and password requirements; uptime monitor + Sentry; branch protection on `main`; CRON/Resend keys; test a backup restore | 3 (credentials/accounts) | R1, R3, R5; Detect/Recover |
+| Change | Result |
+|---|---|
+| Deploy (redirect fix, Dublin region) | Live (`30d2b41`). Home p50 1.02 → 0.52 s, p95 2.48 → 0.89 s; DB query 130-450 → 18-54 ms; 7/7 live suites pass |
+| Rate limits on login, admin login, reset (R9) | Built; verified: attempts 1-10 normal, 11th refused. Emails hashed in the limiter |
+| Hide full postcodes (R8) | Bad value cleared; posting validates postcodes; **migration written, the owner runs it** in the SQL editor (no DB access here). The security test fails until then |
+| Log admin actions | 15 admin actions write to `audit_logs`; dashboard panel; unit tests |
+| Download my data (R11) | Profile settings → "Download my data"; 4 unit tests (scoping, mutation-checked) + 21 end-to-end checks |
+
+## Still open
+
+| # | Item | Level |
+|---|---|---|
+| 1 | Run `20260101009800_locations_hide_postcode.sql` in Supabase → SQL editor | Owner |
+| 2 | Prune `rate_limit_events` older than 7 days (R12) | 2 (data retention) |
+| 3 | Owner settings: Turnstile keys; Supabase Auth CAPTCHA and password requirements; uptime monitor + Sentry; branch protection on `main`; CRON/Resend keys; test a backup restore | 3 (credentials/accounts) |
+| 4 | Structured logging and tracing | 1 (after the monitoring account exists) |

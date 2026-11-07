@@ -76,3 +76,15 @@ seller insights and Listen are included. The new-listing broadcast to all users 
   spend monthly while it runs.
 - **Two weeks before the end:** tell users that paid plans return (email or in-app). This isn't
   automated.
+
+## Database migrations (no CLI access on this machine)
+There's no database password or Supabase access token stored here (AGENTS.md). Apply a new file
+in `supabase/migrations/` by pasting it into **Supabase → SQL editor** and running it, then run
+`npm run check:security` in `apps/web` to confirm. Pending as of 2026-11-07:
+`20260101009800_locations_hide_postcode.sql` (risk R8).
+
+## Audit log
+Admin actions (settings changes, moderation, AI-use grants, backfills, admin sign-ins) are written
+to `audit_logs` by `apps/web/lib/audit.ts`. The last 15 are on the admin dashboard
+(**Recent admin actions**). The table is partitioned by month: check that next month's partition
+exists (monthly routine above). If it's missing, writes go to `audit_logs_default` and still work.

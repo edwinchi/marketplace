@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { createServiceClient } from "./supabase/service";
 
 // Backed by rate_limit_events (migration 20260101004700_rate_limiting.sql, not yet run in every
@@ -31,4 +32,10 @@ export function clientIpFromHeaders(headerList: Headers): string {
   const forwarded = headerList.get("x-forwarded-for");
   if (forwarded) return forwarded.split(",")[0].trim();
   return headerList.get("x-real-ip") ?? "unknown";
+}
+
+// Rate-limit key for an email address: a one-way hash, so rate_limit_events never stores the
+// address itself (GDPR data minimisation). Case- and whitespace-insensitive, like sign-in.
+export function emailBucket(email: string): string {
+  return createHash("sha256").update(email.trim().toLowerCase()).digest("hex").slice(0, 32);
 }

@@ -2,6 +2,7 @@
 
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { isAdminEmail } from "@/lib/admin";
+import { recordAdminAction } from "@/lib/audit";
 import { createServiceClient } from "@/lib/supabase/service";
 import { getTextEmbedding } from "@/lib/embeddings";
 
@@ -19,7 +20,7 @@ const BACKFILL_BATCH_SIZE = 100;
 // policy (scoped to seller_id = current_profile_id()) would otherwise silently update zero rows for
 // anyone else's.
 export async function backfillListingEmbeddings(): Promise<{ processed: number; failed: number; remaining: number }> {
-  const { user } = await getCurrentUserAndProfile();
+  const { user, profile: admin } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
 
   const supabase = createServiceClient();
@@ -49,5 +50,6 @@ export async function backfillListingEmbeddings(): Promise<{ processed: number; 
     .is("title_embedding", null)
     .neq("status", "deleted");
 
+  await recordAdminAction({ actorProfileId: admin?.id ?? null, action: "backfill.embeddings", entityType: "batch", next: { processed, failed, remaining: remaining ?? 0 } });
   return { processed, failed, remaining: remaining ?? 0 };
 }

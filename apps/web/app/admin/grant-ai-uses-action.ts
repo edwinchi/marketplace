@@ -2,6 +2,7 @@
 
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { isAdminEmail } from "@/lib/admin";
+import { recordAdminAction } from "@/lib/audit";
 import { createServiceClient } from "@/lib/supabase/service";
 
 // Grants bonus AI uses to any single account by account number -- e.g. a one-off trial exception,
@@ -11,7 +12,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 // no separate "revert" step needed. Uses the service-role client since this must reach any
 // account, not just the calling admin's own.
 export async function grantAiBonusUses(accountNumber: number, amount: number): Promise<{ error: string | null; newTotal: number | null; accountName: string | null }> {
-  const { user } = await getCurrentUserAndProfile();
+  const { user, profile: admin } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
   if (!Number.isInteger(accountNumber) || accountNumber <= 0) return { error: "Enter a valid account number.", newTotal: null, accountName: null };
   if (!Number.isInteger(amount) || amount === 0) return { error: "Enter a non-zero whole number of uses.", newTotal: null, accountName: null };
@@ -22,6 +23,7 @@ export async function grantAiBonusUses(accountNumber: number, amount: number): P
 
   const { data: newTotal, error } = await supabase.rpc("increment_ai_bonus_uses", { p_profile_id: profile.id, p_amount: amount });
   if (error) return { error: error.message, newTotal: null, accountName: null };
+  await recordAdminAction({ actorProfileId: admin?.id ?? null, action: "ai_uses.grant", entityType: "profile", entityId: profile.id, next: { amount, newTotal } });
 
   return { error: null, newTotal, accountName: profile.display_name || profile.username };
 }

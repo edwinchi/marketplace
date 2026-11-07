@@ -4,6 +4,7 @@ import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import { updateProfile } from "./actions";
 import { DeleteAccountButton } from "@/components/delete-account-button";
+import { DataExportCard } from "@/components/data-export-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -94,7 +95,8 @@ export default async function EditProfilePage() {
         </div>
       </form>
 
-      <div className="max-w-lg">
+      <div className="flex max-w-lg flex-col gap-4">
+        <DataExportCard />
         <DeleteAccountButton />
       </div>
     </div>

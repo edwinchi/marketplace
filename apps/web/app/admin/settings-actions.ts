@@ -3,33 +3,37 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { isAdminEmail } from "@/lib/admin";
+import { recordAdminAction } from "@/lib/audit";
 import { setRequireLoginSetting, setListenFreeAccessSetting, setSellerProGlobalUnlockSetting, setNewListingNotificationsGlobalUnlockSetting } from "@/lib/app-settings";
 import { setLocaleEnabled } from "@/lib/language-settings";
 import { setNumericSetting } from "@/lib/numeric-settings";
 
 export async function updateRequireLoginSetting(value: boolean) {
-  const { user } = await getCurrentUserAndProfile();
+  const { user, profile: admin } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
 
   await setRequireLoginSetting(value);
+  await recordAdminAction({ actorProfileId: admin?.id ?? null, action: "settings.update", entityType: "app_setting", next: { key: "require_login", value } });
   revalidatePath("/admin");
 }
 
 export async function updateListenFreeAccessSetting(value: boolean) {
-  const { user } = await getCurrentUserAndProfile();
+  const { user, profile: admin } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
 
   await setListenFreeAccessSetting(value);
+  await recordAdminAction({ actorProfileId: admin?.id ?? null, action: "settings.update", entityType: "app_setting", next: { key: "listen_free_access", value } });
   // getCanListen() reads this fresh on every request (no caching layer of its own), so it takes
   // effect for the very next page load site-wide -- /admin is the only route rendering the value.
   revalidatePath("/admin");
 }
 
 export async function updateSellerProGlobalUnlockSetting(value: boolean) {
-  const { user } = await getCurrentUserAndProfile();
+  const { user, profile: admin } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
 
   await setSellerProGlobalUnlockSetting(value);
+  await recordAdminAction({ actorProfileId: admin?.id ?? null, action: "settings.update", entityType: "app_setting", next: { key: "seller_pro_global_unlock", value } });
   // isSellerProSubscriber() reads this fresh on every call (no caching layer of its own), so it
   // takes effect for the very next AI-feature action/page load site-wide -- /admin is the only
   // route rendering the value itself.
@@ -37,10 +41,11 @@ export async function updateSellerProGlobalUnlockSetting(value: boolean) {
 }
 
 export async function updateNewListingNotificationsGlobalUnlockSetting(value: boolean) {
-  const { user } = await getCurrentUserAndProfile();
+  const { user, profile: admin } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
 
   await setNewListingNotificationsGlobalUnlockSetting(value);
+  await recordAdminAction({ actorProfileId: admin?.id ?? null, action: "settings.update", entityType: "app_setting", next: { key: "new_listing_notifications_global_unlock", value } });
   // Read fresh on every createListing call (see app/listings/actions.ts's
   // enqueueNewListingNotifications), so it takes effect for the very next new listing posted --
   // /admin is the only route rendering the value itself.
@@ -48,10 +53,11 @@ export async function updateNewListingNotificationsGlobalUnlockSetting(value: bo
 }
 
 export async function updateLocaleEnabled(locale: string, enabled: boolean) {
-  const { user } = await getCurrentUserAndProfile();
+  const { user, profile: admin } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
 
   await setLocaleEnabled(locale, enabled);
+  await recordAdminAction({ actorProfileId: admin?.id ?? null, action: "settings.update", entityType: "language_setting", next: { locale, enabled } });
   // Every page reads the language switcher's options via Nav (and the active-locale fallback via
   // i18n/request.ts) on every request already, so nothing else needs revalidating for this to
   // take effect immediately for the next request.
@@ -61,11 +67,12 @@ export async function updateLocaleEnabled(locale: string, enabled: boolean) {
 // count is server-validated too, not just clamped client-side in the input -- a directly-called
 // Server Action bypasses whatever a browser's <input min max> would otherwise enforce.
 export async function updateCategoryGroupCollapsedLimit(count: number) {
-  const { user } = await getCurrentUserAndProfile();
+  const { user, profile: admin } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
   if (!Number.isInteger(count) || count < 1 || count > 50) throw new Error("Enter a whole number between 1 and 50.");
 
   await setNumericSetting("category_group_collapsed_limit", count);
+  await recordAdminAction({ actorProfileId: admin?.id ?? null, action: "settings.update", entityType: "numeric_setting", next: { key: "category_group_collapsed_limit", value: count } });
   // Every category page reads this straight from numeric_settings on each request (not through
   // any cached category-data path), so it takes effect for the very next page load site-wide --
   // /admin is the only route actually rendering this value itself.
@@ -76,7 +83,7 @@ export async function updateCategoryGroupCollapsedLimit(count: number) {
 // called Server Action bypasses those. min <= max is the one cross-field rule worth enforcing here
 // (a max below min would silently mean "always charge the max", clamped wrong).
 export async function updateBuyerFeeSettings(percentX100: number, minCents: number, maxCents: number) {
-  const { user } = await getCurrentUserAndProfile();
+  const { user, profile: admin } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
   if (!Number.isInteger(percentX100) || percentX100 < 0 || percentX100 > 10000) throw new Error("Percent must be between 0 and 100.");
   if (!Number.isInteger(minCents) || minCents < 0) throw new Error("Minimum must be a positive amount.");
@@ -87,6 +94,7 @@ export async function updateBuyerFeeSettings(percentX100: number, minCents: numb
     setNumericSetting("buyer_fee_min_cents", minCents),
     setNumericSetting("buyer_fee_max_cents", maxCents),
   ]);
+  await recordAdminAction({ actorProfileId: admin?.id ?? null, action: "settings.update", entityType: "numeric_setting", next: { key: "buyer_fee", percentX100, minCents, maxCents } });
   // Every Direct Buy button computes its fee fresh via calculateBuyerFeeMinor on each listing page
   // load, so this takes effect immediately site-wide -- /admin is the only route rendering the
   // value itself.
@@ -94,11 +102,12 @@ export async function updateBuyerFeeSettings(percentX100: number, minCents: numb
 }
 
 export async function updateAdBumpPrice(priceCents: number) {
-  const { user } = await getCurrentUserAndProfile();
+  const { user, profile: admin } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
   if (!Number.isInteger(priceCents) || priceCents < 0) throw new Error("Price must be a positive amount.");
 
   await setNumericSetting("ad_bump_price_cents", priceCents);
+  await recordAdminAction({ actorProfileId: admin?.id ?? null, action: "settings.update", entityType: "numeric_setting", next: { key: "ad_bump_price_cents", value: priceCents } });
   // bumpListingCheckout (app/listings/bump-actions.ts) reads this fresh on each request, so this
   // takes effect immediately for the next bump purchase -- /admin is the only route rendering it.
   revalidatePath("/admin");
@@ -107,10 +116,11 @@ export async function updateAdBumpPrice(priceCents: number) {
 // Same validation as updateAdBumpPrice. Read fresh by startOrderPayment and the listing page on
 // every request, so it applies to the next "Buy & ship with PostNL" checkout.
 export async function updatePostnlLabelPrice(priceCents: number) {
-  const { user } = await getCurrentUserAndProfile();
+  const { user, profile: admin } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
   if (!Number.isInteger(priceCents) || priceCents < 0) throw new Error("Price must be a positive amount.");
 
   await setNumericSetting("postnl_label_price_cents", priceCents);
+  await recordAdminAction({ actorProfileId: admin?.id ?? null, action: "settings.update", entityType: "numeric_setting", next: { key: "postnl_label_price_cents", value: priceCents } });
   revalidatePath("/admin");
 }

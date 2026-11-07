@@ -20,6 +20,10 @@ const PUBLIC_TABLES = new Set([
   "vehicle_makes", "vehicle_models",
 ]);
 
+// Columns that must not be readable anonymously even though their table is public (risk R8,
+// supabase/migrations/20260101009800_locations_hide_postcode.sql).
+const PRIVATE_COLUMNS = [["locations", "postal_code"]];
+
 const env = fs.readFileSync(new URL("../../.env.local", import.meta.url), "utf8");
 const envVar = (n) => process.env[n] ?? env.match(new RegExp(`^${n}=(.*)$`, "m"))?.[1]?.trim().replace(/^["']|["']$/g, "");
 const URL_ = envVar("NEXT_PUBLIC_SUPABASE_URL");
@@ -43,7 +47,11 @@ for (const t of tables) {
   const total = res.headers.get("content-range")?.split("/")[1] ?? "?";
   if (!PUBLIC_TABLES.has(t)) leaks.push(`${t} (${total} rows)`);
 }
-console.log(`${tables.length} tables checked; ${readable} readable anonymously, all expected: ${leaks.length === 0}`);
+for (const [t, c] of PRIVATE_COLUMNS) {
+  const res = await fetch(`${URL_}/rest/v1/${t}?select=${c}&limit=1`, { headers: { apikey: KEY, authorization: `Bearer ${KEY}` } });
+  if (res.ok && (await res.json()).length > 0) leaks.push(`${t}.${c} (column readable; apply its migration)`);
+}
+console.log(`${tables.length} tables and ${PRIVATE_COLUMNS.length} private column(s) checked; ${readable} tables readable anonymously, all expected: ${leaks.length === 0}`);
 if (leaks.length) {
   console.log("FAIL  readable without signing in, but not meant to be public:\n  " + leaks.join("\n  "));
   process.exit(1);

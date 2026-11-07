@@ -485,5 +485,10 @@
     "cta": "See AI features",
     "plansReturn": "Seller Pro and top-ups return on {date}. Until then there's nothing to buy.",
     "welcomeBullet": "Every AI feature is free for every account until {date}"
+  },
+  "DataExport": {
+    "title": "Download your data",
+    "body": "Get a copy of everything MarketitNow stores about your account: profile, listings, messages, orders, reviews and more, as one file (JSON).",
+    "button": "Download my data"
   }
 }

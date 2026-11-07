@@ -485,5 +485,10 @@
     "cta": "Bekijk AI-functies",
     "plansReturn": "Seller Pro en tegoed bijkopen keren terug op {date}. Tot die tijd valt er niets te kopen.",
     "welcomeBullet": "Alle AI-functies zijn gratis voor elk account tot {date}"
+  },
+  "DataExport": {
+    "title": "Je gegevens downloaden",
+    "body": "Ontvang een kopie van alles wat MarketitNow over je account bewaart: profiel, advertenties, berichten, bestellingen, beoordelingen en meer, in één bestand (JSON).",
+    "button": "Mijn gegevens downloaden"
   }
 }

@@ -2,6 +2,7 @@
 
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { isAdminEmail } from "@/lib/admin";
+import { recordAdminAction } from "@/lib/audit";
 import { createServiceClient } from "@/lib/supabase/service";
 import { checkListingContentPolicy } from "@/lib/content-moderation";
 
@@ -16,7 +17,7 @@ const BACKFILL_BATCH_SIZE = 20;
 // Service-role client: moderation_status is column-locked to service_role, and this writes across
 // every seller's listings.
 export async function backfillListingModeration(): Promise<{ processed: number; flagged: number; failed: number; remaining: number }> {
-  const { user } = await getCurrentUserAndProfile();
+  const { user, profile: admin } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
 
   const supabase = createServiceClient();
@@ -60,5 +61,6 @@ export async function backfillListingModeration(): Promise<{ processed: number; 
     .eq("moderation_status", "pending")
     .neq("status", "deleted");
 
+  await recordAdminAction({ actorProfileId: admin?.id ?? null, action: "backfill.moderation", entityType: "batch", next: { processed, flagged, failed, remaining: remaining ?? 0 } });
   return { processed, flagged, failed, remaining: remaining ?? 0 };
 }

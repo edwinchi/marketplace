@@ -2,6 +2,7 @@
 
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { isAdminEmail } from "@/lib/admin";
+import { recordAdminAction } from "@/lib/audit";
 import { createServiceClient } from "@/lib/supabase/service";
 import { geocodeLocation } from "@/lib/geocode";
 
@@ -14,7 +15,7 @@ const BATCH_SIZE = 20;
 const NOMINATIM_GAP_MS = 1100;
 
 export async function backfillLocationCoordinates(): Promise<{ processed: number; failed: number; remaining: number }> {
-  const { user } = await getCurrentUserAndProfile();
+  const { user, profile: admin } = await getCurrentUserAndProfile();
   if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized");
 
   const supabase = createServiceClient();
@@ -41,5 +42,6 @@ export async function backfillLocationCoordinates(): Promise<{ processed: number
   }
 
   const { count: remaining } = await supabase.from("locations").select("id", { count: "exact", head: true }).is("latitude", null);
+  await recordAdminAction({ actorProfileId: admin?.id ?? null, action: "backfill.coordinates", entityType: "batch", next: { processed, failed, remaining: remaining ?? 0 } });
   return { processed, failed, remaining: remaining ?? 0 };
 }

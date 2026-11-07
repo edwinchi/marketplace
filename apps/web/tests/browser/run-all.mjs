@@ -16,7 +16,7 @@ const suites = [
   ["translations", "translations.mjs", [base]],
   ["translations (E6)", "translations-e6.mjs", [base]],
 ];
-if (process.argv.includes("--signed-in")) suites.push(["accessibility (signed in)", "a11y-signed-in.mjs", [base]]);
+if (process.argv.includes("--signed-in")) suites.push(["accessibility (signed in)", "a11y-signed-in.mjs", [base]], ["download my data", "data-export.mjs", [base]]);
 if (process.argv.includes("--load")) suites.push(["load", "load.mjs", [base, "100", "10"]]);
 
 let failed = 0;

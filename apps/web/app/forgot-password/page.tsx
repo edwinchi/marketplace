@@ -23,6 +23,11 @@ export default function ForgotPasswordPage() {
             <p className="text-sm">If an account exists for that email, we&apos;ve sent a link to reset your password.</p>
           ) : (
             <form action={formAction} className="flex flex-col gap-4">
+              {state.error && (
+                <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+                  {state.error}
+                </p>
+              )}
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" name="email" type="email" required autoComplete="email" />

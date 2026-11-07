@@ -25,6 +25,7 @@ import { GrantAiUsesForm } from "@/components/admin/grant-ai-uses-form";
 import { OpenRouterStatusCard } from "@/components/admin/openrouter-status-card";
 import { AiFallbackProvidersCard } from "@/components/admin/ai-fallback-providers-card";
 import { HealthCheckCard } from "@/components/admin/health-check-card";
+import { AuditLogCard } from "@/components/admin/audit-log-card";
 import { getRequireLoginSetting, getListenFreeAccessSetting, getSellerProGlobalUnlockSetting, getNewListingNotificationsGlobalUnlockSetting } from "@/lib/app-settings";
 import { getOpenRouterStatus } from "@/lib/openrouter-status";
 import { getAiFallbackProviderStatus } from "@/lib/ai-fallback-provider-status";
@@ -205,6 +206,7 @@ export default async function AdminDashboardPage() {
           <GrantAiUsesForm />
         </div>
         <HealthCheckCard result={healthCheck} />
+        <AuditLogCard />
         <OpenRouterStatusCard status={openRouterStatus} />
         <AiFallbackProvidersCard status={aiFallbackProviderStatus} />
       </div>
