@@ -184,11 +184,21 @@ export default async function CategoryPage({
     return (
       <>
         {breadcrumbJsonLdScript}
-        {/* No photo hero (CategoryHero) here (unlike the other two branches) --
-            CarsLanding below already has its own dedicated, Cars-specific hero with real filter
-            controls. Stacking both put two hero bands back to back before any actual listings,
-            which is exactly the "too much space" this was built to avoid. */}
-        <div className="mx-auto w-full max-w-[1600px] px-4 pt-4 sm:px-6 lg:px-8">
+        {/* The Cars background, shown whole like every other category's (components/category-hero.tsx):
+            11 CC0 / public-domain car photos blended into one image, chosen so no manufacturer
+            badge is readable. */}
+        <CategoryHero src={heroBanner}>
+          <h1 className="hero-text-halo text-primary-ink text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">Advertise a used or new car</h1>
+          <p className="hero-text-halo mt-1 max-w-md text-sm font-medium text-[#046637] sm:text-base">
+            Practical, sporty, or electric — browse real listings, or list your own for free.
+          </p>
+          <p className="hero-text-halo mt-1 text-sm font-semibold text-[#082040]">
+            {(activeCount ?? 0) > 0
+              ? `${activeCount} ${activeCount === 1 ? "car" : "cars"} available now`
+              : "Be the first to list a car"}
+          </p>
+        </CategoryHero>
+        <div className="mx-auto w-full max-w-[1600px] px-4 pt-5 sm:px-6 lg:px-8">
           <Breadcrumbs path={breadcrumbPath} />
           <CategoryQuickNav categories={topLevelCategories} activeId={topLevelActiveId} className="mt-4" />
         </div>
@@ -216,7 +226,6 @@ export default async function CategoryPage({
           favoritedIds={new Set((favorites ?? []).map((f) => f.listing_id))}
           signedIn={!!profile}
           filters={filters}
-          totalActiveCount={activeCount ?? 0}
         />
       </>
     );

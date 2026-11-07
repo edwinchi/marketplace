@@ -1,27 +1,33 @@
 #!/usr/bin/env node
-// Builds each category's hero background (public/category-backgrounds/<key>-hd.webp): 11 photos of
+// Builds each category's hero background (public/category-backgrounds/<key>-<hash>.webp): 11 photos of
 // that category's items blended into ONE wide image, in the homepage banner's style (owner,
 // 2026-11-07: "lots of at least 9 items blended together", "as sharp as the homepage images").
 //
 // Sources: high-resolution CC0 / public-domain photographs found on Openverse and checked by eye,
 // listed per category with their provenance in scripts/category-background-sources.json. The
-// photos themselves aren't in the repo (about 120 MB); pass the folder they were downloaded to
-// (<src>/<key>/<file>) to rebuild.
+// photos themselves aren't in git (about 80 MB): they're kept in ops/hero-photos/ (git-ignored),
+// with the scripts used to find and pick them (source.mjs, sheet.mjs, select.mjs, exclude.json).
+// The output map, lib/category-backgrounds.json, is written by this script.
 //
-// Layout (2880x960, 3:1, sharp on 2x screens at 1440px wide): a taller top row of 5 photos (the
-// part of the hero you see above the category row), and a row of 6 under it, shifted half a slot.
+// Layout (2880x960, 3:1, sharp on 2x screens at 1440px wide, shown whole by
+// components/category-hero.tsx): a taller top row of 5 photos and a row of 6 under it, shifted
+// half a slot.
 // Neighbours overlap and every photo's edges fade out, so they melt into each other and into a
 // warm cream ground: one image, no tiles. Photos are only ever scaled DOWN (1800px sources to
 // ~800px slots), which is what keeps them crisp. A light cream wash unifies the palette, and a
 // soft glow keeps the headline area on the left calm.
 //
-// Run from apps/web: node scripts/gen-category-heroes.mjs --src=<folder> [--only=<key>]
+// Run from apps/web: node scripts/gen-category-heroes.mjs --src=../../ops/hero-photos [--only=<key>]
+// (Stamps & Coins is the owner-approved original; rebuilding it changes the image.)
+import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 
 const OUT = "public/category-backgrounds";
 const SOURCES = "scripts/category-background-sources.json";
+// key -> served path, read by lib/category-collage.ts. Written by this script only.
+const MAP = "lib/category-backgrounds.json";
 const W = 2880;
 const H = 960;
 const CREAM = { r: 239, g: 234, b: 226 };
@@ -90,8 +96,15 @@ for (const [key, entry] of Object.entries(sources.categories)) {
     inside.push({ input: await sharp(l.input).extract({ left: left - l.left, top: top - l.top, width: right - left, height: bottom - top }).toBuffer(), left, top });
   }
   const flat = await sharp({ create: { width: W, height: H, channels: 3, background: CREAM } }).composite(inside).png().toBuffer();
-  // -hd: a new file name per rebuild of a category, so CDN/optimizer caches of the old image are never served.
-  const out = path.join(OUT, `${key}-hd.webp`);
-  await sharp(flat).composite([{ input: wash }, { input: leftGlow }]).webp({ quality: 88, effort: 4, smartSubsample: true }).toFile(out);
+  // File name = key + a hash of the image: a rebuilt image always gets a new URL, so CDN and
+  // image-optimizer caches can never keep serving the previous one under the same name.
+  const webp = await sharp(flat).composite([{ input: wash }, { input: leftGlow }]).webp({ quality: 88, effort: 4, smartSubsample: true }).toBuffer();
+  const name = `${key}-${crypto.createHash("sha256").update(webp).digest("hex").slice(0, 8)}.webp`;
+  const out = path.join(OUT, name);
+  for (const old of await fs.readdir(OUT)) if (old.startsWith(`${key}-`) && /^[a-z-]+-(hd|[0-9a-f]{8})\.webp$/.test(old) && old.replace(/-(hd|[0-9a-f]{8})\.webp$/, "") === key) await fs.rm(path.join(OUT, old));
+  await fs.writeFile(out, webp);
+  const map = JSON.parse(await fs.readFile(MAP, "utf8").catch(() => "{}"));
+  map[key] = `/category-backgrounds/${name}`;
+  await fs.writeFile(MAP, JSON.stringify(Object.fromEntries(Object.entries(map).sort(([x], [y]) => x.localeCompare(y))), null, 1) + "\n");
   console.log(out, Math.round((await fs.stat(out)).size / 1024) + " KB");
 }
