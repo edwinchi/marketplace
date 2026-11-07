@@ -41,7 +41,7 @@ const CATEGORY_COLLAGES: Record<string, string> = {
   "music-instruments": "/category-backgrounds/music-instruments.webp",
   "services-trades": "/category-backgrounds/services-trades.webp",
   "sports-fitness": "/category-backgrounds/sports-fitness.webp",
-  "stamps-coins": "/category-backgrounds/stamps-coins.webp",
+  "stamps-coins": "/category-backgrounds/stamps-coins-hd.webp",
   telecom: "/category-backgrounds/telecom.webp",
   tickets: "/category-backgrounds/tickets.webp",
   "watersports-boats": "/category-backgrounds/watersports-boats.webp",

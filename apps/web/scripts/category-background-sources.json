@@ -1,0 +1,86 @@
+{
+ "note": "Hero background photos per category (scripts/gen-category-heroes.mjs). All CC0 or public domain (no attribution required), found via Openverse; provenance kept for the record.",
+ "categories": {
+  "stamps-coins": {
+   "photos": [
+    {
+     "file": "10.jpg",
+     "title": "Money Coins",
+     "license": "cc0",
+     "creator": "Negative Space",
+     "source": "https://stocksnap.io/photo/money-coins-SDM03P88BO"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Old banknotes, money & banking",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6034990/photo-image-paper-public-domain-money"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Stamps Collection",
+     "license": "cc0",
+     "creator": "Suzy Hazelwood",
+     "source": "https://stocksnap.io/photo/stamps-collection-8PMEB4ECZU"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Gold coin, Aureus, Auguste, Lyon",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/8718233/gold-coin-aureus-auguste-lyon-790"
+    },
+    {
+     "file": "50.jpg",
+     "title": "1807 G$5 Capped Bust Gold",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/8718160/photo-image-vintage-gold-public-domain"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Money Coins",
+     "license": "cc0",
+     "creator": "Negative Space",
+     "source": "https://stocksnap.io/photo/money-coins-E5RETXVN7R"
+    },
+    {
+     "file": "22.jpg",
+     "title": "Euro banknotes, money & banking",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6034810/photo-image-paper-public-domain-money"
+    },
+    {
+     "file": "32.jpg",
+     "title": "1c Franklin strip three cover",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/8849826/franklin-strip-three-cover"
+    },
+    {
+     "file": "41.jpg",
+     "title": "1849 G$20 Liberty Head (Twenty",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/8718542/photo-image-vintage-gold-public-domain"
+    },
+    {
+     "file": "52.jpg",
+     "title": "Italian States, Piacenza, 2 Doppie",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/8718178/photo-image-vintage-gold-public-domain"
+    },
+    {
+     "file": "12.jpg",
+     "title": "Money Coins",
+     "license": "cc0",
+     "creator": "Steve Buissinne",
+     "source": "https://stocksnap.io/photo/money-coins-3OEXFDXO6K"
+    }
+   ]
+  }
+ }
+}

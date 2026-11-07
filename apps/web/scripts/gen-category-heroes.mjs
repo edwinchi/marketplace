@@ -1,109 +1,93 @@
 #!/usr/bin/env node
-// Builds each category's hero background (public/category-backgrounds/<key>.webp) from its 3x3 collage
-// in public/category-collages/: the category's own photos, blended into ONE wide image in the
-// homepage banner's style (owner, 2026-11-07). The homepage banners are single flat-lays of many
-// items on a warm cream surface; these follow that example.
+// Builds each category's hero background (public/category-backgrounds/<key>-hd.webp): 11 photos of
+// that category's items blended into ONE wide image, in the homepage banner's style (owner,
+// 2026-11-07: "lots of at least 9 items blended together", "as sharp as the homepage images").
 //
-// How: the hero is about 3:1, the collages about 1.3:1, so stretching a collage showed only its
-// middle band. Instead each photo is cut out (minus the collage's feathered seam band), upscaled
-// with Lanczos and lightly sharpened, and laid out across a 3:1 canvas in two staggered rows.
-// Neighbouring photos OVERLAP and every photo has feathered edges, so they melt into each other and
-// into the cream ground: no gaps, no tile edges. A light cream wash pulls photos from different
-// sources toward one palette, and a soft cream glow on the left keeps the headline area calm,
-// like the open space in the homepage banners.
+// Sources: high-resolution CC0 / public-domain photographs found on Openverse and checked by eye,
+// listed per category with their provenance in scripts/category-background-sources.json. The
+// photos themselves aren't in the repo (about 120 MB); pass the folder they were downloaded to
+// (<src>/<key>/<file>) to rebuild.
 //
-// Run from apps/web: node scripts/gen-category-heroes.mjs [--dry] [--only=<key>]
+// Layout (2880x960, 3:1, sharp on 2x screens at 1440px wide): a taller top row of 5 photos (the
+// part of the hero you see above the category row), and a row of 6 under it, shifted half a slot.
+// Neighbours overlap and every photo's edges fade out, so they melt into each other and into a
+// warm cream ground: one image, no tiles. Photos are only ever scaled DOWN (1800px sources to
+// ~800px slots), which is what keeps them crisp. A light cream wash unifies the palette, and a
+// soft glow keeps the headline area on the left calm.
+//
+// Run from apps/web: node scripts/gen-category-heroes.mjs --src=<folder> [--only=<key>]
 import fs from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 
-const SRC = "public/category-collages";
 const OUT = "public/category-backgrounds";
-const W = 2400;
-const H = 800;
+const SOURCES = "scripts/category-background-sources.json";
+const W = 2880;
+const H = 960;
 const CREAM = { r: 239, g: 234, b: 226 };
-const TRIM = 0.07; // drop the collage's own feathered seam band around each cell
-const COLS = 5; // photos per row
-const OVERLAP = 0.32; // how far each photo runs under its neighbour (fraction of its width)
-const FEATHER = 30; // blur radius of each photo's edge fade, px (the fade sits inside the overlap)
-const dry = process.argv.includes("--dry");
+const TOP_H = Math.round(H * 0.56);
+const BOTTOM_H = H - TOP_H;
+const OVERLAP = 0.3; // fraction of a slot each photo runs under its neighbours
+const FEATHER = 34; // edge-fade blur radius, px (the fade sits inside the overlap)
+const src = process.argv.find((a) => a.startsWith("--src="))?.slice(6);
 const only = process.argv.find((a) => a.startsWith("--only="))?.slice(7);
+if (!src) throw new Error("--src=<folder with <key>/<file> photos> is required");
 
-// Slot pitch, and the photo size: wider/taller than the pitch so neighbours overlap.
-const pitchX = W / COLS;
-const pitchY = H / 2;
-const tileW = Math.round(pitchX * (1 + OVERLAP));
-const tileH = Math.round(pitchY * (1 + OVERLAP));
+const featherMask = (w, h) =>
+  sharp(Buffer.from(`<svg width="${w}" height="${h}"><rect width="100%" height="100%" fill="#000"/><rect x="${2 * FEATHER}" y="${2 * FEATHER}" width="${w - 4 * FEATHER}" height="${h - 4 * FEATHER}" fill="#fff"/></svg>`))
+    .blur(FEATHER)
+    .extractChannel(0)
+    .raw()
+    .toBuffer();
 
-async function cells(file) {
-  const { width, height } = await sharp(file).metadata();
-  const cw = width / 3;
-  const ch = height / 3;
-  const out = [];
-  for (let r = 0; r < 3; r++)
-    for (let c = 0; c < 3; c++)
-      out.push(
-        await sharp(file)
-          .extract({ left: Math.round(c * cw + cw * TRIM), top: Math.round(r * ch + ch * TRIM), width: Math.round(cw * (1 - 2 * TRIM)), height: Math.round(ch * (1 - 2 * TRIM)) })
-          .toBuffer(),
-      );
-  return out;
-}
-
-// Opaque centre, edges fading to transparent over ~2*FEATHER px.
-const featherMask = await sharp(
-  Buffer.from(
-    `<svg width="${tileW}" height="${tileH}"><rect width="100%" height="100%" fill="#000"/>` +
-      `<rect x="${2 * FEATHER}" y="${2 * FEATHER}" width="${tileW - 4 * FEATHER}" height="${tileH - 4 * FEATHER}" fill="#fff"/></svg>`,
-  ),
-)
-  .blur(FEATHER)
-  .extractChannel(0)
-  .raw()
-  .toBuffer();
-
-async function tile(buf) {
-  const rgb = await sharp(buf)
-    .resize(tileW, tileH, { fit: "cover", position: "attention", kernel: "lanczos3" })
-    .sharpen({ sigma: 0.9, m1: 0.5, m2: 1.8 })
-    .modulate({ saturation: 1.04, brightness: 1.02 })
+async function tile(file, w, h) {
+  const rgb = await sharp(file)
+    .resize(w, h, { fit: "cover", position: "attention", kernel: "lanczos3" })
+    .sharpen({ sigma: 0.6 })
+    .modulate({ saturation: 1.03 })
     .removeAlpha()
     .toBuffer();
-  return sharp(rgb).joinChannel(featherMask, { raw: { width: tileW, height: tileH, channels: 1 } }).png().toBuffer();
+  return sharp(rgb).joinChannel(await featherMask(w, h), { raw: { width: w, height: h, channels: 1 } }).png().toBuffer();
 }
 
-// Soft cream glow over the left third (where the headline sits), fading out to the right.
 const leftGlow = Buffer.from(
-  `<svg width="${W}" height="${H}"><defs><radialGradient id="g" cx="0.12" cy="0.4" r="0.55">` +
-    `<stop offset="0" stop-color="rgb(${CREAM.r},${CREAM.g},${CREAM.b})" stop-opacity="0.78"/>` +
+  `<svg width="${W}" height="${H}"><defs><radialGradient id="g" cx="0.1" cy="0.32" r="0.5">` +
+    `<stop offset="0" stop-color="rgb(${CREAM.r},${CREAM.g},${CREAM.b})" stop-opacity="0.72"/>` +
     `<stop offset="1" stop-color="rgb(${CREAM.r},${CREAM.g},${CREAM.b})" stop-opacity="0"/>` +
     `</radialGradient></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>`,
 );
+const wash = Buffer.from(`<svg width="${W}" height="${H}"><rect width="100%" height="100%" fill="rgb(${CREAM.r},${CREAM.g},${CREAM.b})" fill-opacity="0.08"/></svg>`);
 
-const files = (await fs.readdir(SRC)).filter((f) => f.endsWith(".jpg") && (!only || f === `${only}.jpg`));
-if (!dry) await fs.mkdir(OUT, { recursive: true });
-for (const f of files) {
-  const t = await Promise.all((await cells(path.join(SRC, f))).map(tile));
-  const place = (cell, x, y) => ({ input: t[cell], left: Math.round(x - (tileW - pitchX) / 2), top: Math.round(y - (tileH - pitchY) / 2) });
-  // Row 1: cells 0-4. Row 2, shifted half a slot: cells 3, 5, 6, 7, 8, 1 (the ends run off the
-  // canvas). Drawn back to front so each photo's feathered edge blends over its neighbour's.
-  const layers = [
-    ...[3, 5, 6, 7, 8, 1].map((cell, k) => place(cell, k * pitchX - pitchX / 2, pitchY)),
-    ...[0, 1, 2, 3, 4].map((cell, k) => place(cell, k * pitchX, 0)),
-  ];
+const sources = JSON.parse(await fs.readFile(SOURCES, "utf8"));
+await fs.mkdir(OUT, { recursive: true });
+for (const [key, entry] of Object.entries(sources.categories)) {
+  if (only && key !== only) continue;
+  const files = entry.photos.map((p) => path.join(src, key, p.file));
+  if (files.length < 11) throw new Error(`${key}: needs 11 photos, has ${files.length}`);
+  const pitch = W / 5;
+  const tw = Math.round(pitch * (1 + OVERLAP)), th = Math.round(TOP_H * (1 + OVERLAP * 0.6));
+  const bw = Math.round(pitch * (1 + OVERLAP)), bh = Math.round(BOTTOM_H * (1 + OVERLAP * 0.8));
+  const layers = [];
+  // Bottom row first (drawn under the top row), shifted half a slot; its two ends run off-canvas.
+  for (let k = 0; k < 6; k++) {
+    const cx = k * pitch;
+    layers.push({ input: await tile(files[5 + k], bw, bh), w: bw, h: bh, left: Math.round(cx - bw / 2), top: Math.round(TOP_H + BOTTOM_H / 2 - bh / 2) });
+  }
+  for (let k = 0; k < 5; k++) {
+    const cx = k * pitch + pitch / 2;
+    layers.push({ input: await tile(files[k], tw, th), w: tw, h: th, left: Math.round(cx - tw / 2), top: Math.round(TOP_H / 2 - th / 2) });
+  }
   // sharp's composite needs every layer inside the canvas: crop the parts that run off it.
   const inside = [];
   for (const l of layers) {
     const left = Math.max(0, l.left), top = Math.max(0, l.top);
-    const right = Math.min(W, l.left + tileW), bottom = Math.min(H, l.top + tileH);
+    const right = Math.min(W, l.left + l.w), bottom = Math.min(H, l.top + l.h);
     if (right <= left || bottom <= top) continue;
     inside.push({ input: await sharp(l.input).extract({ left: left - l.left, top: top - l.top, width: right - left, height: bottom - top }).toBuffer(), left, top });
   }
-  const out = path.join(OUT, f.replace(/\.jpg$/, ".webp"));
-  if (dry) { console.log("would write", out); continue; }
   const flat = await sharp({ create: { width: W, height: H, channels: 3, background: CREAM } }).composite(inside).png().toBuffer();
-  // One palette: a light cream wash over everything pulls photos from different sources together.
-  const wash = Buffer.from(`<svg width="${W}" height="${H}"><rect width="100%" height="100%" fill="rgb(${CREAM.r},${CREAM.g},${CREAM.b})" fill-opacity="0.1"/></svg>`);
-  await sharp(flat).composite([{ input: wash }, { input: leftGlow }]).webp({ quality: 86, effort: 4 }).toFile(out);
+  // -hd: a new file name per rebuild of a category, so CDN/optimizer caches of the old image are never served.
+  const out = path.join(OUT, `${key}-hd.webp`);
+  await sharp(flat).composite([{ input: wash }, { input: leftGlow }]).webp({ quality: 88, effort: 4, smartSubsample: true }).toFile(out);
   console.log(out, Math.round((await fs.stat(out)).size / 1024) + " KB");
 }
