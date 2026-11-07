@@ -26,7 +26,8 @@ const browser = await chromium.launch();
 const page = await (await browser.newContext()).newPage();
 await page.goto(`${B}/auth/confirm?token_hash=${encodeURIComponent(tokenHash)}&type=magiclink&next=/my-account/profile/edit`, { waitUntil: "networkidle" });
 check(new URL(page.url()).pathname === "/my-account/profile/edit", "signed in, on the profile settings page");
-check(await page.getByRole("link", { name: /download my data/i }).count() === 1, "\"Download my data\" link is on the page");
+// Found by its target, not its text: the site may show it in any of the 5 languages.
+check(await page.locator('a[href="/api/account/data-export"]').count() === 1, "\"Download my data\" link is on the page");
 
 const res = await page.request.get(`${B}/api/account/data-export`);
 const disposition = res.headers()["content-disposition"] ?? "";

@@ -1,0 +1,18 @@
+{
+  "en": {
+    "video": "/intro/en-32fb3f00.mp4",
+    "poster": "/intro/en-32fb3f00.webp"
+  },
+  "nl": {
+    "video": "/intro/nl-93f7b47f.mp4",
+    "poster": "/intro/nl-93f7b47f.webp"
+  },
+  "fr": {
+    "video": "/intro/fr-afe095d2.mp4",
+    "poster": "/intro/fr-afe095d2.webp"
+  },
+  "ar": {
+    "video": "/intro/ar-9bc7dcf7.mp4",
+    "poster": "/intro/ar-9bc7dcf7.webp"
+  }
+}

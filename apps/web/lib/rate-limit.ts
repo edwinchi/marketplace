@@ -6,9 +6,38 @@ import { createServiceClient } from "./supabase/service";
 // errors for any other reason, same reasoning as every other not-yet-configured feature in this
 // project: a missing migration should degrade to "no rate limiting yet", never to "nobody can sign
 // up". Never fails closed on an infra hiccup either, for the same reason.
+//
+// Retention (owner-approved 2026-11-07, risk R12): rows hold IP addresses and hashed emails, so
+// rows older than RETENTION_DAYS are deleted. Each server instance does that at most once per
+// PRUNE_EVERY_MS, on its first rate-limit check, so it needs no cron secret or database job.
+// No limit may use a window longer than the retention, or old rows it needs would be gone.
+export const RATE_LIMIT_RETENTION_DAYS = 7;
+const RETENTION_MS = RATE_LIMIT_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+const PRUNE_EVERY_MS = 60 * 60 * 1000;
+let lastPruneAt = 0;
+
+async function pruneOldEvents(supabase: ReturnType<typeof createServiceClient>, now: number): Promise<void> {
+  if (now - lastPruneAt < PRUNE_EVERY_MS) return;
+  lastPruneAt = now;
+  try {
+    await supabase.from("rate_limit_events").delete().lt("created_at", new Date(now - RETENTION_MS).toISOString());
+  } catch {
+    // Best effort: the next instance or the next hour tries again.
+  }
+}
+
+// Tests only: forget when this instance last pruned.
+export function resetRateLimitPruneClock(): void {
+  lastPruneAt = 0;
+}
+
 export async function checkRateLimit(bucketKey: string, maxRequests: number, windowSeconds: number): Promise<boolean> {
+  if (windowSeconds * 1000 > RETENTION_MS) {
+    console.error(`checkRateLimit: window ${windowSeconds}s for "${bucketKey.split(":")[0]}" is longer than the ${RATE_LIMIT_RETENTION_DAYS}-day retention`);
+  }
   try {
     const supabase = createServiceClient();
+    await pruneOldEvents(supabase, Date.now());
     const since = new Date(Date.now() - windowSeconds * 1000).toISOString();
     const { count, error } = await supabase
       .from("rate_limit_events")

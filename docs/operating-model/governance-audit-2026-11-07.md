@@ -159,6 +159,6 @@ documents it comes from: **Y** = governance YAML, **C** = concise prompt, **M** 
 | # | Item | Level |
 |---|---|---|
 | 1 | Run `20260101009800_locations_hide_postcode.sql` in Supabase → SQL editor | Owner |
-| 2 | Prune `rate_limit_events` older than 7 days (R12) | 2 (data retention) |
+| 2 | ~~Prune `rate_limit_events` older than 7 days (R12)~~ **done** (owner-approved; `lib/rate-limit.ts`) | 2 (data retention) |
 | 3 | Owner settings: Turnstile keys; Supabase Auth CAPTCHA and password requirements; uptime monitor + Sentry; branch protection on `main`; CRON/Resend keys; test a backup restore | 3 (credentials/accounts) |
 | 4 | Structured logging and tracing | 1 (after the monitoring account exists) |

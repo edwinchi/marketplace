@@ -490,5 +490,12 @@
     "title": "Je gegevens downloaden",
     "body": "Ontvang een kopie van alles wat MarketitNow over je account bewaart: profiel, advertenties, berichten, bestellingen, beoordelingen en meer, in één bestand (JSON).",
     "button": "Mijn gegevens downloaden"
+  },
+  "IntroVideo": {
+    "label": "Introductievideo van MarketitNow",
+    "play": "Introductievideo afspelen",
+    "soundOn": "Geluid aanzetten",
+    "soundOff": "Geluid uitzetten",
+    "close": "Introductievideo sluiten"
   }
 }

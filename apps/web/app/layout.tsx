@@ -9,6 +9,7 @@ import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { VisitTracker } from "@/components/visit-tracker";
+import { IntroVideo } from "@/components/intro-video";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import { EARLY_INSTALL_PROMPT_SCRIPT } from "@/lib/pwa-install";
 
@@ -97,6 +98,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <main id="main-content" className="flex flex-1 flex-col pb-20">{children}</main>
           <Footer />
           <CookieConsentBanner />
+          <IntroVideo />
           <VisitTracker />
           <ServiceWorkerRegister />
         </NextIntlClientProvider>

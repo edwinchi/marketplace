@@ -490,5 +490,12 @@
     "title": "Download your data",
     "body": "Get a copy of everything MarketitNow stores about your account: profile, listings, messages, orders, reviews and more, as one file (JSON).",
     "button": "Download my data"
+  },
+  "IntroVideo": {
+    "label": "MarketitNow intro video",
+    "play": "Play the intro video",
+    "soundOn": "Turn sound on",
+    "soundOff": "Turn sound off",
+    "close": "Close the intro video"
   }
 }

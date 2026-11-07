@@ -490,5 +490,12 @@
     "title": "下载你的数据",
     "body": "获取 MarketitNow 保存的有关你账户的全部数据副本：个人资料、商品、消息、订单、评价等，合为一个文件（JSON）。",
     "button": "下载我的数据"
+  },
+  "IntroVideo": {
+    "label": "MarketitNow 介绍视频",
+    "play": "播放介绍视频",
+    "soundOn": "打开声音",
+    "soundOff": "关闭声音",
+    "close": "关闭介绍视频"
   }
 }

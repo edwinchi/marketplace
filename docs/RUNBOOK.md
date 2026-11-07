@@ -88,3 +88,13 @@ Admin actions (settings changes, moderation, AI-use grants, backfills, admin sig
 to `audit_logs` by `apps/web/lib/audit.ts`. The last 15 are on the admin dashboard
 (**Recent admin actions**). The table is partitioned by month: check that next month's partition
 exists (monthly routine above). If it's missing, writes go to `audit_logs_default` and still work.
+
+## Intro video
+On a visitor's first page each visit, `components/intro-video.tsx` pops up the intro video in the
+page's language, centred and looping until closed, with the site blurred behind it (not on
+`/admin`). The videos are made from the owner's originals in the repo root
+(`<Language> Intro 10 seconds.mp4`: English, Dutch, French, Arabic; other languages get English) by
+`apps/web/scripts/gen-intro-videos.mjs`, which writes `public/intro/` and `lib/intro-videos.json`.
+To replace a video: put the new original in the repo root under the same name and rerun the script
+(it needs a path to ffmpeg). To add a language: add it to `VIDEOS` in the script. To turn the
+intro off: remove `<IntroVideo />` from `app/layout.tsx`. Check: `node tests/browser/intro-video.mjs`.

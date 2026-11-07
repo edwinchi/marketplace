@@ -490,5 +490,12 @@
     "title": "Télécharger vos données",
     "body": "Obtenez une copie de tout ce que MarketitNow conserve sur votre compte : profil, annonces, messages, commandes, avis et plus encore, dans un seul fichier (JSON).",
     "button": "Télécharger mes données"
+  },
+  "IntroVideo": {
+    "label": "Vidéo de présentation de MarketitNow",
+    "play": "Lire la vidéo de présentation",
+    "soundOn": "Activer le son",
+    "soundOff": "Couper le son",
+    "close": "Fermer la vidéo de présentation"
   }
 }
