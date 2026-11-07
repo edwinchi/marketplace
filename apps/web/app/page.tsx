@@ -9,7 +9,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { getCategoriesAndAttributes, getCategoryDescendantIds } from "@/lib/categories";
 import { getTextEmbedding } from "@/lib/embeddings";
-import { getRandomHeroBanner } from "@/lib/hero-banner";
+import { HERO_BANNER } from "@/lib/hero-banner";
 import { slugPath } from "@/lib/slug";
 import { ListingGrid } from "@/components/listing-grid";
 import { CategoryQuickNav } from "@/components/category-quicknav";
@@ -262,8 +262,6 @@ export default async function HomePage({
     }
   }
 
-  const heroBanner = getRandomHeroBanner();
-
   return (
     <div className="flex flex-1 flex-col">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
@@ -273,7 +271,7 @@ export default async function HomePage({
         // and a 1px border under it drew a hard cut line right where it should dissolve.
         className="relative isolate overflow-hidden"
       >
-        <HeroBackdrop src={heroBanner} />
+        <HeroBackdrop src={HERO_BANNER} />
         <div className="hero-enter relative mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-7 sm:px-6 lg:px-8">
           {/* This was previously just the search form below with no headline or CTA at all --
               anyone landing here (an ad click, a shared link, organic search) saw a functional

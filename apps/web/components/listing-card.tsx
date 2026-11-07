@@ -4,7 +4,7 @@ import { ImageOff, Camera } from "lucide-react";
 import { getDisplayCurrency } from "@/lib/display-currency";
 import { getExchangeRates } from "@/lib/exchange-rates";
 import { FavoriteButton } from "@/components/favorite-button";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { ListingPrice } from "@/components/listing-price";
 import { slugPath } from "@/lib/slug";
 
@@ -19,15 +19,25 @@ type Props = {
   imageUrl?: string | null;
   isFavorited: boolean;
   signedIn: boolean;
-  // Kept optional so existing callers don't need to change their queries, but no longer rendered
-  // on the card itself -- browse/search cards are intentionally minimal (photo, title, price only)
-  // so the buyer clicks through to the listing page for pickup/delivery, city, and age. Matches the
-  // reference dense grid: small photo, heart icon, title, price, nothing else.
+  // Not shown: the card stays dense; pickup/delivery is on the listing page.
   pickupAvailable?: boolean;
   deliveryAvailable?: boolean;
   publishedAt?: string | null;
   photoCount?: number;
+  // A paid boost (boost_rank > 0): labelled so paid placement is recognisable (EU UCPD Annex I 11a).
+  promoted?: boolean;
 };
+
+// "Today" / "Yesterday" / "3 Nov" in the visitor's language and Amsterdam time, like Marktplaats'
+// cards. City + age is what a local buyer scans for first.
+function postedLabel(iso: string, locale: string, t: (k: "today" | "yesterday") => string): string {
+  const day = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Amsterdam" }).format(d);
+  const posted = new Date(iso);
+  const now = new Date();
+  if (day(posted) === day(now)) return t("today");
+  if (day(posted) === day(new Date(now.getTime() - 86_400_000))) return t("yesterday");
+  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", timeZone: "Europe/Amsterdam" }).format(posted);
+}
 
 export async function ListingCard({
   id,
@@ -40,10 +50,15 @@ export async function ListingCard({
   isFavorited,
   signedIn,
   photoCount,
+  city,
+  publishedAt,
+  promoted,
 }: Props) {
   const displayCurrency = await getDisplayCurrency();
   const rates = displayCurrency ? await getExchangeRates() : null;
-  const t = isReserved ? await getTranslations("Listing") : null;
+  const [t, locale] = await Promise.all([getTranslations("Listing"), getLocale()]);
+  const posted = publishedAt ? postedLabel(publishedAt, locale, (k) => t(k)) : null;
+  const meta = [city, posted].filter(Boolean).join(" · ");
 
   return (
     <Link
@@ -67,9 +82,14 @@ export async function ListingCard({
         ) : (
           <ImageOff className="size-7" />
         )}
-        {t && (
-          <span className="absolute top-1.5 left-1.5 rounded-full bg-[#e89818] px-2 py-0.5 text-[10px] font-semibold text-white shadow-sm">
-            {t("reserved")}
+        {(isReserved || promoted) && (
+          <span className="absolute top-1.5 left-1.5 flex flex-col items-start gap-1">
+            {isReserved && (
+              <span className="rounded-full bg-[#e89818] px-2 py-0.5 text-[10px] font-semibold text-white shadow-sm">{t("reserved")}</span>
+            )}
+            {promoted && (
+              <span className="rounded-full bg-[#082040]/85 px-2 py-0.5 text-[10px] font-semibold text-white shadow-sm backdrop-blur-sm">{t("promoted")}</span>
+            )}
           </span>
         )}
         {/* Multi-photo completeness is its own quiet trust signal on a classifieds card -- a
@@ -86,6 +106,7 @@ export async function ListingCard({
           <ListingPrice priceType={priceType} minorUnits={priceMinor} currency={currencyCode} displayCurrency={displayCurrency} rates={rates?.rates ?? null} />
         </p>
         <p className="line-clamp-2 text-xs leading-snug font-medium text-foreground/80 transition-colors group-hover:text-foreground">{title}</p>
+        {meta && <p className="truncate text-[11px] text-muted-foreground">{meta}</p>}
       </div>
     </Link>
   );

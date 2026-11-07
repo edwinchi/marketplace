@@ -10,34 +10,15 @@ type QuickNavCategory = { id: string; label: string; stableKey: string };
 // to the homepage first. `activeId` highlights the current category (light-green "you are here"
 // treatment, same convention as /welcome's sticky section nav and the header's Messages/
 // Notifications active state) when this row is shown on that category's own page.
-// Sticky (not just part of the page flow) so it stays visible once a category is selected and the
-// page is scrolled -- the same below-header offset /welcome's own sticky nav uses (top-20 mobile,
-// where the header is `fixed` with an h-20 spacer; sm:top-[89px] desktop, matching the header's
-// real height there), so it tucks in flush under the header instead of colliding with it. A
-// background is required, not optional, once something is sticky -- otherwise scrolled page
-// content shows through it, the same bug class the mobile nav bars hit earlier. It's 75% opaque
-// plus a strong backdrop blur rather than fully solid, so the category hero photo (which now runs
-// on behind this row, see app/categories/[...slug]/page.tsx) shows through softly, while scrolled
-// content underneath stays an unreadable blur.
-//
-// Callers pass spacing via `className` directly on this root element (rather than wrapping it in
-// their own `<div className="mt-4">`) for a real reason, not just tidiness: a sticky element can
-// only actually remain stuck while scrolling within the height its own immediate parent provides
-// (confirmed live -- it computed position:sticky correctly but never visually stuck, because a
-// wrapper div containing nothing but this component is exactly as tall as the component itself,
-// leaving zero room). Rendering this as a direct child of each page's tall outer container instead
-// gives it the whole page's height to stay stuck within.
-//
-// A flat border read as an abrupt seam once this is actually floating over scrolled content
-// instead of sitting in the page's normal flow -- a shadow instead (heavier on mobile's full-bleed
-// bar, the same rounded-border-shadow "card" treatment this project already uses elsewhere for
-// everything else on desktop, where it sits within the content column rather than bleeding to the
-// viewport edge) reads as a deliberately elevated toolbar rather than a stray line.
+// In the page flow, not sticky (owner, 2026-11-07): the row sits on the hero photo and stays put
+// when the page scrolls, the same on the homepage and every category page. It used to be sticky on
+// category pages, so the three-row grid slid down over the listings as you scrolled. The 75%
+// background plus blur lets the photo show through softly behind it.
 export function CategoryQuickNav({ categories, activeId, className }: { categories: QuickNavCategory[]; activeId?: string; className?: string }) {
   return (
     <div
       className={cn(
-        "sticky top-20 z-20 -mx-4 flex gap-5 overflow-x-auto bg-background/75 backdrop-blur-md px-4 py-3 shadow-[0_6px_16px_-8px_rgba(0,0,0,0.18)] sm:top-[89px] sm:mx-0 sm:flex-wrap sm:rounded-xl sm:border sm:px-5 sm:py-4 sm:shadow-sm",
+        "relative -mx-4 flex gap-5 overflow-x-auto bg-background/75 backdrop-blur-md px-4 py-3 shadow-[0_6px_16px_-8px_rgba(0,0,0,0.18)] sm:mx-0 sm:flex-wrap sm:rounded-xl sm:border sm:px-5 sm:py-4 sm:shadow-sm",
         className,
       )}
     >

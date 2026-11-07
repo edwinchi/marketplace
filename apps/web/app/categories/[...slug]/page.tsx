@@ -4,7 +4,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getCategoryPath, getCategoryDirectory, getCategoryDescendantIds, getCategoriesAndAttributes } from "@/lib/categories";
 import { getNumericSetting } from "@/lib/numeric-settings";
-import { getRandomHeroBanner } from "@/lib/hero-banner";
+import { HERO_BANNER } from "@/lib/hero-banner";
 import { getCategoryCollageImage } from "@/lib/category-collage";
 import { getCarsLandingData, type CarsFilters } from "@/lib/cars-landing";
 import { createClient } from "@/lib/supabase/server";
@@ -34,12 +34,12 @@ const CARS_TYPE_STABLE_KEYS = new Set([
 // profiles_public (a view exposing only public-safe columns), not the profiles table directly --
 // see supabase/migrations/20260101006000_profiles_rls_lockdown.sql.
 const LISTING_SELECT =
-  "id, title, description, price_minor, currency_code, price_type, is_reserved, pickup_available, delivery_available, published_at, locations(city), profiles_public!listings_seller_id_fkey(display_name, username), listing_media(storage_key, sort_order)";
+  "id, title, description, price_minor, currency_code, price_type, is_reserved, pickup_available, delivery_available, published_at, boost_rank, locations(city), profiles_public!listings_seller_id_fkey(display_name, username), listing_media(storage_key, sort_order)";
 // Filtering by an embedded resource's column (locations.city) requires an inner join in
 // PostgREST's embed syntax — a plain left-embed silently ignores that filter (same gotcha
 // app/page.tsx's own city filter already works around).
 const LISTING_SELECT_NEAR_YOU =
-  "id, title, description, price_minor, currency_code, price_type, is_reserved, pickup_available, delivery_available, published_at, locations!inner(city), profiles_public!listings_seller_id_fkey(display_name, username), listing_media(storage_key, sort_order)";
+  "id, title, description, price_minor, currency_code, price_type, is_reserved, pickup_available, delivery_available, published_at, boost_rank, locations!inner(city), profiles_public!listings_seller_id_fkey(display_name, username), listing_media(storage_key, sort_order)";
 
 // Every category page previously fell through to the root layout's generic "MarketitNow — Buy and
 // sell across African markets" title/description on every one of the ~2,630 category pages --
@@ -135,10 +135,11 @@ export default async function CategoryPage({
     ],
   };
   const breadcrumbJsonLdScript = <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />;
-  // A dedicated collage banner for this branch's top-level category, if one's been built yet
-  // (see lib/category-collage.ts) -- otherwise every page under it still gets the generic rotating
-  // banner rather than no image at all.
-  const heroBanner = getCategoryCollageImage(path[0]?.stableKey) ?? getRandomHeroBanner();
+
+  // This category's own photos, blended into one background in the homepage banner's style
+  // (lib/category-collage.ts, scripts/gen-category-heroes.mjs); the homepage banner if a top-level
+  // category has none yet.
+  const heroBanner = getCategoryCollageImage(path[0]?.stableKey) ?? HERO_BANNER;
 
   if (directory.self.stableKey === "cars") {
     const sp = await searchParams;
@@ -189,12 +190,6 @@ export default async function CategoryPage({
             which is exactly the "too much space" this was built to avoid. */}
         <div className="mx-auto w-full max-w-[1600px] px-4 pt-4 sm:px-6 lg:px-8">
           <Breadcrumbs path={breadcrumbPath} />
-          {/* This page's own containing block for the sticky row is only this div (Breadcrumbs
-              plus the row itself) -- CarsLanding below is a separate top-level sibling, not nested
-              inside it, so unlike the other two branches of this page this one doesn't have the
-              full page's height to actually stay stuck within. Left as-is (computes sticky
-              correctly, just without the visible benefit) rather than restructuring CarsLanding's
-              own wrapping without first understanding its internal layout. */}
           <CategoryQuickNav categories={topLevelCategories} activeId={topLevelActiveId} className="mt-4" />
         </div>
         <CarsLanding
@@ -282,12 +277,18 @@ export default async function CategoryPage({
         .limit(24)
     : { data: forYouListings };
 
+  // EU ranking transparency (Omnibus Directive / UCPD Annex I 11a): these feeds put paid
+  // "promoted" listings (boost_rank) first, so say so and name the main ranking factor.
+  // Marktplaats shows the same kind of note under every result list.
+  const rankingNote = <p className="mt-4 text-xs text-muted-foreground">{t("rankingNote")}</p>;
+
   const feedTabs = (
     <CategoryFeedTabs
       forYouContent={
         <>
           <ListingGrid listings={forYouListings ?? []} favoritedIds={favoritedIds} signedIn={!!profile} />
           {!forYouListings?.length && <p className="py-8 text-center text-muted-foreground">{t("noListingsInCategory")}</p>}
+          {rankingNote}
         </>
       }
       nearYouContent={
@@ -305,6 +306,7 @@ export default async function CategoryPage({
           )}
           <ListingGrid listings={nearYouListings ?? []} favoritedIds={favoritedIds} signedIn={!!profile} />
           {!nearYouListings?.length && <p className="py-8 text-center text-muted-foreground">{t("noListingsInCategory")}</p>}
+          {rankingNote}
         </>
       }
     />
@@ -330,9 +332,7 @@ export default async function CategoryPage({
         {itemListJsonLdScript}
         {/* The photo runs on below the heading, behind the breadcrumb and category row: extra bottom
             padding paired with an equal negative margin, so the content block below overlaps it
-            (that block is `relative` so it stacks above and stays clickable). Done this way rather
-            than moving the row inside this element, because the row is sticky and needs the whole
-            page as its containing block -- this element clips its overflow. */}
+            (that block is `relative` so it stacks above and stays clickable). */}
         <div className="relative isolate overflow-hidden pb-36 -mb-36 sm:pb-[17rem] sm:-mb-[17rem]">
           <HeroBackdrop src={heroBanner} />
           <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
@@ -369,9 +369,7 @@ export default async function CategoryPage({
       {itemListJsonLdScript}
       {/* The photo runs on below the heading, behind the breadcrumb and category row: extra bottom
             padding paired with an equal negative margin, so the content block below overlaps it
-            (that block is `relative` so it stacks above and stays clickable). Done this way rather
-            than moving the row inside this element, because the row is sticky and needs the whole
-            page as its containing block -- this element clips its overflow. */}
+            (that block is `relative` so it stacks above and stays clickable). */}
         <div className="relative isolate overflow-hidden pb-36 -mb-36 sm:pb-[17rem] sm:-mb-[17rem]">
           <HeroBackdrop src={heroBanner} />
         <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">

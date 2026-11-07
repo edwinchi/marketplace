@@ -1,9 +1,5 @@
-// 9 vetted, blurred/scrimmed collage banners (public/hero-banner-1.jpg .. -9.jpg) -- picked fresh
-// per request so the homepage and category pages don't show the same banner every visit. Each page
-// with a hero calls this once and passes the result to components/hero-backdrop.tsx.
-const HERO_BANNER_COUNT = 9;
-
-export function getRandomHeroBanner(): string {
-  const n = Math.floor(Math.random() * HERO_BANNER_COUNT) + 1;
-  return `/hero-banner-${n}.jpg`;
-}
+// The hero photo behind the homepage and every category page (components/hero-backdrop.tsx).
+// One fixed image (owner, 2026-11-07): the same flat-lay of many items everywhere, so the
+// background doesn't change between pages or visits. The other banners (hero-banner-1..8.jpg)
+// stay in public/ if a rotation or a different pick is wanted later.
+export const HERO_BANNER = "/hero-banner-9.jpg";

@@ -113,7 +113,8 @@
     "heroSubtext": "来自世界各地卖家的真实商品。",
     "metaTitle": "出售 {name}",
     "metaDescription": "在 MarketitNow 上购买、出售、发布 {name} 信息——{breadcrumb} 下来自世界各地卖家的真实商品。",
-    "breadcrumb": "面包屑导航"
+    "breadcrumb": "面包屑导航",
+    "rankingNote": "按最新发布排序。推广商品（卖家的付费选项）优先显示。"
   },
   "Listing": {
     "characteristics": "商品特性",
@@ -187,7 +188,10 @@
     "photoOf": "第 {n} 张，共 {total} 张",
     "photoRemove": "删除照片",
     "photoMoveEarlier": "照片前移",
-    "photoMoveLater": "照片后移"
+    "photoMoveLater": "照片后移",
+    "promoted": "推广",
+    "today": "今天",
+    "yesterday": "昨天"
   },
   "Home": {
     "metaTitle": "买卖汽车、电子产品、家具等",

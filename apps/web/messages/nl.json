@@ -113,7 +113,8 @@
     "heroSubtext": "Echte advertenties van verkopers van over de hele wereld.",
     "metaTitle": "{name} te koop",
     "metaDescription": "Koop, verkoop, adverteer {name} op MarketitNow — echte advertenties onder {breadcrumb}, van verkopers van over de hele wereld.",
-    "breadcrumb": "Kruimelpad"
+    "breadcrumb": "Kruimelpad",
+    "rankingNote": "Gesorteerd op nieuwste eerst. Uitgelichte advertenties, een betaalde optie voor verkopers, staan bovenaan."
   },
   "Listing": {
     "characteristics": "Kenmerken",
@@ -187,7 +188,10 @@
     "photoOf": "Foto {n} van {total}",
     "photoRemove": "Foto verwijderen",
     "photoMoveEarlier": "Foto naar voren",
-    "photoMoveLater": "Foto naar achteren"
+    "photoMoveLater": "Foto naar achteren",
+    "promoted": "Uitgelicht",
+    "today": "Vandaag",
+    "yesterday": "Gisteren"
   },
   "Home": {
     "metaTitle": "Auto's, elektronica, meubels en meer kopen en verkopen",

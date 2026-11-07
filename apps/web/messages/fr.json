@@ -113,7 +113,8 @@
     "heroSubtext": "Des annonces réelles de vendeurs du monde entier.",
     "metaTitle": "{name} à vendre",
     "metaDescription": "Achetez, vendez et faites de la publicité pour les {name} sur MarketitNow — des annonces réelles sous {breadcrumb}, publiées par des vendeurs du monde entier.",
-    "breadcrumb": "Fil d'Ariane"
+    "breadcrumb": "Fil d'Ariane",
+    "rankingNote": "Triées de la plus récente à la plus ancienne. Les annonces mises en avant, une option payante pour les vendeurs, apparaissent en premier."
   },
   "Listing": {
     "characteristics": "Caractéristiques",
@@ -187,7 +188,10 @@
     "photoOf": "Photo {n} sur {total}",
     "photoRemove": "Supprimer la photo",
     "photoMoveEarlier": "Déplacer la photo vers l'avant",
-    "photoMoveLater": "Déplacer la photo vers l'arrière"
+    "photoMoveLater": "Déplacer la photo vers l'arrière",
+    "promoted": "Mise en avant",
+    "today": "Aujourd’hui",
+    "yesterday": "Hier"
   },
   "Home": {
     "metaTitle": "Achetez et vendez voitures, électronique, meubles et plus",

@@ -113,7 +113,8 @@
     "heroSubtext": "Real listings from sellers around the world.",
     "metaTitle": "{name} for sale",
     "metaDescription": "Buy, sell, advertise {name} on MarketitNow — real listings under {breadcrumb}, from sellers around the world.",
-    "breadcrumb": "Breadcrumb"
+    "breadcrumb": "Breadcrumb",
+    "rankingNote": "Sorted by newest first. Promoted listings, a paid option for sellers, are shown first."
   },
   "Listing": {
     "characteristics": "Characteristics",
@@ -187,7 +188,10 @@
     "photoOf": "Photo {n} of {total}",
     "photoRemove": "Remove photo",
     "photoMoveEarlier": "Move photo earlier",
-    "photoMoveLater": "Move photo later"
+    "photoMoveLater": "Move photo later",
+    "promoted": "Promoted",
+    "today": "Today",
+    "yesterday": "Yesterday"
   },
   "Home": {
     "metaTitle": "Buy & Sell Cars, Electronics, Furniture & More",

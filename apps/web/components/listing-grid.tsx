@@ -12,12 +12,21 @@ type Listing = {
   is_reserved?: boolean | null;
   locations: { city: string | null } | { city: string | null }[] | null;
   listing_media: { storage_key: string; sort_order: number }[] | null;
-  // Not rendered on the card (see ListingCard) -- kept optional so callers whose queries already
-  // select these columns for other purposes don't need to change their select().
+  // Optional: shown on the card when the caller's query selects them (city + date line, Promoted).
   pickup_available?: boolean | null;
   delivery_available?: boolean | null;
   published_at?: string | null;
+  boost_rank?: number | null;
 };
+
+// Sellers type their city in any case ("ZWOLLE", "zwolle"): show all-caps or all-lowercase names
+// as "Zwolle", "Den Haag", "'s-Hertogenbosch"; mixed-case names are left as typed.
+export function displayCity(city: string | null | undefined): string | null {
+  const c = city?.trim();
+  if (!c) return null;
+  if (c !== c.toUpperCase() && c !== c.toLowerCase()) return c;
+  return c.toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (_, sep: string, ch: string) => sep + ch.toUpperCase());
+}
 
 export function ListingGrid({ listings, favoritedIds, signedIn }: { listings: Listing[]; favoritedIds: Set<string>; signedIn: boolean }) {
   return (
@@ -25,6 +34,7 @@ export function ListingGrid({ listings, favoritedIds, signedIn }: { listings: Li
       {listings.map((l) => {
         const sortedMedia = [...(l.listing_media ?? [])].sort((a, b) => a.sort_order - b.sort_order);
         const media = sortedMedia[0];
+        const location = Array.isArray(l.locations) ? l.locations[0] : l.locations;
         return (
           <ListingCard
             key={l.id}
@@ -38,6 +48,9 @@ export function ListingGrid({ listings, favoritedIds, signedIn }: { listings: Li
             isFavorited={favoritedIds.has(l.id)}
             signedIn={signedIn}
             photoCount={sortedMedia.length}
+            city={displayCity(location?.city)}
+            publishedAt={l.published_at ?? null}
+            promoted={(l.boost_rank ?? 0) > 0}
           />
         );
       })}

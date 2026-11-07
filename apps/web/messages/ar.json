@@ -113,7 +113,8 @@
     "heroSubtext": "إعلانات حقيقية من بائعين حول العالم.",
     "metaTitle": "{name} للبيع",
     "metaDescription": "اشترِ وبِع وأعلن عن {name} على MarketitNow — إعلانات حقيقية ضمن {breadcrumb} من بائعين حول العالم.",
-    "breadcrumb": "مسار التنقل"
+    "breadcrumb": "مسار التنقل",
+    "rankingNote": "مرتبة من الأحدث إلى الأقدم. تظهر الإعلانات المروَّجة، وهي خيار مدفوع للبائعين، أولاً."
   },
   "Listing": {
     "characteristics": "المواصفات",
@@ -187,7 +188,10 @@
     "photoOf": "الصورة {n} من {total}",
     "photoRemove": "إزالة الصورة",
     "photoMoveEarlier": "تحريك الصورة للأمام",
-    "photoMoveLater": "تحريك الصورة للخلف"
+    "photoMoveLater": "تحريك الصورة للخلف",
+    "promoted": "مُروَّج",
+    "today": "اليوم",
+    "yesterday": "أمس"
   },
   "Home": {
     "metaTitle": "بيع وشراء السيارات والإلكترونيات والأثاث والمزيد",
