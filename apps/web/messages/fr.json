@@ -466,5 +466,20 @@
     "benefit3Title": "Toujours à jour",
     "benefit3Body": "Rien à mettre à jour : vous avez automatiquement la dernière version.",
     "otherDevicesTitle": "Instructions pour les autres appareils"
+  },
+  "AiFreePeriod": {
+    "badge": "Gratuit pendant 6 mois",
+    "title": "Toutes les fonctions d'IA sont gratuites jusqu'au {date}",
+    "body": "Remplissage automatique par photo, amélioration de la description, suggestions de prix, traduction des annonces, statistiques vendeur et Écouter sont gratuits et illimités pour tous les comptes. Les offres payantes reviendront à la fin du compte à rebours.",
+    "endsIn": "L'IA gratuite se termine dans",
+    "days": "jours",
+    "hours": "heures",
+    "minutes": "min",
+    "seconds": "s",
+    "ended": "La période d'IA gratuite est terminée. Les offres payantes s'appliquent à nouveau.",
+    "compact": "L'IA est gratuite pour tous jusqu'au {date}",
+    "cta": "Voir les fonctions d'IA",
+    "plansReturn": "Seller Pro et les recharges reviennent le {date}. D'ici là, il n'y a rien à acheter.",
+    "welcomeBullet": "Toutes les fonctions d'IA sont gratuites pour tous les comptes jusqu'au {date}"
   }
 }

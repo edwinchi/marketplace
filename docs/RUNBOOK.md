@@ -59,3 +59,20 @@ row. A 503 with `"error":"timeout"` means Supabase didn't answer within 4 s.
 - `npm outdated`; plan Next.js minor upgrades promptly (security fixes ship there).
 - Check `audit_logs` partitions exist for next month (`20260101009700_audit_partition_schedule.sql`).
 - Confirm the old Plesk host still forwards to marketitnow.net.
+
+## Free AI period (2026-11-07 → 2027-05-07)
+Owner decision: every signed-in account gets every AI feature free and unlimited for six months
+(`apps/web/lib/ai-free-period.ts`). Photo autofill, description polish, listing translation,
+seller insights and Listen are included. The new-listing broadcast to all users is not.
+- **It ends by itself** at 00:00 Amsterdam time on 7 May 2027. After that, the 5 free uses,
+  Seller Pro and top-ups apply again. The countdown, banners and the "nothing to buy" note
+  disappear, and checkout works again. Uses made during the free period don't count against
+  anyone's 5 free uses.
+- **End it early or extend it:** set `AI_FREE_PERIOD_ENDS_AT` (ISO date-time, e.g.
+  `2027-08-01T00:00:00+02:00`) in Vercel → Environment Variables (Production), then redeploy.
+- **Cost guard:** 40 photo autofills per account per day (`AI_FREE_PERIOD_PHOTO_DAILY_LIMIT`).
+  Text features keep their 20/hour limits. Free models are tried first; the paid fallback (OpenAI,
+  then Claude via OpenRouter) only runs when they're all down. Watch the OpenAI and OpenRouter
+  spend monthly while it runs.
+- **Two weeks before the end:** tell users that paid plans return (email or in-app). This isn't
+  automated.

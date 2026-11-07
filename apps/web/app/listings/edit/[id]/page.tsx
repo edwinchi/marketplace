@@ -4,7 +4,7 @@ import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { getCategoriesAndAttributes } from "@/lib/categories";
 import { updateListing } from "@/app/listings/actions";
 import { getAiUsageStatus } from "@/app/listings/new/analyze-photo-action";
-import { isSellerProSubscriber } from "@/lib/seller-pro";
+import { canUseSellerProAi } from "@/lib/seller-pro";
 import { resolveMediaUrl } from "@/lib/media";
 import { ListingForm } from "@/components/listing-form";
 import { LISTING_TRANSLATION_TARGETS } from "@/lib/listing-translations";
@@ -44,7 +44,7 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
     getCategoriesAndAttributes(),
     supabase.from("listing_media").select("id, storage_key").eq("listing_id", id).eq("media_type", "image").order("sort_order"),
     getAiUsageStatus(),
-    isSellerProSubscriber(),
+    canUseSellerProAi(),
     supabase.from("listing_translations").select("language_code").eq("listing_id", id).in("language_code", [...LISTING_TRANSLATION_TARGETS]),
     supabase
       .from("listing_attribute_values")

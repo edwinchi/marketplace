@@ -4,6 +4,7 @@ import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import { isAdminEmail } from "@/lib/admin";
 import { getListenFreeAccessSetting } from "@/lib/app-settings";
+import { isAiFreePeriodActive } from "@/lib/ai-free-period";
 
 // Listen (read-aloud) is a Seller Pro perk -- the same "unlimited" entitlement
 // analyze-photo-action.ts already checks for the AI photo-analysis cap, admins included, rather
@@ -15,6 +16,8 @@ export async function getCanListen(): Promise<boolean> {
   const { user, profile } = await getCurrentUserAndProfile();
   if (!user || !profile) return false;
   if (isAdminEmail(user.email)) return true;
+  // Free AI period (lib/ai-free-period.ts): every signed-in account, until it ends.
+  if (isAiFreePeriodActive()) return true;
 
   // Admin-flippable promotional override (see lib/app-settings.ts) -- while on, every signed-in
   // user gets Listen regardless of subscription status, no per-account changes needed.

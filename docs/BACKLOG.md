@@ -36,6 +36,13 @@ directive 4). **Owner** items need an account, credentials or a decision only th
   - AC: `proxy.ts` uses `auth.getClaims()` with asymmetric JWT signing keys (Supabase setting,
     Level 2 auth change); login, logout and expiry tested.
 
+## E4b — Category pages: lighter and sharper (Eng, Level 0) — done 2026-11-07
+- The photo banner and thumbnail strip under the category row are gone: a 408×600 photo was
+  stretched to 1376×224. That was the page's biggest image, and the gallery query is gone with it.
+- The hero photos are now wide photo walls (`scripts/gen-category-heroes.mjs`), served by
+  next/image as AVIF. Tailwind masks blend them into the header and the page. Category hero
+  178 KB → 42 KB; homepage hero 265 KB → 79 KB on desktop and 21 KB on phones.
+
 ## E5 — Safe development (Owner + Eng, Level 2)
 - **US5.1** As an engineer, local testing can't touch real customer data.
   - AC: a separate Supabase dev project; `.env.local` points at it; migrations applied to both.

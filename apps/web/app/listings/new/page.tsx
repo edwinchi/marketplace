@@ -3,6 +3,7 @@ import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { getCategoriesAndAttributes } from "@/lib/categories";
 import { getAiUsageStatus } from "@/app/listings/new/analyze-photo-action";
 import { NewListingStep1 } from "@/components/listings/new-listing-step1";
+import { AiFreePeriodBanner } from "@/components/ai-free-period-banner";
 
 export default async function NewListingPage() {
   const { user } = await getCurrentUserAndProfileForRender();
@@ -13,6 +14,7 @@ export default async function NewListingPage() {
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8">
       <h1 className="mb-6 text-center text-2xl font-semibold">Post an ad</h1>
+      <AiFreePeriodBanner variant="compact" />
       <NewListingStep1 categoryOptions={categoryOptions} initialUsesLeft={aiUsage.usesLeft} freeLimit={aiUsage.freeLimit} />
     </div>
   );

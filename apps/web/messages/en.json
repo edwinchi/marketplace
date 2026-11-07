@@ -466,5 +466,20 @@
     "benefit3Title": "Always up to date",
     "benefit3Body": "Nothing to update. You always get the latest version automatically.",
     "otherDevicesTitle": "Instructions for other devices"
+  },
+  "AiFreePeriod": {
+    "badge": "Free for 6 months",
+    "title": "Every AI feature is free until {date}",
+    "body": "Photo autofill, description polish, price suggestions, listing translation, seller insights and Listen are free and unlimited for every account. Paid plans return when the countdown ends.",
+    "endsIn": "Free AI ends in",
+    "days": "days",
+    "hours": "hours",
+    "minutes": "min",
+    "seconds": "sec",
+    "ended": "The free AI period has ended. Paid plans apply again.",
+    "compact": "AI is free for everyone until {date}",
+    "cta": "See AI features",
+    "plansReturn": "Seller Pro and top-ups return on {date}. Until then there's nothing to buy.",
+    "welcomeBullet": "Every AI feature is free for every account until {date}"
   }
 }

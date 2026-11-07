@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
-import { isSellerProSubscriber } from "@/lib/seller-pro";
+import { canUseSellerProAi } from "@/lib/seller-pro";
 import { callFreeTextModel, parseJsonResponse } from "@/lib/ai-text";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { LISTING_TRANSLATION_TARGETS } from "@/lib/listing-translations";
@@ -26,7 +26,7 @@ async function fetchOwnListing(listingId: string, profileId: string) {
 export async function translateListing(listingId: string): Promise<{ error: string | null }> {
   const { profile } = await getCurrentUserAndProfile();
   if (!profile) return { error: "Sign in to use this." };
-  if (!(await isSellerProSubscriber())) {
+  if (!(await canUseSellerProAi())) {
     return { error: "Listing translation is a Seller Pro feature — see /my-account/ai-features to subscribe." };
   }
   if (!(await checkRateLimit(`translate-listing:${profile.id}`, 20, 3600))) {

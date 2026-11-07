@@ -6,10 +6,14 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { getSiteOrigin } from "@/lib/site-url";
 import { getStripe, SELLER_PRO_PRICE_ID, AI_TOPUP_PRICE_ID } from "@/lib/stripe";
+import { isAiFreePeriodActive } from "@/lib/ai-free-period";
 
 async function startCheckout(mode: "subscription" | "payment", priceId: string | undefined) {
   const { user, profile } = await getCurrentUserAndProfile();
   if (!user || !profile) redirect("/login");
+  // Nothing to sell while every AI feature is free (lib/ai-free-period.ts): the page hides these
+  // buttons, and this stops a stale tab or a direct form post from charging for a free feature.
+  if (isAiFreePeriodActive()) redirect("/my-account/ai-features");
 
   const stripe = getStripe();
   if (!stripe || !priceId) redirect("/my-account/ai-features?error=not_configured");

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { HeroBackdrop } from "@/components/hero-backdrop";
 import Link from "next/link";
 import { PackagePlus, Home } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -268,20 +269,18 @@ export default async function HomePage({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
       {/* Search hero */}
       <div
-        // No border-b -- the collage already fades to transparent via .brand-lattice::before's own
-        // mask-image (see globals.css), so a literal 1px border directly underneath it drew a
-        // crisp, visible cut line right where the fade was supposed to dissolve smoothly into the
-        // page's own background instead.
-        className="brand-lattice relative bg-muted/30"
-        style={{ "--hero-bg-image": `url(${heroBanner})` } as React.CSSProperties}
+        // No border-b -- the photo already fades out at the bottom (components/hero-backdrop.tsx),
+        // and a 1px border under it drew a hard cut line right where it should dissolve.
+        className="relative isolate overflow-hidden"
       >
+        <HeroBackdrop src={heroBanner} />
         <div className="hero-enter relative mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-7 sm:px-6 lg:px-8">
           {/* This was previously just the search form below with no headline or CTA at all --
               anyone landing here (an ad click, a shared link, organic search) saw a functional
               search bar and nothing telling them MarketitNow is also where they'd sell. Solid brand
               color, not a gradient/glow -- restrained enough to still read as a trustworthy
               classifieds marketplace, not a SaaS landing page. The real-photo collage behind it
-              (.brand-lattice::before, see globals.css) is the actual differentiator from a
+              (components/hero-backdrop.tsx) is the actual differentiator from a
               plain header band. */}
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>

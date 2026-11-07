@@ -1,7 +1,7 @@
 "use server";
 
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
-import { isSellerProSubscriber } from "@/lib/seller-pro";
+import { canUseSellerProAi } from "@/lib/seller-pro";
 import { callFreeTextModel } from "@/lib/ai-text";
 import { checkRateLimit } from "@/lib/rate-limit";
 
@@ -18,7 +18,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 export async function polishDescription(title: string, description: string): Promise<{ description: string | null; error: string | null }> {
   const { user, profile } = await getCurrentUserAndProfile();
   if (!user || !profile) return { description: null, error: "Sign in to use this." };
-  if (!(await isSellerProSubscriber())) {
+  if (!(await canUseSellerProAi())) {
     return { description: null, error: "Polish with AI is a Seller Pro feature — see /my-account/ai-features to subscribe." };
   }
   if (!(await checkRateLimit(`polish-description:${profile.id}`, 20, 3600))) {

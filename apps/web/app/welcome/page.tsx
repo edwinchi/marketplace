@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { getAiFreePeriodEnd, isAiFreePeriodActive } from "@/lib/ai-free-period";
 import {
   Search,
   SlidersHorizontal,
@@ -112,7 +113,12 @@ export default async function WelcomePage() {
     { icon: MapPin, title: t("safetyTip2Title"), body: t("safetyTip2Body") },
     { icon: KeyRound, title: t("safetyTip3Title"), body: t("safetyTip3Body") },
   ];
-  const aiBullets = [t("aiBullet1"), t("aiBullet2"), t("aiBullet3")];
+  // During the free AI period the "5 free uses" bullet would be wrong: say what's true instead.
+  const tFree = await getTranslations("AiFreePeriod");
+  const aiFreeBullet = isAiFreePeriodActive()
+    ? tFree("welcomeBullet", { date: new Intl.DateTimeFormat(await getLocale(), { dateStyle: "long", timeZone: "Europe/Amsterdam" }).format(getAiFreePeriodEnd()) })
+    : t("aiBullet2");
+  const aiBullets = [t("aiBullet1"), aiFreeBullet, t("aiBullet3")];
 
   return (
     <div className="flex flex-1 flex-col">

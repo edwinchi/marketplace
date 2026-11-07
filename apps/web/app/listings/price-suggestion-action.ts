@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { isSellerProSubscriber } from "@/lib/seller-pro";
+import { canUseSellerProAi } from "@/lib/seller-pro";
 
 export type PriceSuggestion = { minMinor: number; medianMinor: number; maxMinor: number; count: number; currencyCode: string };
 
@@ -12,7 +12,7 @@ export type PriceSuggestion = { minMinor: number; medianMinor: number; maxMinor:
 // no matter how plausible it reads. Same category + currency only (not city too) -- narrowing
 // further would shrink most categories' comparable sets below the honesty threshold below.
 export async function suggestPrice(categoryId: string, currencyCode: string, excludeListingId?: string): Promise<PriceSuggestion | { error: string }> {
-  if (!(await isSellerProSubscriber())) {
+  if (!(await canUseSellerProAi())) {
     return { error: "Price suggestions are a Seller Pro feature — see /my-account/ai-features to subscribe." };
   }
   if (!categoryId) return { error: "Choose a category first." };

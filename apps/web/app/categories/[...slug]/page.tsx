@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { getCategoryPath, getCategoryDirectory, getCategoryDescendantIds, getCategoryGallery, getCategoriesAndAttributes } from "@/lib/categories";
+import { getCategoryPath, getCategoryDirectory, getCategoryDescendantIds, getCategoriesAndAttributes } from "@/lib/categories";
 import { getNumericSetting } from "@/lib/numeric-settings";
 import { getRandomHeroBanner } from "@/lib/hero-banner";
 import { getCategoryCollageImage } from "@/lib/category-collage";
@@ -12,7 +12,7 @@ import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ListingGrid } from "@/components/listing-grid";
 import { CategoryDirectoryGrid } from "@/components/category-directory-grid";
-import { CategoryGallery } from "@/components/category-gallery";
+import { HeroBackdrop } from "@/components/hero-backdrop";
 import { CategoryQuickNav } from "@/components/category-quicknav";
 import { CategoryFeedTabs } from "@/components/category-feed-tabs";
 import { CarsLanding } from "@/components/cars-landing";
@@ -139,7 +139,6 @@ export default async function CategoryPage({
   // (see lib/category-collage.ts) -- otherwise every page under it still gets the generic rotating
   // banner rather than no image at all.
   const heroBanner = getCategoryCollageImage(path[0]?.stableKey) ?? getRandomHeroBanner();
-  const heroBannerStyle = { "--hero-bg-image": `url(${heroBanner})` } as React.CSSProperties;
 
   if (directory.self.stableKey === "cars") {
     const sp = await searchParams;
@@ -184,7 +183,7 @@ export default async function CategoryPage({
     return (
       <>
         {breadcrumbJsonLdScript}
-        {/* No .brand-lattice rotating-banner hero here (unlike the other two branches) --
+        {/* No photo hero (HeroBackdrop) here (unlike the other two branches) --
             CarsLanding below already has its own dedicated, Cars-specific hero with real filter
             controls. Stacking both put two hero bands back to back before any actual listings,
             which is exactly the "too much space" this was built to avoid. */}
@@ -312,12 +311,6 @@ export default async function CategoryPage({
   );
 
   if (directory.children.length > 0) {
-    // Every hub category (top-level, or any mid-level one with children) already has its own
-    // curated gallery row from scripts/source-category-photos.mjs / source-subcategory-photos.mjs
-    // -- this branch just wasn't rendering it, the same "missed branch" bug class as the hero
-    // banner fix above. ~829 of 2,666 categories have at least one photo as of this writing.
-    const galleryImages = await getCategoryGallery(id);
-
     // Every group and leaf link mirrors the full breadcrumb chain down to itself -- groups sit one
     // level under the current page (breadcrumbPath), their leaves one level further under the group.
     const groups = directory.children.map((group) => ({
@@ -340,7 +333,8 @@ export default async function CategoryPage({
             (that block is `relative` so it stacks above and stays clickable). Done this way rather
             than moving the row inside this element, because the row is sticky and needs the whole
             page as its containing block -- this element clips its overflow. */}
-        <div className="brand-lattice relative bg-muted/30 pb-36 -mb-36 sm:pb-[17rem] sm:-mb-[17rem]" style={heroBannerStyle}>
+        <div className="relative isolate overflow-hidden pb-36 -mb-36 sm:pb-[17rem] sm:-mb-[17rem]">
+          <HeroBackdrop src={heroBanner} />
           <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
             <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
               {t("heroHeadingPrefix")}
@@ -353,7 +347,6 @@ export default async function CategoryPage({
         <div className="relative mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
           <Breadcrumbs path={breadcrumbPath} />
           <CategoryQuickNav categories={topLevelCategories} activeId={topLevelActiveId} className="mt-4 mb-6" />
-          <CategoryGallery images={galleryImages} />
           <CategoryDirectoryGrid groups={groups} collapsedLimit={collapsedLimit} />
 
           <div className="my-10 border-t" />
@@ -369,7 +362,6 @@ export default async function CategoryPage({
     ...crumb,
     removeHref: i === 0 ? "/" : `/categories/${breadcrumbSlugPath(breadcrumbPath.slice(0, i - 1), breadcrumbPath[i - 1].name, breadcrumbPath[i - 1].id)}`,
   }));
-  const galleryImages = await getCategoryGallery(id);
 
   return (
     <>
@@ -380,7 +372,8 @@ export default async function CategoryPage({
             (that block is `relative` so it stacks above and stays clickable). Done this way rather
             than moving the row inside this element, because the row is sticky and needs the whole
             page as its containing block -- this element clips its overflow. */}
-        <div className="brand-lattice relative bg-muted/30 pb-36 -mb-36 sm:pb-[17rem] sm:-mb-[17rem]" style={heroBannerStyle}>
+        <div className="relative isolate overflow-hidden pb-36 -mb-36 sm:pb-[17rem] sm:-mb-[17rem]">
+          <HeroBackdrop src={heroBanner} />
         <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
           <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
             {t("heroHeadingPrefix")}
@@ -393,8 +386,6 @@ export default async function CategoryPage({
       <div className="relative mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
       <Breadcrumbs path={breadcrumbPath} />
       <CategoryQuickNav categories={topLevelCategories} activeId={topLevelActiveId} className="mt-4 mb-6" />
-
-      <CategoryGallery images={galleryImages} />
 
       <div className="mb-6 flex flex-wrap items-center gap-2">
         {chips.map((chip) => (

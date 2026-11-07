@@ -466,5 +466,20 @@
     "benefit3Title": "Altijd up-to-date",
     "benefit3Body": "Niets bij te werken. Je hebt automatisch altijd de nieuwste versie.",
     "otherDevicesTitle": "Instructies voor andere apparaten"
+  },
+  "AiFreePeriod": {
+    "badge": "6 maanden gratis",
+    "title": "Alle AI-functies zijn gratis tot {date}",
+    "body": "Automatisch invullen met een foto, beschrijving verbeteren, prijssuggesties, advertenties vertalen, verkoopinzichten en Voorlezen zijn gratis en onbeperkt voor elk account. Betaalde abonnementen keren terug als het aftellen voorbij is.",
+    "endsIn": "Gratis AI eindigt over",
+    "days": "dagen",
+    "hours": "uur",
+    "minutes": "min",
+    "seconds": "sec",
+    "ended": "De gratis AI-periode is voorbij. Betaalde abonnementen gelden weer.",
+    "compact": "AI is gratis voor iedereen tot {date}",
+    "cta": "Bekijk AI-functies",
+    "plansReturn": "Seller Pro en tegoed bijkopen keren terug op {date}. Tot die tijd valt er niets te kopen.",
+    "welcomeBullet": "Alle AI-functies zijn gratis voor elk account tot {date}"
   }
 }

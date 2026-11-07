@@ -11,6 +11,8 @@ import { getTextEmbedding } from "@/lib/embeddings";
 import { buildAttributeGuessPrompt, resolveAttributeGuesses } from "@/lib/ai-attribute-guess";
 import { MAX_ANALYSIS_PHOTOS } from "@/lib/ai-photo-analysis";
 import { signAiAnalysis } from "@/lib/ai-analysis-token";
+import { isAiFreePeriodActive, AI_FREE_PERIOD_PHOTO_DAILY_LIMIT } from "@/lib/ai-free-period";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 // Free tier: 5 uses per registered account, then an honest "upgrade" prompt — there's no payment
 // processor wired up yet to actually charge for more (see /my-account/ai-features), so this just
@@ -43,19 +45,24 @@ type UsageRow = { ai_photo_analysis_uses: number | null; ai_bonus_uses: number |
 // Seller Pro subscribers and admins bypass the counter entirely; everyone else's effective cap is
 // the free limit plus whatever they've bought via one-time top-ups (ai_bonus_uses) — see
 // supabase/migrations/20260101004300_ai_subscriptions.sql and /my-account/ai-features.
+// During the free AI period (lib/ai-free-period.ts) everyone else is unlimited too; freePeriod marks
+// that case so the caller skips the per-account counter (promo uses never eat into the 5 free uses
+// someone has once paid tiers return) and applies the daily fair-use cap instead.
 function usageFromRow(row: UsageRow | null, isAdmin: boolean) {
-  const unlimited = isAdmin || row?.ai_subscription_status === "active";
+  const paidUnlimited = isAdmin || row?.ai_subscription_status === "active";
+  const freePeriod = !paidUnlimited && isAiFreePeriodActive();
+  const unlimited = paidUnlimited || freePeriod;
   const usesSoFar = row?.ai_photo_analysis_uses ?? 0;
   const effectiveLimit = FREE_USE_LIMIT + (row?.ai_bonus_uses ?? 0);
-  return { unlimited, usesSoFar, effectiveLimit, usesLeft: unlimited ? effectiveLimit : Math.max(0, effectiveLimit - usesSoFar) };
+  return { unlimited, freePeriod, usesSoFar, effectiveLimit, usesLeft: unlimited ? effectiveLimit : Math.max(0, effectiveLimit - usesSoFar) };
 }
 
 // Exported so the listing-creation pages (Server Components) can show "N free uses left" before
 // the user ever uploads a photo, not just after — a plain read, no API call, so it costs nothing
 // to show proactively.
-export async function getAiUsageStatus(): Promise<{ usesLeft: number; freeLimit: number; effectiveLimit: number; unlimited: boolean }> {
+export async function getAiUsageStatus(): Promise<{ usesLeft: number; freeLimit: number; effectiveLimit: number; unlimited: boolean; freePeriod: boolean }> {
   const { user, profile } = await getCurrentUserAndProfile();
-  if (!user || !profile) return { usesLeft: 0, freeLimit: FREE_USE_LIMIT, effectiveLimit: FREE_USE_LIMIT, unlimited: false };
+  if (!user || !profile) return { usesLeft: 0, freeLimit: FREE_USE_LIMIT, effectiveLimit: FREE_USE_LIMIT, unlimited: false, freePeriod: false };
   const supabase = await createClient();
   const { data: usageRow } = await supabase
     .from("profiles")
@@ -63,7 +70,7 @@ export async function getAiUsageStatus(): Promise<{ usesLeft: number; freeLimit:
     .eq("id", profile.id)
     .single();
   const usage = usageFromRow(usageRow, isAdminEmail(user.email));
-  return { usesLeft: usage.usesLeft, freeLimit: FREE_USE_LIMIT, effectiveLimit: usage.effectiveLimit, unlimited: usage.unlimited };
+  return { usesLeft: usage.usesLeft, freeLimit: FREE_USE_LIMIT, effectiveLimit: usage.effectiveLimit, unlimited: usage.unlimited, freePeriod: usage.freePeriod };
 }
 
 // Tries Gemini, then GitHub Models (see lib/ai-providers.ts) if their env vars are set -- both are
@@ -172,7 +179,7 @@ export async function analyzeListingPhoto(images: { base64: string; mediaType: s
     .eq("id", profile.id)
     .single();
   const isAdmin = isAdminEmail(user.email);
-  const { unlimited, effectiveLimit, usesLeft: usesLeftBefore } = usageFromRow(usageRow, isAdmin);
+  const { unlimited, freePeriod, effectiveLimit, usesLeft: usesLeftBefore } = usageFromRow(usageRow, isAdmin);
 
   const openRouterModels = process.env.OPENROUTER_MODEL ? [process.env.OPENROUTER_MODEL] : OPENROUTER_FREE_MODELS;
   const openRouterPaidModel = process.env.OPENROUTER_MODEL ? null : OPENROUTER_PAID_MODEL;
@@ -180,28 +187,37 @@ export async function analyzeListingPhoto(images: { base64: string; mediaType: s
   if (attempts.length === 0)
     return { data: null, error: "Photo analysis isn't set up on this server yet.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
 
-  // Reserved BEFORE any provider call, not after -- an atomic check-and-increment (the limit
-  // check and the increment happen in one database statement) closes a race where concurrent
-  // requests could each read the same pre-call count, each pass the limit check, and each trigger
-  // a real (potentially paid) provider call before any of them had actually advanced the stored
-  // count. See supabase/migrations/20260101006700_atomic_ai_use_reservation.sql.
-  const { data: reservedCount, error: reserveError } = await createServiceClient().rpc("reserve_ai_photo_analysis_use", {
-    p_profile_id: profile.id,
-    p_effective_limit: effectiveLimit,
-    p_unlimited: unlimited,
-  });
-  if (reserveError) {
-    console.error(`Failed to reserve an AI photo-analysis use for profile ${profile.id}:`, reserveError);
-    return { data: null, error: "Couldn't check your AI usage — try again in a moment.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
-  }
-  if (reservedCount == null) {
-    return {
-      data: null,
-      error: `You've used all ${effectiveLimit} AI analyses on your account. See /my-account/ai-features for what's next.`,
-      usesLeft: 0,
-      freeLimit: FREE_USE_LIMIT,
-      unlimited: false,
-    };
+  // Free AI period: no per-account counter, just the daily fair-use cap (see lib/ai-free-period.ts).
+  let reservedCount = 0;
+  if (freePeriod) {
+    if (!(await checkRateLimit(`photo-analysis-free:${profile.id}`, AI_FREE_PERIOD_PHOTO_DAILY_LIMIT, 86400))) {
+      return { data: null, error: "You've used AI photo autofill a lot today — try again tomorrow.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
+    }
+  } else {
+    // Reserved BEFORE any provider call, not after -- an atomic check-and-increment (the limit
+    // check and the increment happen in one database statement) closes a race where concurrent
+    // requests could each read the same pre-call count, each pass the limit check, and each trigger
+    // a real (potentially paid) provider call before any of them had actually advanced the stored
+    // count. See supabase/migrations/20260101006700_atomic_ai_use_reservation.sql.
+    const { data: reserved, error: reserveError } = await createServiceClient().rpc("reserve_ai_photo_analysis_use", {
+      p_profile_id: profile.id,
+      p_effective_limit: effectiveLimit,
+      p_unlimited: unlimited,
+    });
+    if (reserveError) {
+      console.error(`Failed to reserve an AI photo-analysis use for profile ${profile.id}:`, reserveError);
+      return { data: null, error: "Couldn't check your AI usage — try again in a moment.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
+    }
+    if (reserved == null) {
+      return {
+        data: null,
+        error: `You've used all ${effectiveLimit} AI analyses on your account. See /my-account/ai-features for what's next.`,
+        usesLeft: 0,
+        freeLimit: FREE_USE_LIMIT,
+        unlimited: false,
+      };
+    }
+    reservedCount = reserved;
   }
   const usesLeftAfter = unlimited ? effectiveLimit : Math.max(0, effectiveLimit - reservedCount);
 
@@ -248,8 +264,10 @@ If the photo${photos.length > 1 ? "s don't" : " doesn't"} clearly show a sellabl
     // so it's refunded here rather than left charged against their count. usesLeftBefore (computed
     // before the reservation) is what the response reports, matching what actually happened from
     // the user's point of view: nothing was spent.
-    const { error: releaseError } = await createServiceClient().rpc("release_ai_photo_analysis_use", { p_profile_id: profile.id });
-    if (releaseError) console.error(`Failed to release a reserved AI photo-analysis use for profile ${profile.id}:`, releaseError);
+    if (!freePeriod) {
+      const { error: releaseError } = await createServiceClient().rpc("release_ai_photo_analysis_use", { p_profile_id: profile.id });
+      if (releaseError) console.error(`Failed to release a reserved AI photo-analysis use for profile ${profile.id}:`, releaseError);
+    }
 
     if (result.networkError) {
       return { data: null, error: "Couldn't reach the photo analysis service. Check your connection and try again.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };

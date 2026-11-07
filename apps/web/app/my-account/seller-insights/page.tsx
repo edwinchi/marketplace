@@ -4,7 +4,7 @@ import { unstable_cache } from "next/cache";
 import { BarChart3, Eye, Heart, MessageCircle, Handshake, Camera, Clock, Lock, TrendingUp } from "lucide-react";
 import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
-import { isSellerProSubscriber } from "@/lib/seller-pro";
+import { canUseSellerProAi } from "@/lib/seller-pro";
 import { callFreeTextModel } from "@/lib/ai-text";
 import { getCategoryPath } from "@/lib/categories";
 import { slugPath } from "@/lib/slug";
@@ -67,7 +67,7 @@ export default async function SellerInsightsPage() {
   const { profile } = await getCurrentUserAndProfileForRender();
   if (!profile) redirect("/login");
 
-  const isSubscriber = await isSellerProSubscriber();
+  const isSubscriber = await canUseSellerProAi();
   if (!isSubscriber) {
     return (
       <div className="mx-auto w-full max-w-2xl px-4 py-12">

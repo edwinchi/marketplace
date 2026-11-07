@@ -152,61 +152,8 @@
 }
 
 @layer components {
-  /* A distinctive, brand-colored signature for the homepage hero -- what actually sets MarketitNow
-     apart from a plain, undecorated header band, without reintroducing the "SaaS
-     landing page" glow-blob/gradient-text look that was deliberately removed. Went through four
-     iterations: a pure-CSS crossed-gradient lattice, a scattered collage of the site's own
-     category icons, a stitched grid of 16 individually-vetted CC0 stock photos, now a single
-     professionally composed flat-lay banner (public/hero-photo-collage.jpg) -- generated from a
-     prompt, then retouched (several visible real-brand logos -- Sony, Pentax, Apple, New Balance,
-     Coach -- spot-blurred out for trademark safety, since generated product photography can and
-     did reproduce recognizable real logos) -- standing in for "everything that can be sold here"
-     as actual photography rather than illustration. Kept full color per request -- the "faded
-     enough not to compete with the headline/search bar" requirement is handled entirely in this
-     ::before layer via a
-     --background-driven color-mix() scrim (so it automatically relights for dark mode the same
-     way every other brand-token usage in this file does) plus a real CSS mask-image edge fade,
-     rather than by desaturating or baking a fixed opacity into the image itself. A flat (not
-     top/bottom-graded) scrim -- an earlier graded version left the headline's own top strip the
-     LEAST muted part of the photo, which read fine in the abstract but produced real orange-on-
-     reddish-photo contrast failures wherever a warm-toned tile happened to land there. Legibility
-     for the headline/subtext specifically is handled independently by .hero-text-halo below, so
-     this scrim only has to keep the photo "just visible enough" everywhere, not fully guarantee
-     contrast on its own. */
-  .brand-lattice {
-    position: relative;
-    overflow: hidden;
-  }
-  .brand-lattice::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    /* --hero-bg-image is set inline per-request (see lib/hero-banner.ts's getRandomHeroBanner,
-       called from both app/page.tsx and the category page) so a refresh can show a different one
-       of the 9 vetted banners -- the url() literal here is only the fallback for the rare case
-       nothing set the variable. A custom property set inline on .brand-lattice itself is visible
-       here because pseudo-elements inherit their originating element's custom properties. */
-    background-image:
-      linear-gradient(
-        color-mix(in oklch, var(--background) 45%, transparent),
-        color-mix(in oklch, var(--background) 45%, transparent)
-      ),
-      var(--hero-bg-image, url("/hero-banner-1.jpg"));
-    background-size: cover;
-    background-position: center;
-    /* A real edge vignette (not a hard-cropped photo rectangle) -- fades to fully transparent at
-       both the left/right edges and top/bottom, so the photo collage dissolves into the page's own
-       background color rather than looking like a pasted-in banner image. */
-    -webkit-mask-image:
-      linear-gradient(to right, transparent, black 8%, black 92%, transparent),
-      linear-gradient(to bottom, black, black 70%, transparent);
-    -webkit-mask-composite: source-in;
-    mask-image:
-      linear-gradient(to right, transparent, black 8%, black 92%, transparent),
-      linear-gradient(to bottom, black, black 70%, transparent);
-    mask-composite: intersect;
-  }
+  /* The hero photo itself is components/hero-backdrop.tsx (next/image + Tailwind mask utilities);
+     headline legibility over it comes from .hero-text-halo below. */
 
   /* @starting-style: a genuinely new (Baseline 2025) CSS feature -- defines the "before" state for
      a transition on an element's first paint, so a normally-instant appearance (no prior state to

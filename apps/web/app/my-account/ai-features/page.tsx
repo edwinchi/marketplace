@@ -9,6 +9,9 @@ import { getStripe, SELLER_PRO_PRICE_ID, AI_TOPUP_PRICE_ID, AI_TOPUP_USES, getPr
 import { buttonVariants, Button } from "@/components/ui/button";
 import { PlanInfoDialog } from "@/components/ai-features/plan-info-dialog";
 import { cn } from "@/lib/utils";
+import { getTranslations, getLocale } from "next-intl/server";
+import { AiFreePeriodBanner } from "@/components/ai-free-period-banner";
+import { getAiFreePeriodEnd } from "@/lib/ai-free-period";
 
 // Live today, Seller Pro-exclusive (see lib/seller-pro.ts) -- shown as concrete included features,
 // not a vague "more AI features" promise, so a subscriber knows exactly what their subscription
@@ -72,6 +75,11 @@ export default async function AiFeaturesPage({
     stripe && AI_TOPUP_PRICE_ID ? getPriceDisplay(stripe, AI_TOPUP_PRICE_ID) : Promise.resolve(null),
   ]);
   const isSubscribed = subRow?.ai_subscription_status === "active";
+  // Free AI period (lib/ai-free-period.ts): nothing to buy, so the plan cards give way to the
+  // countdown and the date paid plans return. Subscribers still see Manage subscription.
+  const freePeriod = usage.freePeriod;
+  const [tFree, locale] = await Promise.all([getTranslations("AiFreePeriod"), getLocale()]);
+  const freeEndDate = new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "Europe/Amsterdam" }).format(getAiFreePeriodEnd());
   const limitReached = !usage.unlimited && usage.usesLeft === 0;
   // Against effectiveLimit (free + any bonus uses), not the flat freeLimit constant -- a top-up
   // customer's usesLeft can exceed freeLimit, which made this go negative (invalid width) right
@@ -98,6 +106,8 @@ export default async function AiFeaturesPage({
           </p>
         </div>
       </div>
+
+      <AiFreePeriodBanner />
 
       {checkout === "success" && (
         <p className="rounded-lg border border-[#008848]/30 bg-[#008848]/5 px-4 py-2.5 text-sm font-medium text-[#046637]">
@@ -171,7 +181,11 @@ export default async function AiFeaturesPage({
         </div>
       </div>
 
-      {paymentsConfigured ? (
+      {freePeriod && !isSubscribed ? (
+        <p className="rounded-xl border border-[#008848]/30 bg-[#008848]/5 px-4 py-3 text-sm font-medium text-[#046637]">
+          {tFree("plansReturn", { date: freeEndDate })}
+        </p>
+      ) : paymentsConfigured ? (
         <div>
           <h2 className="mb-4 text-xs font-semibold tracking-widest text-muted-foreground uppercase">
             {isSubscribed ? "Your plan" : "Get more"}
@@ -287,7 +301,7 @@ export default async function AiFeaturesPage({
       <div>
         <h2 className="mb-4 flex items-center gap-2 text-xs font-semibold tracking-widest text-muted-foreground uppercase">
           Included with Seller Pro
-          <span className="rounded-full bg-[#008848]/10 px-2 py-0.5 text-[10px] font-semibold tracking-normal text-[#046637] normal-case">Live now</span>
+          <span className="rounded-full bg-[#008848]/10 px-2 py-0.5 text-[10px] font-semibold tracking-normal text-[#046637] normal-case">{freePeriod ? tFree("badge") : "Live now"}</span>
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {SELLER_PRO_FEATURES.map((f) => {

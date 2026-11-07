@@ -466,5 +466,20 @@
     "benefit3Title": "始终保持最新",
     "benefit3Body": "无需手动更新，您始终自动使用最新版本。",
     "otherDevicesTitle": "其他设备的安装说明"
+  },
+  "AiFreePeriod": {
+    "badge": "免费 6 个月",
+    "title": "所有 AI 功能免费使用至 {date}",
+    "body": "照片自动填写、描述润色、价格建议、商品翻译、卖家洞察和朗读功能，对所有账户免费且不限次数。倒计时结束后将恢复付费方案。",
+    "endsIn": "免费 AI 剩余时间",
+    "days": "天",
+    "hours": "小时",
+    "minutes": "分",
+    "seconds": "秒",
+    "ended": "免费 AI 期已结束，付费方案重新生效。",
+    "compact": "AI 对所有人免费至 {date}",
+    "cta": "查看 AI 功能",
+    "plansReturn": "Seller Pro 和次数充值将于 {date} 恢复，在此之前无需购买。",
+    "welcomeBullet": "所有 AI 功能对每个账户免费至 {date}"
   }
 }
