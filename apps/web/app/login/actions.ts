@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { safeRelativePath } from "@/lib/safe-path";
 
 export type AuthFormState = { error: string | null };
 
@@ -14,5 +15,5 @@ export async function login(_prevState: AuthFormState, formData: FormData): Prom
   if (error) return { error: error.message };
 
   const next = String(formData.get("next") || "/");
-  redirect(next.startsWith("/") && !next.startsWith("//") ? next : "/");
+  redirect(safeRelativePath(next));
 }

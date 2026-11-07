@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Bell, Megaphone, Truck, TrendingDown, Search, Undo2 } from "lucide-react";
 import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
+import { safeRelativePath } from "@/lib/safe-path";
 
 export const metadata = { title: "Notifications — MarketitNow" };
 
@@ -59,7 +60,7 @@ export default async function NotificationsPage() {
             // Saved-search digests link to the saved results page; only a same-site path is ever
             // followed, whatever ends up in payload.
             const url = n.payload?.url;
-            const href = listingId ? `/listings/x-${listingId}` : url && url.startsWith("/") && !url.startsWith("//") ? url : null;
+            const href = listingId ? `/listings/x-${listingId}` : url && safeRelativePath(url, "") ? url : null;
             const content = (
               <>
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#008848]/10 text-brand-green">

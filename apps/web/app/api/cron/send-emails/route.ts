@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { isUserEmailConfigured, sendEmail } from "@/lib/resend";
+import { safeRelativePath } from "@/lib/safe-path";
 
 // Daily email job (Vercel Cron, see vercel.json): saved-search digests and unread-message
 // reminders -- the two emails Marktplaats users rely on most. Daily because that's what every
@@ -82,7 +83,7 @@ async function sendSavedSearchDigests(supabase: Service): Promise<number> {
     const list = items
       .map((n) => {
         const p = n.payload as { listing_id?: string; url?: string };
-        const href = p.listing_id ? `/listings/x-${p.listing_id}` : p.url?.startsWith("/") && !p.url.startsWith("//") ? p.url : "/my-account/saved-searches";
+        const href = p.listing_id ? `/listings/x-${p.listing_id}` : safeRelativePath(p.url, "/my-account/saved-searches");
         return `<li style="margin-bottom:10px"><a href="${SITE}${href}" style="color:#008200;font-weight:bold">${escapeHtml(n.title)}</a>${n.body ? `<br><span style="color:#555">${escapeHtml(n.body)}</span>` : ""}</li>`;
       })
       .join("");

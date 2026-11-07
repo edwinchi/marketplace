@@ -8,6 +8,7 @@ import { deleteSavedSearch } from "./actions";
 import { SavedSearchToggle } from "@/components/saved-search-toggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { safeRelativePath } from "@/lib/safe-path";
 
 export default async function SavedSearchesPage() {
   const { profile } = await getCurrentUserAndProfileForRender();
@@ -90,5 +91,5 @@ export default async function SavedSearchesPage() {
 // Saved before results URLs were stored (or malformed) -> no link rather than a wrong one.
 function resultsUrl(filters: unknown): string | null {
   const url = filters && typeof filters === "object" ? (filters as { url?: unknown }).url : null;
-  return typeof url === "string" && url.startsWith("/") && !url.startsWith("//") ? url : null;
+  return typeof url === "string" && safeRelativePath(url, "") ? url : null;
 }

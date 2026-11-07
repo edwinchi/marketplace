@@ -1,0 +1,35 @@
+# Static security analysis (CodeQL) of apps/web: injection, XSS, open redirects, unsafe
+# deserialisation and similar. Free for public repositories. Results appear under the
+# repository's Security → Code scanning tab. Read-only: it never changes code or deploys.
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "17 4 * * 1" # weekly, Monday 04:17 UTC, to catch newly added queries
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+          queries: security-extended
+          config: |
+            paths:
+              - apps/web
+            paths-ignore:
+              - apps/web/node_modules
+              - apps/web/.next
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:javascript-typescript

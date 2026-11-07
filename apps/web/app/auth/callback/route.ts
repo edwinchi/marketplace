@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteOrigin } from "@/lib/site-url";
+import { safeRelativePath } from "@/lib/safe-path";
 
 // Supabase redirects here after email confirmation / magic-link / OAuth / password-reset clicks,
 // with a `code` param to exchange for a session. `next` overrides where a successful exchange
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
   // Only a same-site relative path is honored — see the identical check in login/page.tsx.
   // `next` here can come from Google's OAuth redirect as well as email links, so treating it as
   // a trusted redirect target without this check would be an open-redirect hole.
-  const next = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
+  const next = safeRelativePath(rawNext);
 
   if (code) {
     const supabase = await createClient();

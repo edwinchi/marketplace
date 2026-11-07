@@ -5,7 +5,9 @@ for the 2026-11-06 cycle, with the evidence behind each mark. ✅ done (verified
 what's left is listed, usually an owner account or decision · ⬜ not started.
 
 Open items are tracked in [`docs/BACKLOG.md`](../BACKLOG.md) (E1–E9) and
-[`docs/THREAT-MODEL.md`](../THREAT-MODEL.md) (R1–R7).
+[`docs/THREAT-MODEL.md`](../THREAT-MODEL.md) (R1–R11). The item-by-item check against all three
+operating documents (including [`agent-governance.yaml`](agent-governance.yaml)) is in
+[`governance-audit-2026-11-07.md`](governance-audit-2026-11-07.md).
 
 ## The 20 directives
 

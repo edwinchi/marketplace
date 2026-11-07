@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { geocodeSearchInput } from "@/lib/geocode";
+import { safeRelativePath } from "@/lib/safe-path";
 
 // saved_search_owner's RLS policy (FOR ALL, profile_id = current_profile_id()) already permits a
 // normal authenticated insert/update/delete on the caller's own rows — no SECURITY DEFINER needed
@@ -60,7 +61,7 @@ export async function saveSearch(formData: FormData) {
   revalidatePath("/my-account/saved-searches");
   // Same-site paths only -- never a redirect target taken verbatim from form data.
   const returnTo = field("returnTo");
-  redirect(returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "/");
+  redirect(safeRelativePath(returnTo));
 }
 
 export async function deleteSavedSearch(formData: FormData) {

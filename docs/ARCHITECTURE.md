@@ -91,6 +91,12 @@ flowchart LR
 Rollback: `vercel rollback` (or promote the previous deployment in the Vercel dashboard) from
 `apps/web`; see `docs/RUNBOOK.md`.
 
+Regions: the Supabase database is in AWS eu-west-1 (Ireland). Server functions run in Vercel
+`dub1` (Dublin) next to it (`apps/web/vercel.json`, ADR-0002); static files come from Vercel's
+global CDN. After a deploy, `npm run check:live` (in `apps/web`) runs the browser, accessibility,
+security and load checks against production (`tests/browser/README.md`). Decisions:
+`docs/adr/`.
+
 ## 5. Core data model
 
 158 tables in total (`lib/supabase/database.types.ts`, generated from the live schema). The core of

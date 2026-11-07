@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteOrigin } from "@/lib/site-url";
+import { safeRelativePath } from "@/lib/safe-path";
 
 // The device-independent companion to /auth/callback's `?code=` PKCE exchange. PKCE requires the
 // SAME browser that started the flow (resetPasswordForEmail, signUp, etc.) to also complete it --
@@ -23,7 +24,7 @@ export async function GET(request: Request) {
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
   const rawNext = searchParams.get("next");
-  const next = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
+  const next = safeRelativePath(rawNext);
 
   if (tokenHash && type) {
     const supabase = await createClient();

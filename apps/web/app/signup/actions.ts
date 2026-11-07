@@ -7,6 +7,7 @@ import { isPasswordValid } from "@/lib/password-rules";
 import { getSiteOrigin } from "@/lib/site-url";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
+import { safeRelativePath } from "@/lib/safe-path";
 
 export type SignupFormState = { error: string | null; checkEmail: boolean };
 
@@ -61,7 +62,7 @@ export async function signup(_prevState: SignupFormState, formData: FormData): P
     if (!error) {
       if (data.session) {
         const next = String(formData.get("next") || "/");
-        redirect(next.startsWith("/") && !next.startsWith("//") ? next : "/");
+        redirect(safeRelativePath(next));
       }
       return { error: null, checkEmail: true };
     }

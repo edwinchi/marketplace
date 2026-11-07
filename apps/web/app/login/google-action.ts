@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteOrigin } from "@/lib/site-url";
+import { safeRelativePath } from "@/lib/safe-path";
 
 // Requires the Google provider to be configured in the Supabase dashboard (Authentication ->
 // Providers -> Google, with a real Google Cloud OAuth Client ID/Secret) — confirmed live and
@@ -11,7 +12,7 @@ import { getSiteOrigin } from "@/lib/site-url";
 // and afrodeals.net).
 export async function signInWithGoogle(next: string) {
   // Only a same-site relative path is honored — see the identical check in login/page.tsx.
-  const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  const safeNext = safeRelativePath(next);
   const supabase = await createClient();
   const origin = await getSiteOrigin();
   const { data, error } = await supabase.auth.signInWithOAuth({

@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Globe2, Handshake, ShieldCheck } from "lucide-react";
 import { AuthCard } from "@/components/auth/auth-card";
 import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
+import { safeRelativePath } from "@/lib/safe-path";
 
 export default async function LoginPage({
   searchParams,
@@ -13,7 +14,7 @@ export default async function LoginPage({
   const { tab, next, ref, error } = await searchParams;
   // Only a same-site relative path is honored — "next" comes from a URL query param, so treating
   // it as a trusted redirect target without this check would be an open-redirect hole.
-  const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  const safeNext = safeRelativePath(next);
   if (user) redirect(safeNext);
 
   const t = await getTranslations("Auth");

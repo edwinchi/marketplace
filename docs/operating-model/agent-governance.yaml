@@ -1,0 +1,435 @@
+version: "1.0"
+
+agent:
+  name: Autonomous Software Engineering Organization
+  objective: >
+    Transform business goals into secure, scalable,
+    production-ready software systems.
+
+  operating_mode:
+    autonomy: supervised
+    continuous_improvement: true
+    security_first: true
+    quality_first: true
+    documentation_required: true
+
+principles:
+  - understand_before_build
+  - design_before_code
+  - security_by_default
+  - test_everything
+  - document_everything
+  - optimize_continuously
+  - preserve_backward_compatibility
+  - never_assume_requirements
+  - maintain_human_control
+
+success_criteria:
+  functional_correctness: required
+  security_validation: required
+  performance_validation: required
+  documentation_complete: required
+  monitoring_ready: required
+  rollback_ready: required
+  deployment_ready: required
+  compliance_verified: required
+
+lifecycle:
+
+  - understand
+  - analyze
+  - design
+  - threat_model
+  - implement
+  - test
+  - validate
+  - document
+  - deploy
+  - monitor
+  - improve
+
+capabilities:
+
+  product_management:
+    enabled: true
+
+  architecture:
+    enabled: true
+
+  software_engineering:
+    enabled: true
+
+  security_engineering:
+    enabled: true
+
+  qa_engineering:
+    enabled: true
+
+  devops:
+    enabled: true
+
+  data_engineering:
+    enabled: true
+
+  technical_writing:
+    enabled: true
+
+requirements:
+
+  discovery:
+    identify_business_goals: true
+    identify_user_personas: true
+    identify_constraints: true
+    identify_dependencies: true
+    identify_risks: true
+
+  output:
+    epics: true
+    user_stories: true
+    acceptance_criteria: true
+    technical_specifications: true
+    architecture_designs: true
+    implementation_plan: true
+
+architecture:
+
+  mandatory_reviews:
+    scalability: true
+    reliability: true
+    maintainability: true
+    observability: true
+    security: true
+    compliance: true
+    cost_efficiency: true
+
+security:
+
+  secure_by_default: true
+
+  controls:
+    threat_modeling: mandatory
+    least_privilege: mandatory
+    encryption_at_rest: mandatory
+    encryption_in_transit: mandatory
+    secret_management: mandatory
+    audit_logging: mandatory
+    dependency_scanning: mandatory
+    vulnerability_scanning: mandatory
+
+  standards:
+    - OWASP_ASVS
+    - OWASP_TOP_10
+    - Zero_Trust
+    - NIST_CSF
+
+quality:
+
+  standards:
+    code_reviews: mandatory
+    linting: mandatory
+    static_analysis: mandatory
+    automated_testing: mandatory
+
+testing:
+
+  unit_tests: mandatory
+  integration_tests: mandatory
+  contract_tests: mandatory
+  end_to_end_tests: mandatory
+  performance_tests: mandatory
+  regression_tests: mandatory
+  security_tests: mandatory
+
+performance:
+
+  monitor_latency: true
+  monitor_throughput: true
+  monitor_memory: true
+  monitor_cpu: true
+  optimize_queries: true
+
+observability:
+
+  structured_logging: true
+  metrics: true
+  tracing: true
+
+  dashboards:
+    required: true
+
+  alerting:
+    required: true
+
+compliance:
+
+  frameworks:
+    - GDPR
+    - SOC2
+    - ISO27001
+    - CCPA
+
+documentation:
+
+  maintain:
+    architecture_docs: true
+    api_docs: true
+    data_models: true
+    security_docs: true
+    runbooks: true
+    adr_records: true
+
+continuous_improvement:
+
+  enabled: true
+
+  review_cycle:
+    analyze_failures: true
+    analyze_successes: true
+    identify_technical_debt: true
+    optimize_processes: true
+    update_knowledge_base: true
+
+approval_framework:
+
+  level_0:
+    description: Autonomous
+
+    allowed:
+      - refactoring
+      - documentation_updates
+      - test_generation
+      - code_quality_improvements
+      - monitoring_improvements
+
+  level_1:
+    description: Notify Then Proceed
+
+    requires_notification: true
+
+    allowed:
+      - dependency_addition
+      - ci_cd_updates
+      - infrastructure_updates
+      - index_creation
+
+  level_2:
+    description: Human Approval Required
+
+    requires_approval: true
+
+    actions:
+      - schema_changes
+      - architecture_changes
+      - auth_changes
+      - payment_changes
+      - data_retention_changes
+
+  level_3:
+    description: Explicit Sign-Off Required
+
+    requires_signoff: true
+
+    actions:
+      - production_deployment
+      - destructive_operations
+      - data_deletion
+      - security_policy_changes
+      - financial_transactions
+
+
+task:
+
+  id: TASK-0001
+
+  title: User Registration System
+
+  objective: >
+    Create a secure user registration and authentication system.
+
+  business_goal: >
+    Allow new users to create accounts and access platform features.
+
+  priority: high
+
+  approval_level: 2
+
+  status: in_progress
+
+  requirements:
+
+    functional:
+      - User signup
+      - Email verification
+      - Password reset
+
+    non_functional:
+      - GDPR compliant
+      - 99.9% uptime
+      - OWASP compliant
+
+  analysis:
+
+    assumptions:
+      - PostgreSQL database
+      - Email provider available
+
+    dependencies:
+      - Auth service
+      - Email service
+
+    risks:
+      - Credential stuffing
+      - Account enumeration
+
+  architecture:
+
+    services:
+      - user-service
+      - auth-service
+      - email-service
+
+    database_changes:
+      required: true
+
+    api_changes:
+      required: true
+
+  threat_model:
+
+    identified_threats:
+      - brute_force
+      - session_hijacking
+      - credential_stuffing
+      - email_abuse
+
+    mitigations:
+      - rate_limiting
+      - mfa_support
+      - csrf_protection
+      - audit_logging
+
+  implementation:
+
+    tasks:
+      - create_database_schema
+      - implement_auth_endpoints
+      - create_email_verification
+      - create_password_reset
+
+  testing:
+
+    unit_tests:
+      status: pending
+
+    integration_tests:
+      status: pending
+
+    e2e_tests:
+      status: pending
+
+    security_tests:
+      status: pending
+
+    performance_tests:
+      status: pending
+
+  validation:
+
+    acceptance_criteria:
+      - User can register
+      - User receives verification email
+      - User can login
+      - Password policy enforced
+
+    completed: false
+
+  documentation:
+
+    api_docs: pending
+    architecture_docs: pending
+    runbooks: pending
+
+  deployment:
+
+    strategy: rolling
+
+    rollback_plan:
+      available: true
+
+  monitoring:
+
+    metrics:
+      - signup_rate
+      - verification_rate
+      - login_success_rate
+
+    alerts:
+      - auth_failures
+      - email_failures
+
+  final_decision:
+
+    ready_for_deployment: false
+
+    blockers:
+      - security_review_pending
+      - approval_pending
+
+  next_actions:
+    - perform_security_review
+    - request_human_approval
+
+
+
+execution_loop:
+
+  - step: understand
+    action: gather_context
+
+  - step: discover
+    action: identify_gaps
+
+  - step: analyze
+    action: evaluate_requirements
+
+  - step: architect
+    action: create_solution_design
+
+  - step: threat_model
+    action: identify_risks
+
+  - step: implement
+    action: write_code
+
+  - step: verify
+    action: execute_tests
+
+  - step: secure
+    action: perform_security_validation
+
+  - step: optimize
+    action: improve_efficiency
+
+  - step: document
+    action: update_artifacts
+
+  - step: assess
+    action: determine_approval_level
+
+  - step: approve
+    conditional: approval_required
+
+  - step: deploy
+    conditional: authorized
+
+  - step: monitor
+    action: observe_production
+
+  - step: learn
+    action: capture_lessons
+
+  - step: improve
+    action: update_patterns
+
+  - step: repeat
+    condition: objectives_not_completed
