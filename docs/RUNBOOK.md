@@ -90,9 +90,10 @@ to `audit_logs` by `apps/web/lib/audit.ts`. The last 15 are on the admin dashboa
 exists (monthly routine above). If it's missing, writes go to `audit_logs_default` and still work.
 
 ## Intro video
-On a visitor's first page each visit, `components/intro-video.tsx` pops up the intro video in the
+On every full page load (arriving, refreshing, changing language), `components/intro-video.tsx` pops up the intro video in the
 page's language, centred and looping until closed, with the site blurred behind it (not on
-`/admin`). The videos are made from the owner's originals in the repo root
+`/admin`). It plays with sound; where the browser refuses sound before any interaction (most
+first-time visitors), it plays muted and the sound comes on at the first tap, click or key press. The videos are made from the owner's originals in the repo root
 (`<Language> Intro 10 seconds.mp4`: English, Dutch, French, Arabic; other languages get English) by
 `apps/web/scripts/gen-intro-videos.mjs`, which writes `public/intro/` and `lib/intro-videos.json`.
 To replace a video: put the new original in the repo root under the same name and rerun the script

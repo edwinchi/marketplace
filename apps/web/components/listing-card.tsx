@@ -76,7 +76,7 @@ export async function ListingCard({
             src={imageUrl}
             alt={title}
             fill
-            sizes="(min-width: 1536px) 14vw, (min-width: 1024px) 17vw, 33vw"
+            sizes="(min-width: 1536px) 14vw, (min-width: 1280px) 17vw, (min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, 50vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (

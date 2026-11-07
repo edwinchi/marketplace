@@ -8,6 +8,3 @@ const VIDEOS: Record<string, IntroVideo> = introVideos;
 export function introVideoFor(locale: string): IntroVideo {
   return VIDEOS[locale] ?? VIDEOS.en;
 }
-
-// sessionStorage key: the intro plays once per visit (browser session), not on every page.
-export const INTRO_SEEN_KEY = "mkn-intro-seen";

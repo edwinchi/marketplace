@@ -1,8 +1,10 @@
-// The intro video (owner's design): on a visitor's first page it pops up centred, in the page's
-// language (a switched-off language gets English), muted, looping until closed, with the site
+// The intro video (owner's design): on every full page load (arrival, refresh, language change) it
+// pops up centred, in the page's
+// language (a switched-off language gets English), with sound (or, where the browser blocks sound
+// before any interaction, muted until the first tap), looping until closed, with the site
 // slightly blurred behind it, above the cookie banner, and with no accessibility violations.
-// Close button, Esc and a click on the blurred page each close it; it doesn't come back on the
-// next page of the same visit. Reduced motion gets a play button instead of autoplay; admin
+// Close button, Esc and a click on the blurred page each close it; a refresh brings it back, and
+// changing language brings it back in the new language. Reduced motion gets a play button instead of autoplay; admin
 // pages never show it.
 // Uses installed Chrome when it's there (Playwright's own Chromium can't decode H.264).
 // usage (from apps/web): node tests/browser/intro-video.mjs [baseUrl]
@@ -19,6 +21,22 @@ const check = (ok, label) => { console.log(`${ok ? "PASS" : "FAIL"}  ${label}`);
 
 let browser, codecs = true;
 try { browser = await chromium.launch({ channel: "chrome" }); } catch { browser = await chromium.launch(); codecs = false; console.log("note: no Chrome, so playback isn't checked"); }
+// Main run: behave like a browser that blocks sound before the visitor interacts (what Chrome,
+// Safari and Firefox do for a first-time visitor; headless Chrome doesn't, and ignores
+// --autoplay-policy). Unmuted play() is refused until the visitor taps, clicks or presses a key
+// (tracked here: under Playwright navigator.userActivation always reports true).
+// The sound-allowed case is checked separately at the end.
+// The site skips the intro for automated browsers (navigator.webdriver); look like a visitor.
+const AS_A_VISITOR = `Object.defineProperty(Navigator.prototype, "webdriver", { get: () => false });`;
+const BLOCK_SOUND = `{
+  let gesture = false;
+  for (const g of ["pointerdown", "keydown", "touchstart"]) window.addEventListener(g, () => { gesture = true; }, true);
+  const play = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () {
+    if (!this.muted && !gesture) return Promise.reject(new DOMException("sound needs a user gesture", "NotAllowedError"));
+    return play.call(this);
+  };
+}`;
 
 const SIZES = { phone: { width: 390, height: 844 }, desktop: { width: 1366, height: 900 } };
 const player = "dialog[data-intro-video]";
@@ -27,6 +45,8 @@ const isOpen = (page) => page.locator(player).evaluate((d) => d.open).catch(() =
 async function open(locale, size, extra = {}) {
   const ctx = await browser.newContext({ viewport: SIZES[size], ...extra });
   await ctx.addCookies([{ name: "afrodeals_locale", value: locale, url: B }]);
+  await ctx.addInitScript(BLOCK_SOUND);
+  await ctx.addInitScript(AS_A_VISITOR);
   const page = await ctx.newPage();
   return { ctx, page };
 }
@@ -49,7 +69,8 @@ for (const locale of ["en", "nl", "fr", "ar", "zh"]) {
     if (!shown) { await ctx.close(); continue; }
     const v = await page.locator(`${player} video`).evaluate((el) => ({ src: new URL(el.currentSrc || el.src).pathname, muted: el.muted, loop: el.loop }));
     check(v.src === expected, `${tag}: plays ${expected} (got ${v.src})`);
-    check(v.muted && v.loop, `${tag}: starts muted, loops`);
+    check(v.loop, `${tag}: loops`);
+    check(v.muted, `${tag}: browser blocked sound, so it plays muted until the first touch`);
     if (codecs) {
       await page.waitForTimeout(2500);
       const p = await page.locator(`${player} video`).evaluate((el) => ({ paused: el.paused, time: el.currentTime }));
@@ -80,14 +101,28 @@ for (const locale of ["en", "nl", "fr", "ar", "zh"]) {
         await page.waitForTimeout(9000);
         check(await page.locator(`${player} video`).evaluate((el) => !el.paused && !el.ended), `${tag}: keeps playing past the end (loops)`);
       }
-      await page.getByRole("button", { name: t.soundOn, exact: true }).click();
-      check(await page.locator(`${player} video`).evaluate((el) => !el.muted), `${tag}: sound button unmutes`);
+      await page.mouse.click(cx, cy + box.height / 4); // a tap on the video itself
+      check(await page.locator(`${player} video`).evaluate((el) => !el.muted && !el.paused && el.volume === 1), `${tag}: first touch turns the sound on`);
+      check(await isOpen(page), `${tag}: tapping the video doesn't close it`);
+      await page.getByRole("button", { name: t.soundOff, exact: true }).click();
+      check(await page.locator(`${player} video`).evaluate((el) => el.muted), `${tag}: sound button mutes`);
       await page.getByRole("button", { name: t.close, exact: true }).click();
       check(!(await isOpen(page)), `${tag}: close button closes it`);
       check(await page.evaluate(() => getComputedStyle(document.documentElement).overflow) !== "hidden", `${tag}: page scrolls again`);
-      await page.goto(B + "/help", { waitUntil: "load" });
-      await page.waitForTimeout(3000);
-      check(!(await isOpen(page)), `${tag}: not shown again on the next page of the visit`);
+      await page.reload({ waitUntil: "load" });
+      check(await waitOpen(page), `${tag}: a refresh shows it again`);
+      if (locale === "en") {
+        // Change language the way the switcher does (cookie, then a full reload).
+        await ctx.addCookies([{ name: "afrodeals_locale", value: "fr", url: B }]);
+        await page.reload({ waitUntil: "load" });
+        const opened = await waitOpen(page);
+        const src = opened ? await page.locator(`${player} video`).evaluate((el) => new URL(el.currentSrc || el.src).pathname) : "";
+        check(opened && src === MAP.fr.video, `${tag}: switching to French shows the French video (${src})`);
+      }
+    } else if (locale === "fr") {
+      // Sound button as the very first touch: one click must end up with sound on, not off again.
+      await page.getByRole("button", { name: t.soundOn, exact: true }).click();
+      check(await page.locator(`${player} video`).evaluate((el) => !el.muted), `${tag}: sound button as first touch turns the sound on`);
     } else if (locale === "en") {
       await page.keyboard.press("Escape");
       check(!(await isOpen(page)), `${tag}: Esc closes it`);
@@ -117,6 +152,32 @@ for (const locale of ["en", "nl", "fr", "ar", "zh"]) {
   await ctx.close();
 }
 
+{
+  // Automated browsers (navigator.webdriver) never get it, so it can't block other test suites.
+  const ctx = await browser.newContext({ viewport: SIZES.desktop });
+  const page = await ctx.newPage();
+  await page.goto(B + "/", { waitUntil: "load" });
+  await page.waitForTimeout(3000);
+  check(!(await isOpen(page)), "automated browser: no intro video");
+  await ctx.close();
+}
+
 await browser.close();
+
+if (codecs) {
+  // A browser that allows sound straight away (e.g. a returning visitor Chrome trusts).
+  const loud = await chromium.launch({ channel: "chrome" });
+  const ctx = await loud.newContext({ viewport: SIZES.desktop });
+  await ctx.addCookies([{ name: "afrodeals_locale", value: "nl", url: B }]);
+  await ctx.addInitScript(AS_A_VISITOR);
+  const page = await ctx.newPage();
+  await page.goto(B + "/", { waitUntil: "load" });
+  await waitOpen(page);
+  await page.waitForTimeout(2000);
+  const v = await page.locator(`${player} video`).evaluate((el) => ({ muted: el.muted, paused: el.paused, volume: el.volume }));
+  check(!v.muted && !v.paused && v.volume === 1, `sound allowed: plays with sound from the start ${JSON.stringify(v)}`);
+  check(await page.getByRole("button", { name: MSG("nl").soundOff, exact: true }).count() === 1, "sound allowed: button offers to turn sound off");
+  await loud.close();
+}
 console.log(failed ? `${failed} check(s) failed` : "all intro-video checks passed");
 process.exit(failed ? 1 : 0);
