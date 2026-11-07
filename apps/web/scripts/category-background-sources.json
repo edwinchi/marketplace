@@ -1,6 +1,2278 @@
 {
  "note": "Hero background photos per category (scripts/gen-category-heroes.mjs). All CC0 or public domain (no attribution required), found via Openverse; provenance kept for the record.",
  "categories": {
+  "animals-supplies": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Puppy Dog",
+     "license": "cc0",
+     "creator": "Dana Tentis",
+     "source": "https://stocksnap.io/photo/puppy-dog-KOEZT7FTSR"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Kitten Cat",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5969833/kitten-cat"
+    },
+    {
+     "file": "20.jpg",
+     "title": "African grey parrot bird",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6036629/photo-image-public-domain-nature-tropical"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Rabbit Pet",
+     "license": "cc0",
+     "creator": "Waranya Mooldee",
+     "source": "https://stocksnap.io/photo/rabbit-pet-K2CC58I877"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Horse Equine",
+     "license": "cc0",
+     "creator": "Travel Photographer",
+     "source": "https://stocksnap.io/photo/horse-equine-GTI8HDGB8Q"
+    },
+    {
+     "file": "01.jpg",
+     "title": "Puppy Dog Sleeping Shadow",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5967156/puppy-dog-sleeping-shadow"
+    },
+    {
+     "file": "12.jpg",
+     "title": "Cat Kitten",
+     "license": "cc0",
+     "creator": "Nirzar Pangarkar",
+     "source": "https://stocksnap.io/photo/cat-kitten-0A5CNJCGRF"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Scarlet Macaw parrot, bird photo",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6041699/photo-image-white-background-public-domain-nature"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Rabbit Pet",
+     "license": "cc0",
+     "creator": "Alex%20Bl%u0103jan",
+     "source": "https://stocksnap.io/photo/rabbit-pet-HR0J40SL80"
+    },
+    {
+     "file": "51.jpg",
+     "title": "Horses Animals",
+     "license": "cc0",
+     "creator": "Jay Mantri",
+     "source": "https://stocksnap.io/photo/horses-animals-F7CBF23338"
+    },
+    {
+     "file": "02.jpg",
+     "title": "Puppy dog playing sand beach",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/3286450/free-photo-image-dog-run-sand-running"
+    }
+   ]
+  },
+  "antiques-art": {
+   "photos": [
+    {
+     "file": "01.jpg",
+     "title": "Table Chairs",
+     "license": "cc0",
+     "creator": "AJ Montpetit",
+     "source": "https://stocksnap.io/photo/table-chairs-MEWVQFDT8Y"
+    },
+    {
+     "file": "12.jpg",
+     "title": "view rochus gallery rudňany, Jozef",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/8896885/view-the-rochus-gallery-rudnany"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Antique Clock",
+     "license": "cc0",
+     "creator": "Vintage RS",
+     "source": "https://stocksnap.io/photo/antique-clock-KIFOWIZMNX"
+    },
+    {
+     "file": "30.jpg",
+     "title": "porcelain teapot two potted plants",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/3284657/free-photo-image-window-plant-flower"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Typewriter Light",
+     "license": "cc0",
+     "creator": "Min An",
+     "source": "https://stocksnap.io/photo/typewriter-light-DFVDT2DGGS"
+    },
+    {
+     "file": "51.jpg",
+     "title": "Marble Statue",
+     "license": "cc0",
+     "creator": "Bob Richards",
+     "source": "https://stocksnap.io/photo/marble-statue-HFYMJGFU84"
+    },
+    {
+     "file": "02.jpg",
+     "title": "Vase Flower",
+     "license": "cc0",
+     "creator": "Vintage RS",
+     "source": "https://stocksnap.io/photo/vase-flower-LNAHBPN8BU"
+    },
+    {
+     "file": "22.jpg",
+     "title": "Antiques Shops",
+     "license": "cc0",
+     "creator": "Skitter Photo",
+     "source": "https://stocksnap.io/photo/antiques-shops-E64E613130"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Teapot Cup",
+     "license": "cc0",
+     "creator": "Anete%20L%u016Bsi%u0146a",
+     "source": "https://stocksnap.io/photo/teapot-cup-183UHT407W"
+    },
+    {
+     "file": "42.jpg",
+     "title": null,
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6057339/free-public-domain-cc0-photo"
+    },
+    {
+     "file": "32.jpg",
+     "title": "Hot Teapot",
+     "license": "cc0",
+     "creator": "Matt Bango",
+     "source": "https://stocksnap.io/photo/hot-teapot-QLW40Q7LBK"
+    }
+   ]
+  },
+  "audio-tv-photo": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Woman Headphones",
+     "license": "cc0",
+     "creator": "Burst",
+     "source": "https://stocksnap.io/photo/woman-headphones-NOLZXJLYKF"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Vintage Camera",
+     "license": "cc0",
+     "creator": "Retro 56",
+     "source": "https://stocksnap.io/photo/vintage-camera-AL4SMWIJHD"
+    },
+    {
+     "file": "22.jpg",
+     "title": "Turntable Record",
+     "license": "cc0",
+     "creator": "Krzysztof%20Puszczy%u0144ski",
+     "source": "https://stocksnap.io/photo/turntable-record-0RN44JI11G"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Tv Television",
+     "license": "cc0",
+     "creator": "Pawel Kadysz",
+     "source": "https://stocksnap.io/photo/tv-television-UNR73B9XH9"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Camera Lens",
+     "license": "cc0",
+     "creator": "Andrew E Weber",
+     "source": "https://stocksnap.io/photo/camera-lens-W7RWLHPKX4"
+    },
+    {
+     "file": "01.jpg",
+     "title": "Microphone Headphones",
+     "license": "cc0",
+     "creator": "Ryan McGuire",
+     "source": "https://stocksnap.io/photo/microphone-headphones-EA89EFBCDA"
+    },
+    {
+     "file": "12.jpg",
+     "title": "Vintage Camera",
+     "license": "cc0",
+     "creator": "Alex Andrews",
+     "source": "https://stocksnap.io/photo/vintage-camera-DNIPLRHJUC"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Tv Television",
+     "license": "cc0",
+     "creator": "Pablo%20GarciaSalda%F1a",
+     "source": "https://stocksnap.io/photo/tv-television-32PHX17FRE"
+    },
+    {
+     "file": "51.jpg",
+     "title": "Camera Lens",
+     "license": "cc0",
+     "creator": "Skitter Photo",
+     "source": "https://stocksnap.io/photo/camera-lens-OAIDO9GSRD"
+    },
+    {
+     "file": "02.jpg",
+     "title": "Headphones Music",
+     "license": "cc0",
+     "creator": "JESHOOTS.com",
+     "source": "https://stocksnap.io/photo/headphones-music-UXKE7VWPCY"
+    },
+    {
+     "file": "42.jpg",
+     "title": "Tv Television",
+     "license": "cc0",
+     "creator": "Sven Scheuermeier",
+     "source": "https://stocksnap.io/photo/tv-television-E5XKV8B7TJ"
+    }
+   ]
+  },
+  "bikes-mopeds": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Speedbike Bicycle",
+     "license": "cc0",
+     "creator": "Paul Filitchkin",
+     "source": "https://stocksnap.io/photo/speedbike-bicycle-6B6C7FF9C1"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Road Bike",
+     "license": "cc0",
+     "creator": "Burst",
+     "source": "https://stocksnap.io/photo/road-bike-NLRDNDHXUS"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Vespa Scooter",
+     "license": "cc0",
+     "creator": "Tatiana Lapina",
+     "source": "https://stocksnap.io/photo/vespa-scooter-P2IIDP6UPD"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Bicycle Wheels",
+     "license": "cc0",
+     "creator": "Rob Bye",
+     "source": "https://stocksnap.io/photo/bicycle-wheels-S28MUJMXYJ"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Lennart Krayer mountain bike, location",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6112308/photo-image-public-domain-person-free"
+    },
+    {
+     "file": "02.jpg",
+     "title": "Bicycle Bike",
+     "license": "cc0",
+     "creator": "Alisa Anton",
+     "source": "https://stocksnap.io/photo/bicycle-bike-Y2KCFMGHD1"
+    },
+    {
+     "file": "12.jpg",
+     "title": "sleek black road bike leans",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5975182/photo-image-public-domain-bike"
+    },
+    {
+     "file": "22.jpg",
+     "title": "Red Vespa",
+     "license": "cc0",
+     "creator": "Dave Meier",
+     "source": "https://stocksnap.io/photo/red-vespa-E3F8ZAPWUR"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Closeup bicycle wheel",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6034799/photo-image-public-domain-black-free"
+    },
+    {
+     "file": "42.jpg",
+     "title": "mountain bike leaning tree grassy",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/3293515/free-photo-image-bicycle-bike-cc0"
+    },
+    {
+     "file": "32.jpg",
+     "title": "Bicycle wheels",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6041126/bicycle-wheels-free-public-domain-cc0-image"
+    }
+   ]
+  },
+  "books": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Books Shelf",
+     "license": "cc0",
+     "creator": "Cristina Gottardi",
+     "source": "https://stocksnap.io/photo/books-shelf-9PZ3E9U67E"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Open Books",
+     "license": "cc0",
+     "creator": "Matt Bango",
+     "source": "https://stocksnap.io/photo/open-books-HECYA5SP1L"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Library Books",
+     "license": "cc0",
+     "creator": "Josh Felise",
+     "source": "https://stocksnap.io/photo/library-books-4TDHSPIMJ6"
+    },
+    {
+     "file": "32.jpg",
+     "title": "Bookshop stacks stacks old books",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/3301849/free-photo-image-book-store-pile-books-blog"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Old Books",
+     "license": "cc0",
+     "creator": "Jan Mellström",
+     "source": "https://stocksnap.io/photo/old-books-14QY2T9UPC"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Reading Book",
+     "license": "cc0",
+     "creator": "Negative Space",
+     "source": "https://stocksnap.io/photo/reading-book-LXCMDRFA51"
+    },
+    {
+     "file": "01.jpg",
+     "title": "Book Shelf",
+     "license": "cc0",
+     "creator": "Freestocks.org",
+     "source": "https://stocksnap.io/photo/book-shelf-HO3BWXRVUP"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Open Book",
+     "license": "cc0",
+     "creator": "Messala Ciulla",
+     "source": "https://stocksnap.io/photo/open-book-HDWDWONFBI"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Library Books",
+     "license": "cc0",
+     "creator": "Gabriel Ghnassia",
+     "source": "https://stocksnap.io/photo/library-books-D8RFKPCP0G"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Old Book",
+     "license": "cc0",
+     "creator": "Vintage RS",
+     "source": "https://stocksnap.io/photo/old-book-1V3E7LCOHA"
+    },
+    {
+     "file": "51.jpg",
+     "title": "Reading Books",
+     "license": "cc0",
+     "creator": "Shopify",
+     "source": "https://stocksnap.io/photo/reading-books-PLRKIF9VCU"
+    }
+   ]
+  },
+  "business-goods": {
+   "photos": [
+    {
+     "file": "02.jpg",
+     "title": "Office Desk",
+     "license": "cc0",
+     "creator": "Cathryn Lavery",
+     "source": "https://stocksnap.io/photo/office-desk-0EFDQKW84D"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Cash Register",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6076945/cash-register"
+    },
+    {
+     "file": "20.jpg",
+     "title": null,
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6057556/free-public-domain-cc0-photo"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Laptop Office",
+     "license": "cc0",
+     "creator": "EVG Photos",
+     "source": "https://stocksnap.io/photo/laptop-office-D7TNVO5IYU"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Free industrial machine",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5906087/free-industrial-machine-public-domain-cc0-photo"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Business Establishments",
+     "license": "cc0",
+     "creator": "Rob Bye",
+     "source": "https://stocksnap.io/photo/business-establishments-3QX7WQCK52"
+    },
+    {
+     "file": "60.jpg",
+     "title": "Vintage office chair desk top",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/3292768/free-photo-image-armchair-cc0-chair"
+    },
+    {
+     "file": "71.jpg",
+     "title": "Restaurant Bar",
+     "license": "cc0",
+     "creator": "Afta Putta Gunawan",
+     "source": "https://stocksnap.io/photo/restaurant-bar-THXU08ODDE"
+    },
+    {
+     "file": "80.jpg",
+     "title": "3D Printer",
+     "license": "cc0",
+     "creator": "Kristin Hardwick",
+     "source": "https://stocksnap.io/photo/3d-printer-JCN9ZVO1SD"
+    },
+    {
+     "file": "90.jpg",
+     "title": "forklift operator shuttles pallet loaded",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/8742225/photo-image-public-domain-covid-19-person"
+    },
+    {
+     "file": "12.jpg",
+     "title": "Old Style Cash Register Canned",
+     "license": "cc0",
+     "creator": "U.S. National Archives",
+     "source": "https://www.rawpixel.com/image/8765918/photo-image-vintage-retro"
+    }
+   ]
+  },
+  "car-misc": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Car Interior",
+     "license": "cc0",
+     "creator": "David Marcu",
+     "source": "https://stocksnap.io/photo/car-interior-FBC1FD9893"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Blue Mustang",
+     "license": "cc0",
+     "creator": "Jay Mantri",
+     "source": "https://stocksnap.io/photo/blue-mustang-E20F15AC4B"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Car Dashboard",
+     "license": "cc0",
+     "creator": "Martin Vorel",
+     "source": "https://stocksnap.io/photo/car-dashboard-TFX66XBXTM"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Engine Machine",
+     "license": "cc0",
+     "creator": "Michael Mroczek",
+     "source": "https://stocksnap.io/photo/engine-machine-RDQ85OYVLO"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Free car washing image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5917984/image-light-public-domain-logo"
+    },
+    {
+     "file": "01.jpg",
+     "title": "Car Interior",
+     "license": "cc0",
+     "creator": "Mike Birdy",
+     "source": "https://stocksnap.io/photo/car-interior-SF6UIKA8HT"
+    },
+    {
+     "file": "12.jpg",
+     "title": "Red Car",
+     "license": "cc0",
+     "creator": "Jay Mantri",
+     "source": "https://stocksnap.io/photo/red-car-77BA6D52D0"
+    },
+    {
+     "file": "22.jpg",
+     "title": "Car Dashboard",
+     "license": "cc0",
+     "creator": "Freestocks.org",
+     "source": "https://stocksnap.io/photo/car-dashboard-8D1LTELH6N"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Car engine close photo",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5922437/photo-image-public-domain-ocean-technology"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Free black car washing image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5907777/photo-image-public-domain-logo-free"
+    },
+    {
+     "file": "42.jpg",
+     "title": "Free car washing image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5924423/photo-image-light-public-domain-logo"
+    }
+   ]
+  },
+  "car-parts": {
+   "photos": [
+    {
+     "file": "01.jpg",
+     "title": "Car engine close photo",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5922437/photo-image-public-domain-ocean-technology"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Car headlight",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6040328/car-headlight-free-public-domain-cc0-photo"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Wheels Rims",
+     "license": "cc0",
+     "creator": "JESHOOTS.com",
+     "source": "https://stocksnap.io/photo/wheels-rims-1DB42CFC76"
+    },
+    {
+     "file": "51.jpg",
+     "title": "Engine Block",
+     "license": "cc0",
+     "creator": "Leeroy",
+     "source": "https://stocksnap.io/photo/engine-block-739D74EEB8"
+    },
+    {
+     "file": "60.jpg",
+     "title": "Jumpercables Battery",
+     "license": "cc0",
+     "creator": "Pawel Kadysz",
+     "source": "https://stocksnap.io/photo/jumpercables-battery-T7T37KWY8G"
+    },
+    {
+     "file": "90.jpg",
+     "title": "Car Vehicle",
+     "license": "cc0",
+     "creator": "Mike Birdy",
+     "source": "https://stocksnap.io/photo/car-vehicle-W4O67D61NA"
+    },
+    {
+     "file": "100.jpg",
+     "title": "Steering wheel through window",
+     "license": "cc0",
+     "creator": "National Park Service",
+     "source": "https://www.rawpixel.com/image/8726043/steering-wheel-through-window"
+    },
+    {
+     "file": "02.jpg",
+     "title": "Car engine",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6038859/car-engine-free-public-domain-cc0-photo"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Car headlight closeup",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6035582/photo-image-light-public-domain-free"
+    },
+    {
+     "file": "61.jpg",
+     "title": "Speedometer Car",
+     "license": "cc0",
+     "creator": "Travis Soule",
+     "source": "https://stocksnap.io/photo/speedometer-car-OOQKOP7VK2"
+    },
+    {
+     "file": "102.jpg",
+     "title": "Hands steering wheel",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/3286414/free-photo-image-car-steering-wheel-people-driving"
+    }
+   ]
+  },
+  "caravans-camping": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Free caravan outdoor image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5904433/photo-image-light-public-domain-logo"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Camping Tent",
+     "license": "cc0",
+     "creator": "Julian Bialowas",
+     "source": "https://stocksnap.io/photo/camping-tent-177F2EBDDC"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Campervan parked next standalone building",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/3299521/free-photo-image-car-volkswagen-house"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Man Campfire",
+     "license": "cc0",
+     "creator": "Anggoro Sakti",
+     "source": "https://stocksnap.io/photo/man-campfire-HRLU7ZESP0"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Campsite Nature",
+     "license": "cc0",
+     "creator": "Matt Moloney",
+     "source": "https://stocksnap.io/photo/campsite-nature-WTRAIBOA7N"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Camp Tent",
+     "license": "cc0",
+     "creator": "Christopher Jolly",
+     "source": "https://stocksnap.io/photo/camp-tent-PTERNSNX0F"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Campervan. Free public domain CC0",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6034801/campervan-free-public-domain-cc0-photo"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Campfire Wood",
+     "license": "cc0",
+     "creator": "Free Nature Stock",
+     "source": "https://stocksnap.io/photo/campfire-wood-PSACKTUH0F"
+    },
+    {
+     "file": "42.jpg",
+     "title": "Blanket Outdoor",
+     "license": "cc0",
+     "creator": "Lela Johnson",
+     "source": "https://stocksnap.io/photo/blanket-outdoor-IU1NLVIF3Q"
+    },
+    {
+     "file": "12.jpg",
+     "title": "White camping tent mountain",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/3285625/free-photo-image-travel-camping-cc0"
+    }
+   ]
+  },
+  "cd-dvd": {
+   "photos": [
+    {
+     "file": "01.jpg",
+     "title": "Free compact disc retro background",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5919533/photo-image-background-public-domain-green"
+    },
+    {
+     "file": "12.jpg",
+     "title": "Vinyl Record",
+     "license": "cc0",
+     "creator": "AJ Montpetit",
+     "source": "https://stocksnap.io/photo/vinyl-record-DSU2OBEWB3"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Cassette Tape",
+     "license": "cc0",
+     "creator": "Markus Spiske",
+     "source": "https://stocksnap.io/photo/cassette-tape-DSDR544OYZ"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Record Shop",
+     "license": "cc0",
+     "creator": "Caleb Woods",
+     "source": "https://stocksnap.io/photo/record-shop-8G79RWQD1C"
+    },
+    {
+     "file": "60.jpg",
+     "title": "Vinyl Music",
+     "license": "cc0",
+     "creator": "Mr Cup / Fabien Barral",
+     "source": "https://stocksnap.io/photo/vinyl-music-DPMX3QCLBT"
+    },
+    {
+     "file": "71.jpg",
+     "title": "SABA vinyl record player, location",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6113017/photo-image-public-domain-vintage-logo"
+    },
+    {
+     "file": "81.jpg",
+     "title": "Headphones Music",
+     "license": "cc0",
+     "creator": "JESHOOTS.com",
+     "source": "https://stocksnap.io/photo/headphones-music-QS3FJYL99Z"
+    },
+    {
+     "file": "02.jpg",
+     "title": "Free gold compact disc image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5904832/photo-image-background-public-domain-gold"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Free vintage cassette tape image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5919749/photo-image-tape-public-domain-free"
+    },
+    {
+     "file": "42.jpg",
+     "title": "Turntable Vintage",
+     "license": "cc0",
+     "creator": "Jp Valery",
+     "source": "https://stocksnap.io/photo/turntable-vintage-4TEIRZ1U5L"
+    },
+    {
+     "file": "82.jpg",
+     "title": "Headphones Music",
+     "license": "cc0",
+     "creator": "JESHOOTS.com",
+     "source": "https://stocksnap.io/photo/headphones-music-3YOVALG5DX"
+    }
+   ]
+  },
+  "children-babies": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Bird baby toy",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6041653/bird-baby-toy-free-public-domain-cc0-photo"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Free teddy bear doll suitcase",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5922395/photo-image-public-domain-cute-free"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Wooden Toys",
+     "license": "cc0",
+     "creator": "Kristin Hardwick",
+     "source": "https://stocksnap.io/photo/wooden-toys-CCKX20IAFE"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Children Playing",
+     "license": "cc0",
+     "creator": "Kristin Hardwick",
+     "source": "https://stocksnap.io/photo/children-playing-G02Q6IVO8J"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Baby Clothes",
+     "license": "cc0",
+     "creator": "Matt Bango",
+     "source": "https://stocksnap.io/photo/baby-clothes-Q2NLOOVQBU"
+    },
+    {
+     "file": "01.jpg",
+     "title": "Close baby toys shelf",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5919257/photo-image-public-domain-house-home"
+    },
+    {
+     "file": "22.jpg",
+     "title": "Free teddy bear dolls image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5905165/photo-image-public-domain-cute-free"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Free wooden toy image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5905353/free-wooden-toy-image-public-domain-cc0-photo"
+    },
+    {
+     "file": "51.jpg",
+     "title": "Free baby clothes",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5919485/free-baby-clothes-public-domain-cc0-photo"
+    },
+    {
+     "file": "02.jpg",
+     "title": "Baby Crib",
+     "license": "cc0",
+     "creator": "Freestocks.org",
+     "source": "https://stocksnap.io/photo/baby-crib-17QW4I2CLU"
+    },
+    {
+     "file": "52.jpg",
+     "title": "Paper Pen",
+     "license": "cc0",
+     "creator": "Laurel Natale",
+     "source": "https://stocksnap.io/photo/paper-pen-MZO5I0RC7R"
+    }
+   ]
+  },
+  "collectibles": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Cat Figurine",
+     "license": "cc0",
+     "creator": "Alain Pham",
+     "source": "https://stocksnap.io/photo/cat-figurine-B9KJIPURCF"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Mercedes-Benz model car museum, Stuttgart",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/3292058/free-photo-image-alloy-wheel-antique-car-apparel"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Trade Card Hare & Co",
+     "license": "cc0",
+     "creator": "themet",
+     "source": "https://www.rawpixel.com/image/9613631/trade-card-for-hare-co-ltd-anonymous-british-19th-century"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Toy Car",
+     "license": "cc0",
+     "creator": "Steinar Engeland",
+     "source": "https://stocksnap.io/photo/toy-car-9CNXOCMUPN"
+    },
+    {
+     "file": "42.jpg",
+     "title": "Comics Read",
+     "license": "cc0",
+     "creator": "Mitch Rosen",
+     "source": "https://stocksnap.io/photo/comics-read-FU9CFTWNZP"
+    },
+    {
+     "file": "70.jpg",
+     "title": "A colourful mix of Lego on a table",
+     "license": "cc0",
+     "creator": "nelehirsch",
+     "source": "https://wordpress.org/photos/photo/86162586ea/"
+    },
+    {
+     "file": "01.jpg",
+     "title": "A vibrant display of various decorative items, including intricately carved statues and figurines, primarily featuring Buddha figures and traditional deities. The collection showcases a mixture of materials and colors, with items such as metal sculptures, stone carvings, and painted wooden figures.",
+     "license": "cc0",
+     "creator": "quizzycal",
+     "source": "https://wordpress.org/photos/photo/389640fe37/"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Trade Card Whiting & Branston",
+     "license": "cc0",
+     "creator": "themet",
+     "source": "https://www.rawpixel.com/image/9087011/image-art-vintage-public-domain"
+    },
+    {
+     "file": "71.jpg",
+     "title": "Lego blocks close up",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5921627/photo-image-public-domain-kids-free"
+    }
+   ]
+  },
+  "computers-software": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Macbook Laptop",
+     "license": "cc0",
+     "creator": "Lia Leslie",
+     "source": "https://stocksnap.io/photo/macbook-laptop-DWLWL9USBG"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Computer Keyboard",
+     "license": "cc0",
+     "creator": "Carl Heyerdahl",
+     "source": "https://stocksnap.io/photo/computer-keyboard-LPNMGYHXCT"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Desktop Computer",
+     "license": "cc0",
+     "creator": "Dave Meier",
+     "source": "https://stocksnap.io/photo/desktop-computer-B4145FFE64"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Wood Notepad",
+     "license": "cc0",
+     "creator": "Dustin Lee",
+     "source": "https://stocksnap.io/photo/wood-notepad-CK7NEPHVR5"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Books Bookshelf",
+     "license": "cc0",
+     "creator": "Startup Stock Photos",
+     "source": "https://stocksnap.io/photo/books-bookshelf-0SP70JWWOK"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Free circuit board image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5902389/photo-image-public-domain-technology-computer"
+    },
+    {
+     "file": "01.jpg",
+     "title": "Macbook Laptop",
+     "license": "cc0",
+     "creator": "Negative Space",
+     "source": "https://stocksnap.io/photo/macbook-laptop-UNB7V2H5L4"
+    },
+    {
+     "file": "12.jpg",
+     "title": "Computer Keyboard",
+     "license": "cc0",
+     "creator": "ALBERT CHERNOGOROV",
+     "source": "https://stocksnap.io/photo/computer-keyboard-VP98M357OV"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Desktop Computer",
+     "license": "cc0",
+     "creator": "Karol Dach",
+     "source": "https://stocksnap.io/photo/desktop-computer-25WP90QOLT"
+    },
+    {
+     "file": "32.jpg",
+     "title": "Macbook Laptop",
+     "license": "cc0",
+     "creator": "Pawel Kadysz",
+     "source": "https://stocksnap.io/photo/macbook-laptop-R66E2T133W"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Seo Computer",
+     "license": "cc0",
+     "creator": "Serpstat",
+     "source": "https://stocksnap.io/photo/seo-computer-959IURDRGJ"
+    }
+   ]
+  },
+  "consoles-games": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Game Controller",
+     "license": "cc0",
+     "creator": "50Fish",
+     "source": "https://stocksnap.io/photo/game-controller-B3FJDNOAMI"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Video Game",
+     "license": "cc0",
+     "creator": "50Fish",
+     "source": "https://stocksnap.io/photo/video-game-6MQCVSOWVZ"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Arcade inside of a hotel",
+     "license": "cc0",
+     "creator": "ChrisEdwardsCE",
+     "source": "https://wordpress.org/photos/photo/22462f2a93/"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Rubikscube Game",
+     "license": "cc0",
+     "creator": "Negative Space",
+     "source": "https://stocksnap.io/photo/rubikscube-game-QED8GG50PU"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Free colorful board game pieces",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5921214/photo-image-public-domain-free-game"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Fussball arcade game",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6037419/photo-image-public-domain-person-table"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Dice Game",
+     "license": "cc0",
+     "creator": "Skitter Photo",
+     "source": "https://stocksnap.io/photo/dice-game-IMUB39JBN1"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Free colorful board game pieces",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5905808/photo-image-public-domain-free-game"
+    },
+    {
+     "file": "32.jpg",
+     "title": "Gaming Playstationcontroller",
+     "license": "cc0",
+     "creator": "Pawel Kadysz",
+     "source": "https://stocksnap.io/photo/gaming-playstationcontroller-EDD56D3A69"
+    },
+    {
+     "file": "42.jpg",
+     "title": "Free colorful board game pieces",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5913924/image-public-domain-free-game"
+    }
+   ]
+  },
+  "contacts-messages": {
+   "photos": [
+    {
+     "file": "02.jpg",
+     "title": "Letter Valentine",
+     "license": "cc0",
+     "creator": "Kelly Ishmael",
+     "source": "https://stocksnap.io/photo/letter-valentine-P2KICW97HO"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Free antique handwritten letter image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5904133/photo-image-public-domain-letter-free"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Woman Holding",
+     "license": "cc0",
+     "creator": "Burst",
+     "source": "https://stocksnap.io/photo/woman-holding-LFTEMAVW1O"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Writing Postcard",
+     "license": "cc0",
+     "creator": "Roman Drits",
+     "source": "https://stocksnap.io/photo/writing-postcard-85D4IPPQ98"
+    },
+    {
+     "file": "40.jpg",
+     "title": "People Girls",
+     "license": "cc0",
+     "creator": "Naomi Hutchinson",
+     "source": "https://stocksnap.io/photo/people-girls-R43LYWZCN6"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Mailboxes Letters",
+     "license": "cc0",
+     "creator": "Daria Nepriakhina",
+     "source": "https://stocksnap.io/photo/mailboxes-letters-38F072B2D5"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Old Letter",
+     "license": "cc0",
+     "creator": "Vintage RS",
+     "source": "https://stocksnap.io/photo/old-letter-GRBHA41KW7"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Browsing Smartphone",
+     "license": "cc0",
+     "creator": "Kristin Hardwick",
+     "source": "https://stocksnap.io/photo/browsing-smartphone-JXOLOKSWX2"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Writing Postcard",
+     "license": "cc0",
+     "creator": "Roman Drits",
+     "source": "https://stocksnap.io/photo/writing-postcard-R4Q7M4DWAK"
+    },
+    {
+     "file": "51.jpg",
+     "title": "Mailbox Mail",
+     "license": "cc0",
+     "creator": "Jay Mantri",
+     "source": "https://stocksnap.io/photo/mailbox-mail-960338787A"
+    },
+    {
+     "file": "12.jpg",
+     "title": "Old Letter",
+     "license": "cc0",
+     "creator": "Vintage RS",
+     "source": "https://stocksnap.io/photo/old-letter-RTWDIS7HNU"
+    }
+   ]
+  },
+  "diy-renovation": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Free close red water tap",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5920225/photo-image-public-domain-free"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Hammer Tool",
+     "license": "cc0",
+     "creator": "Design by Matt",
+     "source": "https://stocksnap.io/photo/hammer-tool-XQWS5SOONG"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Guy Man",
+     "license": "cc0",
+     "creator": "Michal Jarmoluk",
+     "source": "https://stocksnap.io/photo/guy-man-Q67DPDQSC1"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Free close socket toolbox image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5917049/photo-image-public-domain-free"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Tools Workshop",
+     "license": "cc0",
+     "creator": "Barn Images",
+     "source": "https://stocksnap.io/photo/tools-workshop-KD30XPQR0A"
+    },
+    {
+     "file": "01.jpg",
+     "title": "Screw panels together",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/4051728/photo-image-person-wall-city"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Hammer & Tools",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5970250/hammer-tools"
+    },
+    {
+     "file": "32.jpg",
+     "title": "Ratchet Sockets",
+     "license": "cc0",
+     "creator": "One Idea LLC",
+     "source": "https://stocksnap.io/photo/ratchet-sockets-4RHOB6RC3S"
+    },
+    {
+     "file": "02.jpg",
+     "title": "Cutting iron metal cutting machine",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/3337861/free-photo-image-power-tool-cc0-construction-work"
+    },
+    {
+     "file": "12.jpg",
+     "title": "Construction Worker",
+     "license": "cc0",
+     "creator": "Leeroy",
+     "source": "https://stocksnap.io/photo/construction-worker-6B70C91911"
+    }
+   ]
+  },
+  "garden-patio": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Garden Flower",
+     "license": "cc0",
+     "creator": "Free Nature Stock",
+     "source": "https://stocksnap.io/photo/garden-flower-ZRZC7WBGKO"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Patio Furniture",
+     "license": "cc0",
+     "creator": "Jay Mantri",
+     "source": "https://stocksnap.io/photo/patio-furniture-6CA109EECC"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Shovel, gardening tool",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/9647186/shovel-gardening-tool"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Lawn mower",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6022545/lawn-mower-free-public-domain-cc0-image"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Potted Plants",
+     "license": "cc0",
+     "creator": "Burst",
+     "source": "https://stocksnap.io/photo/potted-plants-JOHHVIOMIW"
+    },
+    {
+     "file": "52.jpg",
+     "title": "Autumn City",
+     "license": "cc0",
+     "creator": "Oleg Prokopenko",
+     "source": "https://stocksnap.io/photo/autumn-city-HAI8WDSJBM"
+    },
+    {
+     "file": "02.jpg",
+     "title": "Blossoms Garden Flower",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5967118/blossoms-garden-flower"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Patio Furniture",
+     "license": "cc0",
+     "creator": "Tarren Bailey",
+     "source": "https://stocksnap.io/photo/patio-furniture-ZHZOIIFITB"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Free gardening tools",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5915648/free-gardening-tools-public-domain-cc0-photo"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Lawn mower",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6036173/lawn-mower-free-public-domain-cc0-photo"
+    },
+    {
+     "file": "42.jpg",
+     "title": "Potted Plant",
+     "license": "cc0",
+     "creator": "Kristin Hardwick",
+     "source": "https://stocksnap.io/photo/potted-plant-03RGWASUK1"
+    }
+   ]
+  },
+  "hobbies-leisure": {
+   "photos": [
+    {
+     "file": "02.jpg",
+     "title": "Yarn Thread",
+     "license": "cc0",
+     "creator": "Giulia Bertelli",
+     "source": "https://stocksnap.io/photo/yarn-thread-CR4FKGO3YG"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Woman Artist",
+     "license": "cc0",
+     "creator": "Burst",
+     "source": "https://stocksnap.io/photo/woman-artist-TEQQLZJ8BS"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Chess Game",
+     "license": "cc0",
+     "creator": "Lou Levit",
+     "source": "https://stocksnap.io/photo/chess-game-308ED74931"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Fishing Rod",
+     "license": "cc0",
+     "creator": "Jay Mantri",
+     "source": "https://stocksnap.io/photo/fishing-rod-RT8MEZ9GLJ"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Sewing Machine",
+     "license": "cc0",
+     "creator": "Clem Onojeghuo",
+     "source": "https://stocksnap.io/photo/sewing-machine-3HY6QI9UFT"
+    },
+    {
+     "file": "61.jpg",
+     "title": "Blue jigsaw puzzle",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6034079/blue-jigsaw-puzzle-free-public-domain-cc0-image"
+    },
+    {
+     "file": "70.jpg",
+     "title": "Free close miniature train toy",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5922139/photo-image-background-public-domain-red"
+    },
+    {
+     "file": "81.jpg",
+     "title": "Free person making pottery image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5907112/photo-image-light-public-domain-hands"
+    },
+    {
+     "file": "32.jpg",
+     "title": "Chess Board",
+     "license": "cc0",
+     "creator": "Kristin Hardwick",
+     "source": "https://stocksnap.io/photo/chess-board-NUAITIXILP"
+    },
+    {
+     "file": "42.jpg",
+     "title": "Fishing rod",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5922482/fishing-rod-free-public-domain-cc0-photo"
+    },
+    {
+     "file": "52.jpg",
+     "title": "Sewing Machine",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/9067038/sewing-machine"
+    }
+   ]
+  },
+  "holidays": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Beach Summer",
+     "license": "cc0",
+     "creator": "Flo Dahm",
+     "source": "https://stocksnap.io/photo/beach-summer-0M1SPKYTR4"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Still Items",
+     "license": "cc0",
+     "creator": "Mike Birdy",
+     "source": "https://stocksnap.io/photo/still-items-FLI26W5VXU"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Tropical Beach",
+     "license": "cc0",
+     "creator": "Joe deSousa",
+     "source": "https://stocksnap.io/photo/tropical-beach-9FM2TZZYP4"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Mountain Travel",
+     "license": "cc0",
+     "creator": "Todd Diemer",
+     "source": "https://stocksnap.io/photo/mountain-travel-FU4J7VV600"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Hotel pool in Daytona Beach, Florida.",
+     "license": "cc0",
+     "creator": "ChrisEdwardsCE",
+     "source": "https://wordpress.org/photos/photo/44362edf09/"
+    },
+    {
+     "file": "51.jpg",
+     "title": "Airplane Travel",
+     "license": "cc0",
+     "creator": "Robert De Bock",
+     "source": "https://stocksnap.io/photo/airplane-travel-I54H0TYV9C"
+    },
+    {
+     "file": "01.jpg",
+     "title": "Maldives Couple",
+     "license": "cc0",
+     "creator": "Ibrahim Asad",
+     "source": "https://stocksnap.io/photo/maldives-couple-Z2FVSJZAEN"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Airport People",
+     "license": "cc0",
+     "creator": "Ashim%20D%u2019Silva",
+     "source": "https://stocksnap.io/photo/airport-people-55EAC841F9"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Tropical Beach",
+     "license": "cc0",
+     "creator": "Joe deSousa",
+     "source": "https://stocksnap.io/photo/tropical-beach-HWWGZ3RNXT"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Mountain Travel",
+     "license": "cc0",
+     "creator": "Evan Kirby",
+     "source": "https://stocksnap.io/photo/mountain-travel-57KSYYI68J"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Hotel Pool",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5969937/hotel-pool"
+    }
+   ]
+  },
+  "home-interior": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "House Home",
+     "license": "cc0",
+     "creator": "Joshua Ness",
+     "source": "https://stocksnap.io/photo/house-home-CLD6T4J9VZ"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Free modern kitchen interior image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5912749/image-public-domain-kitchen-interior"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Free bedroom interior design",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5903851/photo-image-public-domain-interior-free"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Free minimal dining table image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5915223/photo-image-background-public-domain-minimal"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Apartment Bed",
+     "license": "cc0",
+     "creator": "Medhat Ayad",
+     "source": "https://stocksnap.io/photo/apartment-bed-EGXWIV409M"
+    },
+    {
+     "file": "51.jpg",
+     "title": "Book Interior",
+     "license": "cc0",
+     "creator": "Candace McDaniel",
+     "source": "https://stocksnap.io/photo/book-interior-KLXLJSBKJI"
+    },
+    {
+     "file": "01.jpg",
+     "title": "House Home",
+     "license": "cc0",
+     "creator": "Mike Birdy",
+     "source": "https://stocksnap.io/photo/house-home-6KJ12UWOKQ"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Modern white kitchen interior",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6039071/photo-image-public-domain-minimal-wood"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Office Work",
+     "license": "cc0",
+     "creator": "Thomas Litangen",
+     "source": "https://stocksnap.io/photo/office-work-3TJ6NCTIRT"
+    },
+    {
+     "file": "52.jpg",
+     "title": "Minimal Office",
+     "license": "cc0",
+     "creator": "Kristin Hardwick",
+     "source": "https://stocksnap.io/photo/minimal-office-SNJ2HCU9HX"
+    },
+    {
+     "file": "12.jpg",
+     "title": "Modern white kitchen interior",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6042749/photo-image-public-domain-minimal-house"
+    }
+   ]
+  },
+  "houses-rooms": {
+   "photos": [
+    {
+     "file": "10.jpg",
+     "title": "Apartment Building",
+     "license": "cc0",
+     "creator": "Roman Kraft",
+     "source": "https://stocksnap.io/photo/apartment-building-EJ9K0OTJ6V"
+    },
+    {
+     "file": "22.jpg",
+     "title": null,
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6059907/free-public-domain-cc0-photo"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Living Room",
+     "license": "cc0",
+     "creator": "Dan Gold",
+     "source": "https://stocksnap.io/photo/living-room-BI0P6D3WL9"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Free front door house image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5917054/image-wallpaper-public-domain-house"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Free blue townhouse photo",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5904246/photo-image-public-domain-blue-house"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Apartment Building",
+     "license": "cc0",
+     "creator": "Matt Bango",
+     "source": "https://stocksnap.io/photo/apartment-building-VWKJCVGD8F"
+    },
+    {
+     "file": "32.jpg",
+     "title": "Free empty living room image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5903577/photo-image-public-domain-house-living-room"
+    },
+    {
+     "file": "41.jpg",
+     "title": "front door house flowering bush",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/3301259/free-photo-image-door-blossom-brick"
+    },
+    {
+     "file": "42.jpg",
+     "title": "Old Door",
+     "license": "cc0",
+     "creator": "Nathalie E. Julien",
+     "source": "https://stocksnap.io/photo/old-door-GQVQESD35N"
+    }
+   ]
+  },
+  "jewelry-bags-beauty": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Clothing Watch",
+     "license": "cc0",
+     "creator": "Chirobocea Nicu",
+     "source": "https://stocksnap.io/photo/clothing-watch-UT12GAS4D1"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Handbag Leather",
+     "license": "cc0",
+     "creator": "Harsh Jadav",
+     "source": "https://stocksnap.io/photo/handbag-leather-Z9ESJO45V5"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Timex wristwatch, location unknown, 27",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6113779/photo-image-background-public-domain-fashion"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Perfume bottles",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6027555/perfume-bottles-free-public-domain-cc0-photo"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Hands Rings",
+     "license": "cc0",
+     "creator": "Brooke Cagle",
+     "source": "https://stocksnap.io/photo/hands-rings-6UB9F6E2HT"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Makeup Cosmetics",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5970174/makeup-cosmetics"
+    },
+    {
+     "file": "02.jpg",
+     "title": "Necklace Chain",
+     "license": "cc0",
+     "creator": "Snufkin",
+     "source": "https://stocksnap.io/photo/necklace-chain-B3FWPBJURM"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Wedding Rings",
+     "license": "cc0",
+     "creator": "Rickopan",
+     "source": "https://stocksnap.io/photo/wedding-rings-KH7YRRTVTS"
+    },
+    {
+     "file": "51.jpg",
+     "title": "Beauty Makeup",
+     "license": "cc0",
+     "creator": "Alexandre Vanier",
+     "source": "https://stocksnap.io/photo/beauty-makeup-34MSYVUYS0"
+    },
+    {
+     "file": "42.jpg",
+     "title": "Wedding Rings",
+     "license": "cc0",
+     "creator": "Birch Landing Home",
+     "source": "https://stocksnap.io/photo/wedding-rings-C1ZAW5IMSC"
+    },
+    {
+     "file": "52.jpg",
+     "title": "Makeup Brush",
+     "license": "cc0",
+     "creator": "Freestocks.org",
+     "source": "https://stocksnap.io/photo/makeup-brush-PZ0Z7K0JRR"
+    }
+   ]
+  },
+  "jobs": {
+   "photos": [
+    {
+     "file": "01.jpg",
+     "title": "Office Work",
+     "license": "cc0",
+     "creator": "energepic.com",
+     "source": "https://stocksnap.io/photo/office-work-42H3JH8QI5"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Construction Worker",
+     "license": "cc0",
+     "creator": "Leeroy",
+     "source": "https://stocksnap.io/photo/construction-worker-6B70C91911"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Restaurant Kitchen",
+     "license": "cc0",
+     "creator": "Michael Browning",
+     "source": "https://stocksnap.io/photo/restaurant-kitchen-0HCMIT272C"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Business Team",
+     "license": "cc0",
+     "creator": "Direct Media",
+     "source": "https://stocksnap.io/photo/business-team-W6PNBNYHM6"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Doctors Hospital",
+     "license": "cc0",
+     "creator": "Oles kanebckuu",
+     "source": "https://stocksnap.io/photo/doctors-hospital-5YUFL6LC0E"
+    },
+    {
+     "file": "12.jpg",
+     "title": "Construction Worker",
+     "license": "cc0",
+     "creator": "Lennard Stoellger",
+     "source": "https://stocksnap.io/photo/construction-worker-26F4EL6HIG"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Pasta Flour",
+     "license": "cc0",
+     "creator": "Jorge Zapata",
+     "source": "https://stocksnap.io/photo/pasta-flour-I4MIIMHZ5M"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Construction Blueprint",
+     "license": "cc0",
+     "creator": "Burst",
+     "source": "https://stocksnap.io/photo/construction-blueprint-BZ4FJO6KZE"
+    },
+    {
+     "file": "52.jpg",
+     "title": "Female Nurse",
+     "license": "cc0",
+     "creator": "Direct Media",
+     "source": "https://stocksnap.io/photo/female-nurse-XYNYITNTU1"
+    },
+    {
+     "file": "22.jpg",
+     "title": "Fryingpan Food",
+     "license": "cc0",
+     "creator": "Patryk Dziejma",
+     "source": "https://stocksnap.io/photo/fryingpan-food-DFZV36VZW4"
+    }
+   ]
+  },
+  "mens-clothing": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Free men's shirt packagaing image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5924394/photo-image-public-domain-shirt-free"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Leather Shoes",
+     "license": "cc0",
+     "creator": "Markus Spiske",
+     "source": "https://stocksnap.io/photo/leather-shoes-DC246EC89C"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Blue Denim",
+     "license": "cc0",
+     "creator": "Benjamin Voros",
+     "source": "https://stocksnap.io/photo/blue-denim-UMLWILXWPK"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Red necktie",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6040177/red-necktie-free-public-domain-cc0-photo"
+    },
+    {
+     "file": "51.jpg",
+     "title": "Clothes Sneakers",
+     "license": "cc0",
+     "creator": "Kasia Serbin",
+     "source": "https://stocksnap.io/photo/clothes-sneakers-1U68PK9DJ0"
+    },
+    {
+     "file": "60.jpg",
+     "title": "Free businessman suit",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5926891/free-businessman-suit-public-domain-cc0-photo"
+    },
+    {
+     "file": "70.jpg",
+     "title": "Leather belt",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6040795/leather-belt-free-public-domain-cc0-photo"
+    },
+    {
+     "file": "80.jpg",
+     "title": "woman taking her flannel shirt",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/3284728/free-photo-image-dress-long-jeans-dance"
+    },
+    {
+     "file": "92.jpg",
+     "title": "People Men",
+     "license": "cc0",
+     "creator": "Nina Strehl",
+     "source": "https://stocksnap.io/photo/people-men-5ZYOGMAP52"
+    },
+    {
+     "file": "02.jpg",
+     "title": "Confident businessman desktop wallpaper",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/9080003/confident-businessman-desktop-wallpaper"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Leather Shoes",
+     "license": "cc0",
+     "creator": "Caio Resende",
+     "source": "https://stocksnap.io/photo/leather-shoes-I1GV6WICCT"
+    }
+   ]
+  },
+  "miscellaneous": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Free antique glassware flea market",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5920856/free-antique-glassware-flea-market"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Free spice market stall image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5921616/photo-image-public-domain-food-free"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Still Items",
+     "license": "cc0",
+     "creator": "Mike Birdy",
+     "source": "https://stocksnap.io/photo/still-items-FLI26W5VXU"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Ljubljana.. Original public domain image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/3294922/free-photo-image-second-hand-shop-living-room-bookcase"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Box Boxes",
+     "license": "cc0",
+     "creator": "Bench Accounting",
+     "source": "https://stocksnap.io/photo/box-boxes-WP1KHDXGOY"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Free garage sale sign neighbourhood",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5906540/photo-image-public-domain-arrow-free"
+    },
+    {
+     "file": "01.jpg",
+     "title": "Old Bottles Sale Flea Market",
+     "license": "cc0",
+     "creator": "U.S. National Archives",
+     "source": "https://www.rawpixel.com/image/8799605/photo-image-cloud-vintage-public-domain"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Colorful fruit vegetables market stall",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/3284018/free-photo-image-farmers-market-vegetables-store-fruit-shop"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Still Items",
+     "license": "cc0",
+     "creator": "Jazmin Quaynor",
+     "source": "https://stocksnap.io/photo/still-items-7WLCWJ9F1J"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Thrift store, Mission Street, San",
+     "license": "cc0",
+     "creator": "libraryofcongress",
+     "source": "https://www.rawpixel.com/image/3799852/photo-image-vintage-retro-building"
+    },
+    {
+     "file": "42.jpg",
+     "title": "Gift Box",
+     "license": "cc0",
+     "creator": "George Dolgikh",
+     "source": "https://stocksnap.io/photo/gift-box-KBGJKIUPDH"
+    }
+   ]
+  },
+  "motorcycles": {
+   "photos": [
+    {
+     "file": "01.jpg",
+     "title": "Motorcycle Motorbike",
+     "license": "cc0",
+     "creator": "Abigail Keenan",
+     "source": "https://stocksnap.io/photo/motorcycle-motorbike-UCBX1MHVZ0"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Patriotic motorcycle helmet design",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5970216/motorcycles"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Vespa Scooter",
+     "license": "cc0",
+     "creator": "Tatiana Lapina",
+     "source": "https://stocksnap.io/photo/vespa-scooter-P2IIDP6UPD"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Motorcycle engine",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6020936/motorcycle-engine-free-public-domain-cc0-photo"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Motorcycle Road",
+     "license": "cc0",
+     "creator": "Vincent Versluis",
+     "source": "https://stocksnap.io/photo/motorcycle-road-F01E9IEBE5"
+    },
+    {
+     "file": "02.jpg",
+     "title": "Motorbike Motorcycle",
+     "license": "cc0",
+     "creator": "Skitter Photo",
+     "source": "https://stocksnap.io/photo/motorbike-motorcycle-6F4302CB15"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Red Vespa",
+     "license": "cc0",
+     "creator": "Dave Meier",
+     "source": "https://stocksnap.io/photo/red-vespa-E3F8ZAPWUR"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Motorcycle engine",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6021621/motorcycle-engine-free-public-domain-cc0-photo"
+    },
+    {
+     "file": "51.jpg",
+     "title": "Motorcycle road",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6021522/photo-image-public-domain-free"
+    },
+    {
+     "file": "42.jpg",
+     "title": "Motorcycle engine",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6038276/motorcycle-engine-free-public-domain-cc0-photo"
+    }
+   ]
+  },
+  "music-instruments": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Musicians Guitars",
+     "license": "cc0",
+     "creator": "Mike Giles",
+     "source": "https://stocksnap.io/photo/musicians-guitars-L3L1V89NLF"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Piano Vintage",
+     "license": "cc0",
+     "creator": "AJ Montpetit",
+     "source": "https://stocksnap.io/photo/piano-vintage-1EGDXUXXQO"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Violin Classical",
+     "license": "cc0",
+     "creator": "Ylanite Koppens",
+     "source": "https://stocksnap.io/photo/violin-classical-ULXETLYBDM"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Free drum set image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5923511/photo-image-public-domain-art-student"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Saxophone",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5969517/saxophone"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Trumpet Trombone",
+     "license": "cc0",
+     "creator": "Ryan McGuire",
+     "source": "https://stocksnap.io/photo/trumpet-trombone-FA746BB4CD"
+    },
+    {
+     "file": "01.jpg",
+     "title": "Acoustic Guitar",
+     "license": "cc0",
+     "creator": "Negative Space",
+     "source": "https://stocksnap.io/photo/acoustic-guitar-HP2GGWWPIN"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Baritone saxophone, closeup shot, musician",
+     "license": "cc0",
+     "creator": "U.S. Naval Academy",
+     "source": "https://www.rawpixel.com/image/8732046/photo-image-public-domain-person"
+    },
+    {
+     "file": "51.jpg",
+     "title": "Trumpet Musical",
+     "license": "cc0",
+     "creator": "Clem Onojeghuo",
+     "source": "https://stocksnap.io/photo/trumpet-musical-O7C4RJDQK4"
+    },
+    {
+     "file": "42.jpg",
+     "title": "close-up saxophone held one band",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/3303708/free-photo-image-saxophone-tuba-brass-section"
+    },
+    {
+     "file": "52.jpg",
+     "title": "Trumpet owned by Louis Armstrong",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/8848682/trumpet-owned-louis-armstrong"
+    }
+   ]
+  },
+  "services-trades": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Plumbing bathroom",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5904346/photo-image-public-domain-kitchen-free"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Electrician Electricity",
+     "license": "cc0",
+     "creator": "Michal Jarmoluk",
+     "source": "https://stocksnap.io/photo/electrician-electricity-QJ55PI34SY"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Carpenter Workshop",
+     "license": "cc0",
+     "creator": "James Frid",
+     "source": "https://stocksnap.io/photo/carpenter-workshop-YPM6VH3FCW"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Tools Mechanical",
+     "license": "cc0",
+     "creator": "NeONBRAND",
+     "source": "https://stocksnap.io/photo/tools-mechanical-2C0ABPYWN2"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Gardening Pots",
+     "license": "cc0",
+     "creator": "Neslihan Gunaydin",
+     "source": "https://stocksnap.io/photo/gardening-pots-WV6Q25F8ZJ"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Electrician Electricity",
+     "license": "cc0",
+     "creator": "Michal Jarmoluk",
+     "source": "https://stocksnap.io/photo/electrician-electricity-3A5FXM89OG"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Carpenter Working",
+     "license": "cc0",
+     "creator": "Burst",
+     "source": "https://stocksnap.io/photo/carpenter-working-ZMQNOXQMZO"
+    },
+    {
+     "file": "51.jpg",
+     "title": "Garden Shrubs",
+     "license": "cc0",
+     "creator": "Daria Nepriakhina",
+     "source": "https://stocksnap.io/photo/garden-shrubs-77AD8564CC"
+    },
+    {
+     "file": "22.jpg",
+     "title": "Calipers Carpenter",
+     "license": "cc0",
+     "creator": "James Frid",
+     "source": "https://stocksnap.io/photo/calipers-carpenter-GWIDWSKJJJ"
+    }
+   ]
+  },
+  "sports-fitness": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Still Items",
+     "license": "cc0",
+     "creator": "Markus Spiske",
+     "source": "https://stocksnap.io/photo/still-items-KTQZYM7YXM"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Tennis Racket",
+     "license": "cc0",
+     "creator": "Krzysztof%20Puszczy%u0144ski",
+     "source": "https://stocksnap.io/photo/tennis-racket-8ODE0WIMD9"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Free gym dumbbell rack photo",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5905602/photo-image-public-domain-free-workout"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Running Shoes",
+     "license": "cc0",
+     "creator": "JESHOOTS.com",
+     "source": "https://stocksnap.io/photo/running-shoes-645GI8G1W4"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Basketball Ball",
+     "license": "cc0",
+     "creator": "Matt Moloney",
+     "source": "https://stocksnap.io/photo/basketball-ball-XREEJO0CPH"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Rolled teal yoga mat its",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/11515776/rolled-teal-yoga-mat-its-side"
+    },
+    {
+     "file": "01.jpg",
+     "title": "Children Football",
+     "license": "cc0",
+     "creator": "sasint",
+     "source": "https://stocksnap.io/photo/children-football-SJEY5HPUSX"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Free tennis racket & ball",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5905179/photo-image-public-domain-free-sport"
+    },
+    {
+     "file": "22.jpg",
+     "title": "Free gym dumbbell floor photo",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5920917/photo-image-public-domain-free-workout"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Running shoes, footwear & apparel",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6042118/photo-image-public-domain-black-person"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Basketball Net",
+     "license": "cc0",
+     "creator": "Skitter Photo",
+     "source": "https://stocksnap.io/photo/basketball-net-PF48OHZFI4"
+    }
+   ]
+  },
   "stamps-coins": {
    "photos": [
     {
@@ -79,6 +2351,397 @@
      "license": "cc0",
      "creator": "Steve Buissinne",
      "source": "https://stocksnap.io/photo/money-coins-3OEXFDXO6K"
+    }
+   ]
+  },
+  "telecom": {
+   "photos": [
+    {
+     "file": "01.jpg",
+     "title": "Mobile Smartphone",
+     "license": "cc0",
+     "creator": "JESHOOTS.com",
+     "source": "https://stocksnap.io/photo/mobile-smartphone-DLITZEAVJJ"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Mobile Phone",
+     "license": "cc0",
+     "creator": "Erik Lucatero",
+     "source": "https://stocksnap.io/photo/mobile-phone-ONCJB6GHAY"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Red Telephone",
+     "license": "cc0",
+     "creator": "Negative Space",
+     "source": "https://stocksnap.io/photo/red-telephone-3FVC73VWBH"
+    },
+    {
+     "file": "42.jpg",
+     "title": "Female Nurse",
+     "license": "cc0",
+     "creator": "Direct Media",
+     "source": "https://stocksnap.io/photo/female-nurse-XYNYITNTU1"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Free telecommunications tower image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5922099/photo-image-public-domain-free-communication"
+    },
+    {
+     "file": "02.jpg",
+     "title": "Iphone Smartphone",
+     "license": "cc0",
+     "creator": "Adrianna Calvo",
+     "source": "https://stocksnap.io/photo/iphone-smartphone-ODN23L0AC9"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Mobile Phone",
+     "license": "cc0",
+     "creator": "NeONBRAND",
+     "source": "https://stocksnap.io/photo/mobile-phone-GCOH4COB2N"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Telephone Number",
+     "license": "cc0",
+     "creator": "Antoine Barrès",
+     "source": "https://stocksnap.io/photo/telephone-number-L6966LD98C"
+    },
+    {
+     "file": "51.jpg",
+     "title": "Free telecommunications tower image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5921259/photo-image-public-domain-free-communication"
+    },
+    {
+     "file": "22.jpg",
+     "title": "Telephones Payphones",
+     "license": "cc0",
+     "creator": "Jay Mantri",
+     "source": "https://stocksnap.io/photo/telephones-payphones-125C5C398B"
+    }
+   ]
+  },
+  "tickets": {
+   "photos": [
+    {
+     "file": "01.jpg",
+     "title": "Crowd People",
+     "license": "cc0",
+     "creator": "Anthony Delanoix",
+     "source": "https://stocksnap.io/photo/crowd-people-IUJP9OI22I"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Raffle tickets",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/3338021/free-photo-image-theater-ticket-cc0"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Teatrocolon Buenosaires",
+     "license": "cc0",
+     "creator": "Travel Coffee Book",
+     "source": "https://stocksnap.io/photo/teatrocolon-buenosaires-B1234F8746"
+    },
+    {
+     "file": "30.jpg",
+     "title": "Soccerfield Stadium",
+     "license": "cc0",
+     "creator": "Liane Metzler",
+     "source": "https://stocksnap.io/photo/soccerfield-stadium-PS9F6BF99L"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Bluesfest Festival",
+     "license": "cc0",
+     "creator": "Nick Le",
+     "source": "https://stocksnap.io/photo/bluesfest-festival-6ZMXTUJ92C"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Cinema Sign",
+     "license": "cc0",
+     "creator": "Bruce Mars",
+     "source": "https://stocksnap.io/photo/cinema-sign-OBWDJNGDBN"
+    },
+    {
+     "file": "02.jpg",
+     "title": "Concert Show",
+     "license": "cc0",
+     "creator": "John Price",
+     "source": "https://stocksnap.io/photo/concert-show-4LZRZTD1MC"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Music Notes",
+     "license": "cc0",
+     "creator": "Radek Grzybowski",
+     "source": "https://stocksnap.io/photo/music-notes-5ORW0DPIR5"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Chairs Stadium",
+     "license": "cc0",
+     "creator": "Eric Haidara",
+     "source": "https://stocksnap.io/photo/chairs-stadium-4N4OPR89TM"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Concert Festival",
+     "license": "cc0",
+     "creator": "Burst",
+     "source": "https://stocksnap.io/photo/concert-festival-4CNNMKE9IQ"
+    },
+    {
+     "file": "51.jpg",
+     "title": "Ataturk kultur merkezi childrens cinema",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/8812167/ataturk-kultur-merkezi-childrens-cinema"
+    }
+   ]
+  },
+  "watersports-boats": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Sailing Boat",
+     "license": "cc0",
+     "creator": "JJ Skys the Limit",
+     "source": "https://stocksnap.io/photo/sailing-boat-6HIAAM72PR"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Kayak Lake",
+     "license": "cc0",
+     "creator": "Aaron Burden",
+     "source": "https://stocksnap.io/photo/kayak-lake-171KGI3VPL"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Surfboard Surfing",
+     "license": "cc0",
+     "creator": "Rob Bye",
+     "source": "https://stocksnap.io/photo/surfboard-surfing-AZN1QXU0U1"
+    },
+    {
+     "file": "30.jpg",
+     "title": "The wake from a motor boat.",
+     "license": "cc0",
+     "creator": "Paal Joachim Romdahl",
+     "source": "https://wordpress.org/photos/photo/80635441be/"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Canoe Lake",
+     "license": "cc0",
+     "creator": "Aaron Burden",
+     "source": "https://stocksnap.io/photo/canoe-lake-9BXP9XA8VP"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Marina Boats",
+     "license": "cc0",
+     "creator": "Skitter Photo",
+     "source": "https://stocksnap.io/photo/marina-boats-00DD267706"
+    },
+    {
+     "file": "01.jpg",
+     "title": "Sail Boats",
+     "license": "cc0",
+     "creator": "Mike Moloney",
+     "source": "https://stocksnap.io/photo/sail-boats-QX7KLDWFP2"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Kayak Lake",
+     "license": "cc0",
+     "creator": "Patrick Fore",
+     "source": "https://stocksnap.io/photo/kayak-lake-DTHNKC77UG"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Surfing Surfer",
+     "license": "cc0",
+     "creator": "Rob Bye",
+     "source": "https://stocksnap.io/photo/surfing-surfer-G6C0VB8IVA"
+    },
+    {
+     "file": "31.jpg",
+     "title": "Clear Green",
+     "license": "cc0",
+     "creator": "Anton Sulsky",
+     "source": "https://stocksnap.io/photo/clear-green-3584C14F39"
+    },
+    {
+     "file": "42.jpg",
+     "title": "Boat Canoe",
+     "license": "cc0",
+     "creator": "Blake Verdoorn",
+     "source": "https://stocksnap.io/photo/boat-canoe-TKLU3VRK29"
+    }
+   ]
+  },
+  "whitegoods-appliances": {
+   "photos": [
+    {
+     "file": "00.jpg",
+     "title": "Washing machine station",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6035728/photo-image-public-domain-house-technology"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Refrigerators in supermarket",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6082105/refrigerators-supermarket"
+    },
+    {
+     "file": "21.jpg",
+     "title": "Restaurant Kitchen",
+     "license": "cc0",
+     "creator": "Alex Robert",
+     "source": "https://stocksnap.io/photo/restaurant-kitchen-BQ9K4RFVAM"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Free espresso coffee machine image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5904154/photo-image-public-domain-coffee-free"
+    },
+    {
+     "file": "51.jpg",
+     "title": "Vintage vacuum cleaners",
+     "license": "cc0",
+     "creator": "vatoyiit",
+     "source": "https://wordpress.org/photos/photo/48462ebd3f/"
+    },
+    {
+     "file": "01.jpg",
+     "title": "Laundry service, washing machine. View",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/8809205/photo-image-public-domain-photography-train"
+    },
+    {
+     "file": "22.jpg",
+     "title": "Technology Electronics",
+     "license": "cc0",
+     "creator": "WDnet Studio",
+     "source": "https://stocksnap.io/photo/technology-electronics-0VPHDKU2FJ"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Coffee machine grinding coffee beans",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/3337168/free-photo-image-beer-coffee-alcohol"
+    },
+    {
+     "file": "02.jpg",
+     "title": "Free close washing machine image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5920313/photo-image-background-public-domain-free"
+    },
+    {
+     "file": "42.jpg",
+     "title": "Free coffee machine espresso cups",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5926293/photo-image-public-domain-free-drink"
+    }
+   ]
+  },
+  "womens-clothing": {
+   "photos": [
+    {
+     "file": "01.jpg",
+     "title": "Wedding Marriage",
+     "license": "cc0",
+     "creator": "Nathan Walker",
+     "source": "https://stocksnap.io/photo/wedding-marriage-T5ZR7KSJZQ"
+    },
+    {
+     "file": "10.jpg",
+     "title": "Women Shoe",
+     "license": "cc0",
+     "creator": "Caitlyn Wilson",
+     "source": "https://stocksnap.io/photo/women-shoe-CO3BTTFF3F"
+    },
+    {
+     "file": "20.jpg",
+     "title": "Urban Heels",
+     "license": "cc0",
+     "creator": "Kiki Zhang",
+     "source": "https://stocksnap.io/photo/urban-heels-WMA6XJ29UW"
+    },
+    {
+     "file": "40.jpg",
+     "title": "Free glitter high heels image",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5922522/photo-image-public-domain-gold-celebration"
+    },
+    {
+     "file": "50.jpg",
+     "title": "Minimal clothes rack",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/3283850/free-photo-image-clothes-closet-dressing-room"
+    },
+    {
+     "file": "02.jpg",
+     "title": "Woman Dress",
+     "license": "cc0",
+     "creator": "Valeria Boltneva",
+     "source": "https://stocksnap.io/photo/woman-dress-KDQ60E3BPD"
+    },
+    {
+     "file": "11.jpg",
+     "title": "Colorful women's shoes sale",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/6042769/photo-image-public-domain-fashion-free"
+    },
+    {
+     "file": "22.jpg",
+     "title": "Fashion Woman",
+     "license": "cc0",
+     "creator": "Beauty and Fashion",
+     "source": "https://stocksnap.io/photo/fashion-woman-UOQEL3GJBA"
+    },
+    {
+     "file": "41.jpg",
+     "title": "Free woman black high heels",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5921041/photo-image-public-domain-black-people"
+    },
+    {
+     "file": "51.jpg",
+     "title": "Fashion Clothes",
+     "license": "cc0",
+     "creator": "Hannah Morgan",
+     "source": "https://stocksnap.io/photo/fashion-clothes-ZN97ZIF3ZU"
+    },
+    {
+     "file": "42.jpg",
+     "title": "High Heels Shoes",
+     "license": "cc0",
+     "creator": null,
+     "source": "https://www.rawpixel.com/image/5970720/high-heels-shoes"
     }
    ]
   }

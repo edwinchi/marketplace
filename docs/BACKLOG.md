@@ -39,10 +39,12 @@ directive 4). **Owner** items need an account, credentials or a decision only th
 ## E4b — Category pages: lighter and sharper (Eng, Level 0) — done 2026-11-07
 - The photo banner and thumbnail strip under the category row are gone: a 408×600 photo was
   stretched to 1376×224. That was the page's biggest image, and the gallery query is gone with it.
-- Each category's hero background is now its own photos blended into one wide image in the
-  homepage banner's style (`scripts/gen-category-heroes.mjs` → `public/category-backgrounds/`).
-  It's served by next/image as AVIF and blended into the header and page with Tailwind masks.
-  The homepage uses one fixed banner (`lib/hero-banner.ts`).
+- Each category's hero background is 9-11 high-resolution CC0 / public-domain photos of its items
+  (Openverse, checked by eye; provenance in `scripts/category-background-sources.json`). They're
+  blended into one 2880×960 image in the homepage banner's style (`scripts/gen-category-heroes.mjs`
+  → `public/category-backgrounds/*-hd.webp`) and shown whole: `components/category-hero.tsx`,
+  3:1, no wash, nothing covering it. Served as AVIF by next/image. The homepage uses one fixed
+  banner (`lib/hero-banner.ts`).
 - The category row is no longer sticky, so it stays in place on the photo, as on the homepage.
 
 ## E5 — Safe development (Owner + Eng, Level 2)

@@ -12,7 +12,7 @@ import { getCurrentUserAndProfileForRender } from "@/lib/supabase/profile";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ListingGrid } from "@/components/listing-grid";
 import { CategoryDirectoryGrid } from "@/components/category-directory-grid";
-import { HeroBackdrop } from "@/components/hero-backdrop";
+import { CategoryHero } from "@/components/category-hero";
 import { CategoryQuickNav } from "@/components/category-quicknav";
 import { CategoryFeedTabs } from "@/components/category-feed-tabs";
 import { CarsLanding } from "@/components/cars-landing";
@@ -184,7 +184,7 @@ export default async function CategoryPage({
     return (
       <>
         {breadcrumbJsonLdScript}
-        {/* No photo hero (HeroBackdrop) here (unlike the other two branches) --
+        {/* No photo hero (CategoryHero) here (unlike the other two branches) --
             CarsLanding below already has its own dedicated, Cars-specific hero with real filter
             controls. Stacking both put two hero bands back to back before any actual listings,
             which is exactly the "too much space" this was built to avoid. */}
@@ -330,21 +330,16 @@ export default async function CategoryPage({
       <>
         {breadcrumbJsonLdScript}
         {itemListJsonLdScript}
-        {/* The photo runs on below the heading, behind the breadcrumb and category row: extra bottom
-            padding paired with an equal negative margin, so the content block below overlaps it
-            (that block is `relative` so it stacks above and stays clickable). */}
-        <div className="relative isolate overflow-hidden pb-36 -mb-36 sm:pb-[17rem] sm:-mb-[17rem]">
-          <HeroBackdrop src={heroBanner} />
-          <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
-            <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
-              {t("heroHeadingPrefix")}
-              <br />
-              {t("heroHeadingLine2", { name: categoryName })}
-            </h1>
-            <p className="hero-text-halo mt-1 text-sm font-medium text-[#046637] sm:text-base">{t("heroSubtext")}</p>
-          </div>
-        </div>
-        <div className="relative mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
+        {/* The category's blended photo background, shown whole (components/category-hero.tsx). */}
+        <CategoryHero src={heroBanner}>
+          <h1 className="hero-text-halo text-primary-ink text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
+            {t("heroHeadingPrefix")}
+            <br />
+            {t("heroHeadingLine2", { name: categoryName })}
+          </h1>
+          <p className="hero-text-halo mt-1 text-sm font-medium text-[#046637] sm:text-base">{t("heroSubtext")}</p>
+        </CategoryHero>
+        <div className="relative mx-auto w-full max-w-[1600px] px-4 pt-5 pb-8 sm:px-6 lg:px-8">
           <Breadcrumbs path={breadcrumbPath} />
           <CategoryQuickNav categories={topLevelCategories} activeId={topLevelActiveId} className="mt-4 mb-6" />
           <CategoryDirectoryGrid groups={groups} collapsedLimit={collapsedLimit} />
@@ -367,21 +362,16 @@ export default async function CategoryPage({
     <>
       {breadcrumbJsonLdScript}
       {itemListJsonLdScript}
-      {/* The photo runs on below the heading, behind the breadcrumb and category row: extra bottom
-            padding paired with an equal negative margin, so the content block below overlaps it
-            (that block is `relative` so it stacks above and stays clickable). */}
-        <div className="relative isolate overflow-hidden pb-36 -mb-36 sm:pb-[17rem] sm:-mb-[17rem]">
-          <HeroBackdrop src={heroBanner} />
-        <div className="hero-enter relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
-          <h1 className="hero-text-halo text-brand-gold text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
-            {t("heroHeadingPrefix")}
-            <br />
-            {t("heroHeadingLine2", { name: categoryName })}
-          </h1>
-          <p className="hero-text-halo mt-1 text-sm font-medium text-[#046637] sm:text-base">{t("heroSubtext")}</p>
-        </div>
-      </div>
-      <div className="relative mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
+      {/* The category's blended photo background, shown whole (components/category-hero.tsx). */}
+      <CategoryHero src={heroBanner}>
+        <h1 className="hero-text-halo text-primary-ink text-balance text-2xl font-extrabold tracking-tight sm:text-3xl">
+          {t("heroHeadingPrefix")}
+          <br />
+          {t("heroHeadingLine2", { name: categoryName })}
+        </h1>
+        <p className="hero-text-halo mt-1 text-sm font-medium text-[#046637] sm:text-base">{t("heroSubtext")}</p>
+      </CategoryHero>
+      <div className="relative mx-auto w-full max-w-[1600px] px-4 pt-5 pb-8 sm:px-6 lg:px-8">
       <Breadcrumbs path={breadcrumbPath} />
       <CategoryQuickNav categories={topLevelCategories} activeId={topLevelActiveId} className="mt-4 mb-6" />
 

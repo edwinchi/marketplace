@@ -27,7 +27,9 @@ const H = 960;
 const CREAM = { r: 239, g: 234, b: 226 };
 const TOP_H = Math.round(H * 0.56);
 const BOTTOM_H = H - TOP_H;
-const OVERLAP = 0.3; // fraction of a slot each photo runs under its neighbours
+const OVERLAP = 0.3; // fraction of a slot each photo runs under its side neighbours
+// Rows overlap too (top row 1.32x its band, bottom row starts 30% of its height above the line),
+// so there's no pale seam where the two rows meet.
 const FEATHER = 34; // edge-fade blur radius, px (the fade sits inside the overlap)
 const src = process.argv.find((a) => a.startsWith("--src="))?.slice(6);
 const only = process.argv.find((a) => a.startsWith("--only="))?.slice(7);
@@ -63,15 +65,17 @@ await fs.mkdir(OUT, { recursive: true });
 for (const [key, entry] of Object.entries(sources.categories)) {
   if (only && key !== only) continue;
   const files = entry.photos.map((p) => path.join(src, key, p.file));
-  if (files.length < 11) throw new Error(`${key}: needs 11 photos, has ${files.length}`);
+  // 11 slots; at least 9 different photos (owner: "at least 9 items"). With 9 or 10, the last
+  // slots reuse the first photos, which land on the half-hidden ends of the bottom row.
+  if (files.length < 9) throw new Error(`${key}: needs at least 9 photos, has ${files.length}`);
   const pitch = W / 5;
-  const tw = Math.round(pitch * (1 + OVERLAP)), th = Math.round(TOP_H * (1 + OVERLAP * 0.6));
-  const bw = Math.round(pitch * (1 + OVERLAP)), bh = Math.round(BOTTOM_H * (1 + OVERLAP * 0.8));
+  const tw = Math.round(pitch * (1 + OVERLAP)), th = Math.round(TOP_H * 1.32);
+  const bw = Math.round(pitch * (1 + OVERLAP)), bh = Math.round(BOTTOM_H * 1.5);
   const layers = [];
   // Bottom row first (drawn under the top row), shifted half a slot; its two ends run off-canvas.
   for (let k = 0; k < 6; k++) {
     const cx = k * pitch;
-    layers.push({ input: await tile(files[5 + k], bw, bh), w: bw, h: bh, left: Math.round(cx - bw / 2), top: Math.round(TOP_H + BOTTOM_H / 2 - bh / 2) });
+    layers.push({ input: await tile(files[(5 + k) % files.length], bw, bh), w: bw, h: bh, left: Math.round(cx - bw / 2), top: Math.round(TOP_H - bh * 0.3) });
   }
   for (let k = 0; k < 5; k++) {
     const cx = k * pitch + pitch / 2;
