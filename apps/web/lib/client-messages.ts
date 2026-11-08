@@ -9,6 +9,7 @@ export const CLIENT_NAMESPACES = [
   "Auth",
   "Categories",
   "Common",
+  "CookieConsent",
   "Feedback",
   "IntroVideo",
   "Listen",

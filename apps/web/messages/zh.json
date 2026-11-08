@@ -497,5 +497,12 @@
     "soundOn": "打开声音",
     "soundOff": "关闭声音",
     "close": "关闭介绍视频"
+  },
+  "CookieConsent": {
+    "label": "Cookie 选项",
+    "text": "我们使用必要的 Cookie 来保持您的登录状态，并希望征得您的同意，使用可选的分析 Cookie 来帮助我们改进 MarketitNow。",
+    "learnMore": "了解更多",
+    "essentialOnly": "仅必要",
+    "acceptAll": "全部接受"
   }
 }

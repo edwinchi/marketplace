@@ -497,5 +497,12 @@
     "soundOn": "Activer le son",
     "soundOff": "Couper le son",
     "close": "Fermer la vidéo de présentation"
+  },
+  "CookieConsent": {
+    "label": "Choix des cookies",
+    "text": "Nous utilisons des cookies essentiels pour vous garder connecté, et aimerions votre accord pour des cookies d'analyse facultatifs qui nous aident à améliorer MarketitNow.",
+    "learnMore": "En savoir plus",
+    "essentialOnly": "Essentiels uniquement",
+    "acceptAll": "Tout accepter"
   }
 }

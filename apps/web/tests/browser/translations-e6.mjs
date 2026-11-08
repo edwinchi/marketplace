@@ -1,5 +1,6 @@
 // E6 check: sort control and gallery labels render translated in English and Dutch, and the
-// gallery thumbnails/lightbox still work.
+// gallery thumbnails/lightbox still work. The cookie banner is in the page's language.
+import fs from "node:fs";
 const { chromium } = await import("playwright-core");
 const B = process.argv[2] ?? "http://localhost:3217";
 for (let i = 0; i < 60; i++) { try { if ((await fetch(B + "/robots.txt")).ok) break; } catch {} await new Promise((r) => setTimeout(r, 1000)); }
@@ -26,6 +27,23 @@ for (const [locale, want] of [["en", { sort: "Sort by", newest: "Newest first", 
   }
   check(`${locale}: next-photo button labelled "${want.next}"`, (await page.locator(`button[aria-label="${want.next}"]`).count()) >= 1);
   check(`${locale}: no console errors`, errs.length === 0, errs.join(" | "));
+  await ctx.close();
+}
+// Cookie banner: in the language the page is served in (a switched-off language gets English).
+for (const locale of ["en", "nl", "fr", "ar", "zh"]) {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx.addCookies([{ name: "afrodeals_locale", value: locale, url: B }]);
+  const page = await ctx.newPage();
+  await page.goto(B + "/", { waitUntil: "networkidle" });
+  const served = await page.locator("html").getAttribute("lang");
+  const t = JSON.parse(fs.readFileSync(new URL(`../../messages/${served}.json`, import.meta.url), "utf8")).CookieConsent;
+  const banner = page.getByRole("region", { name: t.label, exact: true });
+  const text = await banner.innerText().catch(() => "");
+  check(`cookie banner ${locale}→${served}: text, link and buttons translated`, text.includes(t.text) && text.includes(t.learnMore)
+    && (await banner.getByRole("button", { name: t.essentialOnly, exact: true }).count()) === 1
+    && (await banner.getByRole("button", { name: t.acceptAll, exact: true }).count()) === 1, text.slice(0, 80));
+  await banner.getByRole("button", { name: t.essentialOnly, exact: true }).click().catch(() => {});
+  check(`cookie banner ${locale}: "${t.essentialOnly}" hides it`, (await banner.count()) === 0);
   await ctx.close();
 }
 await browser.close();

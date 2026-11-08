@@ -497,5 +497,12 @@
     "soundOn": "Geluid aanzetten",
     "soundOff": "Geluid uitzetten",
     "close": "Introductievideo sluiten"
+  },
+  "CookieConsent": {
+    "label": "Cookiekeuzes",
+    "text": "We gebruiken noodzakelijke cookies om je ingelogd te houden, en vragen je toestemming voor optionele analytische cookies waarmee we MarketitNow verbeteren.",
+    "learnMore": "Meer informatie",
+    "essentialOnly": "Alleen noodzakelijk",
+    "acceptAll": "Alles accepteren"
   }
 }

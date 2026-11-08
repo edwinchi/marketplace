@@ -497,5 +497,12 @@
     "soundOn": "Turn sound on",
     "soundOff": "Turn sound off",
     "close": "Close the intro video"
+  },
+  "CookieConsent": {
+    "label": "Cookie choices",
+    "text": "We use essential cookies to keep you signed in, and would like your OK for optional analytics cookies that help us improve MarketitNow.",
+    "learnMore": "Learn more",
+    "essentialOnly": "Essential only",
+    "acceptAll": "Accept all"
   }
 }
