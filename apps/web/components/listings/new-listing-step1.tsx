@@ -8,8 +8,8 @@ import { Sparkles, Camera, X, Car, Flag } from "lucide-react";
 import { findCategoryMatches, type CategoryMatch } from "@/app/listings/new/find-category-action";
 import { analyzeListingPhoto, type PhotoAnalysis } from "@/app/listings/new/analyze-photo-action";
 import { reportAiOutput } from "@/app/listings/new/report-ai-output-action";
-import { fileToResizedBase64 } from "@/lib/image";
-import { saveListingDraft } from "@/lib/listing-draft";
+import { compressImageFile, fileToResizedBase64 } from "@/lib/image";
+import { rekeyListingDraft, saveListingDraft } from "@/lib/listing-draft";
 import { MAX_ANALYSIS_PHOTOS as MAX_AI_PHOTOS } from "@/lib/ai-photo-analysis";
 import type { VehicleLookupResult } from "@/lib/rdw";
 import { vehicleLookupTitle } from "@/lib/vehicle-listing-defaults";
@@ -160,10 +160,15 @@ export function NewListingStep1({
     if (room <= 0) return;
     setAiResult(null);
     setAnalyzeError(null);
-    for (const file of Array.from(files).slice(0, room)) {
-      const reader = new FileReader();
-      reader.onload = () => setPhotoPreviews((prev) => (prev.length >= MAX_AI_PHOTOS ? prev : [...prev, { file, dataUrl: reader.result as string }]));
-      reader.readAsDataURL(file);
+    for (const original of Array.from(files).slice(0, room)) {
+      // Shrunk first (~300 KB, as listing photos are before upload anyway): the data URL rides to
+      // step 2 in sessionStorage, which holds ~5 MB, so one full-size phone photo (3-15 MB) made
+      // saving the draft fail silently and the photos never reached step 2.
+      compressImageFile(original).then((file) => {
+        const reader = new FileReader();
+        reader.onload = () => setPhotoPreviews((prev) => (prev.length >= MAX_AI_PHOTOS ? prev : [...prev, { file, dataUrl: reader.result as string }]));
+        reader.readAsDataURL(file);
+      });
     }
   }
 
@@ -218,6 +223,13 @@ export function NewListingStep1({
 
   function handleContinue() {
     if (!title.trim() || !chosenCategoryId) return;
+    // The AI draft was saved under the AI's own title and category. A seller who then edits the
+    // title (or picks another category) must keep the photos and description, not land on a blank
+    // step 2, so re-key it to what they're actually continuing with.
+    if (aiResult) rekeyListingDraft(title.trim(), chosenCategoryId);
+    // No AI draft (skipped, or the analysis failed): the photos added here still go to step 2
+    // instead of silently disappearing.
+    else if (photoPreviews.length) saveListingDraft({ title: title.trim(), categoryId: chosenCategoryId, imageDataUrls: photoPreviews.map((p) => p.dataUrl) });
     router.push(`/listings/new/details?title=${encodeURIComponent(title.trim())}&category=${chosenCategoryId}`);
   }
 

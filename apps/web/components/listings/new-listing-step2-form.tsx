@@ -45,6 +45,8 @@ type Props = {
   categoryId: string;
   categoryPath: string[];
   title: string;
+  // ISO code the "Country" field starts on (the seller's own country; see the details page).
+  defaultCountry: string;
   attributes: AttributeDef[];
   action: (state: ListingFormState, formData: FormData) => Promise<ListingFormState>;
   seller: { name: string; email: string; websiteUrl: string | null };
@@ -53,6 +55,18 @@ type Props = {
   plusPriceCents: number;
   premiumPriceCents: number;
 };
+
+// "data:image/jpeg;base64,..." -> File, without the network (see the draft hand-off below).
+function dataUrlToFile(url: string, name: string): File | null {
+  const m = /^data:([^;,]+)?(;base64)?,([\s\S]*)$/.exec(url);
+  if (!m) return null;
+  try {
+    const bytes = m[2] ? Uint8Array.from(atob(m[3]), (c) => c.charCodeAt(0)) : new TextEncoder().encode(decodeURIComponent(m[3]));
+    return new File([bytes], name, { type: m[1] || "image/jpeg" });
+  } catch {
+    return null;
+  }
+}
 
 function SectionHeading({ icon: Icon, children }: { icon: React.ComponentType<{ className?: string }>; children: React.ReactNode }) {
   return (
@@ -65,7 +79,7 @@ function SectionHeading({ icon: Icon, children }: { icon: React.ComponentType<{ 
   );
 }
 
-export function NewListingStep2Form({ categoryId, categoryPath, title, attributes, action, seller, initialUsesLeft, unlimited, plusPriceCents, premiumPriceCents }: Props) {
+export function NewListingStep2Form({ categoryId, categoryPath, title, defaultCountry, attributes, action, seller, initialUsesLeft, unlimited, plusPriceCents, premiumPriceCents }: Props) {
   const [state, formAction, pending] = useActionState(action, { error: null } as ListingFormState);
   const titleRef = useRef<HTMLInputElement>(null);
 
@@ -93,15 +107,11 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
     }
     if (draft.aiAnalysisToken) setAiAnalysisToken(draft.aiAnalysisToken);
     if (draft.imageDataUrls?.length) {
-      Promise.all(
-        draft.imageDataUrls.map((url, i) =>
-          fetch(url)
-            .then((r) => r.blob())
-            .then((blob) => new File([blob], `photo${i}.jpg`, { type: blob.type || "image/jpeg" })),
-        ),
-      )
-        .then(setDraftPhotoFiles)
-        .catch(() => {});
+      // Decoded in place, not with fetch(dataUrl): the CSP's connect-src doesn't allow data: URLs,
+      // so fetch was refused and the AI-assist photos silently never reached step 2 (found in the
+      // 2026-11-09 end-to-end test: listings published without their photo).
+      const files = draft.imageDataUrls.map((url, i) => dataUrlToFile(url, `photo${i}.jpg`)).filter((f): f is File => !!f);
+      if (files.length) setDraftPhotoFiles(files);
     }
     // Carried over by the step-1 AI-assist photo analysis -- already resolved to real
     // attribute_option ids server-side (lib/ai-attribute-guess.ts), same shape
@@ -158,8 +168,8 @@ export function NewListingStep2Form({ categoryId, categoryPath, title, attribute
   // sellers list in their own local currency), but changing country afterward does NOT change an
   // already-selected currency; the server validates whatever is actually submitted against the real
   // currency list rather than re-deriving it (see createListing in app/listings/actions.ts).
-  const [countryCode, setCountryCode] = useState(ANCHOR_COUNTRIES[0].code);
-  const [currencyCode, setCurrencyCode] = useState<CurrencyCode>(() => getCurrencyForCountry(ANCHOR_COUNTRIES[0].code));
+  const [countryCode, setCountryCode] = useState(defaultCountry);
+  const [currencyCode, setCurrencyCode] = useState<CurrencyCode>(() => getCurrencyForCountry(defaultCountry));
   const [priceType, setPriceType] = useState<PriceType>("fixed");
 
   const analyzeInFlight = useRef(false);

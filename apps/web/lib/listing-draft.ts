@@ -38,6 +38,23 @@ export function saveListingDraft(draft: ListingDraft) {
   }
 }
 
+// Moves the saved draft to the title/category the seller continues with (step 1 calls it only
+// when its own AI analysis produced the draft, so an old abandoned draft is never picked up).
+// Attribute guesses belong to the AI's category, so they're dropped if the category changed;
+// the photos and description are kept.
+export function rekeyListingDraft(title: string, categoryId: string) {
+  try {
+    const raw = sessionStorage.getItem(LISTING_DRAFT_KEY);
+    if (!raw) return;
+    const draft = JSON.parse(raw) as ListingDraft;
+    if (draft.title === title && draft.categoryId === categoryId) return;
+    const sameCategory = draft.categoryId === categoryId;
+    saveListingDraft({ ...draft, title, categoryId, attributes: sameCategory ? draft.attributes : undefined, vehicleLookup: sameCategory ? draft.vehicleLookup : undefined });
+  } catch {
+    // Same as saveListingDraft: the AI assist is a convenience, step 2 just loads blank.
+  }
+}
+
 export function takeListingDraft(title: string, categoryId: string): ListingDraft | null {
   try {
     const raw = sessionStorage.getItem(LISTING_DRAFT_KEY);

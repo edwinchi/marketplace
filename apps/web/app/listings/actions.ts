@@ -266,7 +266,8 @@ async function uploadPhotos(
     const path = `${authUserId}/${listingId}/${i}.${ext}`;
     const { error: uploadError } = await supabase.storage.from("listings").upload(path, file, { upsert: true });
     if (uploadError) throw new Error(uploadError.message);
-    await supabase.from("listing_media").insert({ listing_id: listingId, storage_key: path, media_type: "image", sort_order: i });
+    const { error: mediaError } = await supabase.from("listing_media").insert({ listing_id: listingId, storage_key: path, media_type: "image", sort_order: i });
+    if (mediaError) throw new Error(mediaError.message);
   }
 }
 
