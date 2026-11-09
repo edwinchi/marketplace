@@ -6,8 +6,12 @@
 // plus lib/intro-videos.json (locale -> file names). Names carry a content hash so browsers and
 // the CDN never keep an old copy.
 //
+// Source: ops/intro-videos/ (git-ignored), the corrected masters. The Dutch one has the opening
+// caption fixed ("Gemakkkelijk" → "Gemakkelijk" label) and the Arabic one has its 0.8 s
+// "Join marketit" morph replaced by a dissolve. The owner's untouched originals are in the repo root.
+//
 // ffmpeg isn't a project dependency: pass its path.
-// usage (from apps/web): node scripts/gen-intro-videos.mjs --ffmpeg=<path to ffmpeg> [--src=../..]
+// usage (from apps/web): node scripts/gen-intro-videos.mjs --ffmpeg=<path to ffmpeg> [--src=../../ops/intro-videos]
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
@@ -17,7 +21,7 @@ import sharp from "sharp";
 
 const arg = (n, d) => process.argv.find((a) => a.startsWith(`--${n}=`))?.slice(n.length + 3) ?? d;
 const FFMPEG = arg("ffmpeg", process.env.FFMPEG);
-const SRC = path.resolve(arg("src", "../.."));
+const SRC = path.resolve(arg("src", "../../ops/intro-videos"));
 if (!FFMPEG) throw new Error("pass --ffmpeg=<path to ffmpeg>");
 
 // Site locale -> the video named after that language. Locales without their own video

@@ -93,9 +93,11 @@ exists (monthly routine above). If it's missing, writes go to `audit_logs_defaul
 On every full page load (arriving, refreshing, changing language), `components/intro-video.tsx` pops up the intro video in the
 page's language, centred and looping until closed, with the site blurred behind it (not on
 `/admin`). It plays with sound; where the browser refuses sound before any interaction (most
-first-time visitors), it plays muted and the sound comes on at the first tap, click or key press. The videos are made from the owner's originals in the repo root
-(`<Language> Intro 10 seconds.mp4`: English, Dutch, French, Arabic; other languages get English) by
+first-time visitors), it plays muted and the sound comes on at the first tap, click or key press. The videos are made from the masters in `ops/intro-videos/` (git-ignored;
+`<Language> Intro 10 seconds.mp4`: English, Dutch, French, Arabic; other languages get English) by
 `apps/web/scripts/gen-intro-videos.mjs`, which writes `public/intro/` and `lib/intro-videos.json`.
-To replace a video: put the new original in the repo root under the same name and rerun the script
-(it needs a path to ffmpeg). To add a language: add it to `VIDEOS` in the script. To turn the
+Those masters are the owner's originals (repo root, untouched) with two fixes: Dutch opening
+caption "Gemakkkelijk" covered by a "Gemakkelijk" label, and the Arabic 0.8 s "Join marketit" morph
+(frames 202-221) replaced by a dissolve. To replace a video: put the new master in
+`ops/intro-videos/` under the same name and rerun the script (it needs a path to ffmpeg). To add a language: add it to `VIDEOS` in the script. To turn the
 intro off: remove `<IntroVideo />` from `app/layout.tsx`. Check: `node tests/browser/intro-video.mjs`.

@@ -35,3 +35,5 @@ __pycache__/
 # Original photos behind the category backgrounds (~120 MB, CC0/PD; rebuild input for
 # apps/web/scripts/gen-category-heroes.mjs --src=../../ops/hero-photos). Kept locally, not in git.
 ops/hero-photos/
+# Corrected intro video masters (apps/web/scripts/gen-intro-videos.mjs reads them). Kept locally, not in git.
+ops/intro-videos/
