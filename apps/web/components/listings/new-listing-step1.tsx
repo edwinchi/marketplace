@@ -65,7 +65,7 @@ function ReportAiOutput({ result, extraText }: { result: PhotoAnalysis; extraTex
             startTransition(async () => {
               setError(null);
               const res = await reportAiOutput({
-                categoryId: result.categoryId,
+                categoryId: result.categoryId || null,
                 title: result.title,
                 description: result.description,
                 extraText,
@@ -201,10 +201,24 @@ export function NewListingStep1({
           return;
         }
         setTitle(data.title);
-        setManualCategoryId(data.categoryId);
-        setSelected(data.categoryId);
-        setMatches(null);
         setAiResult(data);
+        if (data.categoryId) {
+          setManualCategoryId(data.categoryId);
+          setSelected(data.categoryId);
+          setMatches(null);
+        } else {
+          // No category matched: keep the AI's title and description, and offer the category
+          // search's suggestions for that title so the seller only has to pick one.
+          setManualCategoryId("");
+          setSelected("manual");
+          setMatches(null);
+          findCategoryMatches(data.title)
+            .then((results) => {
+              setMatches(results);
+              if (results.length > 0) setSelected(results[0].id);
+            })
+            .catch(() => {});
+        }
         saveListingDraft({
           title: data.title,
           categoryId: data.categoryId,
@@ -356,9 +370,13 @@ export function NewListingStep1({
 
             {aiResult && (
               <div className="rounded-md border bg-background p-3 text-sm">
-                <p className="text-muted-foreground">
-                  Suggested category: <span className="font-medium text-foreground">{aiResult.categoryLabel}</span>
-                </p>
+                {aiResult.categoryLabel ? (
+                  <p className="text-muted-foreground">
+                    Suggested category: <span className="font-medium text-foreground">{aiResult.categoryLabel}</span>
+                  </p>
+                ) : (
+                  <p className="text-muted-foreground">AI couldn&apos;t pick a category for this item. Choose one below.</p>
+                )}
                 {aiResult.description && <p className="mt-1 text-xs text-muted-foreground">{aiResult.description}</p>}
                 {aiResult.attributes && Object.keys(aiResult.attributes).length > 0 && (
                   <p className="mt-1 text-xs text-muted-foreground">

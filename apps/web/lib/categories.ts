@@ -285,6 +285,20 @@ export async function getCategoryPath(categoryId: string, language?: string) {
   return path;
 }
 
+// Full "Top › Middle › Leaf" names for several categories at once (one cached load, not one per id).
+// Ids that don't exist (or aren't active) are left out of the map.
+export async function getCategoryPaths(categoryIds: string[], language?: string): Promise<Map<string, string[]>> {
+  const nodes = await loadCategoryNodes(language);
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  const paths = new Map<string, string[]>();
+  for (const id of categoryIds) {
+    const names: string[] = [];
+    for (let current = byId.get(id); current; current = current.parentId ? byId.get(current.parentId) : undefined) names.unshift(current.name);
+    if (names.length) paths.set(id, names);
+  }
+  return paths;
+}
+
 // This category's own id plus every descendant id, for filtering listings by a whole branch of
 // the tree (e.g. picking "Antiques & Art" should surface listings tagged under any of its
 // sub-subcategories too, not just ones tagged on that exact node).

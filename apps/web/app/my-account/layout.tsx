@@ -13,7 +13,8 @@ export default async function MyAccountLayout({ children }: { children: React.Re
       <aside className="w-full shrink-0 md:w-52">
         <AccountSidebar />
       </aside>
-      <main className="min-w-0 flex-1">{children}</main>
+      {/* div, not main: the root layout already wraps every page in the one <main id="main-content">. */}
+      <div className="min-w-0 flex-1">{children}</div>
     </div>
   );
 }

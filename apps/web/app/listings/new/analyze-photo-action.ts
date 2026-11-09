@@ -7,7 +7,7 @@ import { getCategoriesAndAttributes } from "@/lib/categories";
 import { isAdminEmail } from "@/lib/admin";
 import { parseJsonResponse } from "@/lib/ai-text";
 import { buildProviderAttempts, type ProviderAttempt } from "@/lib/ai-providers";
-import { getTextEmbedding } from "@/lib/embeddings";
+import { rankCategories } from "@/lib/ai-category-pick";
 import { buildAttributeGuessPrompt, resolveAttributeGuesses } from "@/lib/ai-attribute-guess";
 import { MAX_ANALYSIS_PHOTOS } from "@/lib/ai-photo-analysis";
 import { signAiAnalysis } from "@/lib/ai-analysis-token";
@@ -22,6 +22,8 @@ const FREE_USE_LIMIT = 5;
 export type PhotoAnalysis = {
   title: string;
   description: string;
+  // Empty when no category could be matched: the title and description are still returned, and the
+  // seller picks the category themselves.
   categoryId: string;
   categoryLabel: string;
   // Only present when the matched category has attributes a photo could plausibly inform, and the
@@ -237,7 +239,7 @@ export async function analyzeListingPhoto(images: { base64: string; mediaType: s
   // OpenRouter's free-tier per-request cap regardless of image size, agents.md §12).
   const prompt = `You are helping a seller on MarketitNow, a classifieds marketplace, list an item from ${photos.length > 1 ? "photos" : "a photo"}.
 Respond with ONLY a JSON object (no markdown fences, no commentary) with exactly these keys:
-{"title": "short listing title, max 80 characters, no marketing fluff", "description": "a rich, structured draft description in simple markdown -- see format below"}
+{"item": "what the item is, in 1-4 plain English words, e.g. 'paperback novel', 'backpack', 'city bike'", "title": "short listing title, max 80 characters, no marketing fluff", "description": "a rich, structured draft description in simple markdown -- see format below"}
 
 Description format (this is a draft the seller reviews and edits before anything publishes, so favor real, visible detail over filler):
 - 2-3 short sections, each starting with its own "## " header naming one real, visible aspect of the item (what it's for, a standout feature, its finish/style, etc.) -- write real headers specific to this item, not generic labels like "Overview". A couple of engaging, honest sentences under each.
@@ -245,7 +247,7 @@ Description format (this is a draft the seller reviews and edits before anything
 - Mention visible condition or wear honestly if there is any.
 - Never invent measurements, technical specs, power ratings, model numbers, or box contents you can't actually see in the photo${photos.length > 1 ? "s" : ""} -- a specific number that isn't genuinely visible (on a label, tag, or the item itself) does not belong in the description at all. It's fine, and expected, to leave precise specs for the seller to add themselves.
 ${extraText?.trim() ? `\nThe seller also typed these extra details (use them, but the photo${photos.length > 1 ? "s" : ""} still take priority for anything visible): ${extraText.trim().slice(0, 500)}\n` : ""}
-If the photo${photos.length > 1 ? "s don't" : " doesn't"} clearly show a sellable item, respond with {"title": "", "description": ""} instead.`;
+If the photo${photos.length > 1 ? "s don't" : " doesn't"} clearly show a sellable item, respond with {"item": "", "title": "", "description": ""} instead.`;
 
   // Try each model in order, moving on to the next on ANY failure (rate limit, no credit, model
   // deprecated/unavailable, anything) -- see the fallback list's own comment above for why this
@@ -277,7 +279,7 @@ If the photo${photos.length > 1 ? "s don't" : " doesn't"} clearly show a sellabl
     return { data: null, error: `Photo analysis failed (${result.lastStatus}). Try again in a moment.`, usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
   }
 
-  const parsed = parseJsonResponse<{ title?: string; description?: string }>(result.text);
+  const parsed = parseJsonResponse<{ item?: string; title?: string; description?: string }>(result.text);
   if (!parsed) {
     return { data: null, error: "Couldn't make sense of that photo — try a clearer, closer shot of the item.", usesLeft: usesLeftAfter, freeLimit: FREE_USE_LIMIT, unlimited };
   }
@@ -286,25 +288,19 @@ If the photo${photos.length > 1 ? "s don't" : " doesn't"} clearly show a sellabl
     return { data: null, error: "Couldn't identify a sellable item in that photo — try a different photo.", usesLeft: usesLeftAfter, freeLimit: FREE_USE_LIMIT, unlimited };
   }
 
-  // Category comes from a nearest-neighbor lookup against real categories' own precomputed
-  // embeddings (scripts/backfill-category-embeddings.mjs), not from the model naming one -- see
-  // the prompt comment above for why. Embedding this response's own title+description keeps it
-  // grounded in what the model actually saw in the photo.
-  const queryEmbedding = await getTextEmbedding(`${parsed.title}\n${parsed.description ?? ""}`);
-  const { data: categoryMatches } = queryEmbedding
-    ? await supabase.rpc("match_category_by_embedding", { query_embedding: queryEmbedding as unknown as string, match_count: 1 })
-    : { data: null };
-  const matched = categoryMatches?.[0] ? categoryOptions.find((c) => c.id === categoryMatches[0].id) : undefined;
-  if (!matched) {
-    return { data: null, error: "Identified the item but couldn't match it to a category — please pick one manually below.", usesLeft: usesLeftAfter, freeLimit: FREE_USE_LIMIT, unlimited };
-  }
+  // Category: a shortlist of real categories by embedding, then a text model picks one from that
+  // list (lib/ai-category-pick.ts). The "item" phrase keeps a place or brand named in the
+  // description from winning over what the item actually is.
+  const item = typeof parsed.item === "string" ? parsed.item.trim().slice(0, 60) : "";
+  const ranked = await rankCategories({ title: parsed.title, description: parsed.description ?? "", item: item || null });
+  const matched = ranked.map((id) => categoryOptions.find((c) => c.id === id)).find((c) => c !== undefined);
 
   // Second pass, same photos: the category (and so its attribute list) is only known now, so this
   // can't be folded into the first call above. Best-effort only -- an already-reserved use isn't
   // refunded for a failure here, since the seller still got a usable title/description/category out
   // of it either way; the attribute guesses are a bonus on top, not the thing being paid for.
   let attributes: Record<string, string | string[]> | undefined;
-  const categoryAttributes = attributesByCategory[matched.id] ?? [];
+  const categoryAttributes = matched ? (attributesByCategory[matched.id] ?? []) : [];
   const attributePrompt = buildAttributeGuessPrompt(categoryAttributes);
   if (attributePrompt) {
     const fullAttributePrompt = extraText?.trim() ? `${attributePrompt}\n\nThe seller's own notes: ${extraText.trim().slice(0, 500)}` : attributePrompt;
@@ -326,13 +322,15 @@ If the photo${photos.length > 1 ? "s don't" : " doesn't"} clearly show a sellabl
     model: result.model || null,
     title,
     description,
-    categoryId: matched.id,
-    categoryLabel: matched.label,
+    categoryId: matched?.id ?? "",
+    categoryLabel: matched?.label ?? "",
     attributes,
   });
 
   return {
-    data: { title, description, categoryId: matched.id, categoryLabel: matched.label, attributes, analysisToken },
+    // No category match no longer throws the AI's title and description away: they're returned and
+    // the seller chooses the category below.
+    data: { title, description, categoryId: matched?.id ?? "", categoryLabel: matched?.label ?? "", attributes, analysisToken },
     error: null,
     usesLeft: usesLeftAfter,
     freeLimit: FREE_USE_LIMIT,

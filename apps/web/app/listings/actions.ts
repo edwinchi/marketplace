@@ -131,7 +131,7 @@ function enqueueAiMetadata(listingId: string, profileId: string, token: FormData
         category_label: analysis.categoryLabel,
         attributes: analysis.attributes ?? {},
       },
-      suggested_category_id: analysis.categoryId,
+      suggested_category_id: analysis.categoryId || null,
       model_name: analysis.model?.slice(0, 100) ?? null,
       processed_at: new Date(analysis.issuedAt).toISOString(),
     });

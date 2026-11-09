@@ -430,7 +430,7 @@ export default async function HomePage({
         </aside>
 
         {/* Results */}
-        <main className="flex-1">
+        <div className="flex-1">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b pb-4">
             <div>
               {/* h2, not h1 -- the hero above already carries the page's one h1 (t("heroHeadline")). */}
@@ -546,7 +546,7 @@ export default async function HomePage({
               })()}
             </nav>
           )}
-        </main>
+        </div>
       </div>
     </div>
   );
