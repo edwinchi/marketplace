@@ -37,3 +37,7 @@ __pycache__/
 ops/hero-photos/
 # Corrected intro video masters (apps/web/scripts/gen-intro-videos.mjs reads them). Kept locally, not in git.
 ops/intro-videos/
+# TikTok content pack made by apps/web/scripts/tiktok-videos.mjs (videos + calendar). Not in git.
+ops/tiktok/
+# ffmpeg for the video scripts (npm ffmpeg-static@5.2.0). Not in git.
+ops/tools/
