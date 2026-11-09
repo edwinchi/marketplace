@@ -5,7 +5,7 @@ const { chromium } = await import("playwright-core");
 const B = process.argv[2] ?? "http://localhost:3217";
 for (let i = 0; i < 60; i++) { try { if ((await fetch(B + "/robots.txt")).ok) break; } catch {} await new Promise((r) => setTimeout(r, 1000)); }
 
-const NS = ["AccountMenu", "AccountSidebar", "Auth", "Categories", "Common", "Feedback", "GetApp", "Listen", "Listing", "Nav", "Welcome", "Home", "Terms", "Safety", "Help", "Footer", "Profile", "Bids"];
+const NS = ["AccountMenu", "AccountSidebar", "Auth", "Categories", "Common", "Feedback", "GetApp", "Listen", "Listing", "Nav", "Welcome", "Home", "Terms", "Safety", "Help", "Footer", "Profile", "Bids", "TikTok"];
 const sizes = {};
 for (const p of ["/", "/login", "/welcome"]) {
   const html = await (await fetch(B + p)).text();
@@ -23,7 +23,7 @@ const rawKey = new RegExp(`\\b(${NS.join("|")})\\.[a-zA-Z]+\\b`);
 await page.goto(B + "/", { waitUntil: "networkidle" });
 const listing = await page.locator('a[href*="/listings/"]:not([href$="/new"])').first().getAttribute("href");
 const cat = await page.locator('a[href^="/categories/"]').first().getAttribute("href");
-for (const p of ["/", listing, cat, "/login", "/login?tab=signup", "/welcome", "/app", "/feedback", "/safety", "/terms", "/help"]) {
+for (const p of ["/", listing, cat, "/login", "/login?tab=signup", "/welcome", "/tiktok", "/app", "/feedback", "/safety", "/terms", "/help"]) {
   if (!p) continue;
   await page.goto(B + p, { waitUntil: "networkidle" });
   const text = await page.evaluate(() => document.body.innerText);

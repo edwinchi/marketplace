@@ -32,7 +32,8 @@ export function IntroVideo() {
   const [autoplay, setAutoplay] = useState(true);
   const [muted, setMuted] = useState(true);
   const [playing, setPlaying] = useState(false);
-  const excluded = pathname.startsWith("/admin") || (typeof navigator !== "undefined" && navigator.webdriver === true);
+  // Not on admin pages, nor on /tiktok (those visitors have just watched it on TikTok).
+  const excluded = pathname.startsWith("/admin") || pathname.startsWith("/tiktok") || (typeof navigator !== "undefined" && navigator.webdriver === true);
 
   // Open a moment after the page has finished loading.
   useEffect(() => {

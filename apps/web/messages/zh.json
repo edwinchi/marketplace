@@ -504,5 +504,25 @@
     "learnMore": "了解更多",
     "essentialOnly": "仅必要",
     "acceptAll": "全部接受"
+  },
+  "TikTok": {
+    "metaTitle": "在 TikTok 上看到我们：免费买卖",
+    "metaDescription": "一分钟内在 MarketitNow 发布您的第一条广告。100% 免费，无任何费用，买家就在您附近。",
+    "kicker": "在 TikTok 上看到我们",
+    "title": "在您附近买卖。100% 免费。",
+    "subtitle": "无费用，无佣金。拍一张照片，一分钟内广告就准备好了。",
+    "ctaPost": "免费发布您的第一条广告",
+    "ctaBrowse": "看看有什么在卖",
+    "whyTitle": "为什么选择 MarketitNow",
+    "benefit1Title": "真的免费",
+    "benefit1Body": "发布广告不收费，成交时我们也不收取任何佣金。",
+    "benefit2Title": "一分钟搞定",
+    "benefit2Body": "添加一张照片，我们的 AI 会为您填写标题、类别和描述。",
+    "benefit3Title": "就在附近",
+    "benefit3Body": "找到附近的买家和卖家，并在应用内安全聊天。",
+    "newTitle": "MarketitNow 新上架",
+    "seeAll": "查看全部",
+    "finalTitle": "有不再使用的东西吗？",
+    "finalBody": "您附近有人正在找它。现在发布，立即上线。"
   }
 }

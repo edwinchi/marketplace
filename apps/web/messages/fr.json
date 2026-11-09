@@ -504,5 +504,25 @@
     "learnMore": "En savoir plus",
     "essentialOnly": "Essentiels uniquement",
     "acceptAll": "Tout accepter"
+  },
+  "TikTok": {
+    "metaTitle": "Vu sur TikTok : achetez et vendez gratuitement",
+    "metaDescription": "Publiez votre première annonce sur MarketitNow en une minute. 100 % gratuit, sans frais, des acheteurs près de chez vous.",
+    "kicker": "Vu sur TikTok",
+    "title": "Achetez et vendez près de chez vous. 100 % gratuit.",
+    "subtitle": "Sans frais, sans commission. Prenez une photo et votre annonce est prête en une minute.",
+    "ctaPost": "Publiez votre première annonce gratuitement",
+    "ctaBrowse": "Voir ce qui est à vendre",
+    "whyTitle": "Pourquoi MarketitNow",
+    "benefit1Title": "Vraiment gratuit",
+    "benefit1Body": "Publier une annonce ne coûte rien, et nous ne prenons aucune commission sur vos ventes.",
+    "benefit2Title": "Prêt en une minute",
+    "benefit2Body": "Ajoutez une photo et notre IA remplit le titre, la catégorie et la description pour vous.",
+    "benefit3Title": "Près de chez vous",
+    "benefit3Body": "Trouvez des acheteurs et des vendeurs à proximité et discutez en toute sécurité dans l'app.",
+    "newTitle": "Nouveau sur MarketitNow",
+    "seeAll": "Tout voir",
+    "finalTitle": "Quelque chose que vous n'utilisez plus ?",
+    "finalBody": "Quelqu'un près de chez vous le cherche. Publiez-le maintenant, il est en ligne tout de suite."
   }
 }

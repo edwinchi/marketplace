@@ -14,7 +14,7 @@ for (const [name, vp] of [["phone", { width: 390, height: 844 }], ["desktop", { 
   await page.goto(B + "/", { waitUntil: "networkidle" });
   const listing = await page.locator('a[href*="/listings/"]:not([href$="/new"])').first().getAttribute("href");
   const cat = await page.locator('a[href^="/categories/"]').first().getAttribute("href");
-  for (const p of ["/", listing, cat, "/login", "/login?tab=signup", "/welcome", "/safety", "/terms", "/help", "/app", "/feedback", "/documents/buying-checklist", "/forgot-password"]) {
+  for (const p of ["/", listing, cat, "/login", "/login?tab=signup", "/welcome", "/tiktok", "/safety", "/terms", "/help", "/app", "/feedback", "/documents/buying-checklist", "/forgot-password"]) {
     if (!p) continue;
     await page.goto(B + p, { waitUntil: "networkidle" });
     await page.addScriptTag({ content: AXE });

@@ -504,5 +504,25 @@
     "learnMore": "Learn more",
     "essentialOnly": "Essential only",
     "acceptAll": "Accept all"
+  },
+  "TikTok": {
+    "metaTitle": "Seen on TikTok: buy and sell for free",
+    "metaDescription": "Post your first ad on MarketitNow in a minute. 100% free, no fees, buyers near you.",
+    "kicker": "Seen on TikTok",
+    "title": "Buy and sell near you. 100% free.",
+    "subtitle": "No fees, no commission. Take a photo and your ad is ready in a minute.",
+    "ctaPost": "Post your first ad free",
+    "ctaBrowse": "See what's for sale",
+    "whyTitle": "Why MarketitNow",
+    "benefit1Title": "Free, really",
+    "benefit1Body": "Posting an ad costs nothing, and we take no commission when you sell.",
+    "benefit2Title": "Ready in a minute",
+    "benefit2Body": "Add a photo and our AI fills in the title, category and description for you.",
+    "benefit3Title": "Close to home",
+    "benefit3Body": "Find buyers and sellers nearby and chat safely in the app.",
+    "newTitle": "New on MarketitNow",
+    "seeAll": "See all",
+    "finalTitle": "Got something you no longer use?",
+    "finalBody": "Someone near you is looking for it. Post it now and it's live straight away."
   }
 }

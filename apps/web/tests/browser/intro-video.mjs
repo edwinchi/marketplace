@@ -151,6 +151,13 @@ for (const locale of ["en", "nl", "fr", "ar", "zh"]) {
   check(!path.startsWith("/admin") || !(await isOpen(page)), `admin pages: no intro video (${path})`);
   await ctx.close();
 }
+{
+  const { ctx, page } = await open("en", "phone");
+  await page.goto(B + "/tiktok", { waitUntil: "load" });
+  await page.waitForTimeout(3500);
+  check(!(await isOpen(page)), "/tiktok: no intro video (they've just seen it on TikTok)");
+  await ctx.close();
+}
 
 {
   // Automated browsers (navigator.webdriver) never get it, so it can't block other test suites.
