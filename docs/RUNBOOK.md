@@ -80,8 +80,8 @@ seller insights and Listen are included. The new-listing broadcast to all users 
 ## Database migrations (no CLI access on this machine)
 There's no database password or Supabase access token stored here (AGENTS.md). Apply a new file
 in `supabase/migrations/` by pasting it into **Supabase → SQL editor** and running it, then run
-`npm run check:security` in `apps/web` to confirm. Pending as of 2026-11-07:
-`20260101009800_locations_hide_postcode.sql` (risk R8).
+`npm run check:security` in `apps/web` to confirm. Nothing pending (the last one,
+`20260101009800_locations_hide_postcode.sql`, was applied 2026-11-09).
 
 ## Audit log
 Admin actions (settings changes, moderation, AI-use grants, backfills, admin sign-ins) are written
