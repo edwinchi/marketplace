@@ -56,7 +56,11 @@ directive 4). **Owner** items need an account, credentials or a decision only th
   `tests/client-messages.test.ts` still passes.
   - Done 2026-11-06: every `aria-label` is translated (`tests/no-hardcoded-labels.test.ts`
     enforces it).
-  - Left: the signed-in preference pages (`my-account/preferences/*`, `invoices`,
+  - Done 2026-11-10: step 1 of posting an ad (`PostAd` namespace, sent only on `/listings/new`),
+    the "Sell your car" plate pop-up (country names from the browser's `Intl.DisplayNames`), the
+    photo analysis's error messages, every pop-up's "Close" label, and the header's "Listed price".
+  - Left: step 2 of posting (`/listings/new/details`) and the plate lookup's own error messages;
+    the signed-in preference pages (`my-account/preferences/*`, `invoices`,
     `saved-searches`) still render their visible text in English only; the switch labels match
     that text, so translate both together.
 
@@ -79,4 +83,8 @@ directive 4). **Owner** items need an account, credentials or a decision only th
 ## E9 — Compliance (Owner, Level 3)
 - **US9.1** GDPR: records of processing, DPAs with Supabase/Stripe/Resend/OpenRouter/Vercel, the
   privacy policy reviewed by counsel; the data-deletion page completes a deletion end to end.
+- **US9.3** (Owner decision, Level 2 data retention) Deleting an account leaves that seller's
+  active listings online, with no account behind them (`deleteAccount` only marks the profile
+  deleted). Proposed: set them to `deleted` (hidden, not erased) in the same step, which matches
+  `/data-deletion` ("retained ... no longer tied to an account"). 0 such listings on 2026-11-10.
 - **US9.2** PCI-DSS: stays SAQ A (Stripe-hosted checkout only, no card data touches our servers).

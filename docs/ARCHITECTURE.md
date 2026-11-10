@@ -145,6 +145,7 @@ action IDs + origin check) and RLS-scoped Supabase queries.
 | Schema, RLS, functions | `supabase/migrations/` (97 numbered migrations) |
 | Payments | `lib/stripe.ts`, `lib/payments.ts`, `app/listings/payment-actions.ts`, `app/api/stripe/webhook` |
 | AI | `lib/ai-providers.ts`, `lib/ai-photo-analysis.ts`, `lib/ai-text.ts`, `lib/embeddings.ts` (OpenRouter) |
+| AI category choice | `lib/ai-category-pick.ts` (embedding shortlist via `match_category_by_embedding`, then a text model picks one by number; prompts and parsing in `lib/category-choice.ts`). Used by the photo analysis and by Find category on step 1 of posting |
 | Email | `lib/resend.ts`, `app/api/cron/send-emails` |
 | Abuse controls | `lib/turnstile.ts`, `lib/rate-limit.ts`, `lib/content-moderation.ts` |
 | i18n | `messages/{en,nl,fr,ar,zh}.json`, `i18n/request.ts`, `lib/client-messages.ts` |

@@ -10,7 +10,6 @@ export function safeRelativePath(raw: unknown, fallback = "/"): string {
   // Second character "/" or "\" makes it protocol-relative; control characters (tab, CR, LF and
   // the rest) are stripped by browsers, so "/\t/x" collapses to "//x".
   if (raw[1] === "/" || raw[1] === "\\") return fallback;
-  // eslint-disable-next-line no-control-regex
   if (/[\u0000-\u001f\u007f]/.test(raw)) return fallback;
   return raw;
 }

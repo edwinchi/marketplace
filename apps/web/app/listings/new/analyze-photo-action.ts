@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
@@ -171,8 +172,10 @@ async function callVisionModel(
 // this real list rather than free-generating a category name, so there's no risk of it inventing a
 // category that doesn't exist in the taxonomy.
 export async function analyzeListingPhoto(images: { base64: string; mediaType: string }[], extraText?: string): Promise<AnalyzePhotoResult> {
+  // Messages in the seller's language (messages/*.json, PostAd.errors).
+  const te = await getTranslations("PostAd.errors");
   const { user, profile } = await getCurrentUserAndProfile();
-  if (!user || !profile) return { data: null, error: "Sign in to use this.", usesLeft: 0, freeLimit: FREE_USE_LIMIT, unlimited: false };
+  if (!user || !profile) return { data: null, error: te("signIn"), usesLeft: 0, freeLimit: FREE_USE_LIMIT, unlimited: false };
 
   const supabase = await createClient();
   const { data: usageRow } = await supabase
@@ -187,13 +190,13 @@ export async function analyzeListingPhoto(images: { base64: string; mediaType: s
   const openRouterPaidModel = process.env.OPENROUTER_MODEL ? null : OPENROUTER_PAID_MODEL;
   const attempts = buildProviderAttempts(openRouterModels, openRouterPaidModel, true);
   if (attempts.length === 0)
-    return { data: null, error: "Photo analysis isn't set up on this server yet.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
+    return { data: null, error: te("notSetUp"), usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
 
   // Free AI period: no per-account counter, just the daily fair-use cap (see lib/ai-free-period.ts).
   let reservedCount = 0;
   if (freePeriod) {
     if (!(await checkRateLimit(`photo-analysis-free:${profile.id}`, AI_FREE_PERIOD_PHOTO_DAILY_LIMIT, 86400))) {
-      return { data: null, error: "You've used AI photo autofill a lot today — try again tomorrow.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
+      return { data: null, error: te("dailyCap"), usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
     }
   } else {
     // Reserved BEFORE any provider call, not after -- an atomic check-and-increment (the limit
@@ -208,12 +211,12 @@ export async function analyzeListingPhoto(images: { base64: string; mediaType: s
     });
     if (reserveError) {
       console.error(`Failed to reserve an AI photo-analysis use for profile ${profile.id}:`, reserveError);
-      return { data: null, error: "Couldn't check your AI usage — try again in a moment.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
+      return { data: null, error: te("usageCheck"), usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
     }
     if (reserved == null) {
       return {
         data: null,
-        error: `You've used all ${effectiveLimit} AI analyses on your account. See /my-account/ai-features for what's next.`,
+        error: te("allUsed", { limit: effectiveLimit }),
         usesLeft: 0,
         freeLimit: FREE_USE_LIMIT,
         unlimited: false,
@@ -272,20 +275,20 @@ If the photo${photos.length > 1 ? "s don't" : " doesn't"} clearly show a sellabl
     }
 
     if (result.networkError) {
-      return { data: null, error: "Couldn't reach the photo analysis service. Check your connection and try again.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
+      return { data: null, error: te("network"), usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
     }
-    if (result.lastStatus === 429) return { data: null, error: "Photo analysis is busy right now — try again in a moment.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
-    if (result.lastStatus === 402) return { data: null, error: "Photo analysis is temporarily unavailable — the account behind it needs more credits.", usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
-    return { data: null, error: `Photo analysis failed (${result.lastStatus}). Try again in a moment.`, usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
+    if (result.lastStatus === 429) return { data: null, error: te("busy"), usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
+    if (result.lastStatus === 402) return { data: null, error: te("unavailable"), usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
+    return { data: null, error: te("failed", { status: result.lastStatus }), usesLeft: usesLeftBefore, freeLimit: FREE_USE_LIMIT, unlimited };
   }
 
   const parsed = parseJsonResponse<{ item?: string; title?: string; description?: string }>(result.text);
   if (!parsed) {
-    return { data: null, error: "Couldn't make sense of that photo — try a clearer, closer shot of the item.", usesLeft: usesLeftAfter, freeLimit: FREE_USE_LIMIT, unlimited };
+    return { data: null, error: te("unclear"), usesLeft: usesLeftAfter, freeLimit: FREE_USE_LIMIT, unlimited };
   }
 
   if (!parsed.title) {
-    return { data: null, error: "Couldn't identify a sellable item in that photo — try a different photo.", usesLeft: usesLeftAfter, freeLimit: FREE_USE_LIMIT, unlimited };
+    return { data: null, error: te("noItem"), usesLeft: usesLeftAfter, freeLimit: FREE_USE_LIMIT, unlimited };
   }
 
   // Category: a shortlist of real categories by embedding, then a text model picks one from that

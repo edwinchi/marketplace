@@ -5,7 +5,7 @@ const { chromium } = await import("playwright-core");
 const B = process.argv[2] ?? "http://localhost:3217";
 for (let i = 0; i < 60; i++) { try { if ((await fetch(B + "/robots.txt")).ok) break; } catch {} await new Promise((r) => setTimeout(r, 1000)); }
 
-const NS = ["AccountMenu", "AccountSidebar", "Auth", "Categories", "Common", "Feedback", "GetApp", "Listen", "Listing", "Nav", "Welcome", "Home", "Terms", "Safety", "Help", "Footer", "Profile", "Bids", "TikTok"];
+const NS = ["AccountMenu", "AccountSidebar", "Auth", "Categories", "Common", "Feedback", "GetApp", "Listen", "Listing", "Nav", "Welcome", "Home", "Terms", "Safety", "Help", "Footer", "Profile", "Bids", "TikTok", "PostAd"];
 const sizes = {};
 for (const p of ["/", "/login", "/welcome"]) {
   const html = await (await fetch(B + p)).text();

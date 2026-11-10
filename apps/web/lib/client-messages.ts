@@ -23,6 +23,8 @@ export const CLIENT_NAMESPACES = [
 export const ROUTE_CLIENT_NAMESPACES = {
   welcome: ["Welcome"], // app/welcome: floating-cta-bar, sticky-anchor-nav (6.2 KB in English)
   app: ["GetApp"], // app/app: pwa/install-app (1.8 KB)
+  "listings/new": ["PostAd"], // app/listings/new: post-an-ad step 1 + the "Sell your car" plate pop-up
+
 } as const;
 
 type Messages = Record<string, unknown>;

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { Search } from "lucide-react";
 import { searchVehicleByPlate, searchVehicleByKba } from "@/app/categories/plate-lookup-action";
 import type { VehicleLookupResult } from "@/lib/rdw";
@@ -30,20 +31,31 @@ export function SellCarPlateModal({
   const [plate, setPlate] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const p = useTranslations("PostAd");
+  const locale = useLocale();
+  // Country names in the visitor's language, from the browser itself (the list's own names are English).
+  const regionNames = useMemo(() => {
+    try {
+      return new Intl.DisplayNames([locale], { type: "region" });
+    } catch {
+      return null;
+    }
+  }, [locale]);
+  const countryName = (c: { code: string; name: string }) => regionNames?.of(c.code) ?? c.name;
 
   const selectedCountry = VEHICLE_REGISTRY_COUNTRIES.find((c) => c.code === country);
   const isKbaBased = !!selectedCountry?.kbaBased;
 
   function handleUsePlate() {
     if (!plate.trim()) {
-      setError("Enter your license plate, or skip this step.");
+      setError(p("plateRequired"));
       return;
     }
     setError(null);
     startTransition(async () => {
       const { data, error: err } = isKbaBased ? await searchVehicleByKba(plate, country) : await searchVehicleByPlate(plate, country);
       if (err || !data) {
-        setError(err ?? "Couldn't look up that plate.");
+        setError(err ?? p("plateLookupFailed"));
         return;
       }
       onUsePlate(data);
@@ -65,11 +77,8 @@ export function SellCarPlateModal({
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Enter your license plate</DialogTitle>
-          <DialogDescription>
-            We&apos;ll look up your car in the official vehicle registry and fill in the make, model, and specs
-            for you. Or skip and enter everything yourself.
-          </DialogDescription>
+          <DialogTitle>{p("plateTitle")}</DialogTitle>
+          <DialogDescription>{p("plateDescription")}</DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-3">
@@ -83,13 +92,16 @@ export function SellCarPlateModal({
             }}
           >
             <SelectTrigger className="w-full">
-              <SelectValue>{(v: string | null) => VEHICLE_REGISTRY_COUNTRIES.find((c) => c.code === v)?.name}</SelectValue>
+              <SelectValue>{(v: string | null) => {
+                const c = VEHICLE_REGISTRY_COUNTRIES.find((x) => x.code === v);
+                return c ? countryName(c) : null;
+              }}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {VEHICLE_REGISTRY_COUNTRIES.map((c) => (
                 <SelectItem key={c.code} value={c.code}>
-                  {c.name}
-                  {!c.available && " (soon)"}
+                  {countryName(c)}
+                  {!c.available && ` ${p("plateSoon")}`}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -116,21 +128,18 @@ export function SellCarPlateModal({
             />
           </div>
           {isKbaBased && (
-            <p className="-mt-1 text-xs text-muted-foreground">
-              Germany doesn&apos;t allow plate lookups — enter the HSN/TSN vehicle-type key number from your
-              Fahrzeugschein (vehicle registration document) instead.
-            </p>
+            <p className="-mt-1 text-xs text-muted-foreground">{p("plateKbaNote")}</p>
           )}
 
           {error && <p className="text-sm text-destructive">{error}</p>}
 
           <div className="mt-1 flex items-center justify-end gap-2">
             <Button type="button" variant="outline" onClick={onSkip} disabled={pending}>
-              Skip
+              {p("plateSkip")}
             </Button>
             <Button type="button" onClick={handleUsePlate} disabled={pending} className="gap-1.5">
               <Search className="size-4" />
-              {pending ? "Looking up…" : "Use plate"}
+              {pending ? p("plateLookingUp") : p("plateUse")}
             </Button>
           </div>
         </div>

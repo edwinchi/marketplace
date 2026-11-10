@@ -32,11 +32,11 @@ export function CurrencySwitcher({ currency }: { currency: string | null }) {
             overflow (the same class of bug nav.tsx's Post-ad button had) — hide the label below
             sm, matching the Messages/Notifications links' icon-only mobile treatment. */}
         <SelectValue>
-          {(v: string | null) => <span className="hidden sm:inline">{v === "native" ? "Listed price" : v}</span>}
+          {(v: string | null) => <span className="hidden sm:inline">{v === "native" ? t("listedPrice") : v}</span>}
         </SelectValue>
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="native">Listed price</SelectItem>
+        <SelectItem value="native">{t("listedPrice")}</SelectItem>
         {SUPPORTED_CURRENCIES.map((c) => (
           <SelectItem key={c} value={c}>
             {c}

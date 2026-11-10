@@ -11,7 +11,6 @@
 // included, which is what an access request covers), and AI search vectors (title_embedding,
 // image_embedding: numbers derived from listing text and photos, not personal data).
 
-type Filter = { column: string; op: "eq" | "in" | "or"; value: unknown };
 // The tiny slice of the Supabase query builder this needs: select, then one or two filters.
 export type ExportDb = {
   from: (table: string) => {

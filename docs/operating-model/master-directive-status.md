@@ -9,6 +9,22 @@ Open items are tracked in [`docs/BACKLOG.md`](../BACKLOG.md) (E1–E9) and
 operating documents (including [`agent-governance.yaml`](agent-governance.yaml)) is in
 [`governance-audit-2026-11-07.md`](governance-audit-2026-11-07.md).
 
+## Cycle 2026-11-10 (posting an ad, end to end)
+
+Started from a real test: a book posted through the live screens as a new seller. What it found,
+and what was done, step by step:
+
+| Step | What |
+|---|---|
+| Analyze | End-to-end posting test found 5 posting bugs (draft lost, photos blocked by CSP / too big / dropped, Nigeria as default country), a wrong AI category, AI text thrown away, odd category search, nested `<main>`, English-only step 1 |
+| Design | Category matching measured offline before any change: full-path embeddings scored *worse* (21/24 vs 22/24), so the planned database backfill was dropped; shortlist + model pick scored 24/24 (photos) and 28/28 (typed titles, en/nl/fr) |
+| Threat model | R13 (AI calls behind a button): sign-in required, 40/hour per seller, reply parsed as a number only |
+| Implement | `c45f8012` posting fixes, `81bb1d65` category pick + nested `<main>`, then the step-1 translations |
+| Test | 107 unit tests (new: `listing-draft`, `category-choice`; the `client-messages` test now allows a pop-up nested in a route component); posting checked on a production build against the live database; step 1 checked on screen in nl/fr/ar/en (no English left, no raw keys, no page errors) |
+| Secure | Test accounts removed at the owner's request (27, with the app's own delete procedure); the one check that needed a seller used a temporary account, deleted in the same run |
+| Document | `ARCHITECTURE.md` code map, `THREAT-MODEL.md` R13, `BACKLOG.md` E6 + US9.3 |
+| Deploy | Waits for the owner's sign-off (Level 3) |
+
 ## The 20 directives
 
 | # | Directive | Status | Evidence (2026-11-06) | Left to do |

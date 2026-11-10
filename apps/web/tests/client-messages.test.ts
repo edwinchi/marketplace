@@ -46,6 +46,9 @@ describe("client translation messages", () => {
         if (importers.length === 0) wrong.push(`${path.relative(ROOT, f)} (${ns}) is imported nowhere`);
         for (const imp of importers) {
           const relImp = path.relative(ROOT, imp).replace(/\\/g, "/");
+          // Imported by another client component that uses the same namespace: that one is checked
+          // in its own turn, so this one renders inside the same RouteMessages provider.
+          if (clientFiles.includes(imp) && usedNamespaces(imp).includes(ns)) continue;
           if (!relImp.startsWith(`app/${route}/`)) wrong.push(`${relImp} uses ${ns} outside app/${route}/`);
           else if (!read(imp).includes(`namespaces={["${ns}"]}`)) wrong.push(`${relImp} doesn't wrap it in <RouteMessages namespaces={["${ns}"]}>`);
         }

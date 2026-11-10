@@ -22,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 function ReportAiOutput({ result, extraText }: { result: PhotoAnalysis; extraText: string }) {
+  const p = useTranslations("PostAd");
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [pending, startTransition] = useTransition();
@@ -29,7 +30,7 @@ function ReportAiOutput({ result, extraText }: { result: PhotoAnalysis; extraTex
   const [error, setError] = useState<string | null>(null);
 
   if (done) {
-    return <p className="mt-2 text-xs text-muted-foreground">Thanks — this has been reported for review.</p>;
+    return <p className="mt-2 text-xs text-muted-foreground">{p("reportThanks")}</p>;
   }
 
   if (!open) {
@@ -39,19 +40,19 @@ function ReportAiOutput({ result, extraText }: { result: PhotoAnalysis; extraTex
         onClick={() => setOpen(true)}
         className="mt-2 flex items-center gap-1 text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
       >
-        <Flag className="size-3" /> Something wrong with this? Report it
+        <Flag className="size-3" /> {p("reportOpen")}
       </button>
     );
   }
 
   return (
     <div className="mt-2 flex flex-col gap-2 rounded-md border border-dashed p-3">
-      <Label htmlFor="ai_report_reason" className="text-xs">What&apos;s wrong with the AI-generated text?</Label>
+      <Label htmlFor="ai_report_reason" className="text-xs">{p("reportLabel")}</Label>
       <Textarea
         id="ai_report_reason"
         value={reason}
         onChange={(e) => setReason(e.target.value)}
-        placeholder="E.g. wrong item, offensive language, made-up details..."
+        placeholder={p("reportPlaceholder")}
         rows={2}
         className="text-sm"
       />
@@ -76,10 +77,10 @@ function ReportAiOutput({ result, extraText }: { result: PhotoAnalysis; extraTex
             })
           }
         >
-          {pending ? "Sending…" : "Submit report"}
+          {pending ? p("reportSending") : p("reportSubmit")}
         </Button>
         <Button type="button" size="sm" variant="ghost" onClick={() => setOpen(false)}>
-          Cancel
+          {p("cancel")}
         </Button>
       </div>
     </div>
@@ -96,6 +97,7 @@ export function NewListingStep1({
   freeLimit: number;
 }) {
   const t = useTranslations("Listing");
+  const p = useTranslations("PostAd");
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [matches, setMatches] = useState<CategoryMatch[] | null>(null);
@@ -197,7 +199,7 @@ export function NewListingStep1({
         const { data, error, usesLeft: left } = await analyzeListingPhoto(images, extraText);
         setUsesLeft(left);
         if (error || !data) {
-          setAnalyzeError(error ?? "Couldn't analyze those photos.");
+          setAnalyzeError(error ?? p("analyzeFailed"));
           return;
         }
         setTitle(data.title);
@@ -228,7 +230,7 @@ export function NewListingStep1({
           imageDataUrls: photoPreviews.map((p) => p.dataUrl),
         });
       } catch {
-        setAnalyzeError("Couldn't analyze those photos — try again or fill in the details yourself below.");
+        setAnalyzeError(p("analyzeFailed"));
       } finally {
         analyzeInFlight.current = false;
       }
@@ -253,7 +255,7 @@ export function NewListingStep1({
         <div className="mb-3 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Sparkles className="size-4 text-primary-ink" />
-            <h2 className="text-sm font-semibold">Optional: skip the typing with AI</h2>
+            <h2 className="text-sm font-semibold">{p("aiHeading")}</h2>
           </div>
           {usesLeft > 0 ? (
             <label className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
@@ -263,41 +265,39 @@ export function NewListingStep1({
                 onChange={(e) => setUseAi(e.target.checked)}
                 className="size-3.5"
               />
-              Use AI
+              {p("useAi")}
             </label>
           ) : (
             <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
-              0 free uses left
+              {p("noUsesLeft")}
             </span>
           )}
         </div>
         {usesLeft > 0 && usesLeft <= 2 && (
           <p className="mb-2 text-xs text-amber-600">
-            {usesLeft} free AI {usesLeft === 1 ? "use" : "uses"} left —{" "}
-            <Link href="/my-account/ai-features" className="underline underline-offset-2">
-              see what&apos;s next
-            </Link>
-            .
+            {p.rich("usesLeftFew", {
+              count: usesLeft,
+              link: (chunks) => (
+                <Link href="/my-account/ai-features" className="underline underline-offset-2">
+                  {chunks}
+                </Link>
+              ),
+            })}
           </p>
         )}
         {usesLeft === 0 && (
           <div className="flex flex-col gap-2 rounded-md border border-dashed p-3 text-sm">
-            <p className="text-muted-foreground">
-              You&apos;ve used all {freeLimit} free AI photo analyses. Fill in the title and category
-              yourself below, or upgrade for continued AI autofill.
-            </p>
+            <p className="text-muted-foreground">{p("usedAll", { limit: freeLimit })}</p>
             <Link
               href="/my-account/ai-features"
               className="w-fit rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-transform duration-150 hover:-translate-y-0.5"
             >
-              See upgrade options
+              {p("upgradeOptions")}
             </Link>
           </div>
         )}
         {usesLeft === 0 ? null : !useAi ? (
-          <p className="text-sm text-muted-foreground">
-            AI assistance is off — no photo will be analyzed. Fill in the title and category yourself below.
-          </p>
+          <p className="text-sm text-muted-foreground">{p("aiOff")}</p>
         ) : (
           <div className="flex flex-col gap-3">
             <div className="flex flex-wrap items-start gap-3">
@@ -320,7 +320,7 @@ export function NewListingStep1({
               {photoPreviews.length < MAX_AI_PHOTOS && (
                 <label className="flex size-20 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed text-muted-foreground hover:border-foreground/40 hover:text-foreground">
                   <Camera className="size-5" />
-                  <span className="text-[10px]">{photoPreviews.length > 0 ? "Add more" : "Add photo"}</span>
+                  <span className="text-[10px]">{photoPreviews.length > 0 ? p("addMore") : p("addPhoto")}</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -336,23 +336,19 @@ export function NewListingStep1({
             </div>
 
             {photoPreviews.length === 0 && (
-              <p className="text-sm text-muted-foreground">
-                Add up to {MAX_AI_PHOTOS} photos and AI drafts a title, category, description, and matching details for
-                you to review — saves you the typing, but it&apos;s entirely optional. Prefer to do it yourself? Just
-                skip this and fill in the fields below.
-              </p>
+              <p className="text-sm text-muted-foreground">{p("photosIntro", { max: MAX_AI_PHOTOS })}</p>
             )}
 
             {photoPreviews.length > 0 && (
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="extra_text" className="text-xs text-muted-foreground">
-                  Add details AI can&apos;t see from the photo (brand, exact size, condition...) — optional
+                  {p("extraLabel")}
                 </Label>
                 <Textarea
                   id="extra_text"
                   value={extraText}
                   onChange={(e) => setExtraText(e.target.value)}
-                  placeholder="E.g. Size 42, barely worn, original box included"
+                  placeholder={p("extraPlaceholder")}
                   rows={2}
                   className="text-sm"
                 />
@@ -362,7 +358,7 @@ export function NewListingStep1({
             {photoPreviews.length > 0 && !aiResult && (
               <Button type="button" size="sm" disabled={analyzing} onClick={handleAnalyze} className="self-start gap-1.5">
                 <Sparkles className="size-3.5" />
-                {analyzing ? "Analyzing…" : "Analyze with AI"}
+                {analyzing ? p("analyzing") : p("analyze")}
               </Button>
             )}
 
@@ -372,21 +368,19 @@ export function NewListingStep1({
               <div className="rounded-md border bg-background p-3 text-sm">
                 {aiResult.categoryLabel ? (
                   <p className="text-muted-foreground">
-                    Suggested category: <span className="font-medium text-foreground">{aiResult.categoryLabel}</span>
+                    {p.rich("suggestedCategory", {
+                      label: aiResult.categoryLabel,
+                      b: (chunks) => <span className="font-medium text-foreground">{chunks}</span>,
+                    })}
                   </p>
                 ) : (
-                  <p className="text-muted-foreground">AI couldn&apos;t pick a category for this item. Choose one below.</p>
+                  <p className="text-muted-foreground">{p("noCategory")}</p>
                 )}
                 {aiResult.description && <p className="mt-1 text-xs text-muted-foreground">{aiResult.description}</p>}
                 {aiResult.attributes && Object.keys(aiResult.attributes).length > 0 && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Also filled in {Object.keys(aiResult.attributes).length} matching detail
-                    {Object.keys(aiResult.attributes).length === 1 ? "" : "s"} below.
-                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">{p("filledDetails", { count: Object.keys(aiResult.attributes).length })}</p>
                 )}
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Title, description, and details are filled in below — review them, then continue.
-                </p>
+                <p className="mt-1 text-xs text-muted-foreground">{p("reviewBelow")}</p>
                 <ReportAiOutput result={aiResult} extraText={extraText} />
               </div>
             )}
@@ -395,7 +389,7 @@ export function NewListingStep1({
       </div>
 
       <div>
-        <h2 className="mb-3 text-lg font-semibold">What do you want to sell?</h2>
+        <h2 className="mb-3 text-lg font-semibold">{p("whatToSell")}</h2>
         {carsCategory && (
           <button
             type="button"
@@ -406,8 +400,8 @@ export function NewListingStep1({
               <Car className="size-5" />
             </span>
             <span>
-              <span className="block text-sm font-semibold">Sell your car</span>
-              <span className="block text-xs text-muted-foreground">Jump straight into the Cars category</span>
+              <span className="block text-sm font-semibold">{p("sellCar")}</span>
+              <span className="block text-xs text-muted-foreground">{p("sellCarHint")}</span>
             </span>
           </button>
         )}
@@ -419,7 +413,7 @@ export function NewListingStep1({
         />
         <div className="flex flex-col gap-2 sm:flex-row">
           <div className="flex-1">
-            <Label htmlFor="title" className="sr-only">Title</Label>
+            <Label htmlFor="title" className="sr-only">{p("titleLabel")}</Label>
             <Input
               id="title"
               ref={titleInputRef}
@@ -428,13 +422,13 @@ export function NewListingStep1({
                 setTitle(e.target.value);
                 setMatches(null);
               }}
-              placeholder={selected === carsCategory?.id ? "E.g. 2019 Volkswagen Golf 1.5 TSI" : "Enter a title"}
+              placeholder={selected === carsCategory?.id ? p("titlePlaceholderCar") : p("titlePlaceholder")}
               maxLength={80}
             />
-            <p className="mt-1 text-xs text-muted-foreground">E.g. color, brand, or size</p>
+            <p className="mt-1 text-xs text-muted-foreground">{p("titleHint")}</p>
           </div>
           <Button type="button" onClick={handleFindCategory} disabled={title.trim().length < 3 || searching}>
-            {searching ? "Searching…" : "Find category"}
+            {searching ? p("searching") : p("findCategory")}
           </Button>
         </div>
       </div>
@@ -442,7 +436,7 @@ export function NewListingStep1({
       <div>
         {matches && matches.length > 0 && (
           <fieldset className="mb-4 flex flex-col gap-3">
-            <legend className="mb-1 text-sm font-medium">Choose a category</legend>
+            <legend className="mb-1 text-sm font-medium">{p("chooseCategory")}</legend>
             {matches.map((m) => (
               <label key={m.id} className="flex cursor-pointer items-start gap-2 text-sm">
                 <input
@@ -466,17 +460,17 @@ export function NewListingStep1({
                 onChange={() => setSelected("manual")}
                 className="mt-0.5"
               />
-              <span>Or select a category yourself</span>
+              <span>{p("orSelectYourself")}</span>
             </label>
           </fieldset>
         )}
 
         {(!matches || matches.length === 0 || selected === "manual") && (
           <div className="flex flex-col gap-1.5">
-            {(!matches || matches.length === 0) && <Label htmlFor="manual_category">Or select a category yourself</Label>}
+            {(!matches || matches.length === 0) && <Label htmlFor="manual_category">{p("orSelectYourself")}</Label>}
             <Select value={manualCategoryId} onValueChange={(v) => { setManualCategoryId(v ?? ""); setSelected("manual"); }}>
               <SelectTrigger id="manual_category" className="w-full sm:w-96">
-                <SelectValue placeholder="Choose a category">
+                <SelectValue placeholder={p("chooseCategory")}>
                   {(value: string | null) => categoryOptions.find((c) => c.id === value)?.label}
                 </SelectValue>
               </SelectTrigger>
@@ -493,7 +487,7 @@ export function NewListingStep1({
       </div>
 
       <Button type="button" onClick={handleContinue} disabled={!title.trim() || !chosenCategoryId} className="self-start">
-        Continue
+        {p("continue")}
       </Button>
     </div>
   );
